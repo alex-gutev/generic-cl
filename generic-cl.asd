@@ -33,6 +33,7 @@
   :depends-on (:alexandria
 	       :anaphora
                :iterate
+               :cl-fad
 
                :agutil
                :static-dispatch)

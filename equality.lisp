@@ -76,6 +76,18 @@
                 (and in-hash?
                  (equalp a-value b-value)))))))
 
+(defmethod equalp ((a string) (b string))
+  "Returns true if both strings are equal by CL:STRING="
+
+  (string= a b))
+
+(defmethod equalp ((a pathname) (b pathname))
+  "Returns true if both `pathname' objects are equal by
+   CL-FAD:PATHNAME-EQUAL."
+
+  (cl-fad:pathname-equal a b))
+
+
 (defmethod equalp (a b)
   "Default equality comparison method. Returns true if objects A and B
    are the same object, compared using CL:EQ."
