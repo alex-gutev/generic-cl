@@ -28,18 +28,25 @@
 
 	:alexandria
 	:anaphora
+        :trivia
         :iterate)
 
   (:shadow
    ;; Equality
-   :equalp
-   :=
-   :/=)
+   :equalp := :/=
+
+   ;; Arithmetic
+   :+ :- :* :/)
 
   (:export
-   :equalp
-   :=
-   :/=))
+   :equalp := :/=
+
+   :add
+   :subtract
+   :multiply
+   :divide
+   :negate
+   :+ :- :* :/))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

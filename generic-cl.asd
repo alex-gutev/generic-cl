@@ -32,6 +32,7 @@
   :serial t
   :depends-on (:alexandria
 	       :anaphora
+               :trivia
                :iterate
                :cl-fad
 
@@ -43,7 +44,8 @@
 
                 :components
                 ((:file "package")
-                 (:file "equality"))))
+                 (:file "equality")
+                 (:file "arithmetic"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 
