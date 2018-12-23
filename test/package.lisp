@@ -1,4 +1,4 @@
-;;;; generic-cl.asd
+;;;; package.lisp
 ;;;;
 ;;;; Copyright 2018 Alexander Gutev
 ;;;;
@@ -23,39 +23,7 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-
-(asdf:defsystem #:generic-cl
-  :description "Standard Common Lisp functions implemented using generic functions."
-  :author "Alexander Gutev"
-  :license "MIT"
-  :version "0.0.1"
-  :serial t
-  :depends-on (:alexandria
-	       :anaphora
-               :iterate
-               :cl-fad
-
-               :agutil
-               :static-dispatch)
-
-  :components ((:module
-                "src"
-
-                :components
-                ((:file "package")
-                 (:file "equality"))))
-
-  :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
-
-(asdf:defsystem #:generic-cl.test
-    :description "Tests for generic-cl."
-    :author "Alexander Gutev"
-    :license "MIT"
-    :depends-on (:generic-cl :prove :prove-asdf)
-    :defsystem-depends-on (:prove-asdf)
-    :components ((:module
-                  "test"
-
-                  :components
-                  ((:file "package")
-                   (:file "equality")))))
+(defpackage :generic-cl.test
+  (:use :generic-cl
+        :prove
+        :alexandria))

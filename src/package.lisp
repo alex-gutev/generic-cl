@@ -34,6 +34,11 @@
    ;; Equality
    :equalp
    :=
+   :/=)
+
+  (:export
+   :equalp
+   :=
    :/=))
 
 (agutil:define-merged-package :generic-cl

@@ -52,7 +52,7 @@
 
   (do ((a a (cdr a))
        (b b (cdr b)))
-      ((not (and (listp a) (listp b))) (equalp a b))
+      ((not (and (consp a) (consp b))) (equalp a b))
     (unless (equalp (car a) (car b))
       (return nil))))
 
@@ -67,7 +67,10 @@
   "Hash-table comparison method. Returns true if both hash-tables have
    the same number of entries, and the value corresponding to each key
    in A is equal (by EQUALP) to the value corresponding to the same
-   key in B."
+   key in B.
+
+   Issue: Hash-table equality is not necessarily symmetric if the test
+   functions of the two hash-tables are different."
 
   (and (cl:= (hash-table-count a) (hash-table-count b))
        (iter (for (key a-value) in-hashtable a)
