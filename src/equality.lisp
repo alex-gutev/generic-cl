@@ -25,6 +25,9 @@
 
 (in-package :generic-cl.impl)
 
+
+;;;; Generic EQUALP Predicate
+
 (defgeneric equalp (a b)
   (:documentation
    "Generic equality comparison function. Returns true if objects A
@@ -98,6 +101,8 @@
   (cl:eq a b))
 
 
+;;;; N-Argument Functions
+
 (defun = (first &rest rest)
   "Returns true if each object in REST is equal, by EQUALP, to FIRST."
 
@@ -110,14 +115,18 @@
   (notevery (curry #'equalp first) rest))
 
 
+;;; Optimizations
+
 (define-compiler-macro = (&whole form first &rest rest)
   (declare (ignore form))
-  `(and (equalp ,first ,(first rest))
-        ,@(awhen (rest rest)
-            `((= ,first ,@it)))))
+
+  (flet ((make-equalp (arg)
+           `(equalp ,first ,arg)))
+    `(and ,@(mapcar #'make-equalp rest))))
 
 (define-compiler-macro /= (&whole form first &rest rest)
   (declare (ignore form))
-  `(or (not (equalp ,first ,(first rest)))
-       ,@(awhen (rest rest)
-           `((/= ,first ,@it)))))
+
+  (flet ((make-equalp (arg)
+           `(not (equalp ,first ,arg))))
+    `(or ,@(mapcar #'make-equalp rest))))
