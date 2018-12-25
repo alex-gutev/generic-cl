@@ -1,4 +1,4 @@
-;;;; package.lisp
+;;;; arithmetic.asd
 ;;;;
 ;;;; Copyright 2018 Alexander Gutev
 ;;;;
@@ -23,10 +23,45 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(defpackage :generic-cl.test
-  (:use :generic-cl
-        :prove
-        :alexandria))
+;;;; Unit tests for arithmetic functions
 
-(prove:plan nil)
-(prove:finalize)
+(in-package :generic-cl.test)
+
+(plan nil)
+
+(subtest "Test Arithmetic Functions"
+  (subtest "Test ADD Method"
+    (is (add 1 2) 3)
+    (is-error (add 1 'x) 'error)
+
+    (is (+) 0)
+    (is (+ 2) 2)
+    (is (+ 1 2 3 4) 10))
+
+  (subtest "Test SUBTRACT Method"
+    (is (subtract 3 4) -1)
+    (is-error (subtract 3 "z") 'error)
+
+    (is (- 3) -3)
+    (is (- 5 4 3) -2))
+
+  (subtest "Test MULTIPLY Method"
+    (is (multiply 2 4) 8)
+    (is-error (multiply 4 #\a) 'error)
+
+    (is (*) 1)
+    (is (* 3) 3)
+    (is (* 2 3 4 5) 120))
+
+  (subtest "Test DIVIDE Method"
+    (is (divide 6 3) 2)
+    (is-error (divide 'a 'b) 'error)
+
+    (is (/ 5) 1/5)
+    (is (/ 6 3 2) 1))
+
+  (subtest "Test NEGATE Method"
+    (is (negate 4) -4)
+    (is-error (negate 'x) 'error)))
+
+(finalize)

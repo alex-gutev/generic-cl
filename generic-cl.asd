@@ -50,14 +50,18 @@
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 
 (asdf:defsystem #:generic-cl.test
-    :description "Tests for generic-cl."
-    :author "Alexander Gutev"
-    :license "MIT"
-    :depends-on (:generic-cl :prove :prove-asdf)
-    :defsystem-depends-on (:prove-asdf)
-    :components ((:module
-                  "test"
+  :description "Tests for generic-cl."
+  :author "Alexander Gutev"
+  :license "MIT"
+  :depends-on (:generic-cl :prove :prove-asdf)
+  :defsystem-depends-on (:prove-asdf)
+  :components ((:module
+		"test"
 
-                  :components
-                  ((:file "package")
-                   (:file "equality")))))
+		:components
+		((:test-file "package")
+		 (:test-file "equality")
+		 (:test-file "arithmetic"))))
+
+  :perform (asdf:test-op :after (op c)
+			 (funcall (intern #.(string :run) :prove) c)))
