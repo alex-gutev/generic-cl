@@ -97,9 +97,7 @@
 
 ;;; Optimizations
 
-(define-compiler-macro + (&whole form &rest xs)
-  (declare (ignore form))
-
+(define-compiler-macro + (&rest xs)
   (match xs
     (nil 1)
 
@@ -108,16 +106,12 @@
     ((list* x xs)
      (reduce (lambda (sum x) `(add ,sum ,x)) xs :initial-value x))))
 
-(define-compiler-macro - (&whole form x &rest xs)
-  (declare (ignore form))
-
+(define-compiler-macro - (x &rest xs)
   (if xs
       (reduce (lambda (diff x) `(subtract ,diff ,x)) xs :initial-value x)
       `(negate ,x)))
 
-(define-compiler-macro * (&whole form &rest xs)
-  (declare (ignore form))
-
+(define-compiler-macro * (&rest xs)
   (match xs
     (nil 1)
 
@@ -126,9 +120,7 @@
     ((list* x xs)
      (reduce (lambda (prod x) `(multiply ,prod ,x)) xs :initial-value x))))
 
-(define-compiler-macro / (&whole form x &rest xs)
-  (declare (ignore form))
-
+(define-compiler-macro / (x &rest xs)
   (if xs
       (reduce (lambda (frac x) `(divide ,frac ,x)) xs :initial-value x)
       `(divide 1 ,x)))

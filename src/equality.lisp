@@ -117,16 +117,12 @@
 
 ;;; Optimizations
 
-(define-compiler-macro = (&whole form first &rest rest)
-  (declare (ignore form))
-
+(define-compiler-macro = (first &rest rest)
   (flet ((make-equalp (arg)
            `(equalp ,first ,arg)))
     `(and ,@(mapcar #'make-equalp rest))))
 
-(define-compiler-macro /= (&whole form first &rest rest)
-  (declare (ignore form))
-
+(define-compiler-macro /= (first &rest rest)
   (flet ((make-equalp (arg)
            `(not (equalp ,first ,arg))))
     `(or ,@(mapcar #'make-equalp rest))))
