@@ -45,7 +45,8 @@
                 :components
                 ((:file "package")
                  (:file "equality")
-                 (:file "arithmetic"))))
+                 (:file "arithmetic")
+		 (:file "comparison"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 
