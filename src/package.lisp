@@ -36,17 +36,30 @@
    :equalp := :/=
 
    ;; Arithmetic
-   :+ :- :* :/)
+   :+ :- :* :/
+
+   ;; Comparison
+   :< :<= :> :>=)
 
   (:export
+   ;; Equality
    :equalp := :/=
 
+   ;; Arithmetic
    :add
    :subtract
    :multiply
    :divide
    :negate
-   :+ :- :* :/))
+   :+ :- :* :/
+
+   ;; Comparison
+   :compare
+   :lessp
+   :greaterp
+   :less-equal-p
+   :greater-equal-p
+   :< :<= :> :>=))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl
