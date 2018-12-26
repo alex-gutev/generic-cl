@@ -35,6 +35,7 @@
     (is 2.0 2 :test #'equalp)
     (is 6/3 2 :test #'equalp)
 
+    (ok (= 1) "(= 1)")
     (ok (= 1 1.0 2/2))
     (ok (not (/= 1 1.0 2/2)))
 
@@ -43,6 +44,7 @@
     (isnt 1 'x :test #'equalp)
     (isnt 1 #\1 :test #'equalp)
 
+    (ok (/= 1) "(/= 1)")
     (ok (/= 1 "1" #\1))
     (ok (not (= 1 "1" #\1))))
 

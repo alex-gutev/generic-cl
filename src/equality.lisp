@@ -112,7 +112,8 @@
   "Returns true if at least one object in REST is not equal, by
    EQUALP, to FIRST."
 
-  (notevery (curry #'equalp first) rest))
+  (or (null rest)
+      (notevery (curry #'equalp first) rest)))
 
 
 ;;; Optimizations
@@ -120,9 +121,11 @@
 (define-compiler-macro = (first &rest rest)
   (flet ((make-equalp (arg)
            `(equalp ,first ,arg)))
-    `(and ,@(mapcar #'make-equalp rest))))
+    (or (null rest)
+	`(and ,@(mapcar #'make-equalp rest)))))
 
 (define-compiler-macro /= (first &rest rest)
   (flet ((make-equalp (arg)
            `(not (equalp ,first ,arg))))
-    `(or ,@(mapcar #'make-equalp rest))))
+    (or (null rest)
+	`(or ,@(mapcar #'make-equalp rest)))))

@@ -99,7 +99,7 @@
 
 (define-compiler-macro + (&rest xs)
   (match xs
-    (nil 1)
+    (nil 0)
 
     ((list x) x)
 
