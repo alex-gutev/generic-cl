@@ -148,25 +148,21 @@
 ;;; Optimizations
 
 (define-compiler-macro < (x1 &rest xs)
-  (if xs
+  (or (null xs)
       (cons 'and
-	    (mapcar (curry #'list 'less) (cons x1 xs) xs))
-      t))
+	    (mapcar (curry #'list 'less) (cons x1 xs) xs))))
 
 (define-compiler-macro > (x1 &rest xs)
-  (if xs
+  (or (null xs)
       (cons 'and
-	    (mapcar (curry #'list 'greater) (cons x1 xs) xs))
-      t))
+	    (mapcar (curry #'list 'greater) (cons x1 xs) xs))))
 
 (define-compiler-macro <= (x1 &rest xs)
-  (if xs
+  (or (null xs)
       (cons 'and
-	    (mapcar (curry #'list 'less-equal-p) (cons x1 xs) xs))
-      t))
+	    (mapcar (curry #'list 'less-equal-p) (cons x1 xs) xs))))
 
 (define-compiler-macro >= (x1 &rest xs)
-  (if xs
+  (or (null xs)
       (cons 'and
-	    (mapcar (curry #'list 'greater-equal-p) (cons x1 xs) xs))
-      t))
+	    (mapcar (curry #'list 'greater-equal-p) (cons x1 xs) xs))))
