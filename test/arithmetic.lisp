@@ -1,4 +1,4 @@
-;;;; arithmetic.asd
+;;;; arithmetic.lisp
 ;;;;
 ;;;; Copyright 2018 Alexander Gutev
 ;;;;
