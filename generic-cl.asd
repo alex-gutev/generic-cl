@@ -62,7 +62,8 @@
 		:components
 		((:test-file "package")
 		 (:test-file "equality")
-		 (:test-file "arithmetic"))))
+		 (:test-file "arithmetic")
+		 (:test-file "comparison"))))
 
   :perform (asdf:test-op :after (op c)
 			 (funcall (intern #.(string :run) :prove) c)))

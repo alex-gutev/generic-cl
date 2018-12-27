@@ -62,7 +62,7 @@
     ((equalp a b)
      :equal)
 
-    ((greaterp a b)
+    (t
      :greater)))
 
 (defmethod greaterp (a b)
@@ -116,6 +116,21 @@
 
 (defmethod greater-equal-p ((a character) (b character))
   (cl:char>= a b))
+
+
+;; Strings
+
+(defmethod lessp ((a string) (b string))
+  (cl:string< a b))
+
+(defmethod greaterp ((a string) (b string))
+  (cl:string> a b))
+
+(defmethod less-equal-p ((a string) (b string))
+  (cl:string<= a b))
+
+(defmethod greater-equal-p ((a string) (b string))
+  (cl:string>= a b))
 
 
 ;;;; N Argument Functions
