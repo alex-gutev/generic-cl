@@ -165,12 +165,12 @@
 (define-compiler-macro < (x1 &rest xs)
   (or (null xs)
       (cons 'and
-	    (mapcar (curry #'list 'less) (cons x1 xs) xs))))
+	    (mapcar (curry #'list 'lessp) (cons x1 xs) xs))))
 
 (define-compiler-macro > (x1 &rest xs)
   (or (null xs)
       (cons 'and
-	    (mapcar (curry #'list 'greater) (cons x1 xs) xs))))
+	    (mapcar (curry #'list 'greaterp) (cons x1 xs) xs))))
 
 (define-compiler-macro <= (x1 &rest xs)
   (or (null xs)
