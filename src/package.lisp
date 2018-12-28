@@ -25,11 +25,15 @@
 
 (defpackage :generic-cl.impl
   (:use :static-dispatch-cl
+	:agutil
 
 	:alexandria
 	:anaphora
         :trivia
         :iterate)
+
+  (:import-from :agutil
+		:defmacro!)
 
   (:shadow
    ;; Equality
@@ -39,7 +43,10 @@
    :+ :- :* :/
 
    ;; Comparison
-   :< :<= :> :>=)
+   :< :<= :> :>=
+
+   ;; Sequences
+   :endp)
 
   (:export
    ;; Equality
@@ -59,7 +66,19 @@
    :greaterp
    :less-equal-p
    :greater-equal-p
-   :< :<= :> :>=))
+   :< :<= :> :>=
+
+   ;; Sequences
+   :iterator
+   :make-iterator
+   :make-reverse-iterator
+
+   :current
+   :start
+   :advance
+   :endp
+
+   :doseq))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

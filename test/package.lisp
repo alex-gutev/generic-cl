@@ -26,7 +26,8 @@
 (defpackage :generic-cl.test
   (:use :generic-cl
         :prove
-        :alexandria))
+        :alexandria
+	:anaphora))
 
 (prove:plan nil)
 (prove:finalize)

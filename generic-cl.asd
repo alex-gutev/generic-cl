@@ -46,7 +46,8 @@
                 ((:file "package")
                  (:file "equality")
                  (:file "arithmetic")
-		 (:file "comparison"))))
+		 (:file "comparison")
+		 (:file "iterator"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 
@@ -63,7 +64,8 @@
 		((:test-file "package")
 		 (:test-file "equality")
 		 (:test-file "arithmetic")
-		 (:test-file "comparison"))))
+		 (:test-file "comparison")
+		 (:test-file "iterator"))))
 
   :perform (asdf:test-op :after (op c)
 			 (funcall (intern #.(string :run) :prove) c)))
