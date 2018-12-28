@@ -76,22 +76,22 @@
 
 (defun + (&rest xs)
   (if xs
-      (reduce #'add xs)
+      (cl:reduce #'add xs)
       0))
 
 (defun - (x &rest xs)
   (if xs
-      (reduce #'subtract xs :initial-value x)
+      (cl:reduce #'subtract xs :initial-value x)
       (negate x)))
 
 (defun * (&rest xs)
   (if xs
-      (reduce #'multiply xs)
+      (cl:reduce #'multiply xs)
       1))
 
 (defun / (x &rest xs)
   (if xs
-      (reduce #'divide xs :initial-value x)
+      (cl:reduce #'divide xs :initial-value x)
       (divide 1 x))) ; Should return reciprocal in this case
 
 
@@ -104,11 +104,11 @@
     ((list x) x)
 
     ((list* x xs)
-     (reduce (lambda (sum x) `(add ,sum ,x)) xs :initial-value x))))
+     (cl:reduce (lambda (sum x) `(add ,sum ,x)) xs :initial-value x))))
 
 (define-compiler-macro - (x &rest xs)
   (if xs
-      (reduce (lambda (diff x) `(subtract ,diff ,x)) xs :initial-value x)
+      (cl:reduce (lambda (diff x) `(subtract ,diff ,x)) xs :initial-value x)
       `(negate ,x)))
 
 (define-compiler-macro * (&rest xs)
@@ -118,9 +118,9 @@
     ((list x) x)
 
     ((list* x xs)
-     (reduce (lambda (prod x) `(multiply ,prod ,x)) xs :initial-value x))))
+     (cl:reduce (lambda (prod x) `(multiply ,prod ,x)) xs :initial-value x))))
 
 (define-compiler-macro / (x &rest xs)
   (if xs
-      (reduce (lambda (frac x) `(divide ,frac ,x)) xs :initial-value x)
+      (cl:reduce (lambda (frac x) `(divide ,frac ,x)) xs :initial-value x)
       `(divide 1 ,x)))

@@ -64,7 +64,7 @@
    of the same length and each element of A is equal (by EQUALP) to
    the corresponding element of B."
 
-  (and (cl:= (length a) (length b)) (every #'equalp a b)))
+  (and (cl:= (cl:length a) (cl:length b)) (cl:every #'equalp a b)))
 
 (defmethod equalp ((a hash-table) (b hash-table))
   "Hash-table comparison method. Returns true if both hash-tables have
@@ -106,14 +106,14 @@
 (defun = (first &rest rest)
   "Returns true if each object in REST is equal, by EQUALP, to FIRST."
 
-  (every (curry #'equalp first) rest))
+  (cl:every (curry #'equalp first) rest))
 
 (defun /= (first &rest rest)
   "Returns true if at least one object in REST is not equal, by
    EQUALP, to FIRST."
 
   (or (null rest)
-      (notevery (curry #'equalp first) rest)))
+      (cl:notevery (curry #'equalp first) rest)))
 
 
 ;;; Optimizations
