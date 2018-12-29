@@ -66,7 +66,10 @@
 
 (defgeneric endp (iterator)
   (:documentation
-   "Returns true if ITERATOR points to the end of the sequence."))
+   "Returns true if ITERATOR points to the end of the sequence.")
+
+  (:method (iter)
+    (cl:endp iter)))
 
 
 ;;; Non-generic utility functions
