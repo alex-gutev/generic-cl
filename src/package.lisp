@@ -46,7 +46,31 @@
    :< :<= :> :>=
 
    ;; Sequences
-   :endp)
+
+   :elt
+   :length
+   :endp
+
+   :reduce
+
+   :count
+   :count-if
+   :count-if-not
+
+   :find
+   :find-if
+   :find-if-not
+
+   :position
+   :position-if
+   :position-if-not
+
+   :mismatch
+
+   :every
+   :some
+   :notevery
+   :notany)
 
   (:export
    ;; Equality
@@ -78,7 +102,31 @@
    :advance
    :endp
 
-   :doseq))
+   :doseq
+
+   :elt
+   :length
+
+   :reduce
+
+   :count
+   :count-if
+   :count-if-not
+
+   :position
+   :position-if
+   :position-if-not
+
+   :find
+   :find-if
+   :find-if-not
+
+   :mismatch
+
+   :every
+   :some
+   :notevery
+   :notany))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

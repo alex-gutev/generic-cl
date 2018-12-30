@@ -44,10 +44,12 @@
 
                 :components
                 ((:file "package")
+		 (:file "util")
                  (:file "equality")
                  (:file "arithmetic")
 		 (:file "comparison")
-		 (:file "iterator"))))
+		 (:file "iterator")
+		 (:file "sequences"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 
