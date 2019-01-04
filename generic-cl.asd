@@ -32,6 +32,7 @@
   :serial t
   :depends-on (:alexandria
 	       :anaphora
+	       :cl-arrows
                :trivia
                :iterate
                :cl-fad

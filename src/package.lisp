@@ -29,6 +29,7 @@
 
 	:alexandria
 	:anaphora
+	:cl-arrows
         :trivia
         :iterate)
 

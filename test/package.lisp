@@ -27,7 +27,8 @@
   (:use :generic-cl
         :prove
         :alexandria
-	:anaphora))
+	:anaphora
+	:cl-arrows))
 
 (prove:plan nil)
 (prove:finalize)

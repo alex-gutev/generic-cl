@@ -66,6 +66,18 @@
 
   (and (cl:= (cl:length a) (cl:length b)) (cl:every #'equalp a b)))
 
+(defmethod equalp ((a array) (b array))
+  "Multi-dimensional array equality comparison method. Returns true if
+   both arrays have the same dimensions and each element of A is
+   equal (by EQUALP) to the corresponding element of B."
+
+  (let ((size (array-total-size a)))
+    (and (cl:equal (array-dimensions a) (array-dimensions b))
+	 (loop
+	    for i from 0 below (array-total-size a)
+	    always (equalp (row-major-aref a i)
+			   (row-major-aref b i))))))
+
 (defmethod equalp ((a hash-table) (b hash-table))
   "Hash-table comparison method. Returns true if both hash-tables have
    the same number of entries, and the value corresponding to each key

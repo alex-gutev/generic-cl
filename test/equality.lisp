@@ -73,7 +73,7 @@
     (isnt '(1 2 3) '(1 2) :test #'equalp)
     (isnt '(1 2 3) '(1 2 . 3) :test #'equalp))
 
-  (subtest "Array Equality"
+  (subtest "Vector Equality"
     (is #(1 2 3) (vector 1 2 3) :test #'equalp)
     (is #(1 2 3) (make-array 3 :element-type 'number
                              :adjustable t
