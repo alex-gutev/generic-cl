@@ -90,6 +90,14 @@
     (isnt #(1 2 3) (make-array '(2 2) :initial-contents '((1 2) (3 4))) :test #'equalp)
     (isnt #(#(1 2)) #(#(2 1)) :test #'equalp))
 
+  (subtest "Multi-Dimensional Array Equality"
+    (is #2A((1 2 3) (4 5 6)) (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6)))
+	:test #'equalp)
+    (is #2A((1 (3 4)) (5 #\c)) (make-array '(2 2) :initial-contents '((1 (3 4)) (5 #\c)))
+	:test #'equalp)
+    (isnt #2A((1 2) (3 4)) #2A((1 1) (3 4)) :test #'equalp)
+    (isnt #2A((1 2) (3 4)) #(1 2 3 4) :test #'equalp))
+
   (subtest "String Equality"
     (is "Hello" "Hello" :test #'equalp)
     (is "World" (string '|World|) :test #'equalp)

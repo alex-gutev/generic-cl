@@ -114,7 +114,31 @@
 	      (incf i)
 	    finally
 	      (ok (endp iter) "(ENDP ITER)")
-	      (is i count))))
+	      (is i count)))
+
+       (test-set-element (seq index value expected &rest args)
+	 (let ((seq (copy seq)))
+
+	   (diag (format nil "Test Sequence: ~s" seq))
+	   (diag (format nil "Iterator Arguments: ~a" args))
+	   (diag (format nil "Set element ~a to ~s" index value))
+
+	   (set-element (apply #'iterator seq args) index value)
+
+	   (is seq expected :test #'equalp)))
+
+       (copy (seq)
+	 (typecase seq
+	   (list (copy-list seq))
+	   (array (copy-array seq))
+	   (otherwise (copy-seq seq))))
+
+       (set-element (it index value)
+	 (loop
+	    for i below index
+	    do
+	      (advance it)
+	    finally (setf (current it) value))))
 
     (subtest "List iterator"
       (test-list-iter '(1 2 3 a b c))
@@ -133,7 +157,15 @@
       (test-list-iter '(a) :start 1 :end 1)
       (test-list-iter '(a) :start 1 :end 1 :from-end t)
 
-      (test-list-iter nil))
+      (test-list-iter nil)
+
+      (subtest "Modifying Elements"
+	(test-set-element '(1 2 3 4) 2 'x '(1 2 x 4))
+	(test-set-element '(1 2 3 4) 2 'x '(1 x 3 4) :from-end t)
+	(test-set-element '(1 2 3 4) 1 'y '(1 2 y 4) :start 1)
+	(test-set-element '(1 2 3 4) 2 'y '(1 y 3 4) :start 1 :from-end t)
+	(test-set-element '(1 2 3 4) 1 'z '(1 2 z 4) :start 1 :end 3)
+	(test-set-element '(1 2 3 4) 1 'z '(1 z 3 4) :start 1 :end 3 :from-end t)))
 
     (subtest "Vector Iterator"
       (test-vec-iter #(1 2 3 a b c))
@@ -156,13 +188,30 @@
       (test-vec-iter (make-array 4 :initial-contents '(a b c d)))
       (test-vec-iter (make-array 4 :adjustable t :fill-pointer t :initial-contents '(a b c d)))
       (test-vec-iter (make-array 4 :element-type 'integer :adjustable t :fill-pointer t :initial-contents '(1 2 3 4)))
-      (test-vec-iter "Hello World"))
+      (test-vec-iter "Hello World")
+      (test-vec-iter #*10111011)
+
+      (subtest "Modifying Elements"
+	(test-set-element #(1 2 3 4) 2 'x #(1 2 x 4))
+	(test-set-element #(1 2 3 4) 2 'x #(1 x 3 4) :from-end t)
+	(test-set-element #(1 2 3 4) 1 'y #(1 2 y 4) :start 1)
+	(test-set-element #(1 2 3 4) 2 'y #(1 y 3 4) :start 1 :from-end t)
+	(test-set-element #(1 2 3 4) 1 'z #(1 2 z 4) :start 1 :end 3)
+	(test-set-element #(1 2 3 4) 1 'z #(1 z 3 4) :start 1 :end 3 :from-end t)))
 
     (subtest "Multi-Dimensional Array Iterator"
       (test-array-iter #2A((1 2 3) (4 5 6)))
       (test-array-iter #2A((1 2 3) (4 5 6)) :from-end t)
       (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5)
-      (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5 :from-end t))
+      (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5 :from-end t)
+
+      (subtest "Modifying Elements"
+	(test-set-element #2A((1 2) (3 4)) 1 'x #2A((1 x) (3 4)))
+	(test-set-element #2A((1 2) (3 4)) 1 'x #2A((1 2) (x 4)) :from-end t)
+	(test-set-element #2A((1 2) (3 4)) 2 'x #2A((1 2) (3 x)) :start 1)
+	(test-set-element #2A((1 2) (3 4)) 2 'x #2A((1 x) (3 4)) :start 1 :from-end t)
+	(test-set-element #2A((1 2) (3 4)) 1 'x #2A((1 2) (x 4)) :start 1 :end 3)
+	(test-set-element #2A((1 2) (3 4)) 1 'x #2A((1 x) (3 4)) :start 1 :end 3 :from-end t)))
 
     (subtest "Hash-Table Iterator"
       (test-hash-iter (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))))
@@ -172,7 +221,20 @@
       (test-hash-iter (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3 :from-end t)
 
       (test-hash-iter (make-hash-table))
-      (test-hash-iter (make-hash-table) :from-end t))
+      (test-hash-iter (make-hash-table) :from-end t)
+
+      (subtest "Modifying Elements"
+	(let* ((hash (alist-hash-table '((a . 1) (b . 2) (c . 3))))
+	       (it (iterator hash)))
+	  (advance it)
+	  (setf (current it) 'x)
+	  (is (gethash (car (current it)) hash) 'x))
+
+	(let* ((hash (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))))
+	       (it (iterator hash :start 1 :end 3)))
+	  (advance it)
+	  (setf (current it) 'x)
+	  (is (gethash (car (current it)) hash) 'x))))
 
     (subtest "DOSEQ Macro"
       (let ((list '(1 2 3 4)))

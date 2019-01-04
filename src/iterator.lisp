@@ -60,6 +60,12 @@
     guaranteed to check whether the end of the sequence has been
     reached."))
 
+(defgeneric (setf current) (value iterator)
+  (:documentation
+   "Sets the value at the position of the sequence at which ITERATOR
+    is currently at."))
+
+
 (defgeneric advance (iterator)
   (:documentation
    "Advances ITERATOR to the next element of the sequence."))
@@ -109,11 +115,11 @@
 (defmethod make-iterator ((list list) start (end null))
   (make-list-iterator :cons (nthcdr start list)))
 
-(defmethod make-reverse-iterator ((list list) start end)
-  (make-list-iterator :cons (cl:nreverse (cl:subseq list start end))))
-
 (defmethod current ((iter list-iterator))
   (car (list-iterator-cons iter)))
+
+(defmethod (setf current) (value (iter list-iterator))
+  (setf (car (list-iterator-cons iter)) value))
 
 (defmethod advance ((iter list-iterator))
   (slet (list-iterator-cons iter)
@@ -150,6 +156,36 @@
     (or (cl:endp cons)
 	(cl:>= index end))))
 
+;; Reverse
+
+(defstruct (reverse-list-iterator (:include list-iterator))
+  "Reverse iterator for iterating over the elements of a list in
+   reverse order. Does not have any additional slots over
+   `list-iterator', as it is only used for generic dispatch.")
+
+(defmethod make-reverse-iterator ((list list) start (end null))
+  (let (cells)
+    (loop
+       for cell on (nthcdr start list)
+       do
+	 (push cell cells))
+    (make-reverse-list-iterator :cons cells)))
+
+(defmethod make-reverse-iterator ((list list) start end)
+  (let (cells)
+    (loop
+       for cell on (nthcdr start list)
+       for index from start below end
+       do
+	 (push cell cells))
+    (make-reverse-list-iterator :cons cells)))
+
+(defmethod current ((iter reverse-list-iterator))
+  (caar (reverse-list-iterator-cons iter)))
+
+(defmethod (setf current) (value (iter reverse-list-iterator))
+  (setf (caar (reverse-list-iterator-cons iter)) value))
+
 
 ;;; Vector Iterator
 
@@ -166,6 +202,12 @@
 		   (index vector-iterator-index)) iter
 
     (aref vector index)))
+
+(defmethod (setf current) (value (iter vector-iterator))
+  (with-accessors ((vector vector-iterator-array)
+		   (index vector-iterator-index)) iter
+
+    (setf (aref vector index) value)))
 
 (defmethod advance ((iter vector-iterator))
   (incf (vector-iterator-index iter)))
@@ -216,6 +258,11 @@
 		   (index array-iterator-index)) iter
     (row-major-aref array index)))
 
+(defmethod (setf current) (value (iter array-iterator))
+  (with-accessors ((array array-iterator-array)
+		   (index array-iterator-index)) iter
+    (setf (row-major-aref array index) value)))
+
 ;; Reverse
 
 (defstruct (reverse-array-iterator (:include reverse-vector-iterator))
@@ -237,8 +284,22 @@
 		   (index reverse-array-iterator-index)) iter
     (row-major-aref array index)))
 
+(defmethod (setf current) (value (iter reverse-array-iterator))
+  (with-accessors ((array reverse-array-iterator-array)
+		   (index reverse-array-iterator-index)) iter
+    (setf (row-major-aref array index) value)))
+
 
 ;;; Hash-table
+
+(defstruct (hash-table-iterator (:include list-iterator))
+  "Hash-table iterator. The actual hash-table is converted to an ALIST
+   upon creation of the iterator, since closing over the iteration
+   function provided by WITH-HASH-TABLE-ITERATOR is undefined, and
+   assigned to the CONS slot. A reference to the hash-table is only
+   kept to implement (SETF CURRENT)."
+
+  table)
 
 (defmethod make-iterator ((hash hash-table) start end)
   "Create an iterator for the elements of a `hash-table' where each
@@ -247,7 +308,14 @@
    guaranteed which elements will be iterated over if START is not 0
    and END is not NIL."
 
-  (make-iterator (hash-table-alist hash) start end))
+  (make-hash-table-iterator
+   :table hash
+   :cons
+   (loop
+      for key being the hash-key of hash
+      using (hash-value value)
+      for i from start below (or end (hash-table-count hash))
+      collect (cons key value))))
 
 (defmethod make-reverse-iterator ((hash hash-table) start end)
   "Create a reverse iterator for the elements of a `hash-table'. Since
@@ -256,6 +324,13 @@
 
   (make-iterator hash start end))
 
+(defmethod (setf current) (value (iter hash-table-iterator))
+  "Sets the value corresponding to the current key being
+   iterator (CAR (CURRENT ITER)) to VALUE."
+
+  (-> (caar (hash-table-iterator-cons iter))
+      (gethash (hash-table-iterator-table iter))
+      (setf value)))
 
 ;;;; Iteration Macros
 
