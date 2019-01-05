@@ -60,13 +60,35 @@
   (array-total-size array))
 
 
+;;; Subsequence
+
+(defmethod subseq ((seq sequence) start &optional end)
+  (cl:subseq seq start end))
+
+(defmethod (setf subseq) (value (seq sequence) start &optional end)
+  (setf (cl:subseq seq start end) value))
+
+
 ;;; Sequence Operations
+
+;; Replacing elements of a sequence
+
+(defmethod fill ((seq sequence) item &key (start 0) end)
+  (cl:fill seq item start end))
+
+(defmethod replace ((seq1 sequence) (seq2 sequence) &key (start1 0) (start2 0) end1 end2)
+  (cl:replace seq1 seq2 :start1 start1 :start2 start2 :end1 end1 :end2 end2))
+
+
+;; Reduction
 
 (defmethod reduce (function (sequence sequence) &rest args &key key from-end (start 0) end initial-value)
   (declare (ignore key from-end start end initial-value))
 
   (apply #'cl:reduce function sequence args))
 
+
+;; Count
 
 (defmethod count (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
   (cl:count item sequence
@@ -83,6 +105,8 @@
   (cl:count-if-not predicate sequence :from-end from-end :start start :end end :key key))
 
 
+;; Find
+
 (defmethod find (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
   (cl:find item sequence
 	   :from-end from-end
@@ -97,6 +121,8 @@
 (defmethod find-if-not (predicate (sequence sequence) &key from-end (start 0) end key)
   (cl:find-if-not predicate sequence :from-end from-end :start start :end end :key key))
 
+
+;; Position
 
 (defmethod position (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
   (cl:position item sequence
@@ -113,6 +139,18 @@
   (cl:position-if-not predicate sequence :from-end from-end :start start :end end :key key))
 
 
+;; Search for/Comparing subsequences
+
+(defmethod search ((seq1 sequence) (seq2 sequence) &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
+  (cl:search seq1 seq2
+	     :from-end from-end
+	     :test test
+	     :key key
+	     :start1 start1
+	     :start2 start2
+	     :end1 end1
+	     :end2 end2))
+
 (defmethod mismatch ((seq1 sequence) (seq2 sequence) &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
   (cl:mismatch seq1 seq2
 	       :from-end from-end
@@ -122,3 +160,150 @@
 	       :start2 start2
 	       :end1 end1
 	       :end2 end2))
+
+
+;; Reversing
+
+(defmethod reverse ((seq sequence))
+  (cl:reverse seq))
+
+(defmethod nreverse ((seq sequence))
+  (cl:nreverse seq))
+
+
+;; Sorting
+
+(defmethod sort ((seq sequence) &key (predicate #'<) key)
+  (cl:sort (copy-seq seq) predicate :key key))
+
+(defmethod stable-sort ((seq sequence) &key (predicate #'<) key)
+  (cl:stable-sort (copy-seq seq) predicate :key key))
+
+(defmethod nsort ((seq sequence) &key (predicate #'<) key)
+  (cl:sort seq predicate :key key))
+
+(defmethod stable-nsort ((seq sequence) &key (predicate #'<) key)
+  (cl:stable-sort seq predicate :key key))
+
+
+;; Substitute
+
+(defmethod substitute (new old (seq sequence) &key from-end (test #'equalp) (start 0) end count key)
+  (cl:substitute new old seq
+		 :from-end from-end
+		 :test test
+		 :start start
+		 :end end
+		 :count count
+		 :key key))
+
+(defmethod nsubstitute (new old (seq sequence) &key from-end (test #'equalp) (start 0) end count key)
+  (cl:nsubstitute new old seq
+		 :from-end from-end
+		 :test test
+		 :start start
+		 :end end
+		 :count count
+		 :key key))
+
+(defmethod substitute-if (new predicate (sequence sequence) &key from-end (start 0) end count key)
+  (cl:substitute-if new predicate sequence
+		    :from-end from-end
+		    :start start
+		    :end end
+		    :count count
+		    :key key))
+
+(defmethod nsubstitute-if (new predicate (sequence sequence) &key from-end (start 0) end count key)
+  (cl:nsubstitute-if new predicate sequence
+		    :from-end from-end
+		    :start start
+		    :end end
+		    :count count
+		    :key key))
+
+(defmethod substitute-if-not (new predicate (sequence sequence) &key from-end (start 0) end count key)
+  (cl:substitute-if-not new predicate sequence
+			:from-end from-end
+			:start start
+			:end end
+			:count count
+			:key key))
+
+(defmethod nsubstitute-if-not (new predicate (sequence sequence) &key from-end (start 0) end count key)
+  (cl:nsubstitute-if-not new predicate sequence
+			:from-end from-end
+			:start start
+			:end end
+			:count count
+			:key key))
+
+;; Removing Items
+
+(defmethod remove (item (sequence sequence) &key from-end (test #'equalp) end (start 0) count key)
+  (cl:remove item sequence
+	     :from-end from-end
+	     :test test
+	     :end end
+	     :start start
+	     :count count
+	     :key key))
+
+(defmethod delete (item (sequence sequence) &key from-end (test #'equalp) end (start 0) count key)
+  (cl:delete item sequence
+	     :from-end from-end
+	     :test test
+	     :end end
+	     :start start
+	     :count count
+	     :key key))
+
+(defmethod remove-if (test (sequence sequence) &key from-end end (start 0) count key)
+  (cl:remove-if test sequence
+		:from-end from-end
+		:end end
+		:start start
+		:count count
+		:key key))
+
+(defmethod delete-if (test (sequence sequence) &key from-end end (start 0) count key)
+  (cl:delete-if test sequence
+		:from-end from-end
+		:end end
+		:start start
+		:count count
+		:key key))
+
+(defmethod remove-if-not (test (sequence sequence) &key from-end end (start 0) count key)
+  (cl:remove-if-not test sequence
+		    :from-end from-end
+		    :end end
+		    :start start
+		    :count count
+		    :key key))
+
+(defmethod delete-if-not (test (sequence sequence) &key from-end end (start 0) count key)
+  (cl:delete-if-not test sequence
+		    :from-end from-end
+		    :end end
+		    :start start
+		    :count count
+		    :key key))
+
+;; Removing Duplicates
+
+(defmethod remove-duplicates ((seq sequence) &key from-end (test #'equalp) (start 0) end key)
+  (cl:remove-duplicates seq
+			:from-end from-end
+			:test test
+			:start start
+			:end end
+			:key key))
+
+(defmethod delete-duplicates ((seq sequence) &key from-end (test #'equalp) (start 0) end key)
+  (cl:delete-duplicates seq
+			:from-end from-end
+			:test test
+			:start start
+			:end end
+			:key key))
