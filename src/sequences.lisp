@@ -1,6 +1,6 @@
 ;;;; sequences.lisp
 ;;;;
-;;;; Copyright 2018 Alexander Gutev
+;;;; Copyright 2018-2019 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -46,13 +46,45 @@
    "Returns the number of elements in SEQUENCE."))
 
 
+;;; Subsequence
+
+(defgeneric subseq (sequence start &optional end)
+  (:documentation
+   "Returns a new sequence that is the sub-sequence of SEQUENCE
+    between START and END."))
+
+(defgeneric (setf subseq) (new-sequence sequence start &optional end)
+  (:documentation
+   "Replaces the elements of SEQUENCE between START and END with the
+    elements of NEW-SEQUENCE. The shorter of the length of
+    NEW-SEQUENCE and the number of elements between START and END
+    determines how many elements of SEQUENCE are actually modified."))
+
+
 ;;; Sequence Operations
+
+;; Replacing elements of a sequence
+
+(defgeneric fill (sequence item &key start end)
+  (:documentation
+   "Destructively replaces the elements of SEQUENCE between START and
+    END with ITEM. Returns SEQUENCE."))
+
+(defgeneric replace (sequence1 sequence2 &key start1 end1 start2 end2)
+  (:documentation
+   "Same as CL:REPLACE however can is extensible to other sequence
+    TYPES besides CL:SEQUENCE."))
+
+
+;; Reduction
 
 (defgeneric reduce (function sequence &key key from-end start end initial-value)
   (:documentation
    "Same as CL:REDUCE however is extensible to other sequence types
     besides CL:SEQUENCE."))
 
+
+;; Count
 
 (defgeneric count (item sequence &key from-end start end test key)
   (:documentation
@@ -72,6 +104,7 @@
    "Same as CL:COUNT-IF-NOT however is extensible to other sequence
     types besides CL:SEQUENCE."))
 
+;; Find
 
 (defgeneric find (item sequence &key from-end start end test key)
   (:documentation
@@ -91,6 +124,7 @@
    "Same as CL:FIND-IF-NOT however is extensible to other sequence
     types besides CL:SEQUENCE."))
 
+;; Position
 
 (defgeneric position (item sequence &key from-end start end test key)
   (:documentation
@@ -111,6 +145,16 @@
     types besides CL:SEQUENCE."))
 
 
+;; Searching for/Comparing subsequences
+
+(defgeneric search (sequence-1 sequence-2 &key from-end test key start1 start2 end1 end2)
+  (:documentation
+   "Same as CL:SEARCH however is extensible to other sequence types
+    besides CL:SEQUENCE.
+
+    The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
+    argument is removed."))
+
 (defgeneric mismatch (sequence-1 sequence-2 &key from-end test key start1 start2 end1 end2)
   (:documentation
    "Same as CL:MISMATCH however is extensible to other sequence types
@@ -120,222 +164,148 @@
     argument is removed."))
 
 
-;;;; Common Lisp Sequence Methods
+;; Reversing
 
-;;; Element Access
+(defgeneric reverse (sequence)
+  (:documentation
+   "Returns a new sequence of the same type as SEQUENCE and with the
+    same elements in reverse order."))
 
-(defmethod elt ((sequence sequence) index)
-  (cl:elt sequence index))
-
-(defmethod (setf elt) (value (sequence sequence) index)
-  (setf (cl:elt sequence index) value))
-
-
-;;; Length
-
-(defmethod length ((sequence sequence))
-  "Generic CL:SEQUENCE method, calls CL:LENGTH."
-
-  (cl:length sequence))
-
-(defmethod length ((hash hash-table))
-  "Returns the number of entries in the hash-table HASH."
-
-  (hash-table-count hash))
-
-(defmethod length ((vec vector))
-  "Returns the number of elements in the vector VEC."
-
-  (cl:length vec))
-
-(defmethod length ((array array))
-  "Returns the total number of elements in the multi-dimensional array
-   ARRAY."
-
-  (array-total-size array))
+(defgeneric nreverse (sequence)
+  (:documentation
+   "Same as REVERSE however SEQUENCE may be modified."))
 
 
-;;; Sequence Operations
+;; Sorting
 
-(defmethod reduce (function (sequence sequence) &rest args &key key from-end (start 0) end initial-value)
-  (declare (ignore key from-end start end initial-value))
+(defgeneric sort (sequence &key predicate key)
+  (:documentation
+   "Returns a new sequence of the same type as SEQUENCE, with the same
+    elements sorted according to the order determined by the function
+    PREDICATE.
 
-  (apply #'cl:reduce function sequence args))
+    PREDICATE is a function of two arguments, which should return true
+    if and only if the first argument is strictly less than the second.
 
+    If KEY is provided and is not NIL it is called on each element and
+    the result returned by the function is passed on to PREDICATE."))
 
-(defmethod count (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
-  (cl:count item sequence
-	    :from-end from-end
-	    :start start
-	    :end end
-	    :key key
-	    :test test))
-
-(defmethod count-if (predicate (sequence sequence) &key from-end (start 0) end key)
-  (cl:count-if predicate sequence :from-end from-end :start start :end end :key key))
-
-(defmethod count-if-not (predicate (sequence sequence) &key from-end (start 0) end key)
-  (cl:count-if-not predicate sequence :from-end from-end :start start :end end :key key))
+(defgeneric stable-sort (sequence &key predicate key)
+  (:documentation
+   "Same as SORT however the sort operation is guaranteed to be
+    stable, that is the order of elements which compare equal, under
+    PREDICATE, will be preserved."))
 
 
-(defmethod find (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
-  (cl:find item sequence
-	   :from-end from-end
-	   :test test
-	   :start start
-	   :end end
-	   :key key))
+(defgeneric nsort (sequence &key predicate key)
+  (:documentation
+   "Same as SORT however is permitted to destructively modify
+    SEQUENCE."))
 
-(defmethod find-if (predicate (sequence sequence) &key from-end (start 0) end key)
-  (cl:find-if predicate sequence :from-end from-end :start start :end end :key key))
-
-(defmethod find-if-not (predicate (sequence sequence) &key from-end (start 0) end key)
-  (cl:find-if-not predicate sequence :from-end from-end :start start :end end :key key))
+(defgeneric stable-nsort (sequence &key predicate key)
+  (:documentation
+   "Same as STABLE-SORT however is permitted to destructively modify
+    SEQUENCE."))
 
 
-(defmethod position (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
-  (cl:position item sequence
-	       :from-end from-end
-	       :test test
-	       :start start
-	       :end end
-	       :key key))
+;; Substitute (Find and Replace)
 
-(defmethod position-if (predicate (sequence sequence) &key from-end (start 0) end key)
-  (cl:position-if predicate sequence :from-end from-end :start start :end end :key key))
+(defgeneric substitute (new old sequence &key from-end test start end count key)
+  (:documentation
+   "Same as CL:SUBSTITUTE however is extensible to other sequence
+    types besides CL:SEQUENCE.
 
-(defmethod position-if-not (predicate (sequence sequence) &key from-end (start 0) end key)
-  (cl:position-if-not predicate sequence :from-end from-end :start start :end end :key key))
+    The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
+    argument is removed."))
 
+(defgeneric nsubstitute (new old sequence &key from-end test start end count key)
+  (:documentation
+   "Same as CL:NSUBSTITUTE however is extensible to other sequence
+    types besides CL:SEQUENCE.
 
-(defmethod mismatch ((seq1 sequence) (seq2 sequence) &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
-  (cl:mismatch seq1 seq2
-	       :from-end from-end
-	       :test test
-	       :key (or key #'identity)
-	       :start1 start1
-	       :start2 start2
-	       :end1 end1
-	       :end2 end2))
+    The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
+    argument is removed."))
 
+(defgeneric substitute-if (new predicate sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:SUBSTITUTE-IF however is extensible to other sequence
+    types besides CL:SEQUENCE."))
 
-;;; Generic methods based on iterators
+(defgeneric nsubstitute-if (new predicate sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:NSUBSTITUTE-IF however is extensible to other sequence
+    types besides CL:SEQUENCE."))
 
-(defmethod length (sequence)
-  "Returns the number of elements in SEQUENCE, where SEQUENCE is of a
-   type for which the iterator interface is implemented.
+(defgeneric substitute-if-not (new predicate sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:SUBSTITUTE-IF-NOT however is extensible to other
+    sequence types besides CL:SEQUENCE."))
 
-   The type is computed by iterating through the entire sequence, thus
-   this is a linear O(n) operation, in the number of elements in the
-   sequence."
-
-  (loop
-     with iter = (iterator sequence)
-     for count = 0 then (1+ count)
-     until (endp iter)
-     do
-       (advance iter)
-     finally (return count)))
-
-(defmethod reduce (fn sequence &key key from-end (start 0) end (initial-value nil init-sp))
-  (let ((key (or key #'identity))
-	(f (if from-end (lambda (x y) (funcall fn y x)) fn)) ; Flip function arguments if FROM-END is T
-	(iter (iterator sequence :start start :end end :from-end from-end)))
-
-    (flet ((reduce-seq (res)
-	     (advance iter)
-	     (loop
-		with elem
-		with res = res
-		until (endp iter)
-		do
-		  (setf elem (current iter))
-		  (setf res (funcall f res elem))
-		  (advance iter)
-		finally (return res))))
-
-      (if (endp iter) ; If sequence is empty
-	  ;; Return INITIAL-VALUE if supplied or call FN with no arguments
-	  (if init-sp initial-value (funcall fn))
-
-	  (let ((elem (funcall key (current iter))))
-	    (reduce-seq (if init-sp (funcall f initial-value elem) elem)))))))
+(defgeneric nsubstitute-if-not (new predicate sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:NSUBSTITUTE-IF-NOT however is extensible to other
+    sequence types besides CL:SEQUENCE."))
 
 
-(defmethod count (item sequence &key from-end (start 0) end key (test #'equalp))
-  (count-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
+;; Removing Items
 
-(defmethod count-if (test sequence &key from-end (start 0) end key)
-  (let ((key (or key #'identity))
-	(count 0))
-    (doseq (elem sequence :from-end from-end :start start :end end)
-      (when (funcall test (funcall key elem))
-	(incf count)))
-    count))
+(defgeneric remove (item sequence &key from-end test start end count key)
+  (:documentation
+   "Same as CL:REMOVE however is extensible to other sequence types
+    besides CL:SEQUENCE.
 
-(defmethod count-if-not (test sequence &key from-end (start 0) end key)
-  (count-if (test-not test) sequence
-	    :from-end from-end
-	    :start start
-	    :end end
-	    :key key))
+    The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
+    argument is removed."))
 
+(defgeneric delete (item sequence &key from-end test start end count key)
+  (:documentation
+   "Same as CL:DELETE however is extensible to other sequence types
+    besides CL:SEQUENCE.
 
-(defmethod find (item sequence &key from-end (start 0) end (test #'equalp) key)
-  (find-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
+    The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
+    argument is removed."))
 
-(defmethod find-if (test sequence &key from-end (start 0) end key)
-  (let ((key (or key #'identity)))
-   (doseq (elem sequence :from-end from-end :start start :end end)
-     (when (funcall test (funcall key elem))
-       (return elem)))))
+(defgeneric remove-if (test sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:REMOVE-IF however is extensible to other sequence types
+    besides CL:SEQUENCE."))
 
-(defmethod find-if-not (test sequence &key from-end (start 0) end key)
-  (find-if (test-not test) sequence :from-end from-end :start start :end end :key key))
+(defgeneric delete-if (test sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:DELETE-IF however is extensible to other sequence types
+    besides CL:SEQUENCE."))
 
+(defgeneric remove-if-not (test sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:REMOVE-IF-NOT however is extensible to other sequence types
+    besides CL:SEQUENCE."))
 
-(defmethod position (item sequence &key from-end (start 0) end (test #'equalp) key)
-  (position-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
-
-(defmethod position-if (test sequence &key from-end (start 0) end key)
-  (flet ((compute-pos (pos)
-	   (+ start
-	      (if from-end
-		  (- (or end (length sequence)) pos)
-		  pos))))
-    (let ((key (or key #'identity))
-	  (pos 0))
-      (doseq (elem sequence :from-end from-end :start start :end end)
-	(when (funcall test (funcall key elem))
-	  (return (compute-pos pos)))
-	(incf pos)))))
-
-(defmethod position-if-not (test sequence &key from-end (start 0) end key)
-  (position-if (test-not test) sequence :from-end from-end :start start :end end :key key))
+(defgeneric delete-if-not (test sequence &key from-end start end count key)
+  (:documentation
+   "Same as CL:DELETE-IF-NOT however is extensible to other sequence types
+    besides CL:SEQUENCE."))
 
 
-(defmethod mismatch (seq1 seq2 &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
-  (flet ((compute-pos (pos)
-	   (if from-end
-	       (- (or end1 (length seq1)) pos)
-	       pos)))
-    (let ((key (or key #'identity)))
-      (loop
-	 with it1 = (iterator seq1 :start start1 :end end1 :from-end from-end)
-	 with it2 = (iterator seq2 :start start2 :end end2 :from-end from-end)
-	 for pos = 0 then (1+ pos)
-	 until (or (endp it1) (endp it2))
-	 do
-	   (unless (funcall test (funcall key (current it1)) (funcall key (current it2)))
-	     (return (compute-pos pos)))
+;; Removing Duplicates
 
-	   (advance it1)
-	   (advance it2)
+(defgeneric remove-duplicates (sequence &key from-end test start end key)
+  (:documentation
+   "Same as CL:REMOVE-DUPLICATES however is extensible to other
+    sequence types besides CL:SEQUENCE.
 
-	 finally
-	   (unless (and (endp it1) (endp it2))
-	     (return (compute-pos pos)))))))
+    The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
+    argument is removed."))
 
+(defgeneric delete-duplicates (sequence &key from-end test start end key)
+  (:documentation
+   "Same as CL:DELETE-DUPLICATES however is extensible to other
+    sequence types besides CL:SEQUENCE.
+
+    The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
+    argument is removed."))
+
+
+;; Logical Sequence Operations
 
 (defun every (test &rest seqs)
   "Same as CL:EVERY except it can be applied to any sequence for which

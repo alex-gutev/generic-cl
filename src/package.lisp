@@ -47,31 +47,35 @@
    :< :<= :> :>=
 
    ;; Sequences
-
    :elt
    :length
+   :subseq
    :endp
+
+   :map :map-into
+   :fill :replace
+   :concatenate
+   :merge
 
    :reduce
 
-   :count
-   :count-if
-   :count-if-not
+   :count :count-if :count-if-not
+   :find :find-if :find-if-not
+   :position :position-if :position-if-not
 
-   :find
-   :find-if
-   :find-if-not
-
-   :position
-   :position-if
-   :position-if-not
-
+   :search
    :mismatch
 
-   :every
-   :some
-   :notevery
-   :notany)
+   :every :some :notevery :notany
+
+   :reverse :nreverse
+   :sort :stable-sort
+
+   :substitute :substitute-if :substitute-if-not
+   :nsubstitute :nsubstitute-if :nsubstitute-if-not
+   :remove :remove-if :remove-if-not
+   :delete :delete-if :delete-if-not
+   :remove-duplicates :delete-duplicates)
 
   (:export
    ;; Equality
@@ -93,7 +97,7 @@
    :greater-equal-p
    :< :<= :> :>=
 
-   ;; Sequences
+   ;; Iterator Interface
    :iterator
    :make-iterator
    :make-reverse-iterator
@@ -105,34 +109,43 @@
 
    :doseq
 
-   :elt
-   :length
    ;; Collector Interface
    :make-collector
    :collect
    :extend
    :collector-sequence
 
+
+   ;; Sequences
+   :elt :length :subseq
+
+   :fill :replace
+
+   :concatenate
+   :merge
+
    :reduce
 
-   :count
-   :count-if
-   :count-if-not
+   :count :count-if :count-if-not
+   :position :position-if :position-if-not
+   :find :find-if :find-if-not
 
-   :position
-   :position-if
-   :position-if-not
-
-   :find
-   :find-if
-   :find-if-not
-
+   :search
    :mismatch
 
-   :every
-   :some
-   :notevery
-   :notany))
+   :every :some :notevery :notany
+
+   :reverse :nreverse
+
+   :sort :nsort :stable-sort :stable-nsort
+
+   :substitute :substitute-if :substitute-if-not
+   :nsubstitute :nsubstitute-if :nsubstitute-if-not
+
+   :remove :remove-if :remove-if-not
+   :delete :delete-if :delete-if-not
+
+   :remove-duplicates :delete-duplicates))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl
