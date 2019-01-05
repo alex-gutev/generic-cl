@@ -107,6 +107,11 @@
 
    :elt
    :length
+   ;; Collector Interface
+   :make-collector
+   :collect
+   :extend
+   :collector-sequence
 
    :reduce
 

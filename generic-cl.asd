@@ -50,7 +50,10 @@
                  (:file "arithmetic")
 		 (:file "comparison")
 		 (:file "iterator")
-		 (:file "sequences"))))
+		 (:file "collector")
+		 (:file "sequences")
+		 (:file "cl-sequences")
+		 (:file "generic-sequences"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 
