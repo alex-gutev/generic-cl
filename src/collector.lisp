@@ -55,7 +55,14 @@
 
   (:method (collector seq)
     (doseq (item seq)
-      (collect collector item))))
+      (collect collector item)))
+
+  (:method (collector (it iterator))
+    (loop
+       until (endp it)
+       do
+	 (collect collector (current it))
+	 (advance it))))
 
 (defgeneric collector-sequence (collector)
   (:documentation

@@ -100,11 +100,17 @@
       (make-iterator sequence start end)))
 
 
+;;; Base Iterator
+
+(defstruct (iterator (:constructor nil))
+  "Base iterator type")
+
+
 ;;; List Iterator
 
 ;; Unbounded
 
-(defstruct list-iterator
+(defstruct (list-iterator (:include iterator))
   "Unbounded list iterator for iterating from a given starting
    position till the end of the list.
 
@@ -189,7 +195,7 @@
 
 ;;; Vector Iterator
 
-(defstruct vector-iterator
+(defstruct (vector-iterator (:include iterator))
   (index 0)
   array
   end)
