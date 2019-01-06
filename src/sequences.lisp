@@ -406,3 +406,95 @@
 	   (return-from notany nil))
 	 (advance-all iters))
     t))
+
+
+;;; Mapping
+
+(defun map-into (result function &rest sequences)
+  "Destructively replaces each element of RESULT with the result of
+   applying FUNCTION to each element of RESULT and of each sequence in
+   SEQUENCE.
+
+   The shortest sequence of RESULT and SEQUENCE determines how many
+   times FUNCTION is applied and how many elements are in the
+   resulting sequence. If RESULT is longer than any sequence in
+   SEQUENCE the remaining elements are unmodified.
+
+   Unlike CL:MAP-INTO, if RESULT is a vector then FUNCTION is only
+   applied on the elements up-to the fill-pointer, i.e. the
+   fill-pointer is not ignored.
+
+   Returns RESULT."
+
+  (loop
+     with iters = (make-iters (cons result sequences))
+     with res-it = (first iters)
+     until (some-endp iters)
+     do
+       (setf (current res-it) (apply function (get-elements iters)))
+       (advance-all iters))
+
+  result)
+
+
+(defgeneric map-to (result function &rest sequences)
+  (:documentation
+   "Applies FUNCTION to each element of each sequence in SEQUENCES and
+    stores the result in RESULT.
+
+    If RESULT is a sequence, the results are directly stored in the
+    sequence.
+
+    If RESULT is a symbol designating a sequence type, a new sequence
+    of that type is created and the result of applying FUNCTION is
+    stored in that sequence.
+
+    Returns the sequence in which the results of applying function are
+    stored."))
+
+(defmethod map-to (result function &rest sequences)
+  (let ((collector (make-collector result)))
+    (loop
+       with iters = (make-iters sequences)
+       until (some-endp iters)
+       do
+	 (collect collector (apply function (get-elements iters)))
+	 (advance-all iters))
+
+    (collector-sequence collector)))
+
+(defmethod map-to ((type symbol) function &rest sequences)
+  (apply #'map-to (sequence-of-type type) function sequences))
+
+
+(defun map (function sequence &rest sequences)
+  "Creates a new sequence, of the same type as SEQUENCE (by
+   EMPTY-CLONE), containing the result of applying FUNCTION to each
+   element of SEQUENCE and each element of SEQUENCES."
+
+  (apply #'map-to (empty-clone sequence) function (cons sequence sequences)))
+
+
+;;;; Iteration Utility Functions
+
+(defun make-iters (seqs)
+  "Returns a list of iterators for each sequence in SEQS."
+
+  (mapcar #'iterator seqs))
+
+(defun get-elements (iters)
+  "Returns a list containing the elements at the positions of each
+   iterator in ITERS (by CURRENT)."
+
+  (mapcar #'current iters))
+
+(defun some-endp (iters)
+  "Returns true if at least on of the iterators in ITERS is at the end
+   of its sequence (by ENDP."
+
+  (cl:some #'endp iters))
+
+(defun advance-all (iters)
+  "Advances each iterator in ITERS to its next position (by ADVANCE)."
+
+  (mapc #'advance iters))

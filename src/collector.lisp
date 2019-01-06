@@ -33,6 +33,10 @@
    "Creates a new sequence of the same type and with the same
     properties as SEQUENCE however without any elements."))
 
+(defgeneric sequence-of-type (type)
+  (:documentation
+   "Creates a sequence of the type TYPE."))
+
 
 (defgeneric make-collector (sequence &key front)
   (:documentation
