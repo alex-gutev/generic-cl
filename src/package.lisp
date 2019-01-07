@@ -122,6 +122,8 @@
    :fill :replace
 
    :concatenate
+   :nconcatenate
+   :concatenate-to
    :merge
 
    :reduce

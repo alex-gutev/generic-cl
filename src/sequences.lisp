@@ -408,6 +408,30 @@
     t))
 
 
+;;; Concatenation
+
+(defun concatenate (sequence &rest sequences)
+  "Returns a new sequence containing all the elements of SEQUENCE and
+   of each sequence in SEQUENCES, in the order they are supplied."
+
+  (apply #'nconcatenate (empty-clone sequence) sequence sequences))
+
+(defun nconcatenate (result &rest sequences)
+  "Destructively concatenates each sequence in SEQUENCES to the
+   sequence RESULT."
+
+  (let ((collector (make-collector result)))
+    (dolist (seq sequences)
+      (extend collector seq))
+    (collector-sequence collector)))
+
+(defun concatenate-to (type &rest sequences)
+  "Results a sequence of type TYPE containing all the elements of each
+   sequence in SEQUENCES, in the order they are supplied."
+
+  (apply #'nconcatenate (sequence-of-type type) sequences))
+
+
 ;;; Mapping
 
 (defun map-into (result function &rest sequences)
