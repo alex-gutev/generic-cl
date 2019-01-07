@@ -34,9 +34,13 @@
         :iterate)
 
   (:import-from :agutil
-		:defmacro!)
+		:defmacro!
+		:symb)
 
   (:shadow
+   ;; Macros
+   :defstruct
+
    ;; Equality
    :equalp := :/=
 
@@ -78,6 +82,10 @@
    :remove-duplicates :delete-duplicates)
 
   (:export
+   ;; Objects
+   :copy
+   :defstruct
+
    ;; Equality
    :equalp := :/=
 

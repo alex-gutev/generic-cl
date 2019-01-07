@@ -46,6 +46,7 @@
                 :components
                 ((:file "package")
 		 (:file "util")
+		 (:file "object")
                  (:file "equality")
                  (:file "arithmetic")
 		 (:file "comparison")

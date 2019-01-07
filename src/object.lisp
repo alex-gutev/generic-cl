@@ -1,0 +1,50 @@
+;;;; object.lisp
+;;;;
+;;;; Copyright 2019 Alexander Gutev
+;;;;
+;;;; Permission is hereby granted, free of charge, to any person
+;;;; obtaining a copy of this software and associated documentation
+;;;; files (the "Software"), to deal in the Software without
+;;;; restriction, including without limitation the rights to use,
+;;;; copy, modify, merge, publish, distribute, sublicense, and/or sell
+;;;; copies of the Software, and to permit persons to whom the
+;;;; Software is furnished to do so, subject to the following
+;;;; conditions:
+;;;;
+;;;; The above copyright notice and this permission notice shall be
+;;;; included in all copies or substantial portions of the Software.
+;;;;
+;;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+;;;; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+;;;; OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+;;;; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+;;;; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+;;;; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+;;;; OTHER DEALINGS IN THE SOFTWARE.
+
+(in-package :generic-cl.impl)
+
+
+;;; Miscellaneous generic functions for manipulating objects
+
+(defgeneric copy (object)
+  (:documentation "Returns a copy of OBJECT."))
+
+(defmacro defstruct (options &rest slots)
+  "Sames as CL:DEFSTRUCT except that a COPY method, for the struct, is
+   automatically generated which invokes the structure's copier
+   function. If a NIL :COPIER option is provided, the COPY method is
+   not automatically generated."
+
+  (let* ((name (ensure-car options))
+	 (copier-opt (cdr (cl:find :copier (ensure-list options) :key #'ensure-car)))
+	 (copier-name (if copier-opt (car copier-opt) (symb 'copy- name))))
+
+    (with-gensyms (arg)
+     `(progn
+	(cl:defstruct ,options ,@slots)
+	,(when copier-name
+	  `(defmethod copy ((,arg ,name))
+	    (,copier-name ,arg)))
+	',name))))
