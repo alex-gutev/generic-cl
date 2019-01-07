@@ -28,6 +28,15 @@
 ;;; Generic methods based on iterators
 
 
+;;; Element Access
+
+(defmethod first (sequence)
+  (at (iterator sequence)))
+
+(defmethod last (sequence)
+  (at (iterator sequence :from-end t)))
+
+
 ;;; Length
 
 (defmethod length (sequence)

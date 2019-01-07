@@ -38,6 +38,14 @@
   (:documentation
    "Sets the element at index INDEX of sequence SEQUENCE to VALUE."))
 
+(defgeneric first (sequence)
+  (:documentation
+   "Returns the first element of SEQUENCE."))
+
+(defgeneric last (sequence)
+  (:documentation
+   "Returns the last element of SEQUENCE."))
+
 
 ;;; Length
 

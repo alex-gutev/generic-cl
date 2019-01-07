@@ -36,6 +36,26 @@
   (setf (cl:elt sequence index) value))
 
 
+(defmethod first ((list list))
+  (cl:first list))
+
+(defmethod first ((vec vector))
+  (aref vec 0))
+
+(defmethod first ((array array))
+  (row-major-aref array 0))
+
+
+(defmethod last ((list list))
+  (lastcar list))
+
+(defmethod last ((vec vector))
+  (aref vec (1- (length vec))))
+
+(defmethod last ((array array))
+  (row-major-aref array (1- (array-total-size array))))
+
+
 ;;; Length
 
 (defmethod length ((sequence sequence))

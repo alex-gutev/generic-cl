@@ -55,6 +55,8 @@
    :length
    :subseq
    :endp
+   :first
+   :last
 
    :map :map-into
    :fill :replace
@@ -126,6 +128,7 @@
 
    ;; Sequences
    :elt :length :subseq
+   :first :last
 
    :fill :replace
 
