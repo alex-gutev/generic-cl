@@ -61,7 +61,7 @@
     (loop
        until (endp it)
        do
-	 (collect collector (current it))
+	 (collect collector (at it))
 	 (advance it))))
 
 (defgeneric collector-sequence (collector)

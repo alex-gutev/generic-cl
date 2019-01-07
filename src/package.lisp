@@ -110,7 +110,7 @@
    :make-iterator
    :make-reverse-iterator
 
-   :current
+   :at
    :start
    :advance
    :endp

@@ -321,7 +321,7 @@
 	   (mapcar #'iterator seqs))
 
 	 (get-elems (iters)
-	   (mapcar #'current iters)))
+	   (mapcar #'at iters)))
 
     (loop
        with iters = (make-iters seqs)
@@ -346,7 +346,7 @@
 	   (mapcar #'iterator seqs))
 
 	 (get-elems (iters)
-	   (mapcar #'current iters)))
+	   (mapcar #'at iters)))
 
     (loop
        with iters = (make-iters seqs)
@@ -371,7 +371,7 @@
 	   (mapcar #'iterator seqs))
 
 	 (get-elems (iters)
-	   (mapcar #'current iters)))
+	   (mapcar #'at iters)))
 
     (loop
        with iters = (make-iters seqs)
@@ -396,7 +396,7 @@
 	   (mapcar #'iterator seqs))
 
 	 (get-elems (iters)
-	   (mapcar #'current iters)))
+	   (mapcar #'at iters)))
 
     (loop
        with iters = (make-iters seqs)
@@ -455,7 +455,7 @@
      with res-it = (first iters)
      until (some-endp iters)
      do
-       (setf (current res-it) (apply function (get-elements iters)))
+       (setf (at res-it) (apply function (get-elements iters)))
        (advance-all iters))
 
   result)
@@ -508,9 +508,9 @@
 
 (defun get-elements (iters)
   "Returns a list containing the elements at the positions of each
-   iterator in ITERS (by CURRENT)."
+   iterator in ITERS (by AT)."
 
-  (mapcar #'current iters))
+  (mapcar #'at iters))
 
 (defun some-endp (iters)
   "Returns true if at least on of the iterators in ITERS is at the end

@@ -38,7 +38,7 @@
 	 (loop
 	    with iter = (iterator list :start start :end end :from-end from-end)
 	    for (expected . rest) on test-list
-	    for got = (start iter) then (current iter)
+	    for got = (start iter) then (at iter)
 	    until (endp iter)
 	    do
 	      (is got expected)
@@ -55,7 +55,7 @@
 	    with iter = (iterator vec :start start :end end :from-end from-end)
 	    with i = 0
 	    for expected across test-vec
-	    for got = (start iter) then (current iter)
+	    for got = (start iter) then (at iter)
 	    until (endp iter)
 	    do
 	      (is got expected)
@@ -79,7 +79,7 @@
 	    with iter = (iterator arr :start start :end end :from-end from-end)
 	    with i = 0
 	    for expected across test-arr
-	    for got = (start iter) then (current iter)
+	    for got = (start iter) then (at iter)
 	    until (endp iter)
 	    do
 	      (is got expected)
@@ -106,7 +106,7 @@
 	    with iter = (iterator hash :start start :end end :from-end from-end)
 	    with i = 0
 	    with count = (- (or end (hash-table-count hash)) start)
-	    for (key . value) = (start iter) then (current iter)
+	    for (key . value) = (start iter) then (at iter)
 	    until (endp iter)
 	    do
 	      (is value (gethash key hash))
@@ -138,7 +138,7 @@
 	    for i below index
 	    do
 	      (advance it)
-	    finally (setf (current it) value))))
+	    finally (setf (at it) value))))
 
     (subtest "List iterator"
       (test-list-iter '(1 2 3 a b c))
@@ -227,14 +227,14 @@
 	(let* ((hash (alist-hash-table '((a . 1) (b . 2) (c . 3))))
 	       (it (iterator hash)))
 	  (advance it)
-	  (setf (current it) 'x)
-	  (is (gethash (car (current it)) hash) 'x))
+	  (setf (at it) 'x)
+	  (is (gethash (car (at it)) hash) 'x))
 
 	(let* ((hash (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))))
 	       (it (iterator hash :start 1 :end 3)))
 	  (advance it)
-	  (setf (current it) 'x)
-	  (is (gethash (car (current it)) hash) 'x))))
+	  (setf (at it) 'x)
+	  (is (gethash (car (at it)) hash) 'x))))
 
     (subtest "DOSEQ Macro"
       (let ((list '(1 2 3 4)))

@@ -52,15 +52,15 @@
 
   (:method (iter)
     (unless (endp iter)
-      (current iter))))
+      (at iter))))
 
-(defgeneric current (iterator)
+(defgeneric at (iterator)
   (:documentation
    "Returns the element at the position specified by ITERATOR. Is not
     guaranteed to check whether the end of the sequence has been
     reached."))
 
-(defgeneric (setf current) (value iterator)
+(defgeneric (setf at) (value iterator)
   (:documentation
    "Sets the value at the position of the sequence at which ITERATOR
     is currently at."))
@@ -121,10 +121,10 @@
 (defmethod make-iterator ((list list) start (end null))
   (make-list-iterator :cons (nthcdr start list)))
 
-(defmethod current ((iter list-iterator))
+(defmethod at ((iter list-iterator))
   (car (list-iterator-cons iter)))
 
-(defmethod (setf current) (value (iter list-iterator))
+(defmethod (setf at) (value (iter list-iterator))
   (setf (car (list-iterator-cons iter)) value))
 
 (defmethod advance ((iter list-iterator))
@@ -186,10 +186,10 @@
 	 (push cell cells))
     (make-reverse-list-iterator :cons cells)))
 
-(defmethod current ((iter reverse-list-iterator))
+(defmethod at ((iter reverse-list-iterator))
   (caar (reverse-list-iterator-cons iter)))
 
-(defmethod (setf current) (value (iter reverse-list-iterator))
+(defmethod (setf at) (value (iter reverse-list-iterator))
   (setf (caar (reverse-list-iterator-cons iter)) value))
 
 
@@ -203,13 +203,13 @@
 (defmethod make-iterator ((vec vector) start end)
   (make-vector-iterator :array vec :index start :end (or end (cl:length vec))))
 
-(defmethod current ((iter vector-iterator))
+(defmethod at ((iter vector-iterator))
   (with-accessors ((vector vector-iterator-array)
 		   (index vector-iterator-index)) iter
 
     (aref vector index)))
 
-(defmethod (setf current) (value (iter vector-iterator))
+(defmethod (setf at) (value (iter vector-iterator))
   (with-accessors ((vector vector-iterator-array)
 		   (index vector-iterator-index)) iter
 
@@ -256,7 +256,7 @@
 (defmethod make-iterator ((array array) start end)
   (make-array-iterator :array array :index start :end (or end (array-total-size array))))
 
-(defmethod current ((iter array-iterator))
+(defmethod at ((iter array-iterator))
   "Access the element of the array at the current position using
    ROW-MAJOR-AREF."
 
@@ -264,7 +264,7 @@
 		   (index array-iterator-index)) iter
     (row-major-aref array index)))
 
-(defmethod (setf current) (value (iter array-iterator))
+(defmethod (setf at) (value (iter array-iterator))
   (with-accessors ((array array-iterator-array)
 		   (index array-iterator-index)) iter
     (setf (row-major-aref array index) value)))
@@ -282,7 +282,7 @@
 			       :index (1- (or end (array-total-size array)))
 			       :end start))
 
-(defmethod current ((iter reverse-array-iterator))
+(defmethod at ((iter reverse-array-iterator))
   "Access the element of the array at the current position using
    ROW-MAJOR-AREF."
 
@@ -290,7 +290,7 @@
 		   (index reverse-array-iterator-index)) iter
     (row-major-aref array index)))
 
-(defmethod (setf current) (value (iter reverse-array-iterator))
+(defmethod (setf at) (value (iter reverse-array-iterator))
   (with-accessors ((array reverse-array-iterator-array)
 		   (index reverse-array-iterator-index)) iter
     (setf (row-major-aref array index) value)))
@@ -303,7 +303,7 @@
    upon creation of the iterator, since closing over the iteration
    function provided by WITH-HASH-TABLE-ITERATOR is undefined, and
    assigned to the CONS slot. A reference to the hash-table is only
-   kept to implement (SETF CURRENT)."
+   kept to implement (SETF AT)."
 
   table)
 
@@ -330,9 +330,9 @@
 
   (make-iterator hash start end))
 
-(defmethod (setf current) (value (iter hash-table-iterator))
+(defmethod (setf at) (value (iter hash-table-iterator))
   "Sets the value corresponding to the current key being
-   iterator (CAR (CURRENT ITER)) to VALUE."
+   iterator (CAR (AT ITER)) to VALUE."
 
   (-> (caar (hash-table-iterator-cons iter))
       (gethash (hash-table-iterator-table iter))
@@ -356,6 +356,6 @@
 	 (,element))
      (loop until (endp ,g!iter)
 	do
-	  (setf ,element (current ,g!iter))
+	  (setf ,element (at ,g!iter))
 	  ,@body
 	  (advance ,g!iter))))

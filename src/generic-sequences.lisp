@@ -60,7 +60,7 @@
      with new-it = (iterator new)
      until (or (endp seq-it) (endp new-it))
      do
-       (setf (current seq-it) (current new-it)))
+       (setf (at seq-it) (at new-it)))
   new)
 
 
@@ -73,7 +73,7 @@
      with it = (iterator seq :start start :end end)
      until (endp it)
      do
-       (setf (current it) item)))
+       (setf (at it) item)))
 
 (defmethod replace (seq1 seq2 &key (start1 0) end1 (start2 0) end2)
   (loop
@@ -81,7 +81,7 @@
      with it2 = (iterator seq2 :start start2 :end end2)
      until (or (endp it1) (endp it2))
      do
-       (setf (current it1) (current it2))))
+       (setf (at it1) (at it2))))
 
 
 ;; Reduction
@@ -98,7 +98,7 @@
 		with res = res
 		until (endp iter)
 		do
-		  (setf elem (current iter))
+		  (setf elem (at iter))
 		  (setf res (funcall f res elem))
 		  (advance iter)
 		finally (return res))))
@@ -107,7 +107,7 @@
 	  ;; Return INITIAL-VALUE if supplied or call FN with no arguments
 	  (if init-sp initial-value (funcall fn))
 
-	  (let ((elem (funcall key (current iter))))
+	  (let ((elem (funcall key (at iter))))
 	    (reduce-seq (if init-sp (funcall f initial-value elem) elem)))))))
 
 
@@ -183,7 +183,7 @@
 	 for pos = 0 then (1+ pos)
 	 until (or (endp it1) (endp it2))
 	 do
-	   (unless (funcall test (funcall key (current it1)) (funcall key (current it2)))
+	   (unless (funcall test (funcall key (at it1)) (funcall key (at it2)))
 	     (return (compute-pos pos)))
 
 	   (advance it1)
@@ -223,8 +223,8 @@
 
        until (endp it)
        do
-	 (when (funcall test (funcall key (current it)))
-	   (setf (current it) new)
+	 (when (funcall test (funcall key (at it)))
+	   (setf (at it) new)
 	   (when (and count (cl:= (cl:incf n) count))
 	     (loop-finish)))
 
