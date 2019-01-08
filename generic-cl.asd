@@ -50,9 +50,9 @@
                  (:file "equality")
                  (:file "arithmetic")
 		 (:file "comparison")
+		 (:file "sequences")
 		 (:file "iterator")
 		 (:file "collector")
-		 (:file "sequences")
 		 (:file "cl-sequences")
 		 (:file "generic-sequences"))))
 

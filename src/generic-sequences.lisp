@@ -47,13 +47,17 @@
    this is a linear O(n) operation, in the number of elements in the
    sequence."
 
-  (loop
-     with iter = (iterator sequence)
-     for count = 0 then (1+ count)
-     until (endp iter)
-     do
-       (advance iter)
-     finally (return count)))
+  (length (iterator sequence)))
+
+(defmethod length ((it iterator))
+  "Returns the number of elements which will be iterated by the
+   iterator IT. This is achieved by iterating until the end of the
+   sequence using a copy of IT."
+
+  (do ((it (copy it))
+       (n 0 (1+ n)))
+      ((endp it) n)
+    (advance it)))
 
 
 ;;; Subsequence
@@ -365,6 +369,175 @@
 		     :start start
 		     :end end
 		     :key key))
+
+
+;; Logical Sequence Operations
+
+(defun every (test &rest seqs)
+  "Same as CL:EVERY except it can be applied to any sequence for which
+   there the iterator interface is implemented."
+
+  (loop
+     with iters = (make-iters seqs)
+     until (some-endp iters)
+     do
+       (unless (apply test (get-elements iters))
+	 (return-from every nil))
+       (advance-all iters))
+  t)
+
+(defun some (test &rest seqs)
+  "Same as CL:SOME except it can be applied to any sequence for which
+   there the iterator interface is implemented."
+
+  (loop
+     with iters = (make-iters seqs)
+     until (some-endp iters)
+     do
+       (aand (apply test (get-elements iters))
+	     (return-from some it))
+       (advance-all iters))
+  nil)
+
+(defun notevery (test &rest seqs)
+  "Same as CL:NOTEVERY except it can be applied to any sequence for
+   which there the iterator interface is implemented."
+
+  (loop
+     with iters = (make-iters seqs)
+     until (some-endp iters)
+     do
+       (unless (apply test (get-elements iters))
+	 (return-from notevery t))
+       (advance-all iters))
+  nil)
+
+(defun notany (test &rest seqs)
+  "Same as CL:NOTANY except it can be applied to any sequence for which
+   there the iterator interface is implemented."
+
+  (loop
+     with iters = (make-iters seqs)
+     until (some-endp iters)
+     do
+       (when (apply test (get-elements iters))
+	 (return-from notany nil))
+       (advance-all iters))
+  t)
+
+
+;;; Concatenation
+
+(defun concatenate (sequence &rest sequences)
+  "Returns a new sequence containing all the elements of SEQUENCE and
+   of each sequence in SEQUENCES, in the order they are supplied."
+
+  (apply #'nconcatenate (empty-clone sequence) sequence sequences))
+
+(defun nconcatenate (result &rest sequences)
+  "Destructively concatenates each sequence in SEQUENCES to the
+   sequence RESULT."
+
+  (let ((collector (make-collector result)))
+    (dolist (seq sequences)
+      (extend collector seq))
+    (collector-sequence collector)))
+
+(defun concatenate-to (type &rest sequences)
+  "Returns a sequence of type TYPE containing all the elements of each
+   sequence in SEQUENCES, in the order they are supplied."
+
+  (apply #'nconcatenate (sequence-of-type type) sequences))
+
+
+;;; Mapping
+
+(defun map-into (result function &rest sequences)
+  "Destructively replaces each element of RESULT with the result of
+   applying FUNCTION to each element of RESULT and of each sequence in
+   SEQUENCE.
+
+   The shortest sequence of RESULT and SEQUENCE determines how many
+   times FUNCTION is applied and how many elements are in the
+   resulting sequence. If RESULT is longer than any sequence in
+   SEQUENCE the remaining elements are unmodified.
+
+   Unlike CL:MAP-INTO, if RESULT is a vector then FUNCTION is only
+   applied on the elements up-to the fill-pointer, i.e. the
+   fill-pointer is not ignored.
+
+   Returns RESULT."
+
+  (loop
+     with iters = (make-iters (cons result sequences))
+     with res-it = (first iters)
+     until (some-endp iters)
+     do
+       (setf (at res-it) (apply function (get-elements iters)))
+       (advance-all iters))
+
+  result)
+
+(defgeneric map-to (result function &rest sequences)
+  (:documentation
+   "Applies FUNCTION to each element of each sequence in SEQUENCES and
+    stores the result in RESULT.
+
+    If RESULT is a sequence, the results are directly stored in the
+    sequence.
+
+    If RESULT is a symbol designating a sequence type, a new sequence
+    of that type is created and the result of applying FUNCTION is
+    stored in that sequence.
+
+    Returns the sequence in which the results of applying function are
+    stored."))
+
+(defmethod map-to (result function &rest sequences)
+  (let ((collector (make-collector result)))
+    (loop
+       with iters = (make-iters sequences)
+       until (some-endp iters)
+       do
+	 (collect collector (apply function (get-elements iters)))
+	 (advance-all iters))
+
+    (collector-sequence collector)))
+
+(defmethod map-to ((type symbol) function &rest sequences)
+  (apply #'map-to (sequence-of-type type) function sequences))
+
+(defun map (function sequence &rest sequences)
+  "Creates a new sequence, of the same type as SEQUENCE (by
+   EMPTY-CLONE), containing the result of applying FUNCTION to each
+   element of SEQUENCE and each element of SEQUENCES."
+
+  (apply #'map-to (empty-clone sequence) function (cons sequence sequences)))
+
+
+;;;; Iteration Utility Functions
+
+(defun make-iters (seqs)
+  "Returns a list of iterators for each sequence in SEQS."
+
+  (mapcar #'iterator seqs))
+
+(defun get-elements (iters)
+  "Returns a list containing the elements at the positions of each
+   iterator in ITERS (by AT)."
+
+  (mapcar #'at iters))
+
+(defun some-endp (iters)
+  "Returns true if at least on of the iterators in ITERS is at the end
+   of its sequence (by ENDP."
+
+  (cl:some #'endp iters))
+
+(defun advance-all (iters)
+  "Advances each iterator in ITERS to its next position (by ADVANCE)."
+
+  (mapc #'advance iters))
 
 
 ;;;; Utility Functions
