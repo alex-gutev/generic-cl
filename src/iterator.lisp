@@ -26,6 +26,14 @@
 (in-package :generic-cl.impl)
 
 
+;;;; Base Iterator Type
+
+(defstruct (iterator (:constructor nil))
+  "Base iterator type. All iterators should inherit (:INCLUDE) from
+   this type in order for methods which specialize on iterators to be
+   chosen.")
+
+
 ;;;; Generic Iterator Interface
 
 (defgeneric make-iterator (sequence start end)
@@ -77,6 +85,15 @@
   (:method (iter)
     (cl:endp iter)))
 
+(defgeneric advance-n (iterator n)
+  (:documentation
+   "Advances the iterator ITERATOR N positions, advances to the
+    position that the iterator would be at after calling ADVANCE N
+    times.")
+
+  (:method ((it iterator) n)
+    (loop repeat n do (advance it))))
+
 
 ;;; Non-generic utility functions
 
@@ -100,12 +117,6 @@
       (make-iterator sequence start end)))
 
 
-;;; Base Iterator
-
-(defstruct (iterator (:constructor nil))
-  "Base iterator type")
-
-
 ;;; List Iterator
 
 ;; Unbounded
@@ -121,6 +132,7 @@
 (defmethod make-iterator ((list list) start (end null))
   (make-list-iterator :cons (nthcdr start list)))
 
+
 (defmethod at ((iter list-iterator))
   (car (list-iterator-cons iter)))
 
@@ -133,6 +145,11 @@
 
 (defmethod endp ((iter list-iterator))
   (cl:endp (list-iterator-cons iter)))
+
+
+(defmethod subseq ((it list-iterator) start &optional end)
+  (make-iterator (list-iterator-cons it) start end))
+
 
 ;; Bounded
 
@@ -149,6 +166,7 @@
 (defmethod make-iterator ((list list) start (end number))
   (make-bound-list-iterator :cons (nthcdr start list) :index start :end end))
 
+
 (defmethod advance ((iter bound-list-iterator))
   (with-accessors ((cons bound-list-iterator-cons)
 		   (index bound-list-iterator-index)) iter
@@ -161,6 +179,14 @@
 		   (end bound-list-iterator-end)) iter
     (or (cl:endp cons)
 	(cl:>= index end))))
+
+(defmethod length ((iter bound-list-iterator))
+  (cl:- (bound-list-iterator-end iter) (bound-list-iterator-index iter)))
+
+
+(defmethod subseq ((it bound-list-iterator) start &optional (end (cl:- (bound-list-iterator-end it) (bound-list-iterator-index it))))
+  (call-next-method it start end))
+
 
 ;; Reverse
 
@@ -186,11 +212,21 @@
 	 (push cell cells))
     (make-reverse-list-iterator :cons cells)))
 
+
 (defmethod at ((iter reverse-list-iterator))
   (caar (reverse-list-iterator-cons iter)))
 
 (defmethod (setf at) (value (iter reverse-list-iterator))
   (setf (caar (reverse-list-iterator-cons iter)) value))
+
+
+(defmethod subseq ((it reverse-list-iterator) start &optional end)
+  (let ((cells (cl:nthcdr start (reverse-list-iterator-cons it))))
+    (make-reverse-list-iterator
+     :cons
+     (if end
+	 (cl:butlast cells end)
+	 cells))))
 
 
 ;;; Vector Iterator
@@ -202,6 +238,7 @@
 
 (defmethod make-iterator ((vec vector) start end)
   (make-vector-iterator :array vec :index start :end (or end (cl:length vec))))
+
 
 (defmethod at ((iter vector-iterator))
   (with-accessors ((vector vector-iterator-array)
@@ -224,6 +261,19 @@
 		   (end vector-iterator-end)) iter
     (cl:>= index end)))
 
+
+(defmethod length ((iter vector-iterator))
+  (cl:- (vector-iterator-end iter) (vector-iterator-index iter)))
+
+(defmethod advance-n ((iter vector-iterator) n)
+  (cl:incf (vector-iterator-index iter) n))
+
+
+(defmethod subseq ((it vector-iterator) start &optional (end (vector-iterator-end it)))
+  (make-vector-iterator :array (vector-iterator-array it)
+			:index (cl:+ (vector-iterator-index it) start)
+			:end end))
+
 ;; Reverse
 
 (defstruct (reverse-vector-iterator (:include vector-iterator))
@@ -236,6 +286,7 @@
 				:index (1- (or end (cl:length vec)))
 				:end start))
 
+
 (defmethod advance ((iter reverse-vector-iterator))
   (decf (reverse-vector-iterator-index iter)))
 
@@ -244,6 +295,17 @@
 		   (end reverse-vector-iterator-end)) iter
     (< index end)))
 
+
+(defmethod subseq ((it reverse-vector-iterator) start &optional end)
+  (with-accessors ((array reverse-vector-iterator-array)
+		   (index reverse-vector-iterator-index)
+		   (old-end reverse-array-iterator-end)) it
+    (make-reverse-vector-iterator
+     :array array
+     :index (cl:- index start)
+     :end (if end
+	      (cl:- index end)
+	      old-end))))
 
 ;;; Multi-dimensional Array Iterator
 
