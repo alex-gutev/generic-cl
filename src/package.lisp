@@ -120,6 +120,9 @@
    :doseq
 
    ;; Collector Interface
+   :empty-clone
+   :sequence-of-type
+
    :make-collector
    :collect
    :extend

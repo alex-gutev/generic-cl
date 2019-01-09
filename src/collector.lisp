@@ -95,19 +95,23 @@
 (defmethod make-collector ((list list) &key front)
   (if front
       (make-front-list-collector :cons list)
-      (make-list-collector :head list :tail (last list))))
+      (make-list-collector :head list :tail (cl:last list))))
 
 
 ;;; Back
 
 (defmethod collect ((c list-collector) item)
   (slet (list-collector-tail c)
-    (setf it (setf (cdr it) (cons item nil)))))
+    (->> (if it
+	     (setf (cdr it) (cons item nil))
+	     (setf (list-collector-head c) (cons item nil)))
+	 (setf it))))
 
 (defmethod extend ((c list-collector) (list list))
   (slet (list-collector-tail c)
-    (setf (cdr it) list)
-    (setf it (last list))))
+    (->> (setf (cdr it) (copy-list list))
+	 (cl:last)
+	 (setf it))))
 
 (defmethod collector-sequence ((c list-collector))
   (list-collector-head c))
