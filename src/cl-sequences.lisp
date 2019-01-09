@@ -193,17 +193,27 @@
 
 ;; Sorting
 
-(defmethod sort ((seq sequence) &key (predicate #'<) key)
-  (cl:sort (copy-seq seq) predicate :key key))
+(defmethod merge ((seq1 sequence) (seq2 sequence) predicate &key key)
+  (nmerge (copy-seq seq1) (copy-seq seq2) predicate :key key))
 
-(defmethod stable-sort ((seq sequence) &key (predicate #'<) key)
-  (cl:stable-sort (copy-seq seq) predicate :key key))
+(defmethod nmerge ((seq1 sequence) (seq2 sequence) predicate &key key)
+  (-> (typecase seq1
+	(vector 'vector)
+	(otherwise 'list))
+      (cl:merge seq1 seq1 predicate :key key)))
 
-(defmethod nsort ((seq sequence) &key (predicate #'<) key)
-  (cl:sort seq predicate :key key))
 
-(defmethod stable-nsort ((seq sequence) &key (predicate #'<) key)
-  (cl:stable-sort seq predicate :key key))
+(defmethod sort ((seq sequence) &key (test #'<) key)
+  (cl:sort (copy-seq seq) test :key key))
+
+(defmethod stable-sort ((seq sequence) &key (test #'<) key)
+  (cl:stable-sort (copy-seq seq) test :key key))
+
+(defmethod nsort ((seq sequence) &key (test #'<) key)
+  (cl:sort seq test :key key))
+
+(defmethod stable-nsort ((seq sequence) &key (test #'<) key)
+  (cl:stable-sort seq test :key key))
 
 
 ;; Substitute

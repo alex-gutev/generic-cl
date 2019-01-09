@@ -218,6 +218,90 @@
   (reverse seq))
 
 
+;; Sorting
+
+(defmethod merge (seq1 seq2 test &key key)
+  (let ((key (or key #'identity))
+	(collector (make-collector (empty-clone seq1)))
+	(it1 (iterator seq1))
+	(it2 (iterator seq2)))
+
+    (flet ((less (a b)
+	     (funcall test (funcall key a) (funcall key b))))
+      (loop
+	 until (or (endp it1) (endp it2))
+	 do
+	   (let ((elem1 (at it1))
+		 (elem2 (at it2)))
+	     (cond
+	       ((less elem1 elem2)
+		(collect collector elem1)
+		(advance it1))
+
+	       (t
+		(collect collector elem2)
+		(advance it2)))))
+
+      (cond
+	((not (endp it1))
+	 (extend collector it1))
+
+	((not (endp it2))
+	 (extend collector it2)))
+
+      (collector-sequence collector))))
+
+(defmethod nmerge (seq1 seq2 predicate &key key)
+  (merge seq1 seq2 predicate :key key))
+
+
+(defmethod sort (sequence &key (test #'lessp) key)
+  "Returns a sequence, of the same type as sequence, with the elements
+   sorted, by the order of TEST, using the merge sort algorithm."
+
+  (labels ((sort (it)
+	     (multiple-value-bind (it1 it2) (split it)
+	       (if it1
+		   (merge-sort it1 it2)
+		   (make-seq it))))
+
+	   (merge-sort (it1 it2)
+	     (merge (sort it1) (sort it2)
+		    test :key key))
+
+	   (make-seq (it)
+	     (if (endp it)
+		 (empty-clone sequence)
+		 (seq-with-item (at it))))
+
+	   (seq-with-item (item)
+	     (let ((collector (make-collector (empty-clone sequence))))
+	       (collect collector item)
+	       (collector-sequence collector)))
+
+	   (split (it)
+	     (let ((mid (floor (length it) 2)))
+	       (when (plusp mid)
+		 (values
+		  (subseq it 0 mid)
+		  (subseq it mid)))))
+
+	   (lessp (a b)
+	     (funcall test (funcall key a) (funcall key b))))
+    (sort (iterator sequence))))
+
+(defmethod stable-sort (seq &key (test #'lessp) key)
+  "Simply calls SORT as the default method is a stable sort."
+
+  (sort seq :test test :key key))
+
+(defmethod nsort (seq &key (test #'lessp) key)
+  (sort seq :test test :key key))
+
+(defmethod stable-nsort (seq &key (test #'lessp) key)
+  (stable-sort seq :test test :key key))
+
+
 ;; Substitute
 
 (defmethod nsubstitute (new old sequence &key from-end (test #'equalp) (start 0) end count key)

@@ -186,31 +186,55 @@
 
 ;; Sorting
 
-(defgeneric sort (sequence &key predicate key)
+(defgeneric merge (sequence1 sequence2 predicate &key key)
+  (:documentation
+   "Returns a new sequence (of the same type as SEQUENCE1) containing
+    the elements of SEQUENCE1 merge with SEQUENCE2. The elements are
+    ordered according the function PREDICATE.
+
+    PREDICATE is a function of two arguments (an element from
+    SEQUENCE1 and an element from SEQUENCE2), which should return true
+    if and only if the first argument is strictly less than the second
+    argument.
+
+    KEY is a function of one argument, that is called (if it is
+    non-NIL) on each element of SEQUENCE1 and SEQUENCE2 with the
+    result passed on to the PREDICATE function.
+
+    Unlike CL:MERGE this function is non-destructive."))
+
+(defgeneric nmerge (sequence1 sequence2 predicate &key key)
+  (:documentation
+   "Same as MERGE however is permitted to destructively modify either
+    SEQUENCE1 or SEQUENCE2."))
+
+
+(defgeneric sort (sequence &key test key)
   (:documentation
    "Returns a new sequence of the same type as SEQUENCE, with the same
     elements sorted according to the order determined by the function
-    PREDICATE.
+    TEST.
 
-    PREDICATE is a function of two arguments, which should return true
-    if and only if the first argument is strictly less than the second.
+    TEST is a function of two arguments, which should return true if
+    and only if the first argument is strictly less than the
+    second. By default, TEST is GENERIC-CL:LESSP.
 
     If KEY is provided and is not NIL it is called on each element and
-    the result returned by the function is passed on to PREDICATE."))
+    the result returned by the function is passed on to TEST."))
 
-(defgeneric stable-sort (sequence &key predicate key)
+(defgeneric stable-sort (sequence &key test key)
   (:documentation
    "Same as SORT however the sort operation is guaranteed to be
     stable, that is the order of elements which compare equal, under
-    PREDICATE, will be preserved."))
+    TEST, will be preserved."))
 
 
-(defgeneric nsort (sequence &key predicate key)
+(defgeneric nsort (sequence &key test key)
   (:documentation
    "Same as SORT however is permitted to destructively modify
     SEQUENCE."))
 
-(defgeneric stable-nsort (sequence &key predicate key)
+(defgeneric stable-nsort (sequence &key test key)
   (:documentation
    "Same as STABLE-SORT however is permitted to destructively modify
     SEQUENCE."))

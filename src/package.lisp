@@ -139,6 +139,7 @@
    :nconcatenate
    :concatenate-to
    :merge
+   :nmerge
 
    :reduce
 
