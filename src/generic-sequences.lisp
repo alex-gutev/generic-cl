@@ -50,9 +50,9 @@
   (length (iterator sequence)))
 
 (defmethod length ((it iterator))
-  "Returns the number of elements which will be iterated by the
-   iterator IT. This is achieved by iterating until the end of the
-   sequence using a copy of IT."
+  "Returns the number of elements between the current position of the
+   iterator and its end. This is achieved by iterating until ENDP
+   returns true using a copy of IT."
 
   (do ((it (copy it))
        (n 0 (1+ n)))

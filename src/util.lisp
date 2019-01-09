@@ -38,7 +38,7 @@
   (lambda (x) (not (funcall fn x))))
 
 (defun test-eq (fn x)
-  "Returns a function on argument Y which returns true if (FN X Y)
+  "Returns a function of one argument Y which returns true if (FN X Y)
    returns true."
 
   (lambda (y)
