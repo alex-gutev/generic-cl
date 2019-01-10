@@ -28,8 +28,17 @@
 
 ;;; Miscellaneous generic functions for manipulating objects
 
-(defgeneric copy (object)
-  (:documentation "Returns a copy of OBJECT."))
+(defgeneric copy (object &key &allow-other-keys)
+  (:documentation
+   "Returns a copy of OBJECT. Some methods may accept additional
+    keyword arguments which allow options, on how the object is to be
+    copied, to be specified.
+
+    Methods specialized on sequences or collections should accept
+    the :DEEP keyword argument which if provided and is true, the
+    objects contained in the sequence/collection should be copied as
+    well otherwise (if not provided or is NIL) only the
+    sequence/collection itself should be copied."))
 
 (defmacro defstruct (options &rest slots)
   "Sames as CL:DEFSTRUCT except that a COPY method, for the struct, is
@@ -45,6 +54,60 @@
      `(progn
 	(cl:defstruct ,options ,@slots)
 	,(when copier-name
-	  `(defmethod copy ((,arg ,name))
+	  `(defmethod copy ((,arg ,name) &key)
 	    (,copier-name ,arg)))
 	',name))))
+
+
+;;;; Copy methods for standard objects.
+
+;;; Lists
+
+(defmethod copy ((list cons) &key deep)
+  (if deep
+      (deep-copy-list list)
+      (copy-list list)))
+
+(defun deep-copy-list (list)
+  "Returns a copy of LIST which contains a copy (by COPY) of each
+   object contained in it."
+
+  (let ((tail (cons nil nil)))
+    (do ((tail tail)
+	 (head list (cdr head)))
+	((atom head) (setf (cdr tail) (copy head :deep t)))
+      (setf tail (cons (copy (car head) :deep t) nil)))
+    (cdr tail)))
+
+
+;;; Arrays/Vectors
+
+(defmethod copy ((array array) &key deep)
+  (if deep
+      (deep-copy-vector array)
+      (copy-array array)))
+
+(defun deep-copy-vector (vec)
+  "Returns a copy of LIST which contains a copy (by COPY) of each
+   object contained in it."
+
+  (let ((new (make-array (cl:length vec)
+			 :element-type (array-element-type vec)
+			 :adjustable (adjustable-array-p vec)
+			 :fill-pointer (and (array-has-fill-pointer-p vec)
+					    (fill-pointer vec)))))
+    (loop
+       for elem across vec
+       for i = 0 then (1+ i)
+       do
+	 (setf (aref new i) (copy elem :deep t)))
+
+    new))
+
+
+;;; Other Objects
+
+(defmethod copy (object)
+  "Default method, does not copy OBJECT."
+
+  object)
