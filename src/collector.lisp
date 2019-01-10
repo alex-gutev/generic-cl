@@ -132,6 +132,10 @@
 
 ;;;; Vectors
 
+(defmethod empty-clone ((vec vector))
+  (make-array (cl:length vec) :adjustable t :fill-pointer 0))
+
+
 (defstruct front-vector-collector
   "Collector object for adding items to the front of a vector"
   vector)
