@@ -162,18 +162,3 @@
 
 (defmethod collector-sequence ((c front-vector-collector))
   (cl:nreverse (front-vector-collector-vector c)))
-
-
-;;;; Hash Tables
-
-(defmethod make-collector ((table hash-table) &key front)
-  (declare (ignore front))
-
-  table)
-
-(defmethod collect ((table hash-table) item)
-  (destructuring-bind (key . value) item
-    (setf (gethash key table) value)))
-
-(defmethod collector-sequence ((table hash-table))
-  table)

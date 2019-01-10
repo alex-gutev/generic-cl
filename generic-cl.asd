@@ -36,6 +36,7 @@
                :trivia
                :iterate
                :cl-fad
+	       :cl-custom-hash-table
 
                :agutil
                :static-dispatch)
@@ -54,7 +55,8 @@
 		 (:file "iterator")
 		 (:file "collector")
 		 (:file "cl-sequences")
-		 (:file "generic-sequences"))))
+		 (:file "generic-sequences")
+		 (:file "hash-tables"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 

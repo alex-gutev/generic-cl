@@ -46,6 +46,9 @@
   (:documentation
    "Returns the last element of SEQUENCE."))
 
+(defgeneric erase (sequence index)
+  (:documentation
+   "Removes the element at index INDEX from the sequence SEQUENCE."))
 
 ;;; Length
 

@@ -63,11 +63,6 @@
 
   (cl:length sequence))
 
-(defmethod length ((hash hash-table))
-  "Returns the number of entries in the hash-table HASH."
-
-  (hash-table-count hash))
-
 (defmethod length ((vec vector))
   "Returns the number of elements in the vector VEC."
 

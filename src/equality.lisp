@@ -78,22 +78,6 @@
 	    always (equalp (row-major-aref a i)
 			   (row-major-aref b i))))))
 
-(defmethod equalp ((a hash-table) (b hash-table))
-  "Hash-table comparison method. Returns true if both hash-tables have
-   the same number of entries, and the value corresponding to each key
-   in A is equal (by EQUALP) to the value corresponding to the same
-   key in B.
-
-   Issue: Hash-table equality is not necessarily symmetric if the test
-   functions of the two hash-tables are different."
-
-  (and (cl:= (hash-table-count a) (hash-table-count b))
-       (iter (for (key a-value) in-hashtable a)
-             (always
-              (multiple-value-bind (b-value in-hash?) (gethash key b)
-                (and in-hash?
-                 (equalp a-value b-value)))))))
-
 (defmethod equalp ((a string) (b string))
   "Returns true if both strings are equal by CL:STRING="
 

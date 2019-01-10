@@ -31,7 +31,8 @@
 	:anaphora
 	:cl-arrows
         :trivia
-        :iterate)
+        :iterate
+	:cl-custom-hash-table)
 
   (:import-from :agutil
 		:defmacro!
@@ -81,7 +82,10 @@
    :nsubstitute :nsubstitute-if :nsubstitute-if-not
    :remove :remove-if :remove-if-not
    :delete :delete-if :delete-if-not
-   :remove-duplicates :delete-duplicates)
+   :remove-duplicates :delete-duplicates
+
+   ;; Hash-Tables
+   :get)
 
   (:export
    ;; Objects
@@ -132,6 +136,7 @@
    ;; Sequences
    :elt :length :subseq
    :first :last
+   :erase
 
    :fill :replace
 
@@ -162,7 +167,16 @@
    :remove :remove-if :remove-if-not
    :delete :delete-if :delete-if-not
 
-   :remove-duplicates :delete-duplicates))
+   :remove-duplicates :delete-duplicates
+
+   ;; Hash-Tables
+   :hash-map
+   :hash-map-table
+   :hash-map-p
+   :make-hash-map
+
+   :hash
+   :get))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

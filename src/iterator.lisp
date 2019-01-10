@@ -358,48 +358,6 @@
     (setf (row-major-aref array index) value)))
 
 
-;;; Hash-table
-
-(defstruct (hash-table-iterator (:include list-iterator))
-  "Hash-table iterator. The actual hash-table is converted to an ALIST
-   upon creation of the iterator, since closing over the iteration
-   function provided by WITH-HASH-TABLE-ITERATOR is undefined, and
-   assigned to the CONS slot. A reference to the hash-table is only
-   kept to implement (SETF AT)."
-
-  table)
-
-(defmethod make-iterator ((hash hash-table) start end)
-  "Create an iterator for the elements of a `hash-table' where each
-   element is a CONS of the form (KEY . VALUE). The order in which the
-   elements are iterated is unspecified, likewise there is no
-   guaranteed which elements will be iterated over if START is not 0
-   and END is not NIL."
-
-  (make-hash-table-iterator
-   :table hash
-   :cons
-   (loop
-      for key being the hash-key of hash
-      using (hash-value value)
-      for i from start below (or end (hash-table-count hash))
-      collect (cons key value))))
-
-(defmethod make-reverse-iterator ((hash hash-table) start end)
-  "Create a reverse iterator for the elements of a `hash-table'. Since
-   the order of iteration is unspecified this is identical to
-   MAKE-ITERATOR."
-
-  (make-iterator hash start end))
-
-(defmethod (setf at) (value (iter hash-table-iterator))
-  "Sets the value corresponding to the current key being
-   iterator (CAR (AT ITER)) to VALUE."
-
-  (-> (caar (hash-table-iterator-cons iter))
-      (gethash (hash-table-iterator-table iter))
-      (setf value)))
-
 ;;;; Iteration Macros
 
 (defmacro! doseq ((element o!sequence &rest args) &body body)
