@@ -353,17 +353,3 @@
 
     Returns the sequence in which the results of applying function are
     stored."))
-
-(defmethod map-to (result function &rest sequences)
-  (let ((collector (make-collector result)))
-    (loop
-       with iters = (make-iters sequences)
-       until (some-endp iters)
-       do
-	 (collect collector (apply function (get-elements iters)))
-	 (advance-all iters))
-
-    (collector-sequence collector)))
-
-(defmethod map-to ((type symbol) function &rest sequences)
-  (apply #'map-to (sequence-of-type type) function sequences))
