@@ -113,11 +113,20 @@
   (with-custom-hash-table
     (gethash key (hash-map-table map) default)))
 
+(defmethod get (key (table hash-table) &optional default)
+  (gethash key table default))
+
+
 (defmethod (setf get) (value key (map hash-map) &optional default)
   (declare (ignore default))
 
   (with-custom-hash-table
     (setf (gethash key (hash-map-table map)) value)))
+
+(defmethod (setf get) (value key (table hash-table) &optional default)
+  (declare (ignore default))
+  (setf (gethash key table) value))
+
 
 (defmethod erase ((map hash-map) key)
   "Removes the entry corresponding to the key KEY from the hash-map
@@ -125,6 +134,9 @@
 
   (with-custom-hash-table
     (remhash key map)))
+
+(defmethod erase ((table hash-table) key)
+  (remhash table key))
 
 
 ;;; Alists/Plists
