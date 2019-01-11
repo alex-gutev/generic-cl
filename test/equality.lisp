@@ -119,32 +119,32 @@
     (isnt #p"/usr/local/bin" #p"/USR/local/bin" :test #'equalp))
 
   (subtest "Hash-Table Equality"
-    (let ((table (make-hash-table :test #'equal)))
-      (setf (gethash 'x table) 1)
-      (setf (gethash 'y table) 'z)
-      (setf (gethash "hello" table) "world")
-      (setf (gethash '(1 2 3) table) #\z)
+    (let ((table (make-hash-map)))
+      (setf (get 'x table) 1)
+      (setf (get 'y table) 'z)
+      (setf (get "hello" table) "world")
+      (setf (get '(1 2 3) table) #\z)
 
       (is table
-          (alist-hash-table
-           '((x . 1) (y . z) ("hello" . "world") ((1 2 3) . #\z)) :test #'equal)
+          (alist-hash-map
+           '((x . 1) (y . z) ("hello" . "world") ((1 2 3) . #\z)))
           :test #'equalp)
       (is table
-          (alist-hash-table
+          (alist-hash-map
            '((x . 1) (y . z) ("HELLO" . "world") ((1 2 3) . #\z)) :test #'cl:equalp)
           :test #'equalp)
 
       (isnt table
-            (alist-hash-table
-             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z)) :test #'equal)
+            (alist-hash-map
+             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z)))
             :test #'equalp)
       (isnt table
-            (alist-hash-table
-             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z)) :test #'equal)
+            (alist-hash-map
+             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z)))
             :test #'equalp)
       (isnt table
-            (alist-hash-table
-             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z) ("x" . "z")) :test #'equal)
+            (alist-hash-map
+             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z) ("x" . "z")))
             :test #'equalp)))
 
   (subtest "Generic Objects Equality"

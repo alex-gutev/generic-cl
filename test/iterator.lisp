@@ -99,17 +99,17 @@
 	       it)))
 
        (test-hash-iter (hash &key (start 0) end from-end)
-	 (diag (format nil "Test Hash-Table: ~s" (hash-table-alist hash)))
+	 (diag (format nil "Test Hash-Table: ~s" (hash-map-alist hash)))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
 	 (loop
 	    with iter = (iterator hash :start start :end end :from-end from-end)
 	    with i = 0
-	    with count = (- (or end (hash-table-count hash)) start)
+	    with count = (- (or end (length hash)) start)
 	    for (key . value) = (start iter) then (at iter)
 	    until (endp iter)
 	    do
-	      (is value (gethash key hash))
+	      (is value (get key hash))
 	      (advance iter)
 	      (incf i)
 	    finally
@@ -214,27 +214,27 @@
 	(test-set-element #2A((1 2) (3 4)) 1 'x #2A((1 x) (3 4)) :start 1 :end 3 :from-end t)))
 
     (subtest "Hash-Table Iterator"
-      (test-hash-iter (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))))
-      (test-hash-iter (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))) :from-end t)
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))))
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :from-end t)
 
-      (test-hash-iter (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3)
-      (test-hash-iter (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3 :from-end t)
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3)
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3 :from-end t)
 
-      (test-hash-iter (make-hash-table))
-      (test-hash-iter (make-hash-table) :from-end t)
+      (test-hash-iter (make-hash-map))
+      (test-hash-iter (make-hash-map) :from-end t)
 
       (subtest "Modifying Elements"
-	(let* ((hash (alist-hash-table '((a . 1) (b . 2) (c . 3))))
+	(let* ((hash (alist-hash-map '((a . 1) (b . 2) (c . 3))))
 	       (it (iterator hash)))
 	  (advance it)
 	  (setf (at it) 'x)
-	  (is (gethash (car (at it)) hash) 'x))
+	  (is (get (car (at it)) hash) 'x))
 
-	(let* ((hash (alist-hash-table '((a . 1) (b . 2) (c . 3) (d . 4))))
+	(let* ((hash (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))))
 	       (it (iterator hash :start 1 :end 3)))
 	  (advance it)
 	  (setf (at it) 'x)
-	  (is (gethash (car (at it)) hash) 'x))))
+	  (is (get (car (at it)) hash) 'x))))
 
     (subtest "DOSEQ Macro"
       (let ((list '(1 2 3 4)))

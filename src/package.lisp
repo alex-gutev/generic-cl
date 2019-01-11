@@ -176,7 +176,10 @@
    :make-hash-map
 
    :hash
-   :get))
+   :get
+
+   :hash-map-alist
+   :alist-hash-map))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

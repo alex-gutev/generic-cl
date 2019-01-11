@@ -249,9 +249,9 @@
 
   (make-hash-table-iterator
    :table (hash-map-table map)
-   :cons (hash-map-alist map start end)))
+   :cons (hash-map->list map start end)))
 
-(defmethod make-reverse-iterator ((hash hash-table) start end)
+(defmethod make-reverse-iterator ((hash hash-map) start end)
   "Create a reverse iterator for the elements of a `hash-table'. Since
    the order of iteration is unspecified this is identical to
    MAKE-ITERATOR."
@@ -267,7 +267,12 @@
 		   (hash-table-iterator-table iter))
 	  value)))
 
-(defun hash-map-alist (map &optional start end)
+(defun hash-map->list (map &optional (start 0) end)
+  "Returns an ALIST containing the elements of the hash map MAP. START
+   and END determine the number of elements that the hash map
+   contains. If START is zero and END is NIL all elements are included
+   in the ALIST."
+
   (let ((table (hash-map-table map)))
     (flet ((get-all ()
 	     (let (list)
@@ -280,7 +285,8 @@
 	       (do-generic-map (key value table)
 		 (when (cl:= n count)
 		   (return nil))
-		 (push (cons key value) list))
+		 (push (cons key value) list)
+		 (cl:incf n))
 	       list)))
 
       (with-custom-hash-table
@@ -296,3 +302,29 @@
 
   (with-custom-hash-table
     (hash-table-count (hash-map-table map))))
+
+
+;;;; Hash-Table Utilities
+
+(defun alist-hash-map (alist &rest args)
+  "Returns an hash map containing all entries in the association list
+   ALIST. ARGS are the additional arguments passed to MAKE-HASH-MAP."
+
+  (let* ((map (apply #'make-hash-map args))
+	 (table (hash-map-table map)))
+    (with-custom-hash-table
+      (loop
+	 for (key . value) in alist
+	 do
+	   (setf (gethash key table) value)))
+    map))
+
+(defun hash-map-alist (map)
+  "Returns an ALIST containing all the entries (key-value pairs) in
+   the hash-map MAP."
+
+  (let ((table (hash-map-table map)))
+    (let (list)
+      (do-generic-map (key value table)
+	(push (cons key value) list))
+      list)))
