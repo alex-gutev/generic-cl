@@ -85,7 +85,15 @@
    :remove-duplicates :delete-duplicates
 
    ;; Hash-Tables
-   :get)
+   :get
+
+   ;; Sets
+   :subsetp
+   :intersection :nintersection
+   :adjoin
+   :set-difference :nset-difference
+   :set-exclusive-or :nset-exclusive-or
+   :union :nunion)
 
   (:export
    ;; Objects
@@ -179,7 +187,15 @@
    :get
 
    :hash-map-alist
-   :alist-hash-map))
+   :alist-hash-map
+
+   ;; Sets
+   :memberp :subsetp
+   :intersection :nintersection
+   :adjoin :nadjoin
+   :set-difference :nset-difference
+   :set-exclusive-or :nset-exclusive-or
+   :union :nunion))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

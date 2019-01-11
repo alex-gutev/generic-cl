@@ -60,7 +60,7 @@
 
   table)
 
-(defun make-hash-map (&rest args &key (test 'equalp) &allow-other-keys)
+(defun make-hash-map (&rest args &key &allow-other-keys)
   "Creates a hash map. If TEST is the symbol GENERIC-CL:EQUALP (the
    default), a generic hash-table, with HASH as the hash function and
    GENERIC-CL:EQUALP as the comparison function. If another value for
@@ -74,23 +74,20 @@
    The return value is always a HASH-MAP which wraps either the
    generic or Common Lisp hash-table."
 
-  (hash-map
+  (hash-map (apply #'make-hash-map-table args)))
+
+(defun make-hash-map-table (&rest args &key (test 'equalp) &allow-other-keys)
+  "Creates either a native hash-table or generic hash-table depending
+   on the TEST."
+
+  (apply
    (case test
      (equalp
-      (apply #'make-generic-hash-table (remove-from-plist args :test)))
+      #'make-generic-hash-table)
 
      (otherwise
-      (apply #'make-hash-table args)))))
-
-(define-compiler-macro make-hash-map (&whole form &rest args)
-  (match (getf args :test)
-    ((list 'quote 'equalp)
-     `(hash-map (make-generic-hash-table ,@(remove-from-plist args :test))))
-
-    ((or (list 'quote (not 'equalp)) nil)
-     `(hash-map (make-hash-table ,@args)))
-
-    (_ form)))
+      #'make-hash-table))
+   args))
 
 
 ;;;; Generic Lookup Functions
@@ -154,14 +151,17 @@
 ;;;; Hash Table Iteration
 
 (defmacro! do-generic-map ((key value o!hash-map &optional result) &body body)
-  `(with-custom-hash-table
-     (with-hash-table-iterator (,g!next ,g!hash-map)
-       (block ,g!block
-	 (loop
-	    (multiple-value-bind (,g!more? ,key ,value) (,g!next)
-	      (unless ,g!more?
-		(return-from ,g!block ,result))
-	      ,@body))))))
+  (let ((key (or key (gensym "KEY")))
+	(value (or value (gensym "VALUE"))))
+    `(with-custom-hash-table
+       (with-hash-table-iterator (,g!next ,g!hash-map)
+	 (block ,g!block
+	   (loop
+	      (multiple-value-bind (,g!more? ,key ,value) (,g!next)
+		(declare (ignorable ,key ,value))
+		(unless ,g!more?
+		  (return-from ,g!block ,result))
+		,@body)))))))
 
 
 ;;;; Hash Table Copying
