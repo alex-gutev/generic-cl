@@ -107,7 +107,7 @@
 
 ;;; Other Objects
 
-(defmethod copy (object)
+(defmethod copy (object &key)
   "Default method, does not copy OBJECT."
 
   object)
