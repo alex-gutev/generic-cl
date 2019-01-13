@@ -35,35 +35,42 @@
 	 (diag (format nil "Test List: ~s" list))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
-	 (loop
-	    with iter = (iterator list :start start :end end :from-end from-end)
-	    for (expected . rest) on test-list
-	    for got = (start iter) then (at iter)
-	    until (endp iter)
-	    do
-	      (is got expected)
-	      (advance iter)
-	    finally
-	      (ok (endp iter) "(ENDP ITER)")
-	      (is rest nil)))
+	 (let ((iter (iterator list :start start :end end :from-end from-end)))
+	   ;; Test LENGTH
+	   (is (length iter) (cl:length test-list) "(LENGTH ITER)")
+
+	   (loop
+	      for (expected . rest) on test-list
+	      for got = (start iter) then (at iter)
+	      until (endp iter)
+	      do
+		(is got expected)
+		(advance iter)
+	      finally
+		(ok (endp iter) "(ENDP ITER)")
+		(is rest nil))))
 
        (test-vec-iter (vec &key (start 0) end from-end &aux (test-vec (test-sequence vec start end from-end)))
 	 (diag (format nil "Test Vector: ~s" vec))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
-	 (loop
-	    with iter = (iterator vec :start start :end end :from-end from-end)
-	    with i = 0
-	    for expected across test-vec
-	    for got = (start iter) then (at iter)
-	    until (endp iter)
-	    do
-	      (is got expected)
-	      (advance iter)
-	      (incf i)
-	    finally
-	      (ok (endp iter) "(ENDP ITER)")
-	      (is i (cl:length test-vec))))
+	 (let ((iter (iterator vec :start start :end end :from-end from-end)))
+	   ;; Test LENGTH
+	   (is (length iter) (cl:length test-vec) "(LENGTH ITER)")
+
+	   (loop
+	      with iter = (iterator vec :start start :end end :from-end from-end)
+	      with i = 0
+	      for expected across test-vec
+	      for got = (start iter) then (at iter)
+	      until (endp iter)
+	      do
+		(is got expected)
+		(advance iter)
+		(incf i)
+	      finally
+		(ok (endp iter) "(ENDP ITER)")
+		(is i (cl:length test-vec)))))
 
        (test-sequence (seq start end from-end)
 	 (alet (cl:subseq seq start end)
@@ -75,19 +82,22 @@
 	 (diag (format nil "Test array: ~s" arr))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
-	 (loop
-	    with iter = (iterator arr :start start :end end :from-end from-end)
-	    with i = 0
-	    for expected across test-arr
-	    for got = (start iter) then (at iter)
-	    until (endp iter)
-	    do
-	      (is got expected)
-	      (advance iter)
-	      (incf i)
-	    finally
-	      (ok (endp iter) "(ENDP ITER)")
-	      (is i (cl:length test-arr))))
+	 (let ((iter (iterator arr :start start :end end :from-end from-end)))
+	   ;; Test LENGTH
+	   (is (length iter) (cl:length test-arr) "(LENGTH ITER)")
+
+	   (loop
+	      with i = 0
+	      for expected across test-arr
+	      for got = (start iter) then (at iter)
+	      until (endp iter)
+	      do
+		(is got expected)
+		(advance iter)
+		(incf i)
+	      finally
+		(ok (endp iter) "(ENDP ITER)")
+		(is i (cl:length test-arr)))))
 
        (test-array (array start end from-end)
 	 (alet
@@ -102,19 +112,22 @@
 	 (diag (format nil "Test Hash-Table: ~s" (hash-map-alist hash)))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
-	 (loop
-	    with iter = (iterator hash :start start :end end :from-end from-end)
-	    with i = 0
-	    with count = (- (or end (length hash)) start)
-	    for (key . value) = (start iter) then (at iter)
-	    until (endp iter)
-	    do
-	      (is value (get key hash))
-	      (advance iter)
-	      (incf i)
-	    finally
-	      (ok (endp iter) "(ENDP ITER)")
-	      (is i count)))
+	 (let ((iter (iterator hash :start start :end end :from-end from-end))
+	       (count (- (or end (length hash)) start)))
+	   ;; Test LENGTH
+	   (is (length iter) count "(LENGTH ITER)")
+
+	   (loop
+	      with i = 0
+	      for (key . value) = (start iter) then (at iter)
+	      until (endp iter)
+	      do
+		(is value (get key hash))
+		(advance iter)
+		(incf i)
+	      finally
+		(ok (endp iter) "(ENDP ITER)")
+		(is i count))))
 
        (test-set-element (seq index value expected &rest args)
 	 (let ((seq (copy seq)))

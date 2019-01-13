@@ -296,6 +296,14 @@
     (< index end)))
 
 
+(defmethod length ((iter reverse-vector-iterator))
+  (cl:- (cl:1+ (reverse-vector-iterator-index iter))
+	(reverse-vector-iterator-end iter)))
+
+(defmethod advnace-n ((iter reverse-vector-iterator) n)
+  (cl:decf (reverse-vector-iterator-index iter) n))
+
+
 (defmethod subseq ((it reverse-vector-iterator) start &optional end)
   (with-accessors ((array reverse-vector-iterator-array)
 		   (index reverse-vector-iterator-index)
