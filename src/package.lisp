@@ -127,6 +127,7 @@
    :at
    :start
    :advance
+   :advance-n
    :endp
 
    :doseq

@@ -31,46 +31,57 @@
 
 (subtest "Test Iterator Interface"
   (labels
-      ((test-list-iter (list &key (start 0) end from-end &aux (test-list (test-sequence list start end from-end)))
+      ((test-list-iter (list &key (start 0) end from-end step &aux (test-list (test-sequence list start end from-end)))
 	 (diag (format nil "Test List: ~s" list))
-	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
+	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s, Step: ~s" start end from-end step))
 
 	 (let ((iter (iterator list :start start :end end :from-end from-end)))
 	   ;; Test LENGTH
 	   (is (length iter) (cl:length test-list) "(LENGTH ITER)")
 
 	   (loop
-	      for (expected . rest) on test-list
+	      for cell on test-list by (nth (1- (or step 1)) '(cdr cddr cdddr))
+	      for (expected . rest) = cell
 	      for got = (start iter) then (at iter)
 	      until (endp iter)
 	      do
 		(is got expected)
-		(advance iter)
+		(if step
+		    (advance-n iter step)
+		    (advance iter))
+
 	      finally
 		(ok (endp iter) "(ENDP ITER)")
-		(is rest nil))))
+		(is cell nil))))
 
-       (test-vec-iter (vec &key (start 0) end from-end &aux (test-vec (test-sequence vec start end from-end)))
+       (test-vec-iter (vec &key (start 0) end from-end step &aux (test-vec (test-sequence vec start end from-end)))
 	 (diag (format nil "Test Vector: ~s" vec))
-	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
+	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s, Step: ~s" start end from-end step))
 
-	 (let ((iter (iterator vec :start start :end end :from-end from-end)))
-	   ;; Test LENGTH
-	   (is (length iter) (cl:length test-vec) "(LENGTH ITER)")
+	 (test-vector-elements
+	  (iterator vec :start start :end end :from-end from-end)
+	  test-vec
+	  step))
 
-	   (loop
-	      with iter = (iterator vec :start start :end end :from-end from-end)
-	      with i = 0
-	      for expected across test-vec
-	      for got = (start iter) then (at iter)
-	      until (endp iter)
-	      do
-		(is got expected)
-		(advance iter)
-		(incf i)
-	      finally
-		(ok (endp iter) "(ENDP ITER)")
-		(is i (cl:length test-vec)))))
+       (test-vector-elements (iter test-vec step)
+	 ;; Test LENGTH
+	 (is (length iter) (cl:length test-vec) "(LENGTH ITER)")
+
+	 (loop
+	    for i = 0 then (+ i (or step 1))
+	    until (endp iter)
+	    do
+	      (is (at iter) (aref test-vec i))
+
+	      (if step
+		  (advance-n iter step)
+		  (advance iter))
+
+	    finally
+	      (ok (endp iter) "(ENDP ITER)")
+	      (if step
+		  (ok (cl:>= i (cl:length test-vec)))
+		  (is i (cl:length test-vec)))))
 
        (test-sequence (seq start end from-end)
 	 (alet (cl:subseq seq start end)
@@ -78,26 +89,14 @@
 	       (cl:reverse it)
 	       it)))
 
-       (test-array-iter (arr &key (start 0) end from-end &aux (test-arr (test-array arr start end from-end)))
+       (test-array-iter (arr &key (start 0) end from-end step &aux (test-arr (test-array arr start end from-end)))
 	 (diag (format nil "Test array: ~s" arr))
-	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
+	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s, Step: ~s" start end from-end step))
 
-	 (let ((iter (iterator arr :start start :end end :from-end from-end)))
-	   ;; Test LENGTH
-	   (is (length iter) (cl:length test-arr) "(LENGTH ITER)")
-
-	   (loop
-	      with i = 0
-	      for expected across test-arr
-	      for got = (start iter) then (at iter)
-	      until (endp iter)
-	      do
-		(is got expected)
-		(advance iter)
-		(incf i)
-	      finally
-		(ok (endp iter) "(ENDP ITER)")
-		(is i (cl:length test-arr)))))
+	 (test-vector-elements
+	  (iterator arr :start start :end end :from-end from-end)
+	  test-arr
+	  step))
 
        (test-array (array start end from-end)
 	 (alet
@@ -108,7 +107,7 @@
 	       (cl:reverse it)
 	       it)))
 
-       (test-hash-iter (hash &key (start 0) end from-end)
+       (test-hash-iter (hash &key (start 0) end from-end step)
 	 (diag (format nil "Test Hash-Table: ~s" (hash-map-alist hash)))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
@@ -118,16 +117,19 @@
 	   (is (length iter) count "(LENGTH ITER)")
 
 	   (loop
-	      with i = 0
-	      for (key . value) = (start iter) then (at iter)
+	      with count = (floor count (or step 1))
+	      for i = 0 then (+ i (or step 1))
 	      until (endp iter)
 	      do
-		(is value (get key hash))
-		(advance iter)
-		(incf i)
+		(destructuring-bind (key . value) (at iter)
+		  (is value (get key hash))
+		  (advance iter))
+
 	      finally
 		(ok (endp iter) "(ENDP ITER)")
-		(is i count))))
+		(if step
+		    (ok (>= i count))
+		    (is i count)))))
 
        (test-set-element (seq index value expected &rest args)
 	 (let ((seq (copy seq)))
@@ -154,8 +156,14 @@
 	    finally (setf (at it) value))))
 
     (subtest "List iterator"
+      ;; Unbounded
       (test-list-iter '(1 2 3 a b c))
       (test-list-iter '(1 2 3 a b c) :from-end t)
+
+      (test-list-iter '(1 2 3 a b c) :step 2)
+      (test-list-iter '(1 2 3 a b c) :step 2 :from-end t)
+
+      ;; Bounded
 
       (test-list-iter '(1 2 3 a b c) :start 2)
       (test-list-iter '(1 2 3 a b c) :start 2 :end 4)
@@ -163,12 +171,30 @@
       (test-list-iter '(1 2 3 a b c) :start 2 :from-end t)
       (test-list-iter '(1 2 3 a b c) :start 2 :end 4 :from-end t)
 
+      (test-list-iter '(1 2 3 a b c) :start 2 :step 3)
+      (test-list-iter '(1 2 3 a b c) :start 2 :end 4 :step 2)
+
+      (test-list-iter '(1 2 3 a b c) :start 2 :from-end t :step 2)
+      (test-list-iter '(1 2 3 a b c) :start 2 :end 4 :from-end t :step 3)
+
+
+      ;; Single Element
+
       (test-list-iter '(a))
       (test-list-iter '(a) :from-end t)
       (test-list-iter '(a) :start 1)
       (test-list-iter '(a) :start 1 :from-end t)
       (test-list-iter '(a) :start 1 :end 1)
       (test-list-iter '(a) :start 1 :end 1 :from-end t)
+
+      (test-list-iter '(a))
+      (test-list-iter '(a) :from-end t :step 2)
+      (test-list-iter '(a) :start 1 :step 3)
+      (test-list-iter '(a) :start 1 :from-end t :step 4)
+      (test-list-iter '(a) :start 1 :end 1 :step 2)
+      (test-list-iter '(a) :start 1 :end 1 :from-end t :step 2)
+
+      ;; Empty List
 
       (test-list-iter nil)
 
@@ -181,11 +207,23 @@
 	(test-set-element '(1 2 3 4) 1 'z '(1 z 3 4) :start 1 :end 3 :from-end t)))
 
     (subtest "Vector Iterator"
+      ;; Single-Step
+
       (test-vec-iter #(1 2 3 a b c))
       (test-vec-iter #(1 2 3 a b c) :from-end t)
 
       (test-vec-iter #(1 2 3 a b c) :start 1 :end 3)
       (test-vec-iter #(1 2 3 a b c) :from-end t :start 1 :end 3)
+
+      ;; With Step
+
+      (test-vec-iter #(1 2 3 a b c) :step 3)
+      (test-vec-iter #(1 2 3 a b c) :from-end t :step 3)
+
+      (test-vec-iter #(1 2 3 a b c) :start 1 :end 3 :step 4)
+      (test-vec-iter #(1 2 3 a b c) :from-end t :start 1 :end 3 :step 2)
+
+      ;; Single-Element
 
       (test-vec-iter #(1))
       (test-vec-iter #(1) :from-end t)
@@ -193,7 +231,20 @@
       (test-vec-iter #(1) :start 1 :end 1)
       (test-vec-iter #(1) :start 1 :end 1 :from-end t)
 
+      ;; With-Step
+
+      (test-vec-iter #(1) :step 3)
+      (test-vec-iter #(1) :from-end t :step 2)
+      (test-vec-iter #(1) :start 1 :step 4)
+      (test-vec-iter #(1) :start 1 :end 1 :step 5)
+      (test-vec-iter #(1) :start 1 :end 1 :from-end t :step 2)
+
+      ;; Empty Vector
+
       (test-vec-iter #())
+      (test-vec-iter #() :step 3)
+
+      ;; Other Vector Types
 
       (diag "Other Vector Types:")
 
@@ -213,10 +264,19 @@
 	(test-set-element #(1 2 3 4) 1 'z #(1 z 3 4) :start 1 :end 3 :from-end t)))
 
     (subtest "Multi-Dimensional Array Iterator"
+      ;; Single-Step
+
       (test-array-iter #2A((1 2 3) (4 5 6)))
       (test-array-iter #2A((1 2 3) (4 5 6)) :from-end t)
       (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5)
       (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5 :from-end t)
+
+      ;; With Step
+
+      (test-array-iter #2A((1 2 3) (4 5 6)) :step 3)
+      (test-array-iter #2A((1 2 3) (4 5 6)) :from-end t :step 4)
+      (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5 :step 2)
+      (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5 :from-end t :step 3)
 
       (subtest "Modifying Elements"
 	(test-set-element #2A((1 2) (3 4)) 1 'x #2A((1 x) (3 4)))
@@ -227,14 +287,27 @@
 	(test-set-element #2A((1 2) (3 4)) 1 'x #2A((1 x) (3 4)) :start 1 :end 3 :from-end t)))
 
     (subtest "Hash-Table Iterator"
+      ;; Single-Step
+
       (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))))
       (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :from-end t)
 
       (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3)
       (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3 :from-end t)
 
+      ;; Multi-Step
+
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :step 2)
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :from-end t :step 3)
+
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3 :step 4)
+      (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3 :from-end t :step 2)
+
+      ;; Empty Hash-Table
+
       (test-hash-iter (make-hash-map))
       (test-hash-iter (make-hash-map) :from-end t)
+      (test-hash-iter (make-hash-map) :step 2)
 
       (subtest "Modifying Elements"
 	(let* ((hash (alist-hash-map '((a . 1) (b . 2) (c . 3))))
