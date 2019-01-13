@@ -35,24 +35,40 @@
 	 (diag (format nil "Test List: ~s" list))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s, Step: ~s" start end from-end step))
 
-	 (let ((iter (iterator list :start start :end end :from-end from-end)))
-	   ;; Test LENGTH
-	   (is (length iter) (cl:length test-list) "(LENGTH ITER)")
+	 (test-list-elements
+	  (iterator list :start start :end end :from-end from-end)
+	  test-list
+	  step))
 
-	   (loop
-	      for cell on test-list by (nth (1- (or step 1)) '(cdr cddr cdddr))
-	      for (expected . rest) = cell
-	      for got = (start iter) then (at iter)
-	      until (endp iter)
-	      do
-		(is got expected)
-		(if step
-		    (advance-n iter step)
-		    (advance iter))
+       (test-list-subseq (list &key (start 0) end from-end)
+	 (diag (format nil "Subseq Test List: ~s" list))
+	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
-	      finally
-		(ok (endp iter) "(ENDP ITER)")
-		(is cell nil))))
+	 (let ((test-list (subseq (if from-end (cl:reverse list) list) start end)))
+
+	   (test-list-elements
+	    (subseq (iterator list :from-end from-end) start end)
+	    test-list
+	    nil)))
+
+       (test-list-elements (iter test-list step)
+	 ;; Test LENGTH
+	 (is (length iter) (cl:length test-list) "(LENGTH ITER)")
+
+	 (loop
+	    for cell on test-list by (nth (1- (or step 1)) '(cdr cddr cdddr))
+	    for (expected) = cell
+	    for got = (start iter) then (at iter)
+	    until (endp iter)
+	    do
+	      (is got expected)
+	      (if step
+		  (advance-n iter step)
+		  (advance iter))
+
+	    finally
+	      (ok (endp iter) "(ENDP ITER)")
+	      (is cell nil)))
 
        (test-vec-iter (vec &key (start 0) end from-end step &aux (test-vec (test-sequence vec start end from-end)))
 	 (diag (format nil "Test Vector: ~s" vec))
@@ -62,6 +78,17 @@
 	  (iterator vec :start start :end end :from-end from-end)
 	  test-vec
 	  step))
+
+       (test-vec-subseq (vec &key (start 0) end from-end)
+	 (diag (format nil "Subseq Test Vector: ~s" vec))
+	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
+
+	 (let ((test-vec (subseq (if from-end (cl:reverse vec) vec) start end)))
+
+	   (test-vector-elements
+	    (subseq (iterator vec :from-end from-end) start end)
+	    test-vec
+	    nil)))
 
        (test-vector-elements (iter test-vec step)
 	 ;; Test LENGTH
@@ -107,29 +134,50 @@
 	       (cl:reverse it)
 	       it)))
 
+       (test-array-subseq (array &key (start 0) end from-end)
+	 (diag (format nil "Subseq Test Array: ~s" array))
+	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
+
+	 (let ((test-arr (subseq (test-array array 0 nil from-end) start end)))
+	   (test-vector-elements
+	    (subseq (iterator array :from-end from-end) start end)
+	    test-arr
+	    nil)))
+
        (test-hash-iter (hash &key (start 0) end from-end step)
 	 (diag (format nil "Test Hash-Table: ~s" (hash-map-alist hash)))
 	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
 	 (let ((iter (iterator hash :start start :end end :from-end from-end))
 	       (count (- (or end (length hash)) start)))
-	   ;; Test LENGTH
-	   (is (length iter) count "(LENGTH ITER)")
+	   (test-hash-elements iter hash count step)))
 
-	   (loop
-	      with count = (floor count (or step 1))
-	      for i = 0 then (+ i (or step 1))
-	      until (endp iter)
-	      do
-		(destructuring-bind (key . value) (at iter)
-		  (is value (get key hash))
-		  (advance iter))
+       (test-hash-subseq (hash &key (start 0) end from-end)
+	 (diag (format nil "Test Hash-Table: ~s" (hash-map-alist hash)))
+	 (diag (format nil "Start: ~s, End: ~s, From-end: ~s" start end from-end))
 
-	      finally
-		(ok (endp iter) "(ENDP ITER)")
-		(if step
-		    (ok (>= i count))
-		    (is i count)))))
+	 (let ((iter (subseq (iterator hash :from-end from-end) start end))
+	       (count (- (or end (length hash)) start)))
+	   (test-hash-elements iter hash count nil)))
+
+       (test-hash-elements (iter hash count step)
+	 ;; Test LENGTH
+	 (is (length iter) count "(LENGTH ITER)")
+
+	 (loop
+	    with count = (floor count (or step 1))
+	    for i = 0 then (+ i (or step 1))
+	    until (endp iter)
+	    do
+	      (destructuring-bind (key . value) (at iter)
+		(is value (get key hash))
+		(advance iter))
+
+	    finally
+	      (ok (endp iter) "(ENDP ITER)")
+	      (if step
+		  (ok (>= i count))
+		  (is i count))))
 
        (test-set-element (seq index value expected &rest args)
 	 (let ((seq (copy seq)))
@@ -177,6 +225,15 @@
       (test-list-iter '(1 2 3 a b c) :start 2 :from-end t :step 2)
       (test-list-iter '(1 2 3 a b c) :start 2 :end 4 :from-end t :step 3)
 
+      ;; Subseq
+
+      (test-list-subseq '(1 2 3 a b c) :start 2)
+      (test-list-subseq '(1 2 3 a b c) :start 2 :end nil)
+      (test-list-subseq '(1 2 3 a b c) :end 4)
+
+      (test-list-subseq '(1 2 3 a b c) :start 2 :from-end t)
+      (test-list-subseq '(1 2 3 a b c) :start 2 :end nil :from-end t)
+      (test-list-subseq '(1 2 3 a b c) :start 2 :end 4 :from-end t)
 
       ;; Single Element
 
@@ -222,6 +279,15 @@
 
       (test-vec-iter #(1 2 3 a b c) :start 1 :end 3 :step 4)
       (test-vec-iter #(1 2 3 a b c) :from-end t :start 1 :end 3 :step 2)
+
+      ;; Subseq
+
+      (test-vec-subseq #(1 2 3 a b c) :start 1 :end 3)
+      (test-vec-subseq #(1 2 3 a b c) :from-end t :start 1 :end 3)
+      (test-vec-subseq #(1 2 3 a b c) :start 1)
+      (test-vec-subseq #(1 2 3 a b c) :start 1 :end nil)
+      (test-vec-subseq #(1 2 3 a b c) :from-end t :start 1)
+      (test-vec-subseq #(1 2 3 a b c) :from-end t :start 1 :end nil)
 
       ;; Single-Element
 
@@ -271,6 +337,15 @@
       (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5)
       (test-array-iter #2A((1 2 3) (4 5 6)) :start 2 :end 5 :from-end t)
 
+      ;; Subseq
+
+      (test-array-subseq #2A((1 2 3) (4 5 6)) :start 2 :end 5)
+      (test-array-subseq #2A((1 2 3) (4 5 6)) :start 2 :end 5 :from-end t)
+      (test-array-subseq #2A((1 2 3) (4 5 6)) :start 2)
+      (test-array-subseq #2A((1 2 3) (4 5 6)) :start 2 :from-end t)
+      (test-array-subseq #2A((1 2 3) (4 5 6)) :start 2 :end nil)
+      (test-array-subseq #2A((1 2 3) (4 5 6)) :start 2 :end nil :from-end t)
+
       ;; With Step
 
       (test-array-iter #2A((1 2 3) (4 5 6)) :step 3)
@@ -294,6 +369,12 @@
 
       (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3)
       (test-hash-iter (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3 :from-end t)
+
+      ;; Subseq
+
+      (test-hash-subseq (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end 3)
+      (test-hash-subseq (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 2)
+      (test-hash-subseq (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4))) :start 1 :end nil)
 
       ;; Multi-Step
 

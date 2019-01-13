@@ -184,8 +184,10 @@
   (cl:- (bound-list-iterator-end iter) (bound-list-iterator-index iter)))
 
 
-(defmethod subseq ((it bound-list-iterator) start &optional (end (cl:- (bound-list-iterator-end it) (bound-list-iterator-index it))))
-  (call-next-method it start end))
+(defmethod subseq ((it bound-list-iterator) start &optional end)
+  (->> (cl:- (bound-list-iterator-end it) (bound-list-iterator-index it))
+       (or end)
+       (call-next-method it start)))
 
 
 ;; Reverse
@@ -225,7 +227,7 @@
     (make-reverse-list-iterator
      :cons
      (if end
-	 (cl:butlast cells end)
+	 (cl:butlast cells (cl:- end start))
 	 cells))))
 
 
@@ -269,10 +271,10 @@
   (cl:incf (vector-iterator-index iter) n))
 
 
-(defmethod subseq ((it vector-iterator) start &optional (end (vector-iterator-end it)))
+(defmethod subseq ((it vector-iterator) start &optional end)
   (make-vector-iterator :array (vector-iterator-array it)
 			:index (cl:+ (vector-iterator-index it) start)
-			:end end))
+			:end (or end (vector-iterator-end it))))
 
 ;; Reverse
 
@@ -307,13 +309,15 @@
 (defmethod subseq ((it reverse-vector-iterator) start &optional end)
   (with-accessors ((array reverse-vector-iterator-array)
 		   (index reverse-vector-iterator-index)
-		   (old-end reverse-array-iterator-end)) it
+		   (old-end reverse-vector-iterator-end)) it
+
     (make-reverse-vector-iterator
      :array array
      :index (cl:- index start)
      :end (if end
-	      (cl:- index end)
-	      old-end))))
+    	      (cl:1+ (cl:- index end))
+    	      old-end))))
+
 
 ;;; Multi-dimensional Array Iterator
 
@@ -338,6 +342,11 @@
   (with-accessors ((array array-iterator-array)
 		   (index array-iterator-index)) iter
     (setf (row-major-aref array index) value)))
+
+(defmethod subseq ((it array-iterator) start &optional end)
+  (make-array-iterator :array (array-iterator-array it)
+		       :index (cl:+ (array-iterator-index it) start)
+		       :end (or end (array-iterator-end it))))
 
 ;; Reverse
 
@@ -364,6 +373,18 @@
   (with-accessors ((array reverse-array-iterator-array)
 		   (index reverse-array-iterator-index)) iter
     (setf (row-major-aref array index) value)))
+
+(defmethod subseq ((it reverse-array-iterator) start &optional end)
+  (with-accessors ((array reverse-array-iterator-array)
+		   (index reverse-array-iterator-index)
+		   (old-end reverse-array-iterator-end)) it
+
+    (make-reverse-array-iterator
+     :array array
+     :index (cl:- index start)
+     :end (if end
+    	      (cl:1+ (cl:- index end))
+    	      old-end))))
 
 
 ;;;; Iteration Macros

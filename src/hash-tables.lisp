@@ -279,6 +279,12 @@
 		   (hash-table-iterator-table iter))
 	  value)))
 
+(defmethod subseq ((it hash-table-iterator) start &optional end)
+  (make-hash-table-iterator
+   :table (hash-table-iterator-table it)
+   :cons (cl:subseq (hash-table-iterator-cons it) start end)))
+
+
 (defun hash-map->list (map &optional (start 0) end)
   "Returns an ALIST containing the elements of the hash map MAP. START
    and END determine the number of elements that the hash map
