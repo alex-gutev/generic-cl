@@ -63,17 +63,14 @@
 ;;; Subsequence
 
 (defmethod subseq (seq start &optional end)
-  (let ((collector (empty-clone seq)))
+  (let ((collector (make-collector (empty-clone seq))))
     (extend collector (iterator seq :start start :end end))
     (collector-sequence collector)))
 
 (defmethod (setf subseq) (new seq start &optional end)
-  (loop
-     with seq-it = (iterator seq :start start :end end)
-     with new-it = (iterator new)
-     until (or (endp seq-it) (endp new-it))
-     do
-       (setf (at seq-it) (at new-it)))
+  (doiters ((seq-it seq :start start :end end)
+	    (new-it new))
+    (setf (at seq-it) (at new-it)))
   new)
 
 
@@ -82,19 +79,15 @@
 ;; Replacing elements of a sequence
 
 (defmethod fill (seq item &key (start 0) end)
-  (loop
-     with it = (iterator seq :start start :end end)
-     until (endp it)
-     do
-       (setf (at it) item)))
+  (doiter (it seq :start start :end end)
+    (setf (at it) item))
+  seq)
 
 (defmethod replace (seq1 seq2 &key (start1 0) end1 (start2 0) end2)
-  (loop
-     with it1 = (iterator seq1 :start start1 :end end1)
-     with it2 = (iterator seq2 :start start2 :end end2)
-     until (or (endp it1) (endp it2))
-     do
-       (setf (at it1) (at it2))))
+  (doiters ((it1 seq1 :start start1 :end end1)
+	    (it2 seq2 :start start2 :end end2))
+    (setf (at it1) (at it2)))
+  seq1)
 
 
 ;; Reduction
@@ -111,7 +104,7 @@
 		with res = res
 		until (endp iter)
 		do
-		  (setf elem (at iter))
+		  (setf elem (funcall key (at iter)))
 		  (setf res (funcall f res elem))
 		  (advance iter)
 		finally (return res))))
@@ -167,10 +160,9 @@
 
 (defmethod position-if (test sequence &key from-end (start 0) end key)
   (flet ((compute-pos (pos)
-	   (+ start
-	      (if from-end
-		  (- (or end (length sequence)) pos)
-		  pos))))
+	   (if from-end
+	       (cl:- (or end (length sequence)) 1 pos)
+	       (cl:+ start pos))))
     (let ((key (or key #'identity))
 	  (pos 0))
       (doseq (elem sequence :from-end from-end :start start :end end)

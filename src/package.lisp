@@ -131,6 +131,8 @@
    :endp
 
    :doseq
+   :doiter
+   :doiters
 
    ;; Collector Interface
    :empty-clone

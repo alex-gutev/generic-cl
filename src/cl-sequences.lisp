@@ -89,7 +89,7 @@
 ;; Replacing elements of a sequence
 
 (defmethod fill ((seq sequence) item &key (start 0) end)
-  (cl:fill seq item start end))
+  (cl:fill seq item :start start :end end))
 
 (defmethod replace ((seq1 sequence) (seq2 sequence) &key (start1 0) (start2 0) end1 end2)
   (cl:replace seq1 seq2 :start1 start1 :start2 start2 :end1 end1 :end2 end2))

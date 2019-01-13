@@ -389,6 +389,46 @@
 
 ;;;; Iteration Macros
 
+(defmacro doiters ((&rest iters) &body body)
+  "Iterates over one or more sequences and binds the iterator of each
+   sequence to a variable.
+
+   Each element of ITERS is a list of the form (IT-VAR SEQUENCE
+   . ARGS) where IT-VAR is the variable to which the iterator for
+   SEQUENCE is bound. Args are the remaining arguments passed to the
+   ITERATOR function (if any).
+
+   The forms in BODY are evaluated, with the iterator variable
+   bindings visible to the forms, after which each iterator is
+   advanced by one position, by the ADVANCE function. The forms are
+   evaluated repeatedly until at least one iterator reaches the end of
+   its sequence (ENDP returns true)."
+
+  (flet ((make-it-binding (it)
+	   (destructuring-bind (var &rest args) it
+	     `(,var (iterator ,@args))))
+
+	 (make-end-test (it)
+	   `(endp ,(first it)))
+
+	 (make-advance (it)
+	   `(advance ,(first it))))
+
+    `(let ,(mapcar #'make-it-binding iters)
+       (loop until (or ,@(mapcar #'make-end-test iters))
+	  do
+	    (progn ,@body)
+	    ,@(mapcar #'make-advance iters)))))
+
+(defmacro doiter ((iter &rest args) &body body)
+  "Sames as DOITERS however for the special case of iterating over a
+   single sequence.
+
+   ITER is the variable to which the iterator is bound. ARGS are the
+   arguments passed to the ITERATOR function."
+
+  `(doiters ((,iter ,@args)) ,@body))
+
 (defmacro! doseq ((element o!sequence &rest args) &body body)
   "Iterates over the elements of the sequence SEQUENCE. For each
    element the forms in BODY are evaluated with the symbol named by
@@ -401,10 +441,6 @@
    value of the DOSEQ form is NIL, unless it is terminated early by
    RETURN."
 
-  `(let ((,g!iter (iterator ,g!sequence ,@args))
-	 (,element))
-     (loop until (endp ,g!iter)
-	do
-	  (setf ,element (at ,g!iter))
-	  ,@body
-	  (advance ,g!iter))))
+  `(doiter (,g!iter ,g!sequence ,@args)
+     (let ((,element (at ,g!iter)))
+       ,@body)))
