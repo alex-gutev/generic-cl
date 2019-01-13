@@ -122,10 +122,6 @@
 (defmethod collect ((c front-list-collector) item)
   (push item (front-list-collector-cons c)))
 
-(defmethod extend ((c front-list-collector) (list list))
-  (slet (front-list-collector-cons list)
-    (setf it (cl:append list it))))
-
 (defmethod collector-sequence ((c front-list-collector))
   (front-list-collector-cons c))
 
@@ -142,7 +138,8 @@
 
 (defmethod make-collector ((vec vector) &key front)
   (if front
-      (make-front-vector-collector :vector vec)
+      (make-front-vector-collector
+       :vector (copy-array (cl:reverse vec) :adjustable t :fill-pointer t))
       vec))
 
 
