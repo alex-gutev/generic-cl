@@ -575,6 +575,330 @@
 	;; Test Stability
 	(is (stable-nsort (list-wrap '(a 99) '(b 1) '(c 74) '(d 1) '(e 1) '(f 32) '(h 1)) :key #'cadr)
 	    (list-wrap '(b 1) '(d 1) '(e 1) '(h 1) '(f 32) '(c 74) '(a 99))
-	    :test #'equalp)))))
+	    :test #'equalp))))
+
+  (macrolet ((test-seq-fn ((&rest lists) &body tests)
+	       `(progn
+		  (symbol-macrolet ,lists
+		    (diag "CL Sequence")
+		    ,@tests)
+		  (symbol-macrolet
+		      ,(loop for (var list) in lists
+			  collect `(,var (make-list-wrapper :list ,list)))
+		    (diag "Generic Sequence")
+		    ,@tests)))
+
+	     (test-not-modified ((var seq) &body tests)
+	       `(progn
+		  (let ((,var ,seq))
+		    ,@tests
+		    (is ,var ,seq :test #'equalp "Not Modified")))))
+
+    (subtest "Test SUBSTITUTE Functions"
+      (subtest "Test SUBSTITUTE"
+	(test-seq-fn
+	 ((list '("a" "b" "old" "c" "old" "d"))
+	  (res '("a" "b" "new" "c" "new" "d")))
+
+	 (test-not-modified
+	  (seq list)
+	  (is (substitute "new" "old" seq) res :test #'equalp)))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(x 2 3 x 4 5 x)))
+	 (is (substitute 'x 1 seq) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(x 2 3 x 4 5 1)))
+	 (is (substitute 'x 1 seq :count 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 x 4 5 x)))
+	 (is (substitute 'x 1 seq :count 2 :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 x 4 5 x)))
+	 (is (substitute 'x 1 seq :start 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 x 4 5 1)))
+	 (is (substitute 'x 1 seq :start 1 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 x 4 5 1)))
+	 (is (substitute 'x 1 seq :start 1 :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(x 2 3 x 4 5 1)))
+	 (is (substitute 'x 1 seq :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(x 2 3 1 4 5 1)))
+	 (is (substitute 'x 1 seq :end 5 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '((a 1) (b 2) (c 3) (d 1) (e 4) (f 5) (g 1)))
+	  (res '(x (b 2) (c 3) x (e 4) (f 5) x)))
+	 (is (substitute 'x 1 seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test NSUBSTITUTE"
+	(test-seq-fn
+	 ((seq (list "a" "b" "old" "c" "old" "d"))
+	  (res (list "a" "b" "new" "c" "new" "d")))
+
+	 (is (nsubstitute "new" "old" seq) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 'x 2 3 'x 4 5 'x)))
+	 (is (nsubstitute 'x 1 seq) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 'x 2 3 'x 4 5 1)))
+	 (is (nsubstitute 'x 1 seq :count 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 1 2 3 'x 4 5 'x)))
+	 (is (nsubstitute 'x 1 seq :count 2 :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 1 2 3 'x 4 5 'x)))
+	 (is (nsubstitute 'x 1 seq :start 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 1 2 3 'x 4 5 1)))
+	 (is (nsubstitute 'x 1 seq :start 1 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 1 2 3 'x 4 5 1)))
+	 (is (nsubstitute 'x 1 seq :start 1 :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 'x 2 3 'x 4 5 1)))
+	 (is (nsubstitute 'x 1 seq :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 1 4 5 1))
+	  (res (list 'x 2 3 1 4 5 1)))
+	 (is (nsubstitute 'x 1 seq :end 5 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1)))
+	  (res (list 'x '(b 2) '(c 3) 'x '(e 4) '(f 5) 'x)))
+	 (is (nsubstitute 'x 1 seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test SUBSTITUTE-IF"
+	(test-seq-fn
+	 ((list '(1 2 3 4 5 6 7 8))
+	  (res '(1 x 3 x 5 x 7 x)))
+
+	 (test-not-modified
+	  (seq list)
+	  (is (substitute-if 'x #'evenp seq) res :test #'equalp)))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 x 3 x 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :count 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 3 4 5 x 7 x)))
+	 (is (substitute-if 'x #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 3 x 5 x 7 x)))
+	 (is (substitute-if 'x #'evenp seq :start 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 3 x 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 3 x 5 x 7 8)))
+	 (is (substitute-if 'x #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 x 3 x 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 x 3 4 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
+	  (res '((a 1) x (c 3) x (e 5) x (g 7))))
+	 (is (substitute-if 'x #'evenp seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test NSUBSTITUTE-IF"
+	(test-seq-fn
+	 ((list (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 'x 3 'x 5 'x 7 'x)))
+
+	 (test-not-modified
+	  (seq list)
+	  (is (substitute-if 'x #'evenp seq) res :test #'equalp)))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 'x 3 'x 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :count 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 3 4 5 'x 7 'x)))
+	 (is (substitute-if 'x #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 3 'x 5 'x 7 'x)))
+	 (is (substitute-if 'x #'evenp seq :start 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 3 'x 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 3 'x 5 'x 7 8)))
+	 (is (substitute-if 'x #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 'x 3 'x 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 'x 3 4 5 6 7 8)))
+	 (is (substitute-if 'x #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
+	  (res (list '(a 1) 'x '(c 3) 'x '(e 5) 'x '(g 7))))
+	 (is (substitute-if 'x #'evenp seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test SUBSTITUTE-IF-NOT"
+	(diag "CL Sequences")
+
+	(test-seq-fn
+	 ((list '(1 2 3 4 5 6 7 8))
+	  (res '(x 2 x 4 x 6 x 8)))
+
+	 (test-not-modified
+	  (seq list)
+	  (is (substitute-if-not 'x #'evenp seq) res :test #'equalp)))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(x 2 x 4 5 6 7 8)))
+
+	 (is (substitute-if-not 'x #'evenp seq :count 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 3 4 x 6 x 8)))
+	 (is (substitute-if-not 'x #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 x 4 x 6 x 8)))
+	 (is (substitute-if-not 'x #'evenp seq :start 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 x 4 5 6 7 8)))
+	 (is (substitute-if-not 'x #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(1 2 x 4 x 6 7 8)))
+	 (is (substitute-if-not 'x #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(x 2 x 4 x 6 7 8)))
+	 (is (substitute-if-not 'x #'evenp seq :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 4 5 6 7 8))
+	  (res '(x 2 3 4 5 6 7 8)))
+	 (is (substitute-if-not 'x #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
+	  (res '(x (b 2) x (d 4) x (f 6) x)))
+	 (is (substitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test NSUBSTITUTE-IF-NOT"
+	(diag "CL Sequences")
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 'x 2 'x 4 'x 6 'x 8)))
+
+	 (is (nsubstitute-if-not 'x #'evenp seq) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 'x 2 'x 4 5 6 7 8)))
+
+	 (is (nsubstitute-if-not 'x #'evenp seq :count 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 3 4 'x 6 'x 8)))
+	 (is (substitute-if-not 'x #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 'x 4 'x 6 'x 8)))
+	 (is (nsubstitute-if-not 'x #'evenp seq :start 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 'x 4 5 6 7 8)))
+	 (is (nsubstitute-if-not 'x #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 1 2 'x 4 'x 6 7 8)))
+	 (is (nsubstitute-if-not 'x #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 'x 2 'x 4 'x 6 7 8)))
+	 (is (nsubstitute-if-not 'x #'evenp seq :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list 1 2 3 4 5 6 7 8))
+	  (res (list 'x 2 3 4 5 6 7 8)))
+	 (is (nsubstitute-if-not 'x #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
+	  (res (list 'x '(b 2) 'x '(d 4) 'x '(f 6) 'x)))
+	 (is (nsubstitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp))))))
 
 (finalize)

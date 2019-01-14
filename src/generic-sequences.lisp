@@ -343,10 +343,12 @@
 	     (let ((n 0))
 	       (doseq (item sequence :start start :end end :from-end from-end)
 		 (cond
+		   ((and count (cl:= n count))
+		    (collect collector item))
+
 		   ((funcall test (funcall key item))
 		    (collect collector new)
-
-		    (and count (cl:= (cl:incf n) count) (return)))
+		    (cl:incf n))
 
 		   (t
 		    (collect collector item)))))))

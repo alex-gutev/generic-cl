@@ -220,7 +220,7 @@
 		 :start start
 		 :end end
 		 :count count
-		 :key key))
+		 :key (or key #'identity)))
 
 (defmethod nsubstitute (new old (seq sequence) &key from-end (test #'equalp) (start 0) end count key)
   (cl:nsubstitute new old seq
@@ -229,7 +229,7 @@
 		 :start start
 		 :end end
 		 :count count
-		 :key key))
+		 :key (or key #'identity)))
 
 (defmethod substitute-if (new predicate (sequence sequence) &key from-end (start 0) end count key)
   (cl:substitute-if new predicate sequence
@@ -237,7 +237,7 @@
 		    :start start
 		    :end end
 		    :count count
-		    :key key))
+		    :key (or key #'identity)))
 
 (defmethod nsubstitute-if (new predicate (sequence sequence) &key from-end (start 0) end count key)
   (cl:nsubstitute-if new predicate sequence
@@ -245,7 +245,7 @@
 		    :start start
 		    :end end
 		    :count count
-		    :key key))
+		    :key (or key #'identity)))
 
 (defmethod substitute-if-not (new predicate (sequence sequence) &key from-end (start 0) end count key)
   (cl:substitute-if-not new predicate sequence
@@ -253,7 +253,7 @@
 			:start start
 			:end end
 			:count count
-			:key key))
+			:key (or key #'identity)))
 
 (defmethod nsubstitute-if-not (new predicate (sequence sequence) &key from-end (start 0) end count key)
   (cl:nsubstitute-if-not new predicate sequence
@@ -261,7 +261,7 @@
 			:start start
 			:end end
 			:count count
-			:key key))
+			:key (or key #'identity)))
 
 ;; Removing Items
 
