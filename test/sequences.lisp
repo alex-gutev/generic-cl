@@ -1472,6 +1472,40 @@
 
 	(is (nconcatenate (make-array 3 :adjustable t :fill-pointer t :initial-contents '(#\a #\l #\l))
 			  " " "together" " " "now")
-	    "all together now" :test #'equalp)))))
+	    "all together now" :test #'equalp)))
+
+    (subtest "Test Mapping Functions"
+      (subtest "Test MAP-INTO"
+	(test-seq-fn
+	 ((seq (list 1 2 3 4))
+	  (res '(2 3 4 5)))
+
+	 (is (map-into seq #'cl:1+) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq1 (list 1 2 3 4))
+	  (seq2 (list 2 3 4 5))
+	  (res '(3 5 7 9)))
+
+	 (is (map-into seq1 #'cl:+ seq2) res :test #'equalp)))
+
+      (subtest "Test MAP"
+	(test-seq-fn
+	 ((list (list 1 2 3 4))
+	  (res '(2 3 4 5)))
+
+	 (test-not-modified
+	  ((seq list))
+	  (is (map #'cl:1+ seq) res :test #'equalp)))
+
+	(test-seq-fn
+	 ((list1 (list 1 2 3 4))
+	  (list2 (list 2 3 4 5))
+	  (res '(3 5 7 9)))
+
+	 (test-not-modified
+	  ((seq1 list1)
+	   (seq2 list2))
+	  (is (map #'cl:+ seq1 seq2) res :test #'equalp)))))))
 
 (finalize)

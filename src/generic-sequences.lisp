@@ -573,6 +573,19 @@
   result)
 
 (defmethod map-to (result function &rest sequences)
+  (apply #'map-to% result function sequences))
+
+(defmethod map-to ((type symbol) function &rest sequences)
+  (apply #'map-to% (sequence-of-type type) function sequences))
+
+(defun map (function sequence &rest sequences)
+  "Creates a new sequence, of the same type as SEQUENCE (by
+   EMPTY-CLONE), containing the result of applying FUNCTION to each
+   element of SEQUENCE and each element of SEQUENCES."
+
+  (apply #'map-to% (empty-clone sequence) function sequence sequences))
+
+(defun map-to% (result function &rest sequences)
   (let ((collector (make-collector result)))
     (loop
        with iters = (make-iters sequences)
@@ -582,17 +595,6 @@
 	 (advance-all iters))
 
     (collector-sequence collector)))
-
-(defmethod map-to ((type symbol) function &rest sequences)
-  (apply #'map-to (sequence-of-type type) function sequences))
-
-(defun map (function sequence &rest sequences)
-  "Creates a new sequence, of the same type as SEQUENCE (by
-   EMPTY-CLONE), containing the result of applying FUNCTION to each
-   element of SEQUENCE and each element of SEQUENCES."
-
-  (apply #'map-to (empty-clone sequence) function (cons sequence sequences)))
-
 
 ;;;; Iteration Utility Functions
 

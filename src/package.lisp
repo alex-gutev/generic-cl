@@ -149,6 +149,7 @@
    :first :last
    :erase
 
+   :map :map-into :map-to
    :fill :replace
 
    :concatenate
