@@ -109,7 +109,9 @@
 
 (defmethod extend ((c list-collector) (list list))
   (slet (list-collector-tail c)
-    (->> (setf (cdr it) (copy-list list))
+    (->> (if it
+	     (setf (cdr it) (copy-list list))
+	     (setf (list-collector-head c) (copy-list list)))
 	 (cl:last)
 	 (setf it))))
 

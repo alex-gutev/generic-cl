@@ -1443,6 +1443,35 @@
 
 	(test-seq-fn
 	 ((seq nil))
-	 (ok-form (not (notevery #'evenp seq))))))))
+	 (ok-form (not (notevery #'evenp seq))))))
+
+    (subtest "Test Concatenation functions"
+      (subtest "Test CONCATENATE"
+	(test-seq-fn
+	 ((list1 '(1 2 3))
+	  (list2 '(4 5 6))
+	  (list3 '(7 8 9))
+	  (res '(1 2 3 4 5 6 7 8 9)))
+
+	 (test-not-modified
+	  ((seq1 list1)
+	   (seq2 list2)
+	   (seq3 list3))
+	  (is (concatenate seq1 seq2 seq3) res :test #'equalp)))
+
+	(is (concatenate "all" " " "together" " " "now") "all together now" :test #'equalp))
+
+      (subtest "Test NCONCATENATE"
+	(test-seq-fn
+	 ((seq1 (list 1 2 3))
+	  (seq2 (list 4 5 6))
+	  (seq3 (list 7 8 9))
+	  (res '(1 2 3 4 5 6 7 8 9)))
+
+	 (is (nconcatenate seq1 seq2 seq3) res :test #'equalp))
+
+	(is (nconcatenate (make-array 3 :adjustable t :fill-pointer t :initial-contents '(#\a #\l #\l))
+			  " " "together" " " "now")
+	    "all together now" :test #'equalp)))))
 
 (finalize)
