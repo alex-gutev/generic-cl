@@ -860,12 +860,10 @@
 
       (subtest "Test NSUBSTITUTE-IF"
 	(test-seq-fn
-	 ((list (list 1 2 3 4 5 6 7 8))
+	 ((seq (list 1 2 3 4 5 6 7 8))
 	  (res (list 1 'x 3 'x 5 'x 7 'x)))
 
-	 (test-not-modified
-	  ((seq list))
-	  (is (substitute-if 'x #'evenp seq) res :test #'equalp)))
+	 (is (substitute-if 'x #'evenp seq) res :test #'equalp))
 
 	(test-seq-fn
 	 ((seq (list 1 2 3 4 5 6 7 8))
@@ -908,8 +906,6 @@
 	 (is (substitute-if 'x #'evenp seq :key #'cadr) res :test #'equalp)))
 
       (subtest "Test SUBSTITUTE-IF-NOT"
-	(diag "CL Sequences")
-
 	(test-seq-fn
 	 ((list '(1 2 3 4 5 6 7 8))
 	  (res '(x 2 x 4 x 6 x 8)))
@@ -960,8 +956,6 @@
 	 (is (substitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp)))
 
       (subtest "Test NSUBSTITUTE-IF-NOT"
-	(diag "CL Sequences")
-
 	(test-seq-fn
 	 ((seq (list 1 2 3 4 5 6 7 8))
 	  (res (list 'x 2 'x 4 'x 6 'x 8)))
@@ -1007,6 +1001,307 @@
 	(test-seq-fn
 	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
 	  (res (list 'x '(b 2) 'x '(d 4) 'x '(f 6) 'x)))
-	 (is (nsubstitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp))))))
+	 (is (nsubstitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp))))
+
+    (subtest "Test REMOVE Functions"
+      (subtest "Test REMOVE"
+	(test-seq-fn
+	 ((list '("a" "b" "old" "c" "old" "d"))
+	  (res '("a" "b" "c" "d")))
+
+	 (test-not-modified
+	  ((seq list))
+	  (is (remove "old" seq) res :test #'equalp)))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(2 3 4 5)))
+	 (is (remove 1 seq) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(2 3 4 5 1)))
+	 (is (remove 1 seq :count 2) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 4 5)))
+	 (is (remove 1 seq :count 2 :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 4 5)))
+	 (is (remove 1 seq :start 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 4 5 1)))
+	 (is (remove 1 seq :start 1 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(1 2 3 4 5 1)))
+	 (is (remove 1 seq :start 1 :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(2 3 4 5 1)))
+	 (is (remove 1 seq :end 5) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(1 2 3 1 4 5 1))
+	  (res '(2 3 1 4 5 1)))
+	 (is (remove 1 seq :end 5 :count 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '((a 1) (b 2) (c 3) (d 1) (e 4) (f 5) (g 1)))
+	  (res '((b 2) (c 3) (e 4) (f 5))))
+	 (is (remove 1 seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test DELETE"
+      	(test-seq-fn
+      	 ((seq (list "a" "b" "old" "c" "old" "d"))
+      	  (res (list "a" "b" "c" "d")))
+
+      	 (is (delete "old" seq) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 2 3 4 5)))
+      	 (is (delete 1 seq) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 2 3 4 5 1)))
+      	 (is (delete 1 seq :count 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 1 2 3 4 5)))
+      	 (is (delete 1 seq :count 2 :from-end t) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 1 2 3 4 5)))
+      	 (is (delete 1 seq :start 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 1 2 3 4 5 1)))
+      	 (is (delete 1 seq :start 1 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 1 2 3 4 5 1)))
+      	 (is (delete 1 seq :start 1 :end 5) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 2 3 4 5 1)))
+      	 (is (delete 1 seq :end 5) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 1 4 5 1))
+      	  (res (list 2 3 1 4 5 1)))
+      	 (is (delete 1 seq :end 5 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1)))
+      	  (res (list '(b 2) '(c 3) '(e 4) '(f 5))))
+      	 (is (delete 1 seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test REMOVE-IF"
+      	(test-seq-fn
+      	 ((list '(1 2 3 4 5 6 7 8))
+      	  (res '(1 3 5 7)))
+
+      	 (test-not-modified
+      	  ((seq list))
+      	  (is (remove-if #'evenp seq) res :test #'equalp)))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 3 5 6 7 8)))
+      	 (is (remove-if #'evenp seq :count 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 3 4 5 7)))
+      	 (is (remove-if #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 3 5 7)))
+      	 (is (remove-if #'evenp seq :start 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 3 5 6 7 8)))
+      	 (is (remove-if #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 3 5 7 8)))
+      	 (is (remove-if #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 3 5 6 7 8)))
+      	 (is (remove-if #'evenp seq :end 5) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 3 4 5 6 7 8)))
+      	 (is (remove-if #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
+      	  (res '((a 1) (c 3) (e 5) (g 7))))
+      	 (is (remove-if #'evenp seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test DELETE-IF"
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 3 5 7)))
+
+      	 (is (delete-if #'evenp seq) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 3 5 6 7 8)))
+      	 (is (delete-if #'evenp seq :count 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 3 4 5 7)))
+      	 (is (delete-if #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 3 5 7)))
+      	 (is (delete-if #'evenp seq :start 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 3 5 6 7 8)))
+      	 (is (delete-if #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 3 5 7 8)))
+      	 (is (delete-if #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 3 5 6 7 8)))
+      	 (is (delete-if #'evenp seq :end 5) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 3 4 5 6 7 8)))
+      	 (is (delete-if #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
+      	  (res (list '(a 1) '(c 3) '(e 5) '(g 7))))
+      	 (is (delete-if #'evenp seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test REMOVE-IF-NOT"
+      	(test-seq-fn
+      	 ((list '(1 2 3 4 5 6 7 8))
+      	  (res '(2 4 6 8)))
+
+      	 (test-not-modified
+      	  ((seq list))
+      	  (is (remove-if-not #'evenp seq) res :test #'equalp)))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(2 4 5 6 7 8)))
+
+      	 (is (remove-if-not #'evenp seq :count 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 3 4 6 8)))
+      	 (is (remove-if-not #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 4 6 8)))
+      	 (is (remove-if-not #'evenp seq :start 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 4 5 6 7 8)))
+      	 (is (remove-if-not #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(1 2 4 6 7 8)))
+      	 (is (remove-if-not #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(2 4 6 7 8)))
+      	 (is (remove-if-not #'evenp seq :end 5) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '(1 2 3 4 5 6 7 8))
+      	  (res '(2 3 4 5 6 7 8)))
+      	 (is (remove-if-not #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
+      	  (res '((b 2) (d 4) (f 6))))
+      	 (is (remove-if-not #'evenp seq :key #'cadr) res :test #'equalp)))
+
+      (subtest "Test DELETE-IF-NOT"
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 2 4 6 8)))
+
+      	 (is (delete-if-not #'evenp seq) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 2 4 5 6 7 8)))
+
+      	 (is (delete-if-not #'evenp seq :count 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 3 4 6 8)))
+      	 (is (delete-if-not #'evenp seq :count 2 :from-end t) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 4 6 8)))
+      	 (is (delete-if-not #'evenp seq :start 2) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 4 5 6 7 8)))
+      	 (is (delete-if-not #'evenp seq :start 2 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 1 2 4 6 7 8)))
+      	 (is (delete-if-not #'evenp seq :start 2 :end 6) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 2 4 6 7 8)))
+      	 (is (delete-if-not #'evenp seq :end 5) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list 1 2 3 4 5 6 7 8))
+      	  (res (list 2 3 4 5 6 7 8)))
+      	 (is (delete-if-not #'evenp seq :end 5 :count 1) res :test #'equalp))
+
+      	(test-seq-fn
+      	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
+      	  (res (list '(b 2) '(d 4) '(f 6))))
+      	 (is (delete-if-not #'evenp seq :key #'cadr) res :test #'equalp))))))
 
 (finalize)

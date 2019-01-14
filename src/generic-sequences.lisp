@@ -382,9 +382,15 @@
     (flet ((remove-items ()
 	     (let ((n 0))
 	       (doseq (item sequence :start start :end end :from-end from-end)
-		 (if (funcall test (funcall key item))
-		     (and count (cl:= (cl:incf n) count) (return))
-		     (collect collector item))))))
+		 (cond
+		   ((and count (cl:= n count))
+		    (collect collector item))
+
+		   ((funcall test (funcall key item))
+		    (cl:incf n))
+
+		   (t
+		    (collect collector item)))))))
 
       (collect-perform-op collector sequence #'remove-items :start start :end end :from-end from-end)
       (collector-sequence collector))))
