@@ -95,7 +95,12 @@
 		(let ,seqs
 		  ,@tests
 		  ,@(loop for (var seq) in seqs
-		       collect `(is ,var ,seq :test #'equalp "Not Modified"))))))
+		       collect `(is ,var ,seq :test #'equalp "Not Modified")))))
+
+	   (ok-form (form)
+	     "Tests whether FORM evaluates to true with FORM as the
+              test description."
+	     `(ok ,form (format nil "~s" ',form))))
 
   (subtest "Test Sequence Functions"
     (subtest "Test FIRST and LAST"
@@ -1380,6 +1385,64 @@
 	   ((seq (list #\a #\B #\c #\D #\A #\b #\C #\d))
 	    (res (list #\a #\B #\c #\D)))
 
-	   (is (delete-duplicates seq :from-end t :test #'char-equal) res :test #'equalp)))))))
+	   (is (delete-duplicates seq :from-end t :test #'char-equal) res :test #'equalp)))))
+
+    (subtest "Test Logical Sequence Functions"
+      (subtest "Test EVERY"
+	(test-seq-fn
+	 ((seq1 '(1 2 4 5))
+	  (seq2 '(a b c d)))
+
+	 (ok-form (every #'numberp seq1))
+	 (ok-form (not (every #'evenp seq1)))
+	 (ok-form (every #'equalp seq1 seq1))
+	 (ok-form (not (every #'equalp seq1 seq2))))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (ok-form (every #'evenp seq))))
+
+      (subtest "Test SOME"
+	(test-seq-fn
+	 ((seq1 '(1 2 4 5))
+	  (seq2 '(a b c d)))
+
+	 (ok-form (not (some #'numberp seq2)))
+	 (ok-form (some #'evenp seq1))
+	 (ok-form (some #'equalp seq1 seq1))
+	 (ok-form (not (some #'equalp seq1 seq2)))
+	 (is (some (lambda (x) (and (evenp x) x)) seq1) 2))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (ok-form (not (some #'evenp seq)))))
+
+      (subtest "Test NOTANY"
+	(test-seq-fn
+	 ((seq1 '(1 2 4 5))
+	  (seq2 '(a b c d)))
+
+	 (ok-form (notany #'numberp seq2))
+	 (ok-form (not (notany #'evenp seq1)))
+	 (ok-form (not (notany #'equalp seq1 seq1)))
+	 (ok-form (notany #'equalp seq1 seq2)))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (ok-form (notany #'evenp seq))))
+
+      (subtest "Test NOTEVERY"
+	(test-seq-fn
+	 ((seq1 '(1 2 4 5))
+	  (seq2 '(a 5 c d)))
+
+	 (ok-form (notevery #'evenp seq1))
+	 (ok-form (not (notevery #'numberp seq1)))
+	 (ok-form (not (notevery #'equalp seq1 seq1)))
+	 (ok-form (notevery #'equalp seq1 seq2)))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (ok-form (not (notevery #'evenp seq))))))))
 
 (finalize)
