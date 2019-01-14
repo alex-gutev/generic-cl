@@ -195,7 +195,7 @@
   (-> (typecase seq1
 	(vector 'vector)
 	(otherwise 'list))
-      (cl:merge seq1 seq1 predicate :key key)))
+      (cl:merge seq1 seq2 predicate :key key)))
 
 
 (defmethod sort ((seq sequence) &key (test #'<) key)

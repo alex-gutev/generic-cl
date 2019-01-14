@@ -321,6 +321,260 @@
       (is (position-if-not #'evenp (list-wrap 1 3 4 5 6 7) :from-end t) 5)
       (is (position-if-not #'evenp (list-wrap 1 3 4 5 6 7) :start 3) 3)
       (is (position-if-not #'evenp (list-wrap 1 3 4 5 6 7) :start 2 :end 3) nil)
-      (is (position-if-not #'evenp (list-wrap 1 3 4 5 6 7) :key #'1+) 2))))
+      (is (position-if-not #'evenp (list-wrap 1 3 4 5 6 7) :key #'1+) 2)))
+
+  (subtest "Test MISMATCH"
+    (diag "CL Sequences")
+    (is (mismatch '("alex" "bob" "john" "jack") '("alex" "bob" "john" "jack")) nil)
+    (is (mismatch '("alex" "bob" "john" "jack") '("alex" "Bob" "john" "Jack")) 1)
+    (is (mismatch '("alex" "bob" "john" "jack") '("alex" "bob")) 2)
+    (is (mismatch '("alex" "bob") '("alex" "bob" "john" "jack")) 2)
+    (is (mismatch '("alex" "bob" "john" "jack") '("alex" "Bob" "john" "Jack") :key #'string-upcase)
+	nil)
+    (is (mismatch '("alex" "bob" "john" "jack") '("alex" "Bob" "john" "Jack") :from-end t) 4)
+    (is (mismatch '("alex" "bob" "john" "jack") '("bob" "john" "jack") :start1 1) nil)
+    (is (mismatch '("alex" "bob" "john" "jack") '("Alex" "Pete" "bob" "john" "jack") :start1 1 :start2 2) nil)
+    (is (mismatch '("alex" "bob" "john" "jack") '("Alex" "Pete" "bob" "John" "jack") :start1 1 :start2 2) 2)
+    (is (mismatch '("alex" "bob" "john" "jack") '("Alex" "alex" "bob" "john" "Pete" "jack") :start1 1 :end1 3 :start2 2 :end2 4) nil)
+    (is (mismatch '("alex" "john" "jack" "bob") '("alex" "bob" "john" "jack" "pete") :from-end t :start1 1 :end1 3 :start2 2 :end2 4) nil)
+    (is (mismatch '("alex" "john" "jack" "bob") '("alex" "bob" "john" "jack" "pete") :from-end t :end1 3 :end2 4) 1)
+
+    (diag "Generic Sequences")
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("alex" "bob" "john" "jack")) nil)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("alex" "Bob" "john" "Jack")) 1)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("alex" "bob")) 2)
+    (is (mismatch (list-wrap "alex" "bob") '("alex" "bob" "john" "jack")) 2)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("alex" "Bob" "john" "Jack") :key #'string-upcase)
+	nil)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("alex" "Bob" "john" "Jack") :from-end t) 4)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("bob" "john" "jack") :start1 1) nil)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("Alex" "Pete" "bob" "john" "jack") :start1 1 :start2 2) nil)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("Alex" "Pete" "bob" "John" "jack") :start1 1 :start2 2) 2)
+    (is (mismatch (list-wrap "alex" "bob" "john" "jack") '("Alex" "alex" "bob" "john" "Pete" "jack") :start1 1 :end1 3 :start2 2 :end2 4) nil)
+    (is (mismatch (list-wrap "alex" "john" "jack" "bob") '("alex" "bob" "john" "jack" "pete") :from-end t :start1 1 :end1 3 :start2 2 :end2 4) nil)
+    (is (mismatch (list-wrap "alex" "john" "jack" "bob") '("alex" "bob" "john" "jack" "pete") :from-end t :end1 3 :end2 4) 1))
+
+  (subtest "Test Reversing"
+    (subtest "Test REVERSE"
+      (diag "CL Sequences")
+
+      (let ((list '(1 2 3 4)))
+	(is (reverse list) '(4 3 2 1))
+	(is list '(1 2 3 4) "Not Modified"))
+
+      (is (reverse '(1)) '(1))
+      (is (reverse nil) nil)
+
+      (is (reverse #(a b c d)) #(d c b a) :test #'equalp)
+
+      (diag "Generic Sequences")
+
+      (let ((seq (list-wrap 1 2 3 4)))
+	(is (reverse seq) (list-wrap 4 3 2 1) :test #'equalp)
+	(is seq (list-wrap 1 2 3 4) "Not Modified" :test #'equalp))
+
+      (is (reverse (list-wrap 1)) (list-wrap 1) :test #'equalp)
+      (is (reverse (list-wrap)) (list-wrap) :test #'equalp))
+
+    (subtest "Test NREVERSE"
+      (diag "CL Sequences")
+
+      (is (nreverse '(1 2 3 4)) '(4 3 2 1))
+      (is (nreverse '(1)) '(1))
+      (is (nreverse nil) nil)
+
+      (is (nreverse #(a b c d)) #(d c b a) :test #'equalp)
+
+      (diag "Generic Sequences")
+
+      (is (nreverse (list-wrap 1 2 3 4)) (list-wrap 4 3 2 1) :test #'equalp)
+      (is (nreverse (list-wrap 1)) (list-wrap 1) :test #'equalp)
+      (is (nreverse (list-wrap)) (list-wrap) :test #'equalp)))
+
+  (subtest "Test Merging"
+    (subtest "Test MERGE"
+      (diag "CL Sequences")
+
+      (let ((seq1 '(1 2 3 4))
+	    (seq2 '(5 6 7 8)))
+	(is (merge seq1 seq2 #'lessp) '(1 2 3 4 5 6 7 8))
+	(is seq1 '(1 2 3 4) "Sequence1 Not Modified")
+	(is seq2 '(5 6 7 8) "Sequence2 Not Modified"))
+
+      (let ((seq1 '(1 3 5 9))
+	    (seq2 '(2 4 6 7 8)))
+	(is (merge seq1 seq2 #'lessp) '(1 2 3 4 5 6 7 8 9))
+	(is seq1 '(1 3 5 9) "Sequence1 Not Modified")
+	(is seq2 '(2 4 6 7 8) "Sequence2 Not Modified"))
+
+      (is (merge '((a 1) (b 2) (c 5) (d 8)) '((e 3) (f 4) (g 6) (h 7)) #'lessp :key #'cadr)
+	  '((a 1) (b 2) (e 3) (f 4) (c 5) (g 6) (h 7) (d 8)))
+
+      ;; Test Stability
+      (is (merge '((b 1) (d 1) (a 99)) '((e 1) (h 1) (f 32) (c 74)) #'lessp :key #'cadr)
+	  '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99)))
+
+      (diag "Generic Sequences")
+
+      (let ((seq1 (list-wrap 1 2 3 4))
+	    (seq2 (list-wrap 5 6 7 8)))
+	(is (merge seq1 seq2 #'lessp) (list-wrap 1 2 3 4 5 6 7 8) :test #'equalp)
+	(is seq1 (list-wrap 1 2 3 4) "Sequence1 Not Modified" :test #'equalp)
+	(is seq2 (list-wrap 5 6 7 8) "Sequence2 Not Modified" :test #'equalp))
+
+      (let ((seq1 (list-wrap 1 3 5 9))
+	    (seq2 (list-wrap 2 4 6 7 8)))
+	(is (merge seq1 seq2 #'lessp) (list-wrap 1 2 3 4 5 6 7 8 9) :test #'equalp)
+	(is seq1 (list-wrap 1 3 5 9) "Sequence1 Not Modified" :test #'equalp)
+	(is seq2 (list-wrap 2 4 6 7 8) "Sequence2 Not Modified" :test #'equalp))
+
+      (is (merge (list-wrap '(a 1) '(b 2) '(c 5) '(d 8)) (list-wrap '(e 3) '(f 4) '(g 6) '(h 7)) #'lessp :key #'cadr)
+	  (list-wrap '(a 1) '(b 2) '(e 3) '(f 4) '(c 5) '(g 6) '(h 7) '(d 8))
+	  :test #'equalp)
+
+      ;; Test Stability
+      (is (merge (list-wrap '(b 1) '(d 1) '(a 99)) (list-wrap '(e 1) '(h 1) '(f 32) '(c 74)) #'lessp :key #'cadr)
+	  (list-wrap '(b 1) '(d 1) '(e 1) '(h 1) '(f 32) '(c 74) '(a 99))
+	  :test #'equalp))
+
+    (subtest "Test NMERGE"
+      (diag "CL Sequences")
+
+      (is (nmerge (list 1 2 3 4) (list 5 6 7 8) #'lessp) '(1 2 3 4 5 6 7 8))
+      (is (nmerge (list 1 3 5 9) (list 2 4 6 7 8) #'lessp) '(1 2 3 4 5 6 7 8 9))
+      (is (nmerge (list '(a 1) '(b 2) '(c 5) '(d 8)) (list '(e 3) '(f 4) '(g 6) '(h 7)) #'lessp :key #'cadr)
+	  '((a 1) (b 2) (e 3) (f 4) (c 5) (g 6) (h 7) (d 8)))
+
+      ;; Test Stability
+      (is (nmerge (list '(b 1) '(d 1) '(a 99)) (list '(e 1) '(h 1) '(f 32) '(c 74)) #'lessp :key #'cadr)
+	  '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99)))
+
+      (diag "Generic Sequences")
+
+      (is (nmerge (list-wrap 1 2 3 4) (list-wrap 5 6 7 8) #'lessp) (list-wrap 1 2 3 4 5 6 7 8) :test #'equalp)
+      (is (nmerge (list-wrap 1 3 5 9) (list-wrap 2 4 6 7 8) #'lessp) (list-wrap 1 2 3 4 5 6 7 8 9) :test #'equalp)
+      (is (nmerge (list-wrap '(a 1) '(b 2) '(c 5) '(d 8)) (list-wrap '(e 3) '(f 4) '(g 6) '(h 7)) #'lessp :key #'cadr)
+	  (list-wrap '(a 1) '(b 2) '(e 3) '(f 4) '(c 5) '(g 6) '(h 7) '(d 8))
+	  :test #'equalp)
+
+      ;; Test Stability
+      (is (nmerge (list-wrap '(b 1) '(d 1) '(a 99)) (list-wrap '(e 1) '(h 1) '(f 32) '(c 74)) #'lessp :key #'cadr)
+	  (list-wrap '(b 1) '(d 1) '(e 1) '(h 1) '(f 32) '(c 74) '(a 99))
+	  :test #'equalp)))
+
+  (subtest "Test Sorting"
+    (subtest "Test SORT Functions"
+      (subtest "Test SORT"
+	(diag "CL Sequences")
+
+	(let ((seq '("aac" "zzz" "aaa" "aab" "bac" "baa")))
+	  (is (sort seq) '("aaa" "aab" "aac" "baa" "bac" "zzz") :test #'equalp)
+	  (is seq '("aac" "zzz" "aaa" "aab" "bac" "baa") :test #'equalp "Not Modified"))
+
+	(is (sort '(99 3 74 56 1 32 49) :test #'greaterp) '(99 74 56 49 32 3 1))
+	(is (sort #(99 3 74 56 1 32 49) :test #'greaterp) #(99 74 56 49 32 3 1) :test #'equalp)
+
+	(is (sort '((a 99) (b 3) (c 74) (d 56) (e 1) (f 32) (h 49)) :key #'cadr)
+	    '((e 1) (b 3) (f 32) (h 49) (d 56) (c 74) (a 99)))
+
+	(diag "Generic Sequences")
+
+	(let ((seq (list-wrap "aac" "zzz" "aaa" "aab" "bac" "baa")))
+	  (is (sort seq) (list-wrap "aaa" "aab" "aac" "baa" "bac" "zzz") :test #'equalp)
+	  (is seq (list-wrap "aac" "zzz" "aaa" "aab" "bac" "baa") :test #'equalp "Not Modified"))
+
+	(is (sort (list-wrap 99 3 74 56 1 32 49) :test #'greaterp)
+	    (list-wrap 99 74 56 49 32 3 1)
+	    :test #'equalp)
+
+	(is (sort (list-wrap '(a 99) '(b 3) '(c 74) '(d 56) '(e 1) '(f 32) '(h 49)) :key #'cadr)
+	    (list-wrap '(e 1) '(b 3) '(f 32) '(h 49) '(d 56) '(c 74) '(a 99))
+	    :test #'equalp))
+
+      (subtest "Test NSORT"
+	(diag "CL Sequences")
+
+	(is (nsort (list "aac" "zzz" "aaa" "aab" "bac" "baa"))
+	    '("aaa" "aab" "aac" "baa" "bac" "zzz")
+	    :test #'equalp)
+
+	(is (nsort (list 99 3 74 56 1 32 49) :test #'greaterp) '(99 74 56 49 32 3 1))
+	(is (nsort (vector 99 3 74 56 1 32 49) :test #'greaterp) #(99 74 56 49 32 3 1) :test #'equalp)
+
+	(is (nsort (list '(a 99) '(b 3) '(c 74) '(d 56) '(e 1) '(f 32) '(h 49)) :key #'cadr)
+	    '((e 1) (b 3) (f 32) (h 49) (d 56) (c 74) (a 99)))
+
+	(diag "Generic Sequences")
+
+	(is (nsort (list-wrap "aac" "zzz" "aaa" "aab" "bac" "baa"))
+	    (list-wrap "aaa" "aab" "aac" "baa" "bac" "zzz")
+	    :test #'equalp)
+
+	(is (nsort (list-wrap 99 3 74 56 1 32 49) :test #'greaterp)
+	    (list-wrap 99 74 56 49 32 3 1)
+	    :test #'equalp)
+
+	(is (nsort (list-wrap '(a 99) '(b 3) '(c 74) '(d 56) '(e 1) '(f 32) '(h 49)) :key #'cadr)
+	    (list-wrap '(e 1) '(b 3) '(f 32) '(h 49) '(d 56) '(c 74) '(a 99))
+	    :test #'equalp)))
+
+    (subtest "Test STABLE-SORT Functions"
+      (subtest "Test STABLE-SORT"
+	(diag "CL Sequences")
+
+	(let ((seq '("aac" "zzz" "aaa" "aab" "bac" "baa")))
+	  (is (stable-sort seq) '("aaa" "aab" "aac" "baa" "bac" "zzz") :test #'equalp)
+	  (is seq '("aac" "zzz" "aaa" "aab" "bac" "baa") :test #'equalp "Not Modified"))
+
+	(is (stable-sort '(99 3 74 56 1 32 49) :test #'greaterp) '(99 74 56 49 32 3 1))
+	(is (stable-sort #(99 3 74 56 1 32 49) :test #'greaterp) #(99 74 56 49 32 3 1) :test #'equalp)
+
+	;; Test Stability
+	(is (stable-sort '((a 99) (b 1) (c 74) (d 1) (e 1) (f 32) (h 1)) :key #'cadr)
+	    '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99)))
+
+	(diag "Generic Sequences")
+
+	(let ((seq (list-wrap "aac" "zzz" "aaa" "aab" "bac" "baa")))
+	  (is (stable-sort seq) (list-wrap "aaa" "aab" "aac" "baa" "bac" "zzz") :test #'equalp)
+	  (is seq (list-wrap "aac" "zzz" "aaa" "aab" "bac" "baa") :test #'equalp "Not Modified"))
+
+	(is (stable-sort (list-wrap 99 3 74 56 1 32 49) :test #'greaterp)
+	    (list-wrap 99 74 56 49 32 3 1)
+	    :test #'equalp)
+
+	;; Test Stability
+	(is (stable-sort (list-wrap '(a 99) '(b 1) '(c 74) '(d 1) '(e 1) '(f 32) '(h 1)) :key #'cadr)
+	    (list-wrap '(b 1) '(d 1) '(e 1) '(h 1) '(f 32) '(c 74) '(a 99))
+	    :test #'equalp))
+
+      (subtest "Test STABLE-NSORT"
+	(diag "CL Sequences")
+
+	(is (stable-nsort (list "aac" "zzz" "aaa" "aab" "bac" "baa"))
+	    (list "aaa" "aab" "aac" "baa" "bac" "zzz")
+	    :test #'equalp)
+
+	(is (stable-nsort (list 99 3 74 56 1 32 49) :test #'greaterp) '(99 74 56 49 32 3 1))
+	(is (stable-nsort (vector 99 3 74 56 1 32 49) :test #'greaterp) #(99 74 56 49 32 3 1) :test #'equalp)
+
+	;; Test Stability
+	(is (stable-nsort (list '(a 99) '(b 1) '(c 74) '(d 1) '(e 1) '(f 32) '(h 1)) :key #'cadr)
+	    '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99)))
+
+	(diag "Generic Sequences")
+
+	(is (stable-nsort (list-wrap "aac" "zzz" "aaa" "aab" "bac" "baa"))
+	    (list-wrap "aaa" "aab" "aac" "baa" "bac" "zzz")
+	    :test #'equalp)
+
+	(is (stable-nsort (list-wrap 99 3 74 56 1 32 49) :test #'greaterp)
+	    (list-wrap 99 74 56 49 32 3 1)
+	    :test #'equalp)
+
+	;; Test Stability
+	(is (stable-nsort (list-wrap '(a 99) '(b 1) '(c 74) '(d 1) '(e 1) '(f 32) '(h 1)) :key #'cadr)
+	    (list-wrap '(b 1) '(d 1) '(e 1) '(h 1) '(f 32) '(c 74) '(a 99))
+	    :test #'equalp)))))
 
 (finalize)

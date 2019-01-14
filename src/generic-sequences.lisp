@@ -179,8 +179,8 @@
 (defmethod mismatch (seq1 seq2 &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
   (flet ((compute-pos (pos)
 	   (if from-end
-	       (- (or end1 (length seq1)) pos)
-	       pos)))
+	       (cl:- (or end1 (length seq1)) pos)
+	       (cl:+ start1 pos))))
     (let ((key (or key #'identity)))
       (loop
 	 with it1 = (iterator seq1 :start start1 :end end1 :from-end from-end)
@@ -226,13 +226,13 @@
 	   (let ((elem1 (at it1))
 		 (elem2 (at it2)))
 	     (cond
-	       ((less elem1 elem2)
-		(collect collector elem1)
-		(advance it1))
+	       ((less elem2 elem1)
+		(collect collector elem2)
+		(advance it2))
 
 	       (t
-		(collect collector elem2)
-		(advance it2)))))
+		(collect collector elem1)
+		(advance it1)))))
 
       (cond
 	((not (endp it1))
@@ -258,8 +258,7 @@
 		   (make-seq it))))
 
 	   (merge-sort (it1 it2)
-	     (merge (sort it1) (sort it2)
-		    test :key key))
+	     (nmerge (sort it1) (sort it2) test :key key))
 
 	   (make-seq (it)
 	     (if (endp it)
@@ -276,10 +275,8 @@
 	       (when (plusp mid)
 		 (values
 		  (subseq it 0 mid)
-		  (subseq it mid)))))
+		  (subseq it mid))))))
 
-	   (lessp (a b)
-	     (funcall test (funcall key a) (funcall key b))))
     (sort (iterator sequence))))
 
 (defmethod stable-sort (seq &key (test #'lessp) key)
