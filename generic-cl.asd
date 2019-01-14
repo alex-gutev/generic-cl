@@ -55,9 +55,9 @@
 		 (:file "iterator")
 		 (:file "collector")
 		 (:file "cl-sequences")
-		 (:file "generic-sequences")
 		 (:file "hash-tables")
-		 (:file "sets"))))
+		 (:file "sets")
+		 (:file "generic-sequences"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 

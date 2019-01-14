@@ -1302,6 +1302,84 @@
       	(test-seq-fn
       	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
       	  (res (list '(b 2) '(d 4) '(f 6))))
-      	 (is (delete-if-not #'evenp seq :key #'cadr) res :test #'equalp))))))
+      	 (is (delete-if-not #'evenp seq :key #'cadr) res :test #'equalp))))
+
+    (subtest "Test REMOVE-DUPLICATES Functions"
+      (subtest "Test REMOVE-DUPLICATES"
+	(test-seq-fn
+	 ((list '("alex" "john" "bob" "alex" "jack" "john"))
+	  (res '("bob" "alex" "jack" "john")))
+
+	 (test-not-modified
+	  ((seq list))
+	  (is (remove-duplicates seq) res :test #'equalp)))
+
+	(test-seq-fn
+	 ((seq '("alex" "john" "bob" "alex" "jack" "john"))
+	  (res '("alex" "john" "bob" "jack")))
+
+	 (is (remove-duplicates seq :from-end t) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '("alex" "john" "bob" "alex" "jack" "john"))
+	  (res '("alex" "bob" "alex" "jack" "john")))
+
+	 (is (remove-duplicates seq :start 1) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '("alex" "john" "bob" "alex" "jack" "john"))
+	  (res '("alex" "john" "bob" "alex" "jack" "john")))
+
+	 (is (remove-duplicates seq :start 1 :end 4) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '((a 1) (b 2) (c 1) (d 3) (e 2) (f 4)))
+	  (res '((c 1) (d 3) (e 2) (f 4))))
+
+	 (is (remove-duplicates seq :key #'cadr) res :test #'equalp))
+
+	(test-seq-fn
+	 ((seq '(#\a #\B #\c #\D #\A #\b #\C #\d))
+	  (res '(#\a #\B #\c #\D)))
+
+	 (is (remove-duplicates seq :from-end t :test #'char-equal) res :test #'equalp)))
+
+      (subtest "Test DELETE-DUPLICATES"
+	(subtest "Test REMOVE-DUPLICATES"
+	  (test-seq-fn
+	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	    (res (list "bob" "alex" "jack" "john")))
+
+	   (is (delete-duplicates seq) res :test #'equalp))
+
+	  (test-seq-fn
+	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	    (res (list "alex" "john" "bob" "jack")))
+
+	   (is (delete-duplicates seq :from-end t) res :test #'equalp))
+
+	  (test-seq-fn
+	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	    (res (list "alex" "bob" "alex" "jack" "john")))
+
+	   (is (delete-duplicates seq :start 1) res :test #'equalp))
+
+	  (test-seq-fn
+	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	    (res (list "alex" "john" "bob" "alex" "jack" "john")))
+
+	   (is (delete-duplicates seq :start 1 :end 4) res :test #'equalp))
+
+	  (test-seq-fn
+	   ((seq (list '(a 1) '(b 2) '(c 1) '(d 3) '(e 2) '(f 4)))
+	    (res (list '(c 1) '(d 3) '(e 2) '(f 4))))
+
+	   (is (delete-duplicates seq :key #'cadr) res :test #'equalp))
+
+	  (test-seq-fn
+	   ((seq (list #\a #\B #\c #\D #\A #\b #\C #\d))
+	    (res (list #\a #\B #\c #\D)))
+
+	   (is (delete-duplicates seq :from-end t :test #'char-equal) res :test #'equalp)))))))
 
 (finalize)

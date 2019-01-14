@@ -431,16 +431,29 @@
 
 ;; Removing Duplicates
 
-(defmethod remove-duplicates (sequence &key from-end (test #'equal) (start 0) end key)
-  (let ((key (or key #'identity))
-	(collector (make-collector (empty-clone sequence) :front from-end)))
+(defmethod remove-duplicates (sequence &key from-end (test #'equalp) (start 0) end key)
+  (let* ((key (or key #'identity))
+	 (from-end (not from-end))
+	 (collector (make-collector (empty-clone sequence) :front from-end)))
 
-    (flet ((remove-duplicates ()
-	     (let ((items (make-hash-table :test test)))
+    (flet ((remove-duplicates-hash ()
+	     (let ((items (make-hash-map-table :test test)))
 	       (doseq (item sequence :start start :end end :from-end from-end)
 		 (unless (nth-value 1 (ensure-gethash (funcall key item) items))
-		   (collect collector item))))))
-      (collect-perform-op collector sequence #'remove-duplicates :start start :end end :from-end from-end)
+		   (collect collector item)))))
+
+	   (remove-duplicates-list ()
+	     (let ((items nil))
+	       (doseq (item sequence :start start :end end :from-end from-end)
+		 (let ((elem (funcall key item)))
+		  (unless (member elem items :test test :key key)
+		    (setf items (cons elem items))
+		    (collect collector item)))))))
+
+      (-<> (if (hash-map-test-p test)
+	       #'remove-duplicates-hash
+	       #'remove-duplicates-list)
+	   (collect-perform-op collector sequence <> :start start :end end :from-end from-end))
       (collector-sequence collector))))
 
 (defmethod delete-duplicates (sequence &key from-end (test #'equal) (start 0) end key)

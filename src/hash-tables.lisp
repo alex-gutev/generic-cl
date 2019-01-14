@@ -61,12 +61,11 @@
   table)
 
 (defun make-hash-map (&rest args &key &allow-other-keys)
-  "Creates a hash map. If TEST is the symbol GENERIC-CL:EQUALP (the
-   default), a generic hash-table, with HASH as the hash function and
+  "Creates a hash map. If TEST is GENERIC-CL:EQUALP (the default), a
+   generic hash-table, with GENERIC-CL:HASH as the hash function and
    GENERIC-CL:EQUALP as the comparison function. If another value for
    test (the available options are specified in the documentation for
-   CL:MAKE-HASH-TABLE) is given, the native hash function is
-   used.
+   CL:MAKE-HASH-TABLE) is given, the native hash function is used.
 
    The remaining keyword arguments accepted by CL:MAKE-HASH-TABLE, are
    also accepted by this function.
@@ -81,13 +80,19 @@
    on the TEST."
 
   (apply
-   (case test
-     (equalp
-      #'make-generic-hash-table)
-
-     (otherwise
-      #'make-hash-table))
+   (if (or (eq test 'equalp) (eq test #'equalp))
+       #'make-generic-hash-table
+       #'make-hash-table)
    args))
+
+(defun hash-map-test-p (test)
+  "Returns true if TEST is a valid hash-table test function."
+
+  (or (eq test 'eq) (eq test #'eq)
+      (eq test 'eql) (eq test #'eql)
+      (eq test 'equal) (eq test #'equal)
+      (eq test 'cl:equal) (eq test #'cl:equal)
+      (eq test 'equalp) (eq test #'equalp)))
 
 
 ;;;; Generic Lookup Functions
