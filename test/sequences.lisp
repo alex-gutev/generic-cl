@@ -1417,59 +1417,81 @@
       (subtest "Test EVERY"
 	(test-seq-fn
 	 ((seq1 '(1 2 4 5))
-	  (seq2 '(a b c d)))
+	  (seq2 '(a b c d))
+	  (empty nil))
 
 	 (ok-form (every #'numberp seq1))
 	 (ok-form (not (every #'evenp seq1)))
 	 (ok-form (every #'equalp seq1 seq1))
-	 (ok-form (not (every #'equalp seq1 seq2))))
+	 (ok-form (not (every #'equalp seq1 seq2)))
 
-	(test-seq-fn
-	 ((seq nil))
-	 (ok-form (every #'evenp seq))))
+	 ;; Empty Sequences
+	 (ok-form (every #'evenp empty))
+
+	 ;; Deliberately use unary function EVENP as it should never
+	 ;; be called. If it is called an error should be raised and
+	 ;; the test should be aborted.
+	 (ok-form (every #'evenp seq1 empty))))
 
       (subtest "Test SOME"
 	(test-seq-fn
 	 ((seq1 '(1 2 4 5))
-	  (seq2 '(a b c d)))
+	  (seq2 '(a b c d))
+	  (empty nil))
 
 	 (ok-form (not (some #'numberp seq2)))
 	 (ok-form (some #'evenp seq1))
 	 (ok-form (some #'equalp seq1 seq1))
 	 (ok-form (not (some #'equalp seq1 seq2)))
-	 (is (some (lambda (x) (and (evenp x) x)) seq1) 2))
 
-	(test-seq-fn
-	 ((seq nil))
-	 (ok-form (not (some #'evenp seq)))))
+	 ;; Test Return Value
+	 (is (some (lambda (x) (and (evenp x) x)) seq1) 2)
+
+	 ;; Empty Sequences
+	 (ok-form (not (some #'evenp empty)))
+
+	 ;; Deliberately use unary function EVENP as it should never
+	 ;; be called. If it is called an error should be raised and
+	 ;; the test should be aborted.
+	 (ok-form (not (some #'evenp seq1 empty)))))
 
       (subtest "Test NOTANY"
 	(test-seq-fn
 	 ((seq1 '(1 2 4 5))
-	  (seq2 '(a b c d)))
+	  (seq2 '(a b c d))
+	  (empty nil))
 
 	 (ok-form (notany #'numberp seq2))
 	 (ok-form (not (notany #'evenp seq1)))
 	 (ok-form (not (notany #'equalp seq1 seq1)))
-	 (ok-form (notany #'equalp seq1 seq2)))
+	 (ok-form (notany #'equalp seq1 seq2))
 
-	(test-seq-fn
-	 ((seq nil))
-	 (ok-form (notany #'evenp seq))))
+	 ;; Empty Sequences
+	 (ok-form (notany #'evenp empty))
+
+	 ;; Deliberately use unary function EVENP as it should never
+	 ;; be called. If it is called an error should be raised and
+	 ;; the test should be aborted.
+	 (ok-form (notany #'evenp seq1 empty))))
 
       (subtest "Test NOTEVERY"
 	(test-seq-fn
 	 ((seq1 '(1 2 4 5))
-	  (seq2 '(a 5 c d)))
+	  (seq2 '(a 5 c d))
+	  (empty nil))
 
 	 (ok-form (notevery #'evenp seq1))
 	 (ok-form (not (notevery #'numberp seq1)))
 	 (ok-form (not (notevery #'equalp seq1 seq1)))
-	 (ok-form (notevery #'equalp seq1 seq2)))
+	 (ok-form (notevery #'equalp seq1 seq2))
 
-	(test-seq-fn
-	 ((seq nil))
-	 (ok-form (not (notevery #'evenp seq))))))
+	 ;; Empty Sequences
+	 (ok-form (not (notevery #'evenp empty)))
+
+	 ;; Deliberately use unary function EVENP as it should never
+	 ;; be called. If it is called an error should be raised and
+	 ;; the test should be aborted.
+	 (ok-form (not (notevery #'evenp seq1 empty))))))
 
     (subtest "Test Concatenation functions"
       (subtest "Test CONCATENATE"
