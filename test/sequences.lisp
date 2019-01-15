@@ -483,51 +483,29 @@
     (subtest "Test MISMATCH"
       (test-seq-fn
        ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("alex" "bob" "john" "jack")) nil))
 
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("alex" "Bob" "john" "Jack")) 1))
+       (is (mismatch seq '("alex" "bob" "john" "jack")) nil)
+       (is (mismatch seq '("alex" "Bob" "john" "Jack")) 1)
+       (is (mismatch seq '("alex" "bob")) 2)
+       (is (mismatch '("alex" "bob") seq) 2)
+       (is (mismatch seq '("alex" "Bob" "john" "Jack") :key #'string-upcase) nil)
+       (is (mismatch seq '("alex" "Bob" "john" "Jack") :from-end t) 4)
+       (is (mismatch seq '("bob" "john" "jack") :start1 1) nil)
+       (is (mismatch seq '("Alex" "Pete" "bob" "john" "jack") :start1 1 :start2 2) nil)
+       (is (mismatch seq '("Alex" "Pete" "bob" "John" "jack") :start1 1 :start2 2) 2)
+       (is (mismatch seq '("Alex" "alex" "bob" "john" "Pete" "jack") :start1 1 :end1 3 :start2 2 :end2 4) nil)
 
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("alex" "bob")) 2))
+       (diag "Empty Sequences")
 
-      (test-seq-fn
-       ((seq '("alex" "bob")))
-       (is (mismatch seq '("alex" "bob" "john" "jack")) 2))
-
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("alex" "Bob" "john" "Jack") :key #'string-upcase)
-	   nil))
-
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("alex" "Bob" "john" "Jack") :from-end t) 4))
-
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("bob" "john" "jack") :start1 1) nil))
-
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("Alex" "Pete" "bob" "john" "jack") :start1 1 :start2 2) nil))
-
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("Alex" "Pete" "bob" "John" "jack") :start1 1 :start2 2) 2))
-
-      (test-seq-fn
-       ((seq '("alex" "bob" "john" "jack")))
-       (is (mismatch seq '("Alex" "alex" "bob" "john" "Pete" "jack") :start1 1 :end1 3 :start2 2 :end2 4) nil))
+       (is (mismatch seq seq :start2 1 :end2 1) 0)
+       (is (mismatch seq seq :start1 1 :end1 1) 1)
+       (is (mismatch seq nil) 0)
+       (is (mismatch nil seq) 0))
 
       (test-seq-fn
        ((seq '("alex" "john" "jack" "bob")))
-       (is (mismatch seq '("alex" "bob" "john" "jack" "pete") :from-end t :start1 1 :end1 3 :start2 2 :end2 4) nil))
 
-      (test-seq-fn
-       ((seq '("alex" "john" "jack" "bob")))
+       (is (mismatch seq '("alex" "bob" "john" "jack" "pete") :from-end t :start1 1 :end1 3 :start2 2 :end2 4) nil)
        (is (mismatch seq '("alex" "bob" "john" "jack" "pete") :from-end t :end1 3 :end2 4) 1)))
 
     (subtest "Test Reversing"
