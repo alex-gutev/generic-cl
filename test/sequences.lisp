@@ -469,6 +469,8 @@
        (is (search seq1 seq2 :end1 1 :end2 2) 1)
        (is (search seq1 seq2 :start1 0 :start2 3 :end1 1 :end2 5) 4)
 
+       (is (search '("Alex" "BOB") seq2 :key #'string-upcase) 1)
+
        ;; Empty Sequences
        (is (search seq1 seq2 :start1 1 :start2 2 :end1 1) 2)
        (is (search seq3 seq2) 0))
