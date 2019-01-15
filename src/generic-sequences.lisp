@@ -176,6 +176,44 @@
 
 ;; Searching for/Comparing subsequences
 
+(defmethod search (seq1 seq2 &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
+  (let* ((key (or key #'identity))
+	 (it1-start (iterator seq1 :start start1 :end end1 :from-end from-end))
+	 (it1 (copy it1-start))
+	 (index 0)
+	 index-start)
+
+    (flet ((test (a b)
+	     (funcall test (funcall key a) (funcall key b)))
+
+	   (compute-pos (start end)
+	     (if from-end
+		 (cl:- (or end2 (length seq2)) end)
+		 (cl:+ start2 start))))
+
+      (cond
+	((endp it1) ;; Check whether SEQ1 is empty
+	 (compute-pos 0 0))
+
+	(t
+	 (doseq (elem2 seq2 :start start2 :end end2 :from-end from-end)
+	   (cond
+	     ((endp it1)
+	      (return-from search (compute-pos index-start index)))
+
+	     ((test (at it1) elem2)
+	      (advance it1)
+	      (unless index-start (setf index-start index)))
+
+	     (index-start ;; Reset IT1 and INDEX-START
+	      (setf it1 (copy it1-start))
+	      (setf index-start nil)))
+
+	   (cl:incf index))
+
+	 (when (and index-start (endp it1))
+	   (compute-pos index-start index)))))))
+
 (defmethod mismatch (seq1 seq2 &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
   (flet ((compute-pos (pos)
 	   (if from-end

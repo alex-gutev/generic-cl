@@ -455,6 +455,31 @@
 	 ((seq '(1 3 4 5 6 7)))
 	 (is (position-if-not #'evenp seq :key #'1+) 2))))
 
+    (subtest "Test SEARCH"
+      (test-seq-fn
+       ((seq1 '("alex" "bob"))
+	(seq2 '("pete" "alex" "bob" "john" "alex" "jack" "alex" "bob" "jack"))
+	(seq3 nil))
+
+       (is (search seq1 seq2) 1)
+       (is (search seq1 seq2 :from-end t) 6)
+       (is (search seq1 seq2 :start2 2) 6)
+       (is (search seq1 seq2 :start1 1 :start2 2) 2)
+       (is (search seq1 seq2 :end2 2) nil)
+       (is (search seq1 seq2 :end1 1 :end2 2) 1)
+       (is (search seq1 seq2 :start1 0 :start2 3 :end1 1 :end2 5) 4)
+
+       ;; Empty Sequences
+       (is (search seq1 seq2 :start1 1 :start2 2 :end1 1) 2)
+       (is (search seq3 seq2) 0))
+
+      (test-seq-fn
+       ((seq1 '((x 2) (y 3)))
+	(seq2 '((a 1) (b 2) (c 3) (d 4))))
+
+       ;; Test :KEY argument
+       (is (search seq1 seq2 :key #'cadr) 1)))
+
     (subtest "Test MISMATCH"
       (test-seq-fn
        ((seq '("alex" "bob" "john" "jack")))
