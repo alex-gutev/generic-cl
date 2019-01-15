@@ -503,7 +503,14 @@
 	 ((seq1 '((b 1) (d 1) (a 99)))
 	  (seq2 '((e 1) (h 1) (f 32) (c 74)))
 	  (res '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99))))
-	 (is (merge seq1 seq2 #'lessp :key #'cadr) res :test #'equalp)))
+	 (is (merge seq1 seq2 #'lessp :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequences
+	(test-seq-fn
+	 ((seq '(1 2 3 4))
+	  (empty nil))
+	 (is (merge seq nil #'lessp) seq :test #'equalp)
+	 (is (merge empty seq #'lessp) seq :test #'equalp)))
 
       (subtest "Test NMERGE"
 	(diag "CL Sequences")
@@ -531,7 +538,14 @@
 	 ((seq1 (list '(b 1) '(d 1) '(a 99)))
 	  (seq2 (list '(e 1) '(h 1) '(f 32) '(c 74)))
 	  (res '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99))))
-	 (is (nmerge seq1 seq2 #'lessp :key #'cadr) res :test #'equalp))))
+	 (is (nmerge seq1 seq2 #'lessp :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequences
+	(test-seq-fn
+	 ((seq (list 1 2 3 4))
+	  (empty nil))
+	 (is (nmerge seq nil #'lessp) seq :test #'equalp)
+	 (is (nmerge empty seq #'lessp) seq :test #'equalp))))
 
     (subtest "Test Sorting"
       (subtest "Test SORT Functions"
@@ -556,6 +570,12 @@
 	    (res '((e 1) (b 3) (f 32) (h 49) (d 56) (c 74) (a 99))))
 	   (is (sort seq :key #'cadr) res :test #'equalp))
 
+	  ;; Empty Sequence
+	  (test-seq-fn
+	   ((seq nil))
+	   (is (sort seq) seq :test #'equalp))
+
+	  ;; Other CL Sequences
 	  (is (sort #(99 3 74 56 1 32 49) :test #'greaterp) #(99 74 56 49 32 3 1) :test #'equalp))
 
 	(subtest "Test NSORT"
@@ -574,6 +594,12 @@
 	    (res '((e 1) (b 3) (f 32) (h 49) (d 56) (c 74) (a 99))))
 	   (is (nsort seq :key #'cadr) res :test #'equalp))
 
+	  ;; Empty Sequence
+	  (test-seq-fn
+	   ((seq nil))
+	   (is (nsort seq) seq :test #'equalp))
+
+	  ;; Other CL Sequences
 	  (is (nsort (vector 99 3 74 56 1 32 49) :test #'greaterp) #(99 74 56 49 32 3 1) :test #'equalp)))
 
       (subtest "Test STABLE-SORT Functions"
@@ -602,7 +628,12 @@
 	  (test-seq-fn
 	   ((seq '((a 99) (b 1) (c 74) (d 1) (e 1) (f 32) (h 1)))
 	    (res '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99))))
-	   (is (stable-sort seq :key #'cadr) res :test #'equalp)))
+	   (is (stable-sort seq :key #'cadr) res :test #'equalp))
+
+	  ;; Empty Sequence
+	  (test-seq-fn
+	   ((seq nil))
+	   (is (stable-sort seq) seq :test #'equalp)))
 
 
 	(subtest "Test STABLE-NSORT"
@@ -624,7 +655,12 @@
 	  (test-seq-fn
 	   ((seq (list '(a 99) '(b 1) '(c 74) '(d 1) '(e 1) '(f 32) '(h 1)))
 	    (res '((b 1) (d 1) (e 1) (h 1) (f 32) (c 74) (a 99))))
-	   (is (stable-nsort seq :key #'cadr) res :test #'equalp)))))
+	   (is (stable-nsort seq :key #'cadr) res :test #'equalp))
+
+	  ;; Empty Sequence
+	  (test-seq-fn
+	   ((seq nil))
+	   (is (stable-nsort seq) seq :test #'equalp)))))
 
     (subtest "Test SUBSTITUTE Functions"
       (subtest "Test SUBSTITUTE"
@@ -679,7 +715,12 @@
 	(test-seq-fn
 	 ((seq '((a 1) (b 2) (c 3) (d 1) (e 4) (f 5) (g 1)))
 	  (res '(x (b 2) (c 3) x (e 4) (f 5) x)))
-	 (is (substitute 'x 1 seq :key #'cadr) res :test #'equalp)))
+	 (is (substitute 'x 1 seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (substitute 'y 'x seq) seq :test #'equalp)))
 
       (subtest "Test NSUBSTITUTE"
 	(test-seq-fn
@@ -731,7 +772,12 @@
 	(test-seq-fn
 	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1)))
 	  (res (list 'x '(b 2) '(c 3) 'x '(e 4) '(f 5) 'x)))
-	 (is (nsubstitute 'x 1 seq :key #'cadr) res :test #'equalp)))
+	 (is (nsubstitute 'x 1 seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (nsubstitute 'y 'x seq) seq :test #'equalp)))
 
       (subtest "Test SUBSTITUTE-IF"
 	(test-seq-fn
@@ -780,7 +826,12 @@
 	(test-seq-fn
 	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
 	  (res '((a 1) x (c 3) x (e 5) x (g 7))))
-	 (is (substitute-if 'x #'evenp seq :key #'cadr) res :test #'equalp)))
+	 (is (substitute-if 'x #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (substitute-if 'y #'evenp seq) seq :test #'equalp)))
 
       (subtest "Test NSUBSTITUTE-IF"
 	(test-seq-fn
@@ -827,7 +878,12 @@
 	(test-seq-fn
 	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
 	  (res (list '(a 1) 'x '(c 3) 'x '(e 5) 'x '(g 7))))
-	 (is (substitute-if 'x #'evenp seq :key #'cadr) res :test #'equalp)))
+	 (is (substitute-if 'x #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (nsubstitute-if 'y #'evenp seq) seq :test #'equalp)))
 
       (subtest "Test SUBSTITUTE-IF-NOT"
 	(test-seq-fn
@@ -877,7 +933,12 @@
 	(test-seq-fn
 	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
 	  (res '(x (b 2) x (d 4) x (f 6) x)))
-	 (is (substitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp)))
+	 (is (substitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (substitute-if-not 'y #'evenp seq) seq :test #'equalp)))
 
       (subtest "Test NSUBSTITUTE-IF-NOT"
 	(test-seq-fn
@@ -925,7 +986,12 @@
 	(test-seq-fn
 	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
 	  (res (list 'x '(b 2) 'x '(d 4) 'x '(f 6) 'x)))
-	 (is (nsubstitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp))))
+	 (is (nsubstitute-if-not 'x #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (nsubstitute-if-not 'y #'evenp seq) seq :test #'equalp))))
 
     (subtest "Test REMOVE Functions"
       (subtest "Test REMOVE"
@@ -980,7 +1046,12 @@
 	(test-seq-fn
 	 ((seq '((a 1) (b 2) (c 3) (d 1) (e 4) (f 5) (g 1)))
 	  (res '((b 2) (c 3) (e 4) (f 5))))
-	 (is (remove 1 seq :key #'cadr) res :test #'equalp)))
+	 (is (remove 1 seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (remove 'x seq) seq :test #'equalp)))
 
       (subtest "Test DELETE"
       	(test-seq-fn
@@ -1032,7 +1103,12 @@
       	(test-seq-fn
       	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1)))
       	  (res (list '(b 2) '(c 3) '(e 4) '(f 5))))
-      	 (is (delete 1 seq :key #'cadr) res :test #'equalp)))
+      	 (is (delete 1 seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (delete 'x seq) seq :test #'equalp)))
 
       (subtest "Test REMOVE-IF"
       	(test-seq-fn
@@ -1081,7 +1157,12 @@
       	(test-seq-fn
       	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
       	  (res '((a 1) (c 3) (e 5) (g 7))))
-      	 (is (remove-if #'evenp seq :key #'cadr) res :test #'equalp)))
+      	 (is (remove-if #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (remove-if #'evenp seq) seq :test #'equalp)))
 
       (subtest "Test DELETE-IF"
       	(test-seq-fn
@@ -1128,7 +1209,12 @@
       	(test-seq-fn
       	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
       	  (res (list '(a 1) '(c 3) '(e 5) '(g 7))))
-      	 (is (delete-if #'evenp seq :key #'cadr) res :test #'equalp)))
+      	 (is (delete-if #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (delete-if #'evenp seq) seq :test #'equalp)))
 
       (subtest "Test REMOVE-IF-NOT"
       	(test-seq-fn
@@ -1178,7 +1264,12 @@
       	(test-seq-fn
       	 ((seq '((a 1) (b 2) (c 3) (d 4) (e 5) (f 6) (g 7)))
       	  (res '((b 2) (d 4) (f 6))))
-      	 (is (remove-if-not #'evenp seq :key #'cadr) res :test #'equalp)))
+      	 (is (remove-if-not #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (remove-if-not #'evenp seq) seq :test #'equalp)))
 
       (subtest "Test DELETE-IF-NOT"
       	(test-seq-fn
@@ -1226,7 +1317,12 @@
       	(test-seq-fn
       	 ((seq (list '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7)))
       	  (res (list '(b 2) '(d 4) '(f 6))))
-      	 (is (delete-if-not #'evenp seq :key #'cadr) res :test #'equalp))))
+      	 (is (delete-if-not #'evenp seq :key #'cadr) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+	 (is (delete-if-not #'evenp seq) seq :test #'equalp))))
 
     (subtest "Test REMOVE-DUPLICATES Functions"
       (subtest "Test REMOVE-DUPLICATES"
@@ -1266,45 +1362,56 @@
 	 ((seq '(#\a #\B #\c #\D #\A #\b #\C #\d))
 	  (res '(#\a #\B #\c #\D)))
 
-	 (is (remove-duplicates seq :from-end t :test #'char-equal) res :test #'equalp)))
+	 (is (remove-duplicates seq :from-end t :test #'char-equal) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+
+	 (is (remove-duplicates seq) seq :test #'equalp)))
 
       (subtest "Test DELETE-DUPLICATES"
-	(subtest "Test REMOVE-DUPLICATES"
-	  (test-seq-fn
-	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
-	    (res (list "bob" "alex" "jack" "john")))
+	(test-seq-fn
+	 ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	  (res (list "bob" "alex" "jack" "john")))
 
-	   (is (delete-duplicates seq) res :test #'equalp))
+	 (is (delete-duplicates seq) res :test #'equalp))
 
-	  (test-seq-fn
-	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
-	    (res (list "alex" "john" "bob" "jack")))
+	(test-seq-fn
+	 ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	  (res (list "alex" "john" "bob" "jack")))
 
-	   (is (delete-duplicates seq :from-end t) res :test #'equalp))
+	 (is (delete-duplicates seq :from-end t) res :test #'equalp))
 
-	  (test-seq-fn
-	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
-	    (res (list "alex" "bob" "alex" "jack" "john")))
+	(test-seq-fn
+	 ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	  (res (list "alex" "bob" "alex" "jack" "john")))
 
-	   (is (delete-duplicates seq :start 1) res :test #'equalp))
+	 (is (delete-duplicates seq :start 1) res :test #'equalp))
 
-	  (test-seq-fn
-	   ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
-	    (res (list "alex" "john" "bob" "alex" "jack" "john")))
+	(test-seq-fn
+	 ((seq (list "alex" "john" "bob" "alex" "jack" "john"))
+	  (res (list "alex" "john" "bob" "alex" "jack" "john")))
 
-	   (is (delete-duplicates seq :start 1 :end 4) res :test #'equalp))
+	 (is (delete-duplicates seq :start 1 :end 4) res :test #'equalp))
 
-	  (test-seq-fn
-	   ((seq (list '(a 1) '(b 2) '(c 1) '(d 3) '(e 2) '(f 4)))
-	    (res (list '(c 1) '(d 3) '(e 2) '(f 4))))
+	(test-seq-fn
+	 ((seq (list '(a 1) '(b 2) '(c 1) '(d 3) '(e 2) '(f 4)))
+	  (res (list '(c 1) '(d 3) '(e 2) '(f 4))))
 
-	   (is (delete-duplicates seq :key #'cadr) res :test #'equalp))
+	 (is (delete-duplicates seq :key #'cadr) res :test #'equalp))
 
-	  (test-seq-fn
-	   ((seq (list #\a #\B #\c #\D #\A #\b #\C #\d))
-	    (res (list #\a #\B #\c #\D)))
+	(test-seq-fn
+	 ((seq (list #\a #\B #\c #\D #\A #\b #\C #\d))
+	  (res (list #\a #\B #\c #\D)))
 
-	   (is (delete-duplicates seq :from-end t :test #'char-equal) res :test #'equalp)))))
+	 (is (delete-duplicates seq :from-end t :test #'char-equal) res :test #'equalp))
+
+	;; Empty Sequence
+	(test-seq-fn
+	 ((seq nil))
+
+	 (is (delete-duplicates seq) seq :test #'equalp))))
 
     (subtest "Test Logical Sequence Functions"
       (subtest "Test EVERY"
@@ -1370,13 +1477,15 @@
 	 ((list1 '(1 2 3))
 	  (list2 '(4 5 6))
 	  (list3 '(7 8 9))
+	  (list4 nil)
 	  (res '(1 2 3 4 5 6 7 8 9)))
 
 	 (test-not-modified
 	  ((seq1 list1)
 	   (seq2 list2)
-	   (seq3 list3))
-	  (is (concatenate seq1 seq2 seq3) res :test #'equalp)))
+	   (seq3 list3)
+	   (empty list4))
+	  (is (concatenate seq1 empty seq2 seq3 empty) res :test #'equalp)))
 
 	(is (concatenate "all" " " "together" " " "now") "all together now" :test #'equalp))
 
@@ -1385,37 +1494,53 @@
 	 ((seq1 (list 1 2 3))
 	  (seq2 (list 4 5 6))
 	  (seq3 (list 7 8 9))
+	  (empty nil)
 	  (res '(1 2 3 4 5 6 7 8 9)))
 
-	 (is (nconcatenate seq1 seq2 seq3) res :test #'equalp))
+	 (is (nconcatenate seq1 empty seq2 seq3 empty) res :test #'equalp))
 
-	(is (nconcatenate (make-array 3 :adjustable t :fill-pointer t :initial-contents '(#\a #\l #\l))
-			  " " "together" " " "now")
+	(is (nconcatenate (make-array 3 :adjustable t :fill-pointer t :initial-contents '(#\a #\l #\l)) " " "together" " " "now")
 	    "all together now" :test #'equalp)))
 
     (subtest "Test Mapping Functions"
       (subtest "Test MAP-INTO"
 	(test-seq-fn
 	 ((seq (list 1 2 3 4))
+	  (empty nil)
 	  (res '(2 3 4 5)))
 
-	 (is (map-into seq #'cl:1+) res :test #'equalp))
+	 (is (map-into seq #'1+) res :test #'equalp)
+
+	 ;; Test Empty Sequences
+	 (is (map-into empty #'1+) empty :test #'equalp)
+	 (is (map-into seq #'+ empty) seq :test #'equalp)
+	 (is (map-into empty #'+ seq) empty :test #'equalp))
 
 	(test-seq-fn
 	 ((seq1 (list 1 2 3 4))
 	  (seq2 (list 2 3 4 5))
 	  (res '(3 5 7 9)))
 
-	 (is (map-into seq1 #'cl:+ seq2) res :test #'equalp)))
+	 (is (map-into seq1 #'+ seq2) res :test #'equalp)))
 
       (subtest "Test MAP"
 	(test-seq-fn
 	 ((list (list 1 2 3 4))
+	  (empty-list nil)
 	  (res '(2 3 4 5)))
 
 	 (test-not-modified
 	  ((seq list))
-	  (is (map #'cl:1+ seq) res :test #'equalp)))
+	  (is (map #'1+ seq) res :test #'equalp))
+
+	 ;; Test Empty Sequences
+	 (test-not-modified
+	  ((seq list)
+	   (empty empty-list))
+
+	  (is (map #'1+ empty) empty :test #'equalp)
+	  (is (map #'+ seq empty) empty :test #'equalp)
+	  (is (map #'+ empty seq) empty :test #'equalp)))
 
 	(test-seq-fn
 	 ((list1 (list 1 2 3 4))
@@ -1425,6 +1550,6 @@
 	 (test-not-modified
 	  ((seq1 list1)
 	   (seq2 list2))
-	  (is (map #'cl:+ seq1 seq2) res :test #'equalp)))))))
+	  (is (map #'+ seq1 seq2) res :test #'equalp)))))))
 
 (finalize)

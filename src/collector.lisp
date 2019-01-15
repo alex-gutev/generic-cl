@@ -108,12 +108,13 @@
 	 (setf it))))
 
 (defmethod extend ((c list-collector) (list list))
-  (slet (list-collector-tail c)
-    (->> (if it
-	     (setf (cdr it) (copy-list list))
-	     (setf (list-collector-head c) (copy-list list)))
-	 (cl:last)
-	 (setf it))))
+  (when list
+    (slet (list-collector-tail c)
+      (->> (if it
+	       (setf (cdr it) (copy-list list))
+	       (setf (list-collector-head c) (copy-list list)))
+	   (cl:last)
+	   (setf it)))))
 
 (defmethod collector-sequence ((c list-collector))
   (list-collector-head c))

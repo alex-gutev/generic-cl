@@ -648,8 +648,8 @@
   (mapcar #'at iters))
 
 (defun some-endp (iters)
-  "Returns true if at least on of the iterators in ITERS is at the end
-   of its sequence (by ENDP."
+  "Returns true if at least one of the iterators in ITERS is at the
+   end of its sequence (by ENDP."
 
   (cl:some #'endp iters))
 
