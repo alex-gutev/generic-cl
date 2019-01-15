@@ -187,273 +187,187 @@
       (subtest "Left Reduction (:FROM-END NIL)"
 	(test-seq-fn
 	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq) '(((1 2) 3) 4)))
 
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq :initial-value 0) '((((0 1) 2) 3) 4)))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq :initial-value 0 :key #'1+) '((((0 2) 3) 4) 5)))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq :start 2) '(3 4)))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
+	 (is (reduce #'list seq) '(((1 2) 3) 4))
+	 (is (reduce #'list seq :initial-value 0) '((((0 1) 2) 3) 4))
+	 (is (reduce #'list seq :initial-value 0 :key #'1+) '((((0 2) 3) 4) 5))
+	 (is (reduce #'list seq :start 2) '(3 4))
 	 (is (reduce #'list seq :start 1 :end 3) '(2 3)))
 
 	(test-seq-fn
 	 ((seq nil))
-	 (is (reduce #'cl:+ seq) 0))
+	 (is (reduce #'cl:+ seq) 0)
+	 (is (reduce #'list seq :initial-value 1) 1)
+	 (is (reduce #'list seq :initial-value 1 :key #'1+) 1))
 
 	(test-seq-fn
 	 ((seq '(1)))
-	 (is (reduce #'cl:+ seq) 1))
-
-	(test-seq-fn
-	 ((seq '(1)))
-	 (is (reduce #'cl:+ seq :initial-value 2) 3))
-
-	(test-seq-fn
-	 ((seq nil))
-	 (is (reduce #'list seq :initial-value 1) 1))
-
-	(test-seq-fn
-	 ((seq nil))
-	 (is (reduce #'list seq :initial-value 1 :key #'1+) 1)))
+	 (is (reduce #'cl:+ seq) 1)
+	 (is (reduce #'cl:+ seq :initial-value 2) 3)))
 
       (subtest "Right Reduction (:FROM-END T)"
 	(test-seq-fn
 	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq :from-end t) '(1 (2 (3 4)))))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq :initial-value 0 :from-end t) '(1 (2 (3 (4 0))))))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq :initial-value 0 :key #'1+ :from-end t) '(2 (3 (4 (5 0))))))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
-	 (is (reduce #'list seq :start 2 :from-end t) '(3 4)))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4)))
+	 (is (reduce #'list seq :from-end t) '(1 (2 (3 4))))
+	 (is (reduce #'list seq :initial-value 0 :from-end t) '(1 (2 (3 (4 0)))))
+	 (is (reduce #'list seq :initial-value 0 :key #'1+ :from-end t) '(2 (3 (4 (5 0)))))
+	 (is (reduce #'list seq :start 2 :from-end t) '(3 4))
 	 (is (reduce #'list seq :start 1 :end 3 :from-end t) '(2 3)))
 
 	(test-seq-fn
 	 ((seq nil))
-	 (is (reduce #'cl:+ seq :from-end t) 0))
+	 (is (reduce #'cl:+ seq :from-end t) 0)
+	 (is (reduce #'list seq :initial-value 1 :from-end t) 1)
+	 (is (reduce #'list seq :initial-value 1 :key #'1+ :from-end t) 1))
 
 	(test-seq-fn
 	 ((seq '(1)))
-	 (is (reduce #'cl:+ seq :from-end t) 1))
-
-	(test-seq-fn
-	 ((seq '(1)))
-	 (is (reduce #'list seq :initial-value 2 :from-end t) '(1 2)))
-
-	(test-seq-fn
-	 ((seq nil))
-	 (is (reduce #'list seq :initial-value 1 :from-end t) 1))
-
-	(test-seq-fn
-	 ((seq nil))
-	 (is (reduce #'list seq :initial-value 1 :key #'1+ :from-end t) 1))))
+	 (is (reduce #'cl:+ seq :from-end t) 1)
+	 (is (reduce #'list seq :initial-value 2 :from-end t) '(1 2)))))
 
     (subtest "Test COUNT Functions"
       (subtest "Test COUNT"
 	(test-seq-fn
 	 ((seq '("a" "b" "c" "a" "d")))
-	 (is (count "a" seq) 2))
 
-	(test-seq-fn
-	 ((seq '("a" "b" "c" "a" "d")))
-	 (is (count "a" seq :from-end t) 2))
-
-	(test-seq-fn
-	 ((seq '("a" "b" "c" "a" "d")))
-	 (is (count "a" seq :start 1) 1))
-
-	(test-seq-fn
-	 ((seq '("a" "b" "c" "a" "d")))
-	 (is (count "a" seq :start 1 :end 3) 0))
+	 (is (count "a" seq) 2)
+	 (is (count "a" seq :from-end t) 2)
+	 (is (count "a" seq :start 1) 1)
+	 (is (count "a" seq :start 1 :end 3) 0)
+	 (is (count "A" seq :key #'string-upcase) 2))
 
 	(test-seq-fn
 	 ((seq '(0 1 2 0 3)))
-	 (is (count 1 seq :key #'1+) 2)))
+	 (is (count 1 seq :key #'1+) 2))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (is (count 'x seq) 0)))
 
       (subtest "Test COUNT-IF"
 	(test-seq-fn
 	 ((seq '(1 2 3 4 5)))
-	 (is (count-if #'evenp seq) 2))
 
-	(test-seq-fn
-	 ((seq '(1 2 3 4 5)))
-	 (is (count-if #'evenp seq :from-end t) 2))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4 5)))
-	 (is (count-if #'evenp seq :start 2) 1))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4 5)))
+	 (is (count-if #'evenp seq) 2)
+	 (is (count-if #'evenp seq :from-end t) 2)
+	 (is (count-if #'evenp seq :start 2) 1)
 	 (is (count-if #'evenp seq :start 2 :end 3) 0))
 
 	(test-seq-fn
 	 ((seq '(0 1 2 0 3)))
-	 (is (count-if (curry #'< 2) seq :key #'1+) 2)))
+	 (is (count-if (curry #'< 2) seq :key #'1+) 2))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (is (count-if #'evenp seq) 0)))
 
       (subtest "Test COUNT-IF-NOT"
 	(test-seq-fn
 	 ((seq '(1 2 3 4 5)))
-	 (is (count-if-not #'evenp seq) 3))
 
-	(test-seq-fn
-	 ((seq '(1 2 3 4 5)))
-	 (is (count-if-not #'evenp seq :from-end t) 3))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4 5)))
-	 (is (count-if-not #'evenp seq :start 2) 2))
-
-	(test-seq-fn
-	 ((seq '(1 2 3 4 5)))
+	 (is (count-if-not #'evenp seq) 3)
+	 (is (count-if-not #'evenp seq :from-end t) 3)
+	 (is (count-if-not #'evenp seq :start 2) 2)
 	 (is (count-if-not #'evenp seq :start 2 :end 3) 1))
 
 	(test-seq-fn
 	 ((seq '(0 1 2 0 3)))
-	 (is (count-if-not (curry #'< 2) seq :key #'1+) 3))))
+	 (is (count-if-not (curry #'< 2) seq :key #'1+) 3))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (is (count-if-not #'evenp seq) 0))))
 
     (subtest "Test FIND Functions"
       (subtest "Test FIND"
 	(test-seq-fn
 	 ((seq '("b" "a" "c" "d" "a")))
-	 (is (find "a" seq) "a"))
 
-	(test-seq-fn
-	 ((seq '("b" "a" "c" "d" "a")))
-	 (is (find "a" seq :from-end t) "a"))
-
-	(test-seq-fn
-	 ((seq '("b" "a" "c" "d" "a")))
-	 (is (find "a" seq :start 2) "a"))
-
-	(test-seq-fn
-	 ((seq '("b" "a" "c" "d" "a")))
+	 (is (find "a" seq) "a")
+	 (is (find "a" seq :from-end t) "a")
+	 (is (find "a" seq :start 2) "a")
 	 (is (find "a" seq :start 2 :end 3) nil))
 
 	(test-seq-fn
 	 ((seq '(1 3 5 6)))
-	 (is (find 2 seq :key #'1+) 1)))
+	 (is (find 2 seq :key #'1+) 1))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (is (find 'x seq) nil)))
 
       (subtest "Test FIND-IF"
 	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if #'evenp seq) 4))
+	 ((seq '(1 3 4 5 6 7))
+	  (empty nil))
 
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if #'evenp seq :from-end t) 6))
+	 (is (find-if #'evenp seq) 4)
+	 (is (find-if #'evenp seq :from-end t) 6)
+	 (is (find-if #'evenp seq :start 3) 6)
+	 (is (find-if #'evenp seq :start 3 :end 4) nil)
+	 (is (find-if #'evenp seq :key #'1+) 1)
 
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if #'evenp seq :start 3) 6))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if #'evenp seq :start 3 :end 4) nil))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if #'evenp seq :key #'1+) 1)))
+	 (is (find-if #'evenp empty) nil)))
 
       (subtest "Test FIND-IF-NOT"
 	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if-not #'evenp seq) 1))
+	 ((seq '(1 3 4 5 6 7))
+	  (empty nil))
 
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if-not #'evenp seq :from-end t) 7))
+	 (is (find-if-not #'evenp seq) 1)
+	 (is (find-if-not #'evenp seq :from-end t) 7)
+	 (is (find-if-not #'evenp seq :start 3) 5)
+	 (is (find-if-not #'evenp seq :start 2 :end 3) nil)
+	 (is (find-if-not #'evenp seq :key #'1+) 4)
 
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if-not #'evenp seq :start 3) 5))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if-not #'evenp seq :start 2 :end 3) nil))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (find-if-not #'evenp seq :key #'1+) 4))))
+	 (is (find-if-not #'evenp empty) nil))))
 
     (subtest "Test POSITION Functions"
       (subtest "Test POSITION"
 	(test-seq-fn
 	 ((seq '("b" "a" "c" "d" "a")))
-	 (is (position "a" seq) 1))
 
-	(test-seq-fn
-	 ((seq '("b" "a" "c" "d" "a")))
-	 (is (position "a" seq :from-end t) 4))
-
-	(test-seq-fn
-	 ((seq '("b" "a" "c" "d" "a")))
-	 (is (position "a" seq :start 2) 4))
-
-	(test-seq-fn
-	 ((seq '("b" "a" "c" "d" "a")))
+	 (is (position "a" seq) 1)
+	 (is (position "a" seq :from-end t) 4)
+	 (is (position "a" seq :start 2) 4)
 	 (is (position "a" seq :start 2 :end 3) nil))
 
 	(test-seq-fn
 	 ((seq '(1 3 5 6)))
-	 (is (position 2 seq :key #'1+) 0)))
+	 (is (position 2 seq :key #'1+) 0))
+
+	(test-seq-fn
+	 ((seq nil))
+	 (is (position 'x seq) nil)))
 
       (subtest "Test POSITION-IF"
 	(test-seq-fn
 	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if #'evenp seq) 2))
+
+	 (is (position-if #'evenp seq) 2)
+	 (is (position-if #'evenp seq :from-end t) 4)
+	 (is (position-if #'evenp seq :start 3) 4)
+	 (is (position-if #'evenp seq :start 3 :end 4) nil)
+	 (is (position-if #'evenp seq :key #'1+) 0))
 
 	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if #'evenp seq :from-end t) 4))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if #'evenp seq :start 3) 4))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if #'evenp seq :start 3 :end 4) nil))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if #'evenp seq :key #'1+) 0)))
+	 ((seq nil))
+	 (is (position-if #'evenp seq) nil)))
 
       (subtest "Test POSITION-IF-NOT"
 	(test-seq-fn
 	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if-not #'evenp seq) 0))
+
+	 (is (position-if-not #'evenp seq) 0)
+	 (is (position-if-not #'evenp seq :start 3) 3)
+	 (is (position-if-not #'evenp seq :start 2 :end 3) nil)
+	 (is (position-if-not #'evenp seq :key #'1+) 2))
 
 	(is (position-if-not #'evenp '(1 3 4 5 6 7) :from-end t) 5)
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if-not #'evenp seq :start 3) 3))
 
 	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if-not #'evenp seq :start 2 :end 3) nil))
-
-	(test-seq-fn
-	 ((seq '(1 3 4 5 6 7)))
-	 (is (position-if-not #'evenp seq :key #'1+) 2))))
+	 ((seq nil))
+	 (is (position-if-not #'evenp seq) nil))))
 
     (subtest "Test SEARCH"
       (test-seq-fn
