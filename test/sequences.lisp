@@ -1581,9 +1581,11 @@
 	  ((seq list)
 	   (empty empty-list))
 
+	  ;; Always use unary 1+ in order to signal a condition (and
+	  ;; thus fail the tests) if it is called.
 	  (is (map #'1+ empty) empty :test #'equalp)
-	  (is (map #'+ seq empty) empty :test #'equalp)
-	  (is (map #'+ empty seq) empty :test #'equalp)))
+	  (is (map #'1+ seq empty) empty :test #'equalp)
+	  (is (map #'1+ empty seq) empty :test #'equalp)))
 
 	(test-seq-fn
 	 ((list1 (list 1 2 3 4))
@@ -1604,9 +1606,12 @@
 	 (is (nmap seq #'1+) res :test #'equalp)
 
 	 ;; Test Empty Sequences
+
+	 ;; Always use unary 1+ in order to signal a condition (and
+	 ;; thus fail the tests) if it is called.
 	 (is (nmap empty #'1+) empty :test #'equalp)
-	 (is (nmap seq #'+ empty) seq :test #'equalp)
-	 (is (nmap empty #'+ seq) empty :test #'equalp))
+	 (is (nmap seq #'1+ empty) seq :test #'equalp)
+	 (is (nmap empty #'1+ seq) empty :test #'equalp))
 
 	(test-seq-fn
 	 ((seq1 (list 1 2 3 4))
@@ -1643,9 +1648,15 @@
 
 	 (is (map-to 'list #'1+ seq) '(2 3 4 5))
 	 (is (map-to 'vector #'+ seq seq) #(2 4 6 8) :test #'equalp)
+	 (is (map-to 'list-wrapper #'1+ seq) (list-wrap 2 3 4 5) :test #'equalp)
 
 	 ;; Empty Sequences
+
+	 ;; Always use unary 1+ in order to signal a condition (and
+	 ;; thus fail the tests) if it is called.
 	 (is (map-to 'vector #'1+ empty) #() :test #'equalp)
-	 (is (map-to 'list #'1+ seq empty) nil :test #'equalp))))))
+	 (is (map-to 'list #'1+ seq empty) nil :test #'equalp)
+
+	 (is-error (map-to 'not-a-sequence-type #'1+ seq) condition))))))
 
 (finalize)
