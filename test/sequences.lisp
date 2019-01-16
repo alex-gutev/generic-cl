@@ -1525,26 +1525,6 @@
 	    "all together now" :test #'equalp)))
 
     (subtest "Test Mapping Functions"
-      (subtest "Test NMAP"
-	(test-seq-fn
-	 ((seq (list 1 2 3 4))
-	  (empty nil)
-	  (res '(2 3 4 5)))
-
-	 (is (nmap seq #'1+) res :test #'equalp)
-
-	 ;; Test Empty Sequences
-	 (is (nmap empty #'1+) empty :test #'equalp)
-	 (is (nmap seq #'+ empty) seq :test #'equalp)
-	 (is (nmap empty #'+ seq) empty :test #'equalp))
-
-	(test-seq-fn
-	 ((seq1 (list 1 2 3 4))
-	  (seq2 (list 2 3 4 5))
-	  (res '(3 5 7 9)))
-
-	 (is (nmap seq1 #'+ seq2) res :test #'equalp)))
-
       (subtest "Test MAP"
 	(test-seq-fn
 	 ((list (list 1 2 3 4))
@@ -1572,6 +1552,59 @@
 	 (test-not-modified
 	  ((seq1 list1)
 	   (seq2 list2))
-	  (is (map #'+ seq1 seq2) res :test #'equalp)))))))
+	  (is (map #'+ seq1 seq2) res :test #'equalp))))
+
+      (subtest "Test NMAP"
+	(test-seq-fn
+	 ((seq (list 1 2 3 4))
+	  (empty nil)
+	  (res '(2 3 4 5)))
+
+	 (is (nmap seq #'1+) res :test #'equalp)
+
+	 ;; Test Empty Sequences
+	 (is (nmap empty #'1+) empty :test #'equalp)
+	 (is (nmap seq #'+ empty) seq :test #'equalp)
+	 (is (nmap empty #'+ seq) empty :test #'equalp))
+
+	(test-seq-fn
+	 ((seq1 (list 1 2 3 4))
+	  (seq2 (list 2 3 4 5))
+	  (res '(3 5 7 9)))
+
+	 (is (nmap seq1 #'+ seq2) res :test #'equalp)))
+
+      (subtest "Test MAP-INTO"
+	(test-seq-fn
+	 ((out (list 1 2))
+	  (seq1 '(2 3))
+	  (seq2 '(1 1))
+	  (empty nil)
+	  (res '(1 2 3 4)))
+
+	 (is (map-into out #'1+ seq1) res :test #'equalp)
+	 (is (map-into out #'+ seq1 seq2) res :test #'equalp)
+
+	 ;; Empty Sequences
+	 (is (map-into empty #'1+ out) seq1 :test #'equalp)
+	 (is (map-into out #'1+ empty) out :test #'equalp)
+	 (is (map-into out #'+ empty seq1) out :test #'equalp)))
+
+      (subtest "Test MAP-TO"
+	(test-seq-fn
+	 ((chars  '(#\h #\e #\l #\l #\o))
+	  (seq '(1 2 3 4))
+	  (empty nil))
+
+	 (let ((str (map-to 'string #'char-upcase chars)))
+	   (is-type str 'string "Result is string")
+	   (is str "HELLO"))
+
+	 (is (map-to 'list #'1+ seq) '(2 3 4 5))
+	 (is (map-to 'vector #'+ seq seq) #(2 4 6 8) :test #'equalp)
+
+	 ;; Empty Sequences
+	 (is (map-to 'vector #'1+ empty) #() :test #'equalp)
+	 (is (map-to 'list #'1+ seq empty) nil :test #'equalp))))))
 
 (finalize)
