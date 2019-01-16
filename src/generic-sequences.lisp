@@ -584,7 +584,15 @@
 
 ;;; Mapping
 
-(defun map-into (result function &rest sequences)
+(defun map (function sequence &rest sequences)
+  "Creates a new sequence, of the same type as SEQUENCE (by
+   EMPTY-CLONE), containing the result of applying FUNCTION to each
+   element of SEQUENCE and each element of each SEQUENCE in
+   SEQUENCES."
+
+  (apply #'map-into (empty-clone sequence) function sequence sequences))
+
+(defun nmap (result function &rest sequences)
   "Destructively replaces each element of RESULT with the result of
    applying FUNCTION to each element of RESULT and of each sequence in
    SEQUENCE.
@@ -610,20 +618,10 @@
 
   result)
 
-(defmethod map-to (result function &rest sequences)
-  (apply #'map-to% result function sequences))
+(defun map-into (result function &rest sequences)
+  "Applies FUNCTION on each element of each sequence in SEQUENCES and
+   stores the result in RESULT, using the collector interface."
 
-(defmethod map-to ((type symbol) function &rest sequences)
-  (apply #'map-to% (sequence-of-type type) function sequences))
-
-(defun map (function sequence &rest sequences)
-  "Creates a new sequence, of the same type as SEQUENCE (by
-   EMPTY-CLONE), containing the result of applying FUNCTION to each
-   element of SEQUENCE and each element of SEQUENCES."
-
-  (apply #'map-to% (empty-clone sequence) function sequence sequences))
-
-(defun map-to% (result function &rest sequences)
   (let ((collector (make-collector result)))
     (loop
        with iters = (make-iters sequences)
@@ -633,6 +631,24 @@
 	 (advance-all iters))
 
     (collector-sequence collector)))
+
+(defun map-to (type function &rest sequences)
+  "Applies FUNCTION to each element of each sequence in SEQUENCES and
+   stores the result in a new sequence of type TYPE.  Returns the
+   sequence in which the results of applying function are stored."
+
+  (apply #'map-into (sequence-of-type type) function sequences))
+
+(defun foreach (function &rest sequences)
+  "Applies FUNCTION on each element of each sequence in SEQUENCES."
+
+  (loop
+     with iters = (make-iters sequences)
+     until (some-endp iters)
+     do
+       (apply function (get-elements iters))
+       (advance-all iters)))
+
 
 ;;;; Iteration Utility Functions
 

@@ -149,7 +149,7 @@
    :first :last
    :erase
 
-   :map :map-into :map-to
+   :map :nmap :map-into :map-to :foreach
    :fill :replace
 
    :concatenate

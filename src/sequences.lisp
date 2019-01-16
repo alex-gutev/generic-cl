@@ -338,21 +338,3 @@
 
     The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
     argument is removed."))
-
-
-;;; Mapping
-
-(defgeneric map-to (result function &rest sequences)
-  (:documentation
-   "Applies FUNCTION to each element of each sequence in SEQUENCES and
-    stores the result in RESULT.
-
-    If RESULT is a sequence, the results are directly stored in the
-    sequence.
-
-    If RESULT is a symbol designating a sequence type, a new sequence
-    of that type is created and the result of applying FUNCTION is
-    stored in that sequence.
-
-    Returns the sequence in which the results of applying function are
-    stored."))

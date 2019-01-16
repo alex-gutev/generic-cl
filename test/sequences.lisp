@@ -1525,25 +1525,25 @@
 	    "all together now" :test #'equalp)))
 
     (subtest "Test Mapping Functions"
-      (subtest "Test MAP-INTO"
+      (subtest "Test NMAP"
 	(test-seq-fn
 	 ((seq (list 1 2 3 4))
 	  (empty nil)
 	  (res '(2 3 4 5)))
 
-	 (is (map-into seq #'1+) res :test #'equalp)
+	 (is (nmap seq #'1+) res :test #'equalp)
 
 	 ;; Test Empty Sequences
-	 (is (map-into empty #'1+) empty :test #'equalp)
-	 (is (map-into seq #'+ empty) seq :test #'equalp)
-	 (is (map-into empty #'+ seq) empty :test #'equalp))
+	 (is (nmap empty #'1+) empty :test #'equalp)
+	 (is (nmap seq #'+ empty) seq :test #'equalp)
+	 (is (nmap empty #'+ seq) empty :test #'equalp))
 
 	(test-seq-fn
 	 ((seq1 (list 1 2 3 4))
 	  (seq2 (list 2 3 4 5))
 	  (res '(3 5 7 9)))
 
-	 (is (map-into seq1 #'+ seq2) res :test #'equalp)))
+	 (is (nmap seq1 #'+ seq2) res :test #'equalp)))
 
       (subtest "Test MAP"
 	(test-seq-fn
