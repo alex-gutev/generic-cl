@@ -409,10 +409,10 @@
 	     `(,var (iterator ,@args))))
 
 	 (make-end-test (it)
-	   `(endp ,(first it)))
+	   `(endp ,(car it)))
 
 	 (make-advance (it)
-	   `(advance ,(first it))))
+	   `(advance ,(car it))))
 
     `(let ,(mapcar #'make-it-binding iters)
        (loop until (or ,@(mapcar #'make-end-test iters))
