@@ -28,14 +28,17 @@
 
 ;;;; Generic Collector Interface
 
-(defgeneric empty-clone (sequence)
+(defgeneric empty-clone (sequence &key &allow-other-keys)
   (:documentation
    "Creates a new sequence of the same type and with the same
     properties as SEQUENCE however without any elements."))
 
-(defgeneric sequence-of-type (type)
+(defgeneric make-sequence-of-type (type args)
   (:documentation
-   "Creates a sequence of the type TYPE."))
+   "Creates a sequence of the type TYPE. If the type was a list TYPE
+    is the first element of the list and ARGS are the remaining
+    elements. If the type was a symbol TYPE is the symbol and ARGS is
+    NIL."))
 
 
 (defgeneric make-collector (sequence &key front)
@@ -73,12 +76,35 @@
     might not have been destructively modified."))
 
 
+;;;; Sequence Creation
+
+(defun sequence-of-type (type)
+  "Creates a sequence of the type TYPE by calling
+   MAKE-SEQUENCE-OF-TYPE.
+
+   If TYPE is a list, MAKE-SEQUENCE-OF-TYPE is called with the CAR of
+   the list as the first argument, and the CDR of the list as the
+   second argument. Otherwise MAKE-SEQUENCE-OF-TYPE is called with
+   TYPE as the first argument and NIL as the second argument."
+
+  (destructuring-bind (type . args) (ensure-list type)
+    (make-sequence-of-type type args)))
+
+(defmethod make-sequence-of-type (type args)
+  (let ((type (if args (cons type args) type)))
+    (empty-clone (make-sequence type 0) :keep-element-type t)))
+
+
 ;;;; Lists
 
-(defmethod empty-clone ((sequence list))
+;;; Creation
+
+(defmethod empty-clone ((sequence list) &key)
   "Returns NIL the empty list."
   nil)
 
+
+;;; Collectors
 
 (defstruct list-collector
   "Collector object for adding items to the back of a list."
@@ -131,9 +157,18 @@
 
 ;;;; Vectors
 
-(defmethod empty-clone ((vec vector))
-  (make-array (cl:length vec) :adjustable t :fill-pointer 0))
+;;; Creation
 
+(defmethod empty-clone ((vec vector) &key keep-element-type)
+  (make-array (cl:length vec)
+	      :element-type (if keep-element-type
+				(array-element-type vec)
+				t)
+	      :adjustable t
+	      :fill-pointer 0))
+
+
+;;; Collectors
 
 (defstruct front-vector-collector
   "Collector object for adding items to the front of a vector"

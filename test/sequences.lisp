@@ -45,7 +45,7 @@
   (make-reverse-iterator (list-wrapper-list seq) start end))
 
 
-(defmethod empty-clone ((seq list-wrapper))
+(defmethod empty-clone ((seq list-wrapper) &key)
   (make-list-wrapper))
 
 

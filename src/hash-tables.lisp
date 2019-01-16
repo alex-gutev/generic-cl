@@ -223,7 +223,7 @@
 
 ;;;; Hash Table Collectors
 
-(defmethod empty-clone ((map hash-map))
+(defmethod empty-clone ((map hash-map) &key)
   (hash-map (make-empty-hash-table (hash-map-table map))))
 
 (defun make-empty-hash-table (table)
