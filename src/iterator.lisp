@@ -95,7 +95,7 @@
     (loop repeat n do (advance it))))
 
 
-;;; Non-generic utility functions
+;;; Iterator Creation
 
 (defun iterator (sequence &key (start 0) end from-end)
   "Returns an iterator for the sub-sequence of SEQUENCE bounded by the
@@ -385,6 +385,70 @@
      :end (if end
     	      (cl:1+ (cl:- index end))
     	      old-end))))
+
+
+
+;;; Iterator Subsequences
+
+(defstruct (sub-iterator (:include iterator)
+			 (:copier nil))
+  "Iterator for iterating over a sub-sequence given an iterator for
+   the sequence.
+
+   ITER is the sequence's iterator. END is the index of the end of the
+   subsequence."
+
+  iter
+  end)
+
+(defmethod copy ((it sub-iterator) &key)
+  "Returns a copy of a `SUB-ITERATOR' which contains a copy of the
+   sequence's iterator stored in the ITER slot."
+
+  (with-accessors ((iter sub-iterator-iter)
+		   (index sub-iterator-index)
+		   (end sub-iterator-end)) it
+    (make-sub-iterator :iter (copy iter) :end end)))
+
+(defmethod subseq ((it iterator) start &optional end)
+  "Returns an iterator for the subseqeunce [START, END) of the
+   sequence with iterator IT. Both START and END are interpreted
+   relative to the position of the iterator IT within its sequence. "
+
+  (let ((it (copy it)))
+    (advance-n it start)
+
+    (if end
+	(make-sub-iterator :iter (copy it) :end (cl:- end start))
+	it)))
+
+(defmethod at ((it sub-iterator))
+  (at (sub-iterator-iter it)))
+
+(defmethod (setf at) (value (it sub-iterator))
+  (setf (sub-iterator-iter it) value))
+
+(defmethod endp ((it sub-iterator))
+  (with-accessors ((iter sub-iterator-iter)
+		   (end sub-iterator-end)) it
+    (or (endp iter)
+	(cl:<= end 0))))
+
+(defmethod advance ((it sub-iterator))
+  (cl:decf (sub-iterator-end it))
+  (advance (sub-iterator-iter it)))
+
+(defmethod advance-n ((it sub-iterator) n)
+  (cl:decf (sub-iterator-end it) n)
+  (advance-n (sub-iterator-iter it) n))
+
+(defmethod length ((it sub-iterator))
+  (sub-iterator-end it))
+
+(defmethod subseq ((it sub-iterator) start &optional end)
+  (with-accessors ((iter sub-iterator-iter)
+		   (sub-end sub-iterator-end)) it
+    (subseq (sub-iterator-iter it) start (or end sub-end))))
 
 
 ;;;; Iteration Macros

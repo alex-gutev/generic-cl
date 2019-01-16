@@ -137,6 +137,7 @@
    ;; Collector Interface
    :empty-clone
    :sequence-of-type
+   :make-sequence-of-type
 
    :make-collector
    :collect

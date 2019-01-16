@@ -29,27 +29,68 @@
 
 (plan nil)
 
+
+;; Custom Sequence Type
+
 (defstruct list-wrapper
+  "Custom sequence type used for testing the generic sequence
+   functions. The sequence simply wraps a list which is stored in the
+   LIST slot."
+
   list)
 
 (defun list-wrap (&rest elems)
+  "Create a `LIST-WRAPPER' with elements ELEMS."
+
   (make-list-wrapper :list elems))
 
 (defmethod equalp ((a list-wrapper) (b list-wrapper))
   (equalp (list-wrapper-list a) (list-wrapper-list b)))
 
+
+;; Custom Sequence Iterator
+
+(defstruct (list-wrapper-iterator (:include iterator)
+				  (:copier nil))
+
+  "Custom Sequence Iterator."
+  it)
+
 (defmethod make-iterator ((seq list-wrapper) start end)
-  (make-iterator (list-wrapper-list seq) start end))
+  (make-list-wrapper-iterator :it (make-iterator (list-wrapper-list seq) start end)))
 
 (defmethod make-reverse-iterator ((seq list-wrapper) start end)
-  (make-reverse-iterator (list-wrapper-list seq) start end))
+  (make-list-wrapper-iterator :it (make-reverse-iterator (list-wrapper-list seq) start end)))
 
+(defmethod copy ((it list-wrapper-iterator) &key)
+  (make-list-wrapper-iterator :it (copy (list-wrapper-iterator-it it))))
+
+
+(defmethod at ((it list-wrapper-iterator))
+  (at (list-wrapper-iterator-it it)))
+
+(defmethod (setf at) (value (it list-wrapper-iterator))
+  (setf (at (list-wrapper-iterator-it it)) value))
+
+(defmethod advance ((it list-wrapper-iterator))
+  (advance (list-wrapper-iterator-it it)))
+
+(defmethod endp ((it list-wrapper-iterator))
+  (endp (list-wrapper-iterator-it it)))
+
+
+;;; Custom Sequence Collector
 
 (defmethod empty-clone ((seq list-wrapper) &key)
   (make-list-wrapper))
 
+(defmethod make-sequence-of-type ((type (eql 'list-wrapper)) (args t))
+  (make-list-wrapper))
+
 
 (defstruct list-wrapper-collector
+  "Custom Sequence Collector."
+
   collector)
 
 (defmethod make-collector ((seq list-wrapper) &key front)
