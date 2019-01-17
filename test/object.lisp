@@ -33,6 +33,11 @@
   slot1
   slot2)
 
+(defmethod equalp ((a custom-object) (b custom-object))
+  (and (equalp (custom-object-slot1 a) (custom-object-slot1 b))
+       (equalp (custom-object-slot2 a) (custom-object-slot2 b))))
+
+
 (subtest "Test COPY Function"
   (subtest "Test List Copying"
     (let* ((list '("a" "b" ("c" "d")))
@@ -113,6 +118,17 @@
 
 	(ok (every #'test-eq shallow-copy) "Shallow copy is shallow")
 	(ok (notevery #'test-eq deep-copy) "Deep copy is deep"))))
+
+  (subtest "Test Custom Object Copying"
+    (let* ((orig (make-custom-object :slot1 1 :slot2 2))
+	   (copy (copy orig)))
+      (isnt orig copy :test #'eq "Copied")
+      (is orig copy :test #'equalp "Copied correctly")))
+
+  (subtest "Test Copying Other Objects"
+    (is (copy 1) 1)
+    (is (copy 'x) 'x)
+    (is (copy #\a) #\a))
 
   (subtest "Test DEFSTRUCT Macro COPY Method Generation"
     (is-expand
