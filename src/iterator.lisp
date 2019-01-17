@@ -157,35 +157,33 @@
   "Bounded list iterator for iterator from a given starting position
    till a given end position.
 
-   INDEX is the index of the current position.
+   END is the number of elements (to iterate over) between the current
+   position and the end of the sublist."
 
-   END is the index of the end position."
-
-  index end)
+  end)
 
 (defmethod make-iterator ((list list) start (end number))
-  (make-bound-list-iterator :cons (nthcdr start list) :index start :end end))
+  (make-bound-list-iterator :cons (nthcdr start list) :end (cl:- end start)))
 
 
 (defmethod advance ((iter bound-list-iterator))
   (with-accessors ((cons bound-list-iterator-cons)
-		   (index bound-list-iterator-index)) iter
+		   (end bound-list-iterator-end)) iter
     (setf cons (cdr cons))
-    (incf index)))
+    (decf end)))
 
 (defmethod endp ((iter bound-list-iterator))
   (with-accessors ((cons bound-list-iterator-cons)
-		   (index bound-list-iterator-index)
 		   (end bound-list-iterator-end)) iter
     (or (cl:endp cons)
-	(cl:>= index end))))
+	(cl:<= end 0))))
 
 (defmethod length ((iter bound-list-iterator))
-  (cl:- (bound-list-iterator-end iter) (bound-list-iterator-index iter)))
+  (bound-list-iterator-end iter))
 
 
 (defmethod subseq ((it bound-list-iterator) start &optional end)
-  (->> (cl:- (bound-list-iterator-end it) (bound-list-iterator-index it))
+  (->> (bound-list-iterator-end it)
        (or end)
        (call-next-method it start)))
 
