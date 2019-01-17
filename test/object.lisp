@@ -39,34 +39,71 @@
 	   (shallow-copy (copy list))
 	   (deep-copy (copy list :deep t)))
 
-      (isnt shallow-copy list "Shallow Copied" :test #'eq)
-      (isnt deep-copy list "Deep Copied" :test #'eq)
+      (isnt shallow-copy list "Shallow copied" :test #'eq)
+      (isnt deep-copy list "Deep copied" :test #'eq)
       (is shallow-copy list :test #'equalp "Shallow copied correctly")
       (is deep-copy list :test #'equalp "Deep copied correctly")
 
-      (ok (cl:every #'eq list shallow-copy) "Shallow copy is shallow.")
-      (ok (cl:notevery #'eq list deep-copy) "Deep copy is deep.")))
+      (ok (cl:every #'eq list shallow-copy) "Shallow copy is shallow")
+      (ok (cl:notevery #'eq list deep-copy) "Deep copy is deep")))
 
-  (subtest "Test Vector Copying"
-    (let* ((vector #("a" "b" #("c" "d")))
-	   (shallow-copy (copy vector))
-	   (deep-copy (copy vector :deep t)))
+  (flet ((test-attributes (orig)
+	   (let ((copy (copy orig)))
+	     (is copy orig :test #'equalp "Copied correctly")
+	     (isnt copy orig :test #'eq "Copied")
 
-      (isnt shallow-copy vector "Shallow Copied" :test #'eq)
-      (isnt deep-copy vector "Deep Copied" :test #'eq)
-      (is shallow-copy vector :test #'equalp "Shallow copied correctly")
-      (is deep-copy vector :test #'equalp "Deep copied correctly")
+	     (is (array-element-type copy) (array-element-type orig) "Element type")
+	     (is (adjustable-array-p copy) (adjustable-array-p orig) "Adjustable")
+	     (is (array-has-fill-pointer-p copy) (array-has-fill-pointer-p orig) "Fill pointer presence")
+	     (when (array-has-fill-pointer-p orig)
+	       (is (fill-pointer copy) (fill-pointer orig) "Fill pointers equal")))))
 
-      (ok (cl:every #'eq vector shallow-copy) "Shallow copy is shallow.")
-      (ok (cl:notevery #'eq vector deep-copy) "Deep copy is deep.")))
+    (subtest "Test Vector Copying"
+      (let* ((vector #("a" "b" #("c" "d")))
+	     (shallow-copy (copy vector))
+	     (deep-copy (copy vector :deep t)))
+
+	(isnt shallow-copy vector "Shallow copied" :test #'eq)
+	(isnt deep-copy vector "Deep copied" :test #'eq)
+	(is shallow-copy vector :test #'equalp "Shallow copied correctly")
+	(is deep-copy vector :test #'equalp "Deep copied correctly")
+
+	(ok (cl:every #'eq vector shallow-copy) "Shallow copy is shallow")
+	(ok (cl:notevery #'eq vector deep-copy) "Deep copy is deep"))
+
+      (subtest "Test Copying of Attributes"
+	(test-attributes "Hello World")
+	(test-attributes (make-array 3 :initial-contents '(1 2 3)))
+	(test-attributes (make-array 3 :element-type 'integer :initial-contents '(1 2 3)))
+	(test-attributes (make-array 3 :element-type 'number :adjustable t :initial-contents '(1 2 3)))
+	(test-attributes (make-array 3 :element-type 'integer :adjustable t :fill-pointer t :initial-contents '(1 2 3)))))
+
+    (subtest "Test Multi-Dimensional Array Copying"
+      (let* ((array #2A(("a" "b" "c") ("d" "e" "f")))
+      	     (shallow-copy (copy array))
+      	     (deep-copy (copy array :deep t)))
+
+      	(isnt shallow-copy array "Shallow copied" :test #'eq)
+      	(isnt deep-copy array "Deep copied" :test #'eq)
+
+      	(is shallow-copy array :test #'equalp "Shallow copied correctly")
+      	(is deep-copy array :test #'equalp "Deep copied correctly")
+
+      	(ok (every #'eq array shallow-copy) "Shallow copy is shallow")
+      	(ok (notevery #'eq array deep-copy) "Deep copy is deep"))
+
+      (subtest "Test Copying of Attributes"
+	(test-attributes (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))
+	(test-attributes (make-array '(2 3) :element-type 'integer :initial-contents '((1 2 3) (4 5 6))))
+	(test-attributes (make-array '(2 3) :element-type 'number :adjustable t :initial-contents '((1 2 3) (4 5 6)))))))
 
   (subtest "Test Hash-Table Copying"
     (let* ((map (alist-hash-map '((a . "a") (b . "b") (c . "c"))))
 	   (shallow-copy (copy map))
 	   (deep-copy (copy map :deep t)))
 
-      (isnt shallow-copy map "Shallow Copied" :test #'eq)
-      (isnt deep-copy map "Deep Copied" :test #'eq)
+      (isnt shallow-copy map "Shallow copied" :test #'eq)
+      (isnt deep-copy map "Deep copied" :test #'eq)
       (is shallow-copy map :test #'equalp "Shallow copied correctly")
       (is deep-copy map :test #'equalp "Deep copied correctly")
 

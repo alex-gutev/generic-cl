@@ -84,16 +84,16 @@
     (cdr tail)))
 
 
-;;; Arrays/Vectors
+;;; Vectors
 
-(defmethod copy ((array array) &key deep)
+(defmethod copy ((array vector) &key deep)
   (if deep
       (deep-copy-vector array)
       (copy-array array)))
 
 (defun deep-copy-vector (vec)
-  "Returns a copy of LIST which contains a copy (by COPY) of each
-   object contained in it."
+  "Returns a copy of the vector VEC which contains a copy (by COPY) of
+   each object contained in it."
 
   (let ((new (make-array (cl:length vec)
 			 :element-type (array-element-type vec)
@@ -106,6 +106,28 @@
        do
 	 (setf (aref new i) (copy elem :deep t)))
 
+    new))
+
+
+;;; Arrays
+
+(defmethod copy ((array array) &key deep)
+  (if deep
+      (deep-copy-array array)
+      (copy-array array)))
+
+(defun deep-copy-array (array)
+  "Returns a copy of the multi-dimensional ARRAY which contains a
+   copy (by COPY) of each object contained in it."
+
+  (let ((new (make-array (array-dimensions array)
+			 :element-type (array-element-type array)
+			 :adjustable (adjustable-array-p array))))
+    (loop
+       for i from 0 below (array-total-size array)
+       do
+	 (setf (row-major-aref new i)
+	       (copy (row-major-aref array i) :deep t)))
     new))
 
 
