@@ -194,7 +194,7 @@
 
 	   (shallow-copy ()
 	     (do-generic-map (key value map)
-	       (setf (gethash key new) (copy value)))))
+	       (setf (gethash key new) value))))
       (if deep (deep-copy) (shallow-copy)))
     new))
 

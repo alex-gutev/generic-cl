@@ -76,7 +76,11 @@
     (do ((tail tail)
 	 (head list (cdr head)))
 	((atom head) (setf (cdr tail) (copy head :deep t)))
-      (setf tail (cons (copy (car head) :deep t) nil)))
+
+      (->> (cons (copy (car head) :deep t) nil)
+	   (setf (cdr tail))
+	   (setf tail)))
+
     (cdr tail)))
 
 

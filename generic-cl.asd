@@ -77,7 +77,8 @@
 		 (:test-file "comparison")
 		 (:test-file "iterator")
 		 (:test-file "collector")
-		 (:test-file "sequences"))))
+		 (:test-file "sequences")
+		 (:test-file "object"))))
 
   :perform (asdf:test-op :after (op c)
 			 (funcall (intern #.(string :run) :prove) c)))
