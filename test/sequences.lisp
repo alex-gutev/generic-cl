@@ -1677,6 +1677,39 @@
 	 (is (map-to 'vector #'1+ empty) #() :test #'equalp)
 	 (is (map-to 'list #'1+ seq empty) nil :test #'equalp)
 
-	 (is-error (map-to 'not-a-sequence-type #'1+ seq) condition))))))
+	 (is-error (map-to 'not-a-sequence-type #'1+ seq) condition)))
+
+      (subtest "Test FOREACH"
+	(test-seq-fn
+	 ((seq '(1 2 3 4))
+	  (empty nil))
+
+	 (let ((collector (make-collector (list-wrap))))
+	   (foreach
+	    (lambda (x)
+	      (collect collector x))
+	    seq)
+
+	   (is (collector-sequence collector) (list-wrap 1 2 3 4) :test #'equalp))
+
+	 (let ((collector (make-collector (list-wrap))))
+	   (foreach
+	    (lambda (x y)
+	      (collect collector (+ x y)))
+	    seq seq)
+
+	   (is (collector-sequence collector) (list-wrap 2 4 6 8) :test #'equalp))
+
+	 ;; Empty Sequences
+	 (block test-empty
+	   (flet ((fail-test (&rest args)
+		    (declare (ignore args))
+		    (fail "Unary Function Called.")
+		    (return-from test-empty nil)))
+
+	     (foreach #'fail-test empty)
+	     (foreach #'fail-test seq empty)
+
+	     (pass "FOREACH called with empty sequences"))))))))
 
 (finalize)
