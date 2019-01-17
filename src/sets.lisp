@@ -34,17 +34,15 @@
   (:documentation
    "Returns true if ITEM is an element of the set SET.
 
-    Methods specialized on lists also accept TEST, TEST-NOT and KEY
-    keyword parameters. These parameters are ignored by other
-    methods."))
+    Methods specialized on lists also accept TEST and KEY keyword
+    parameters. These parameters are ignored by other methods."))
 
 (defgeneric subsetp (set1 set2 &key &allow-other-keys)
   (:documentation
    "Returns true if the set SET1 is a subset of the set SET2.
 
-    Methods specialized on lists also accept TEST, TEST-NOT and KEY
-    keyword parameters. These parameters are ignored by other
-    methods."))
+    Methods specialized on lists also accept TEST and KEY keyword
+    parameters. These parameters are ignored by other methods."))
 
 
 ;;; Adding Elements
@@ -53,9 +51,8 @@
   (:documentation
    "Returns a new set which contains ITEM and all elements in set SET.
 
-    Methods specialized on lists also accept TEST, TEST-NOT and KEY
-    keyword parameters. These parameters are ignored by other
-    methods."))
+    Methods specialized on lists also accept TEST and KEY keyword
+    parameters. These parameters are ignored by other methods."))
 
 (defgeneric nadjoin (item set &key &allow-other-keys)
   (:documentation
@@ -133,7 +130,10 @@
 
 ;;;; Hash-Sets
 
-(defstruct (hash-set (:include hash-map) (:constructor hash-table-set (table)))
+(defstruct (hash-set (:include hash-map)
+		     (:constructor hash-table-set (table))
+		     (:copier nil)) ;; Use `HASH-MAP' COPY method
+
   "Set data structure implemented using hash tables.
 
    This structure is equivalent to the `HASH-MAP' structure, in-fact
@@ -271,7 +271,7 @@
   (let ((a (hash-set-table a))
 	(b (hash-set-table b)))
     (with-custom-hash-table
-      (unless (cl:= (hash-table-count a) (hash-table-count b))
+      (when (cl:= (hash-table-count a) (hash-table-count b))
 	(do-generic-map (key nil a t)
 	  (unless (nth-value 1 (gethash key b))
 	    (return nil)))))))
@@ -321,7 +321,7 @@
   (cl:set-exclusive-or set1 set2 :test test :key key))
 
 (defmethod nset-exclusive-or ((set1 list) (set2 list) &key (test #'equalp) key)
-  (cl:nset-difference set1 set2 :test test :key key))
+  (cl:nset-exclusive-or set1 set2 :test test :key key))
 
 
 (defmethod union ((set1 list) (set2 list) &key (test #'equalp) key)

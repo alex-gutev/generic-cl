@@ -79,7 +79,8 @@
 		 (:test-file "collector")
 		 (:test-file "sequences")
 		 (:test-file "object")
-		 (:test-file "hash-tables"))))
+		 (:test-file "hash-tables")
+		 (:test-file "sets"))))
 
   :perform (asdf:test-op :after (op c)
 			 (funcall (intern #.(string :run) :prove) c)))

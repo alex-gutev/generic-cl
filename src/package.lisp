@@ -200,7 +200,13 @@
    :adjoin :nadjoin
    :set-difference :nset-difference
    :set-exclusive-or :nset-exclusive-or
-   :union :nunion))
+   :union :nunion
+
+   :hash-set
+   :make-hash-set
+   :hash-table-set
+   :hash-set-table
+   :hash-set-p))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

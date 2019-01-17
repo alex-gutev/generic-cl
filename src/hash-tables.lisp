@@ -182,6 +182,9 @@
 (defmethod copy ((map hash-map) &key deep)
   (hash-map (copy-generic-hash-table (hash-map-table map) deep)))
 
+(defmethod copy ((table hash-table) &key deep)
+  (copy-generic-hash-table table deep))
+
 (defun copy-generic-hash-table (map deep)
   (let ((new (make-empty-hash-table map)))
     (flet ((deep-copy ()
