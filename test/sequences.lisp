@@ -1563,7 +1563,27 @@
 	 (is (nconcatenate seq1 empty seq2 seq3 empty) res :test #'equalp))
 
 	(is (nconcatenate (make-array 3 :adjustable t :fill-pointer t :initial-contents '(#\a #\l #\l)) " " "together" " " "now")
-	    "all together now" :test #'equalp)))
+	    "all together now" :test #'equalp))
+
+      (subtest "Test CONCATENATE-TO"
+	(test-seq-fn
+	 ((seq1 (list 1 2 3))
+	  (seq2 (list 4 5 6))
+	  (seq3 (list 7 8 9))
+	  (hello (list #\h #\e #\l #\l #\o #\Space))
+	  (world (list #\w #\o #\r #\l #\d))
+	  (empty nil))
+
+	 (is (concatenate-to 'list seq1 empty seq2 seq3 empty) '(1 2 3 4 5 6 7 8 9))
+	 (is (concatenate-to 'list-wrapper seq1 empty seq2 seq3 empty)
+	     (list-wrap 1 2 3 4 5 6 7 8 9)
+	     :test #'equalp)
+	 (is (concatenate-to 'vector seq1 empty seq2 seq3 empty) #(1 2 3 4 5 6 7 8 9)
+	     :test #'equalp)
+	 (is (concatenate-to 'string hello world) "hello world"))
+
+	(is (concatenate-to 'string "all" " " "together" " " "now") "all together now"
+	    :test #'equalp)))
 
     (subtest "Test Mapping Functions"
       (subtest "Test MAP"
