@@ -138,10 +138,10 @@
    MAP."
 
   (with-custom-hash-table
-    (remhash key map)))
+    (remhash key (hash-map-table map))))
 
 (defmethod erase ((table hash-table) key)
-  (remhash table key))
+  (remhash key table))
 
 
 ;;; Alists/Plists
@@ -150,19 +150,15 @@
   (typecase (first map)
     (cons
      (aif (assoc key map :test #'equalp)
-	  (car it)
-	  default))
+	  (values (cdr it) t)
+	  (values default nil)))
 
     (otherwise
-     (multiple-value-bind (value found?) (get-plist-value key map)
-       (if found? value default)))))
-
-(defun get-plist-value (lookup-key plist)
-  (loop
-     for (key value) on plist by #'cddr
-     do
-       (when (equalp lookup-key key)
-	 (return (values value t)))))
+     (multiple-value-bind (indicator value)
+	 (get-properties map (list key))
+       (if indicator
+	   (values value t)
+	   (values default nil))))))
 
 
 ;;;; Hash Table Iteration
@@ -318,13 +314,25 @@
 	    (get-all))))))
 
 
-;;; Sequence Methods specialized on hash-tables
+;;; Hash Tables
+
+(defmethod make-iterator ((table hash-table) start end)
+  (make-iterator (hash-map table) start end))
+
+(defmethod make-reverse-iterator ((table hash-table) start end)
+  (make-reverse-iterator (hash-map table) start end))
+
+
+;;;; Sequence Methods specialized on hash-tables
 
 (defmethod length ((map hash-map))
   "Returns the number of entries in the hash map MAP."
 
   (with-custom-hash-table
     (hash-table-count (hash-map-table map))))
+
+(defmethod length ((table hash-table))
+  (hash-table-count table))
 
 
 ;;;; Hash-Table Utilities
