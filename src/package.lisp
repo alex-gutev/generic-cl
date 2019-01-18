@@ -50,6 +50,7 @@
 
    ;; Comparison
    :< :<= :> :>=
+   :min :max
 
    ;; Misc
    :coerce
@@ -126,6 +127,7 @@
    :less-equal-p
    :greater-equal-p
    :< :<= :> :>=
+   :min :max
 
    ;; Iterator Interface
    :iterator

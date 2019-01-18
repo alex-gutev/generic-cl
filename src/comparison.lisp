@@ -160,6 +160,25 @@
      always (greater-equal-p x (first xs))))
 
 
+(defun min (first &rest xs)
+  "Returns the first argument which is less than (by LESSP) than all
+   the other arguments."
+
+  (loop
+     for min = first then (if (lessp x min) x min)
+     for x in xs
+     finally (return min)))
+
+(defun max (first &rest xs)
+  "Returns the first argument which is greater than (by GREATERP) than
+   all the other arguments."
+
+  (loop
+     for max = first then (if (greaterp x max) x max)
+     for x in xs
+     finally (return max)))
+
+
 ;;; Optimizations
 
 (define-compiler-macro < (x1 &rest xs)
