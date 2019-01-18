@@ -17,9 +17,72 @@ in ~COMMON-LISP~.
 
 ** Generic Interfaces
 
+The generic function interface consists of the following functions
+divided into the following categories:
+
 *** Equality
+
+The equality interface provides functions for testing objects for
+equality.
+
+**** EQUALP
+
+Generic Function: ~EQUALP A B~
+
+Returns true if object ~A~ is equal to object ~B~.
+
+Has methods specialized on the following types:
+
+   - ~NUMBER NUMBER~
+
+     Returns true if ~A~ and ~B~ represent the same numeric value,
+     as per ~CL:=~.
+
+   - ~CHARACTER CHARACTER~
+
+     Returns true if ~A~ and ~B~ represent the same character, as per
+     ~CL:CHAR=~.
+
+   - ~CONS CONS~
+
+     Returns true if the ~CAR~ of ~A~ is equal (by ~EQUALP~) to the
+     ~CAR~ of ~B~ and if the ~CDR~ of ~A~ is equal (by ~EQUALP~) to
+     the ~CDR~ of ~B~.
+
+   - ~VECTOR VECTOR~
+
+     Returns true if ~A~ and ~B~ are vectors of the same length and
+     each element of ~A~ is equal (by ~EQUALP~) to the corresponding
+     element of ~B~.
+
+   - ~STRING STRING~
+
+     Returns true if both strings are equal (by ~CL:STRING=~).
+
+   - ~PATHNAME PATHNAME~
+
+     Returns true if both ~PATHNAME~ objects are functionally
+     equivalent, as per the ~PATHNAME-EQUAL~ function from the
+     ~CL-FAD~ library.
+
+   - ~T T~
+
+     Default method: returns true if ~A~ and ~B~ are the same object,
+     as per ~CL:EQ~.
+
+
+**** =
+
+Function: ~= X &REST XS~
+
+**** /=
+
+Function: ~= X &REST XS~
+
+
 *** Comparison
 *** Arithmetic
+*** Objects
 *** Iterator
 *** Collector
 *** Sequence Operations
