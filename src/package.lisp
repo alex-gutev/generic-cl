@@ -240,3 +240,26 @@
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl
   :generic-cl.impl)
+
+(defpackage :generic-cl.math
+  (:use :generic-cl)
+
+  (:shadow
+   :sin :cos :tan :asin :acos :atan
+   :sinh :cosh :tanh :asinh :acosh :atanh
+   :exp :expt :log
+   :sqrt :isqrt
+   :cis :conjugate :phase :realpart :imagpart
+   :numerator :denominator :rational :rationalize)
+
+  (:export
+   :sin :cos :tan :asin :acos :atan
+   :sinh :cosh :tanh :asinh :acosh :atanh
+   :exp :expt :log
+   :sqrt :isqrt
+   :cis :conjugate :phase :realpart :imagpart
+   :numerator :denominator :rational :rationalize))
+
+(agutil:define-merged-package :generic-math-cl
+    :generic-cl
+  :generic-cl.math)

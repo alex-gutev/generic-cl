@@ -57,7 +57,8 @@
 		 (:file "cl-sequences")
 		 (:file "hash-tables")
 		 (:file "sets")
-		 (:file "generic-sequences"))))
+		 (:file "generic-sequences")
+		 (:file "math"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
 
