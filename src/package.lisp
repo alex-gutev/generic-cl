@@ -47,6 +47,15 @@
 
    ;; Arithmetic
    :+ :- :* :/
+   :1+ :1-
+   :incf :decf
+
+   :minusp :plusp :zerop :signum
+   :abs
+   :evenp :oddp
+
+   :floor :ceiling :round :truncate
+   :mod :rem
 
    ;; Comparison
    :< :<= :> :>=
@@ -118,7 +127,17 @@
    :multiply
    :divide
    :negate
+
    :+ :- :* :/
+   :1+ :1-
+   :incf :decf
+
+   :minusp :plusp :zerop :signum
+   :abs
+   :evenp :oddp
+
+   :floor :ceiling :round :truncate
+   :mod :rem
 
    ;; Comparison
    :compare

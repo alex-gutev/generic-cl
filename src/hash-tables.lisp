@@ -312,7 +312,7 @@
 	       list)))
 
       (with-custom-hash-table
-	(if (or (plusp start) end)
+	(if (or (cl:plusp start) end)
 	    (get-some (cl:- (or end (hash-table-count table)) start))
 	    (get-all))))))
 

@@ -310,7 +310,7 @@
 
 	   (split (it)
 	     (let ((mid (floor (length it) 2)))
-	       (when (plusp mid)
+	       (when (cl:plusp mid)
 		 (values
 		  (subseq it 0 mid)
 		  (subseq it mid))))))

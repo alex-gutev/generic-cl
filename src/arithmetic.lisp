@@ -44,11 +44,72 @@
 (defgeneric negate (a)
   (:documentation "Returns the negation of A."))
 
-;; TODO: Add generic MOD and REM functions. These are more
-;; complicated as they are defined in terms of FLOOR and TRUNCATE.
+
+(defgeneric 1+ (a)
+  (:documentation "Returns A + 1."))
+
+(defgeneric 1- (a)
+  (:documentation "Returns A - 1."))
 
 
-;;; Methods
+(defgeneric minusp (a)
+  (:documentation
+   "Returns true if A is less than 0."))
+
+(defgeneric plusp (a)
+  (:documentation
+   "Returns true if A is greater than 0"))
+
+(defgeneric zerop (a)
+  (:documentation "Returns true if A is zero."))
+
+(defgeneric signum (a)
+  (:documentation
+   "Returns -1 - if A is negative, 0 - if A is zero or 1 if A is positive"))
+
+(defgeneric abs (a)
+  (:documentation "Returns the absolute value of A."))
+
+
+(defgeneric evenp (a)
+  (:documentation "Returns true if A is even."))
+
+(defgeneric oddp (a)
+  (:documentation "Returns true if A is odd."))
+
+
+(defgeneric floor (n &optional d)
+  (:documentation
+   "Returns N, or N/D if D is provided, rounded towards negative
+    infinity, and the remainder of the division if any."))
+
+(defgeneric ceiling (n &optional d)
+  (:documentation
+   "Returns N, or N/D if D is provided, rounded towards positive
+    infinity, and the remainder of the division if any."))
+
+(defgeneric truncate (n &optional d)
+  (:documentation
+   "Returns N, or N/D if D is provided, rounded towards zero, and the
+   remainder of the division if any."))
+
+(defgeneric round (n &optional d)
+  (:documentation
+   "Returns N, or N/D if D is provided, rounded towards the nearest
+    integer. If the quotient lies exactly halfway between two integers
+    it is rounded to the nearest even integer."))
+
+
+(defgeneric mod (n d)
+  (:documentation
+   "Returns remainder of the floor operation on N and D."))
+
+(defgeneric rem (n d)
+  (:documentation
+   "Returns the remainder of the truncate operation on N and D."))
+
+
+;;; CL:NUMBER Methods
 
 (defmethod add ((a number) (b number))
   (cl:+ a b))
@@ -66,9 +127,110 @@
   (cl:- a))
 
 
+(defmethod 1+ ((a number))
+  (cl:1+ a))
+
+(defmethod 1- ((a number))
+  (cl:1- a))
+
+
+(defmethod minusp ((a number))
+  (cl:minusp a))
+
+(defmethod plusp ((a number))
+  (cl:plusp a))
+
+(defmethod zerop ((a number))
+  (cl:zerop a))
+
+(defmethod signum ((a number))
+  (cl:signum a))
+
+(defmethod abs ((a number))
+  (cl:abs a))
+
+
+(defmethod evenp ((a number))
+  (cl:evenp a))
+
+(defmethod oddp ((a number))
+  (cl:oddp a))
+
+
+(defmethod floor ((n number) &optional (d nil d-sp))
+  (if d-sp
+      (cl:floor n d)
+      (cl:floor n)))
+
+(defmethod ceiling ((n number) &optional (d nil d-sp))
+  (if d-sp
+      (cl:ceiling n d)
+      (cl:ceiling n)))
+
+(defmethod truncate ((n number) &optional (d nil d-sp))
+  (if d-sp
+      (cl:truncate n d)
+      (cl:truncate n)))
+
+(defmethod round ((n number) &optional (d nil d-sp))
+  (if d-sp
+      (cl:round n d)
+      (cl:round n)))
+
+
+(defmethod mod ((n number) (d number))
+  (cl:mod n d))
+
+(defmethod rem ((n number) (d number))
+  (cl:rem n d))
+
+
+;;; Generic Methods
+
+(defmethod 1+ (a)
+  (add a 1))
+
+(defmethod 1- (a)
+  (subtract a 1))
+
+
+(defmethod minusp (a)
+  (lessp a 0))
+
+(defmethod plusp (a)
+  (greaterp a 0))
+
+(defmethod zerop (a)
+  (equalp a 0))
+
+(defmethod signum (a)
+  (cond
+    ((minusp a) -1)
+    ((zerop a) 0)
+    (t 1)))
+
+(defmethod abs (a)
+  (if (minusp a)
+      (negate a)
+      a))
+
+
+;;;; INCF and DECF Macros
+
+(define-modify-macro incf (&optional (delta 1))
+  add
+  "Increments the place by DELTA (defaults to 1) using the generic ADD
+   function.")
+
+(define-modify-macro decf (&optional (delta 1))
+  subtract
+  "Decrements the place by DELTA (defaults to 1) using the generic
+   SUBTRACT function.")
+
+
 ;;;; N-Argument Functions
 
-;; Symbol macros for the +, * REPL variables
+;; Symbol macros for the REPL variables
 (define-symbol-macro + cl:+)
 (define-symbol-macro - cl:-)
 (define-symbol-macro * cl:*)
