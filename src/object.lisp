@@ -58,6 +58,13 @@
 	    (,copier-name ,arg)))
 	',name))))
 
+(defgeneric coerce (object result-type)
+  (:documentation
+   "Coerces the OBJECT to the type RESULT-TYPE.")
+
+  (:method (object type)
+    (cl:coerce object type)))
+
 
 ;;;; Copy methods for standard objects.
 

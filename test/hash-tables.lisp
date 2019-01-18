@@ -97,7 +97,7 @@
 
 	(is (length map) 2))))
 
-  (subtest "Test Hash-Map to Alist conversions and vice versa"
+  (subtest "Test Hash-Map to list conversions and vice versa"
     (let ((map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))
       (is (length map) 3)
 
@@ -111,6 +111,14 @@
       (is (length map) 4)
 
       (is (hash-map-alist map)
+	  '((a . 1) (b . 2) (c . 3) (#S(custom-key slot1 5 slot2 x) . "hello"))
+	  :test (rcurry #'set-equal :test #'equalp))
+
+      (is (coerce map 'alist)
+	  '((a . 1) (b . 2) (c . 3) (#S(custom-key slot1 5 slot2 x) . "hello"))
+	  :test (rcurry #'set-equal :test #'equalp))
+
+      (is (plist-alist (coerce map 'plist))
 	  '((a . 1) (b . 2) (c . 3) (#S(custom-key slot1 5 slot2 x) . "hello"))
 	  :test (rcurry #'set-equal :test #'equalp)))))
 

@@ -51,6 +51,9 @@
    ;; Comparison
    :< :<= :> :>=
 
+   ;; Misc
+   :coerce
+
    ;; Sequences
    :elt
    :length
@@ -99,6 +102,11 @@
    ;; Objects
    :copy
    :defstruct
+
+   ;; Types
+   :coerce
+   :alist
+   :plist
 
    ;; Equality
    :equalp := :/=

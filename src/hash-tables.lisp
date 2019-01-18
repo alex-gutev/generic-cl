@@ -362,3 +362,22 @@
       (do-generic-map (key value table)
 	(push (cons key value) list))
       list)))
+
+;;;; Type Conversions
+
+(defmethod coerce ((map hash-map) (type (eql 'alist)))
+  "Returns an ALIST containing all the entries (key-value pairs) in
+   the hash-map MAP."
+
+  (hash-map-alist map))
+
+(defmethod coerce ((map hash-map) (type (eql 'plist)))
+  "Returns a PLIST containing all the entries (key-value pairs) in the
+   hash-map MAP."
+
+  (let ((table (hash-map-table map)))
+    (let (list)
+      (do-generic-map (key value table)
+	(push value list)
+	(push key list))
+      list)))

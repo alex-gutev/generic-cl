@@ -162,4 +162,11 @@
        nil
        'custom-object))))
 
+(subtest "Test COERCE Function"
+  ;; For now simply test built-in type coercions to make sure that the
+  ;; default method calls CL:COERCE
+
+  (is (coerce '(1 2 3 4) 'vector) #(1 2 3 4) :test #'equalp)
+  (is (coerce #(a b c d) 'list) '(a b c d)))
+
 (finalize)
