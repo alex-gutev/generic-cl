@@ -55,6 +55,14 @@ Has methods specialized on the following types:
      each element of ~A~ is equal (by ~EQUALP~) to the corresponding
      element of ~B~.
 
+   - ~ARRAY ARRAY~
+
+     Multi-dimensional arrays.
+
+     Returns true if ~A~ and ~B~ have the same dimensions and each
+     element of ~A~ is equal (by ~EQUALP~) to the corresponding
+     element of ~B~.
+
    - ~STRING STRING~
 
      Returns true if both strings are equal (by ~CL:STRING=~).
@@ -67,7 +75,9 @@ Has methods specialized on the following types:
 
    - ~T T~
 
-     Default method: returns true if ~A~ and ~B~ are the same object,
+     Default method.
+
+     Returns true if ~A~ and ~B~ are the same object,
      as per ~CL:EQ~.
 
 
@@ -75,10 +85,14 @@ Has methods specialized on the following types:
 
 Function: ~= X &REST XS~
 
+Returns true if all objects in ~XS~ are equal (by ~EQUALP~) to ~X~.
+
 **** /=
 
 Function: ~= X &REST XS~
 
+Returns true if at least one object in ~XS~ is not equal (by ~EQUALP~)
+to ~X~.
 
 *** Comparison
 *** Arithmetic
