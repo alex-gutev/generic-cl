@@ -1,0 +1,27 @@
+* GENRIC-CL
+
+GENERIC-CL provides a generic function wrapper over various functions
+in the Common Lisp standard, such as equality predicates and sequence
+operations. The goal of the wrapper is to provide a standard interface
+to common operations, such as testing for the equality of two objects,
+which is extensible to user-defined types.
+
+** Usage
+
+The generic function interface is contained in the ~GENERIC-CL~
+package. This package should be used rather than ~COMMON-LISP~, as it
+shadows the symbols, in the ~COMMON-LISP~ package, which name a
+function for which there is a generic function wrapper. The
+~GENERIC-CL~ additionally reexports the remaining non-shadowed symbols
+in ~COMMON-LISP~.
+
+** Generic Interfaces
+
+*** Equality
+*** Comparison
+*** Arithmetic
+*** Iterator
+*** Collector
+*** Sequence Operations
+*** Generic Hash-Tables
+*** Set Operations
