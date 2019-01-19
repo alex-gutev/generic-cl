@@ -752,6 +752,145 @@ Coerces ~OBJECT~ to the type ~TYPE~.
 The default (~T T~) method simply calls ~CL:COERCE~.
 
 *** Iterator
+
+The iterator interface is generic interface for iterating over the
+elements of sequences and containers.
+
+The iterator interface is implemented for lists, vectors,
+multi-dimensional arrays and ~HASH-MAPS~.
+
+**** Base Iterator Type
+
+Structure: ~ITERATOR~
+
+This structure serves as the base iterator type and is used as by
+certain methods of generic functions to specialize on iterators.
+
+All iterators should inherit from (include) ~ITERATOR~, in order for
+methods which specialize on iterators to be invoked.
+
+**** Iterator Creation
+
+[[ITERATOR]] is the high-level function for creating iterators, whereas
+[[MAKE-ITERATOR]] AND [[MAKE-REVERSE-ITERATOR]] are the generic functions to
+implement for creating iterators for user-defined sequence types.
+
+***** MAKE-ITERATOR
+
+Generic Function: ~MAKE-ITERATOR SEQUENCE START END~
+
+Returns an iterator for the sub-sequence of ~SEQUENCE~, identified by
+the range ~[START, END)~.
+
+~START~ is the index of the first element to iterate over. ~0~
+indicates the first element of the sequence.
+
+~END~ is the index of the element at which to terminate the iteration,
+i.e.  1 + the index of the last element to be iterated over. ~NIL~
+indicates the end of the sequence.
+
+***** MAKE-REVERSE-ITERATOR
+
+Generic Function: ~MAKE-REVERSE-ITERATOR SEQUENCE START END~
+
+Returns an iterator for the sub-sequence of ~SEQUENCE~, identified by
+the range ~[START, END)~, in which the elements are iterated over in
+reverse order.
+
+Even though the elements are iterated over in reverse order, ~START~
+and ~END~ are still relative to the start of the sequence, as in
+~MAKE-ITERATOR~.
+
+~START~ is the index of the last element to visit.
+
+~END~ is the index of the element following the first element to be
+iterated over.
+
+***** ITERATOR
+
+Function: ~ITERATOR SEQUENCE &KEY (START 0) END FROM-END~
+
+Returns an iterator for the sub-sequence of ~SEQUENCE~ identified by
+the range ~[START, END)~.
+
+~START~ (defaults to ~0~ - the start of the sequence) and ~END~
+(defaults to ~NIL~ - the end of the sequence) are the start and end
+indices of the sub-sequence to iterated over (see [[MAKE-ITERATOR]] and
+[[MAKE-REVERSE-ITERATOR]] for more information).
+
+If ~FROM-END~ is true a reverse iterator is created (by
+~MAKE-REVERSE-ITERATOR~) otherwise a normal iterator is created (by
+~MAKE-ITERATOR~).
+
+**** Mandatory Functions
+
+These functions have to be implemented for all user-defined iterators.
+
+***** AT
+
+Generic Function: ~AT ITERATOR~
+
+Returns the value of the element at the current position of the
+iterator ~ITERATOR~.
+
+The effects of calling this method, after the iterator has reached the
+end of the sequence are unspecified.
+
+***** ENDP
+
+Generic Function: ~ENDP ITERATOR~
+
+Returns true if the iterator is at the end of the subsequence, false
+otherwise.
+
+The end of the subsequence is defined as the position past the last
+element of the subsequence, that is the position of the iterating
+after advancing it (by ~ADVANCE~) from the position of the last
+element.
+
+If the subsequence is empty ~ENDP~ should immediately return true.
+
+*Note:* This default ~T~ method calls ~CL:ENDP~ since this function
+shadows the ~CL:ENDP~ function.
+
+***** ADVANCE
+
+Generic Function: ~ADVANCE ITERATOR~
+
+Advances the iterator to the next element in the subsequence. After
+this method is called, subsequent calls to ~AT~ should return the next
+element in the sequence or if the last element has already been
+iterated over, ~ENDP~ should return true.
+
+**** Optional Functions
+
+Implementing the following functions for user-defined iterators is
+optional either because, a default method is provided which is
+implemented using the mandatory functions, or the function is only
+used by a few sequence operations.
+
+***** (SETF AT)
+
+Generic Function: ~(SETF AT) VALUE ITERATOR~
+
+Sets the value of the element at the position, in the sequence,
+specified by the iterator.
+
+The effects of calling this function when, the iterator is past the
+end of the subsequence are unspecified.
+
+Implementing this function is only mandatory if destructive sequence
+operations will be used.
+
+***** ADVANCE-N
+
+Generic Function: ~ADVANCE-N ITERATOR N~
+
+Advances the iterator by ~N~ elements. This position should be
+equivalent to the positioned obtained by calling ~ADVANCE~ ~N~ times.
+
+The default method simply calls ~ADVANCE~, on ~ITERATOR~, ~N~ times.
+
 *** Collector
 *** Sequence Operations
 *** Generic Hash-Tables
