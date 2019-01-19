@@ -771,7 +771,7 @@ methods which specialize on iterators to be invoked.
 
 **** Iterator Creation
 
-[[#iterator][ITERATOR]] is the high-level function for creating iterators, whereas
+[[#iterator-func][ITERATOR]] is the high-level function for creating iterators, whereas
 [[#make-iterator][MAKE-ITERATOR]] AND [[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] are the generic functions to
 implement for creating iterators for user-defined sequence types.
 
@@ -814,7 +814,7 @@ iterated over.
 
 ***** ITERATOR
       :PROPERTIES:
-      :CUSTOM_ID: iterator
+      :CUSTOM_ID: iterator-func
       :END:
 
 Function: ~ITERATOR SEQUENCE &KEY (START 0) END FROM-END~
