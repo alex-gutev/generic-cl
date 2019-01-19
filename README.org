@@ -95,6 +95,170 @@ Returns true if at least one object in ~XS~ is not equal (by ~EQUALP~)
 to ~X~.
 
 *** Comparison
+
+The comparison interface provides functions for comparing objects in
+terms of greater than, less than, greater than or equal to and less
+than or equal to relations.
+
+**** LESSP
+
+Generic Function: ~LESSP A B~
+
+Returns true if object ~A~ is less than object ~B~.
+
+It is sufficient to just implement this function, for user-defined
+types, as the rest of the comparison functions have default (~T T~)
+methods which are implemented in terms of ~LESSP~.
+
+Has the following methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns true if the numeric value of ~A~ is less than the numeric
+     value of ~B~, by ~CL:<~.
+
+   - ~CHARACTER CHARACTER~
+
+     Returns true if the character code of ~A~ is less than the
+     character code of ~B~, by ~CL:CHAR<~.
+
+   - ~STRING STRING~
+
+     Returns true if the string ~A~ is lexicographically less than
+     ~B~, by ~CL:STRING<~.
+
+
+**** LESS-EQUAL-P
+
+Generic Function: ~LESS-EQUAL-P A B~
+
+Returns true if object ~A~ is less than or equal to object ~B~.
+
+Has the following methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns true if the numeric value of ~A~ is less than or equal to
+     the numeric value of ~B~, by ~CL:<=~.
+
+   - ~CHARACTER CHARACTER~
+
+     Returns true if the character code of ~A~ is less than or equal
+     to the character code of ~B~, by ~CL:CHAR<=~.
+
+   - ~STRING STRING~
+
+     Returns true if the string ~A~ is lexicographically less than or
+     equal to ~B~, by ~CL:STRING<=~.
+
+   - ~T T~
+
+     Returns true if either ~A~ is less than ~B~ (by ~LESSP~) or ~A~
+     is equal to ~B~ (by ~EQUALP).
+
+     #+BEGIN_SRC lisp
+
+     (or (lessp a b) (equalp a b))
+
+     #+END_SRC
+
+
+**** GREATERP
+
+Generic Function: ~GREATERP A B~
+
+Returns true if object ~A~ is greater than object ~B~.
+
+Has the following methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns true if the numeric value of ~A~ is greater than the
+     numeric value of ~B~, by ~CL:>~.
+
+   - ~CHARACTER CHARACTER~
+
+     Returns true if the character code of ~A~ is greater than the
+     character code of ~B~, by ~CL:CHAR>~.
+
+   - ~STRING STRING~
+
+     Returns true if the string ~A~ is lexicographically greater than
+     ~B~, by ~CL:STRING>~.
+
+   - ~T T~
+
+     Returns true if ~A~ is not less than or equal to ~B~, by ~LESS-EQUAL-P~.
+
+     #+BEGIN_SRC lisp
+
+     (not (less-equal-p a b))
+
+     #+END_SRC
+
+
+**** GREATER-EQUALP
+
+Generic Function: ~GREATER-EQUAL-P A B~
+
+Returns true if object ~A~ is greater than or equal to object ~B~.
+
+Has the following methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns true if the numeric value of ~A~ is greater than or equal
+     to the numeric value of ~B~, by ~CL:>=~.
+
+   - ~CHARACTER CHARACTER~
+
+     Returns true if the character code of ~A~ is greater than or
+     equal to the character code of ~B~, by ~CL:CHAR>=~.
+
+   - ~STRING STRING~
+
+     Returns true if the string ~A~ is lexicographically greater than
+     or equal to ~B~, by ~CL:STRING>=~.
+
+   - ~T T~
+
+     Returns true if ~A~ is not less than ~B~, by ~LESSP~.
+
+     #+BEGIN_SRC lisp
+
+     (not (lessp a b))
+
+     #+END_SRC
+
+
+**** COMPARE
+
+Generic Function: ~COMPARE A B~
+
+Returns:
+
+   - ~:LESS~ :: if ~A~ is less than ~B~.
+   - ~:EQUAL~ :: if ~A~ is equal to ~B~.
+   - ~:GREATER~ :: if ~A~ is greater than ~B~.
+
+The default ~T T~ method returns:
+
+   - ~:LESS~ :: if ~(LESSP A B)~ is true.
+   - ~:EQUAL~ :: if ~(EQUALP A B)~ is true.
+   - ~:GREATER~ :: otherwise.
+
+**** >
+
+**** <
+
+**** <=
+
+**** >=
+
+**** MIN
+
+**** MAX
+
 *** Arithmetic
 *** Objects
 *** Iterator
