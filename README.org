@@ -157,9 +157,7 @@ Has the following methods:
      is equal to ~B~ (by ~EQUALP).
 
      #+BEGIN_SRC lisp
-
      (or (lessp a b) (equalp a b))
-
      #+END_SRC
 
 
@@ -191,9 +189,7 @@ Has the following methods:
      Returns true if ~A~ is not less than or equal to ~B~, by ~LESS-EQUAL-P~.
 
      #+BEGIN_SRC lisp
-
      (not (less-equal-p a b))
-
      #+END_SRC
 
 
@@ -225,9 +221,7 @@ Has the following methods:
      Returns true if ~A~ is not less than ~B~, by ~LESSP~.
 
      #+BEGIN_SRC lisp
-
      (not (lessp a b))
-
      #+END_SRC
 
 
@@ -249,15 +243,47 @@ The default ~T T~ method returns:
 
 **** >
 
-**** <
+Function: ~< X &REST XS~
+
+Returns true if each argument is less than (by ~LESSP~) than the
+following argument.
 
 **** <=
 
+Function: ~<= X &REST XS~
+
+Returns true if each argument is less than or equal to (by ~LESS-EQUAL-P~)
+than the following argument.
+
+**** <
+
+Function: ~> X &REST XS~
+
+Returns true if each argument is greater than (by ~GREATERP~) than the
+following argument.
+
 **** >=
+
+Function: ~>= X &REST XS~
+
+Returns true if each argument is greater than or equal to (by
+~GREATER-EQUAL-P~) than the following argument.
 
 **** MIN
 
+Function: ~MIN X &REST XS~
+
+Returns the argument which is less than or equal to all other
+arguments, the actual comparisons are performed using ~LESSP~. Any one
+of the arguments which satisfies this condition may be returned.
+
 **** MAX
+
+Function: ~MAX X &REST XS~
+
+Returns the argument which is greater than or equal to all other
+arguments, the actual comparisons are performed using ~GREATERP~. Any
+one of the arguments which satisfies this condition may be returned.
 
 *** Arithmetic
 *** Objects
