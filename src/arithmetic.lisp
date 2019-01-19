@@ -102,7 +102,7 @@
 
 (defgeneric mod (n d)
   (:documentation
-   "Returns remainder of the floor operation on N and D."))
+   "Returns the remainder of the floor operation on N and D."))
 
 (defgeneric rem (n d)
   (:documentation
