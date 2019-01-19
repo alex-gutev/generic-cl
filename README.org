@@ -393,23 +393,35 @@ argument, ~(DIVIDE 1 X)~, is returned.
 
 **** 1+
 
-Function: ~1+ A~
+Generic Function: ~1+ A~
 
-Returns ~A + 1~ computed using ~ADD~.
+Returns ~A + 1~.
 
-#+BEGIN_SRC lisp
-(add a 1)
-#+END_SRC
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:1+ A)~.
+
+   - ~T~
+
+     Returns ~(ADD A 1)~.
 
 **** 1-
 
-Function: ~1- A~
+Generic Function: ~1- A~
 
-Returns ~A - 1~ computed using ~SUBTRACT~.
+Returns ~A - 1~.
 
-#+BEGIN_SRC lisp
-(subtract a 1)
-#+END_SRC
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:1- A)~.
+
+   - ~T~
+
+     Returns ~(SUBTRACT A 1)~.
 
 **** INCF
 
