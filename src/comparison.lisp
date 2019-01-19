@@ -161,8 +161,10 @@
 
 
 (defun min (first &rest xs)
-  "Returns the first argument which is less than (by LESSP) than all
-   the other arguments."
+  "Returns the minimum argument, the argument that is less than or
+   equal to all the other arguments, the actual comparisons are done
+   using LESSP. Any argument which satisfies this condition may be
+   returned."
 
   (loop
      for min = first then (if (lessp x min) x min)
@@ -170,8 +172,10 @@
      finally (return min)))
 
 (defun max (first &rest xs)
-  "Returns the first argument which is greater than (by GREATERP) than
-   all the other arguments."
+  "Returns the maximum argument, the argument that is greater than or
+   equal to all the other arguments, the actual comparisons are done
+   using GREATERP. Any argument which satisfies this condition may be
+   returned."
 
   (loop
      for max = first then (if (greaterp x max) x max)
