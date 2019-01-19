@@ -286,6 +286,384 @@ arguments, the actual comparisons are performed using ~GREATERP~. Any
 one of the arguments which satisfies this condition may be returned.
 
 *** Arithmetic
+
+The arithmetic interface provides generic functions for arithmetic
+operations.
+
+**** ADD
+
+Generic Function: ~ADD A B~
+
+Returns the sum of ~A~ and ~B~.
+
+Methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns ~(CL:+ A B)~.
+
+**** SUBTRACT
+
+Generic Function: ~SUBTRACT A B~
+
+Returns the sum of ~A~ and ~B~.
+
+Methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns ~(CL:- A B)~.
+
+**** MULTIPLY
+
+Generic Function: ~MULTIPLY A B~
+
+Returns the sum of ~A~ and ~B~.
+
+Methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns ~(CL:* A B)~.
+
+**** DIVIDE
+
+Generic Function: ~DIVIDE A B~
+
+Returns the sum of ~A~ and ~B~. If ~A~ is the constant ~1~, the result
+should be the reciprocal of ~B~.
+
+Methods:
+
+   - ~NUMBER NUMBER~
+
+     Returns ~(CL:/ A B)~.
+
+**** NEGATE
+
+Generic Function: ~NEGATE A~
+
+Returns the negation of ~A~.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:- A)~.
+
+**** +
+
+Function: ~+ X &REST XS~
+
+Returns the sum of all the arguments, computed by reducing over the
+argument list with the ~ADD~ function.
+
+If no arguments are provided, ~0~ is returned. If a single argument is
+provided it is returned.
+
+**** -
+
+Function: ~- X &REST XS~
+
+Returns the difference of all the arguments, computed by reducing over
+the argument list with the ~SUBTRACT~ function.
+
+If only a single argument is provided the negation of that argument is
+returned, by the ~NEGATE~ function.
+
+**** *
+
+Function: ~* X &REST XS~
+
+Returns the product of all the arguments, computed by reducing over
+the argument list with the ~MULTIPLY~ function.
+
+If no arguments are provided, ~1~ is returned. If a single argument is
+provided it is returned.
+
+**** /
+
+Function: ~/ X &REST XS~
+
+Returns the quotient of all the arguments, computed by reducing over
+the argument list with the ~DIVIDE~ function.
+
+If only a single argument is provided it, the reciprocal of that
+argument, ~(DIVIDE 1 X)~, is returned.
+
+**** 1+
+
+Function: ~1+ A~
+
+Returns ~A + 1~ computed using ~ADD~.
+
+#+BEGIN_SRC lisp
+(add a 1)
+#+END_SRC
+
+**** 1-
+
+Function: ~1- A~
+
+Returns ~A - 1~ computed using ~SUBTRACT~.
+
+#+BEGIN_SRC lisp
+(subtract a 1)
+#+END_SRC
+
+**** INCF
+
+Macro: ~INCF PLACE &OPTIONAL (DELTA 1)~
+
+Increments the value of ~PLACE~ by ~DELTA~, which defaults to ~1~,
+using the ~ADD~ function.
+
+Effectively:
+
+#+BEGIN_SRC lisp
+(setf place (add place delta))
+#+END_SRC
+
+**** DECF
+
+Macro: ~DECF PLACE &OPTIONAL (DELTA 1)~
+
+Decrements the value of ~PLACE~ by ~DELTA~, which defaults to ~1~,
+using the ~SUBTRACT~ function.
+
+Effectively:
+
+#+BEGIN_SRC lisp
+(setf place (subtract place delta))
+#+END_SRC
+
+**** MINUSP
+
+Generic Function: ~MINUSP A~
+
+Returns true if ~A~ is less than zero.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:MINUSP A)~.
+
+   - ~T~
+
+     Returns true if ~A~ compares less than ~0~, by ~LESSP~.
+
+     #+BEGIN_SRC lisp
+     (lessp a 0)
+     #+END_SRC
+
+**** PLUSP
+
+Generic Function: ~PLUSP A~
+
+Returns true if ~A~ is greater than zero.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:PLUSP A)~.
+
+   - ~T~
+
+     Returns true if ~A~ compares greater than ~0~, by ~GREATERP~.
+
+     #+BEGIN_SRC lisp
+     (greaterp a 0)
+     #+END_SRC
+
+**** ZEROP
+
+Generic Function: ~ZEROP A~
+
+Returns true if ~A~ is equal to zero.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:ZEROP A)~.
+
+   - ~T~
+
+     Returns true if ~A~ is equal to ~0~, by ~EQUALP~.
+
+     #+BEGIN_SRC lisp
+     (equalp a 0)
+     #+END_SRC
+
+**** SIGNUM
+
+Generic Function: ~SIGNUM A~
+
+Returns ~-1~, ~0~ or ~1~ depending on whether ~A~ is negative, ~A~ is
+equal to zero or ~A~ is positive.
+
+Methods:
+
+   - ~SIGNUM~
+
+     Returns ~(CL:SIGNUM A)~.
+
+   - ~T~
+
+     Returns ~-1~ if ~(MINUSP A)~ is true, ~0~ if ~(ZEROP A)~ is true,
+     ~1~ otherwise.
+
+**** ABS
+
+Generic Function: ~ABS A~
+
+Returns the absolute value of ~A~.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:ABS A)~.
+
+   - ~T~
+
+     If ~(MINUSP A)~ is true, returns ~(NEGATE A)~ otherwise returns
+     ~A~.
+
+     #+BEGIN_SRC lisp
+     (if (minusp a)
+         (negate a)
+         a)
+     #+END_SRC
+
+**** EVENP
+
+Generic Function: ~EVENP A~
+
+Returns true if ~A~ is even.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:EVENP A)~
+
+   - ~T~
+
+     Returns ~(ZEROP (MOD A 2))~
+
+**** ODDP
+
+Generic Function: ~ODDP A~
+
+Returns true if ~A~ is odd.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:ODDP A)~
+
+   - ~T~
+
+     Returns ~(NOT (EVENP A))~
+
+
+**** FLOOR
+
+Generic Function: ~FLOOR N D~
+
+Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards negative
+infinity, as the first value, and the remainder of the division if
+any, as the second return value.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:FLOOR N D)~ if ~D~ is provided otherwise returns
+     ~(CL:FLOOR N)~.
+
+**** CEILING
+
+Generic Function: ~CEILING N D~
+
+Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards positive
+infinity, as the first value, and the remainder of the division if
+any, as the second return value.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:CEILING N D)~ if ~D~ is provided otherwise returns
+     ~(CL:CEILING N)~.
+
+**** TRUNCATE
+
+Generic Function: ~TRUNCATE N D~
+
+Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards zero, as the
+first value, and the remainder of the division if any, as the second
+return value.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:TRUNCATE N D)~ if ~D~ is provided otherwise returns
+     ~(CL:TRUNCATE N)~.
+
+**** ROUND
+
+Generic Function: ~ROUND N D~
+
+Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards the nearest
+integer. If ~N~, or ~N/D~, lies exactly halfway between two integers,
+it is rounded to the nearest even integer. The remainder of the
+division if any, is returned as the second return value.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:ROUND N D)~ if ~D~ is provided otherwise returns
+     ~(CL:ROUND N)~.
+
+**** MOD
+
+Generic Function: ~MOD N D~
+
+Returns the remainder of the ~FLOOR~ operation on ~N~ and ~D~.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:MOD N D)~.
+
+   - ~T~
+
+     Returns the second return value of ~(FLOOR N D)~.
+
+**** REM
+
+Generic Function: ~REM N D~
+
+Returns the remainder of the ~TRUNCATE~ operation on ~N~ and ~D~.
+
+Methods:
+
+   - ~NUMBER~
+
+     Returns ~(CL:REM N D)~.
+
+   - ~T~
+
+     Returns the second return value of ~(TRUNCATE N D)~.
+
 *** Objects
 *** Iterator
 *** Collector
