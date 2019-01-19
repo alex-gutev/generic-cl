@@ -771,11 +771,14 @@ methods which specialize on iterators to be invoked.
 
 **** Iterator Creation
 
-[[ITERATOR]] is the high-level function for creating iterators, whereas
-[[MAKE-ITERATOR]] AND [[MAKE-REVERSE-ITERATOR]] are the generic functions to
+[[#iterator][ITERATOR]] is the high-level function for creating iterators, whereas
+[[#make-iterator][MAKE-ITERATOR]] AND [[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] are the generic functions to
 implement for creating iterators for user-defined sequence types.
 
 ***** MAKE-ITERATOR
+      :PROPERTIES:
+      :CUSTOM_ID: make-iterator
+      :END:
 
 Generic Function: ~MAKE-ITERATOR SEQUENCE START END~
 
@@ -790,6 +793,9 @@ i.e.  1 + the index of the last element to be iterated over. ~NIL~
 indicates the end of the sequence.
 
 ***** MAKE-REVERSE-ITERATOR
+      :PROPERTIES:
+      :CUSTOM_ID: make-reverse-iterator
+      :END:
 
 Generic Function: ~MAKE-REVERSE-ITERATOR SEQUENCE START END~
 
@@ -807,6 +813,9 @@ and ~END~ are still relative to the start of the sequence, as in
 iterated over.
 
 ***** ITERATOR
+      :PROPERTIES:
+      :CUSTOM_ID: iterator
+      :END:
 
 Function: ~ITERATOR SEQUENCE &KEY (START 0) END FROM-END~
 
@@ -815,8 +824,8 @@ the range ~[START, END)~.
 
 ~START~ (defaults to ~0~ - the start of the sequence) and ~END~
 (defaults to ~NIL~ - the end of the sequence) are the start and end
-indices of the sub-sequence to iterated over (see [[MAKE-ITERATOR]] and
-[[MAKE-REVERSE-ITERATOR]] for more information).
+indices of the sub-sequence to iterated over (see [[#make-iterator][MAKE-ITERATOR]] and
+[[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] for more information).
 
 If ~FROM-END~ is true a reverse iterator is created (by
 ~MAKE-REVERSE-ITERATOR~) otherwise a normal iterator is created (by
@@ -834,7 +843,7 @@ Returns the value of the element at the current position of the
 iterator ~ITERATOR~.
 
 The effects of calling this method, after the iterator has reached the
-end of the sequence are unspecified.
+end of the subsequence are unspecified.
 
 ***** ENDP
 
@@ -850,7 +859,7 @@ element.
 
 If the subsequence is empty ~ENDP~ should immediately return true.
 
-*Note:* This default ~T~ method calls ~CL:ENDP~ since this function
+*Note:* The default ~T~ method calls ~CL:ENDP~ since this function
 shadows the ~CL:ENDP~ function.
 
 ***** ADVANCE
@@ -867,7 +876,7 @@ iterated over, ~ENDP~ should return true.
 Implementing the following functions for user-defined iterators is
 optional either because, a default method is provided which is
 implemented using the mandatory functions, or the function is only
-used by a few sequence operations.
+used by a selected few sequence operations.
 
 ***** (SETF AT)
 
