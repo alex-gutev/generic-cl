@@ -215,6 +215,20 @@
       a))
 
 
+(defmethod evenp (a)
+  (zerop (mod a 2)))
+
+(defmethod oddp (a)
+  (not (evenp a)))
+
+
+(defmethod mod (n d)
+  (nth-value 1 (floor n d)))
+
+(defmethod rem (n d)
+  (nth-value 1 (truncate n d)))
+
+
 ;;;; INCF and DECF Macros
 
 (define-modify-macro incf (&optional (delta 1))
