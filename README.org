@@ -769,6 +769,9 @@ certain methods of generic functions to specialize on iterators.
 All iterators should inherit from (include) ~ITERATOR~, in order for
 methods which specialize on iterators to be invoked.
 
+*Note:* A ~COPY~ method should be implemented for user-defined
+iterators.
+
 **** Iterator Creation
 
 [[#iterator-func][ITERATOR]] is the high-level function for creating iterators, whereas
@@ -935,8 +938,7 @@ sequence ~SEQUENCE~. If ~:FRONT~ is provided and is true, the items
 are accumulated to the front of the sequence rather than back.
 
 The collector may destructively modify ~SEQUENCE~ however it is not
-mandatory and may modify accumulate items into a copy of ~SEQUENCE~
-instead.
+mandatory and may accumulate items into a copy of ~SEQUENCE~ instead.
 
 **** ACCUMULATE
 
@@ -950,13 +952,13 @@ Accumulates ~ITEM~ into the sequence associated with the collector
 Generic Function: ~COLLECTOR-SEQUENCE COLLECTOR~
 
 Returns the underlying sequence associated with the collector
-~COLLECTOR~. The sequence should contain all items accumulated up-to
+~COLLECTOR~. The sequence should contain all items accumulated up to
 the call to this function.
 
 No items should be accumulated, by ~ACCUMULATE~ or ~EXTEND~, after
 this function is called.
 
-The sequence return might not be the same object passed to
+The sequence returned might not be the same object passed to
 ~MAKE-COLLECTOR~.
 
 **** EXTEND
@@ -969,7 +971,7 @@ associated with the collector ~COLLECTOR~.
 If ~SEQUENCE~ is an iterator all elements up-to the end of the
 iterator (till ~ENDP~ returns true) should be accumulated.
 
-Implementing this method as optional as default methods are provided
+Implementing this method is optional as default methods are provided
 for iterators and sequences, which simply accumulate each element one
 by one using ~ACCUMULATE~.
 
@@ -982,7 +984,7 @@ Methods:
      associated with the collector. The elements are accumulated one
      by one using ~ACCUMULATE~.
 
-     The iterator is copied thus the position of the iterated passed
+     The iterator is copied thus the position of the iterator passed
      as an argument is not modified.
 
    - ~T T~
