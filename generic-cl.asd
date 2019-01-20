@@ -34,7 +34,6 @@
 	       :anaphora
 	       :cl-arrows
                :trivia
-               :iterate
                :cl-fad
 	       :cl-custom-hash-table
 

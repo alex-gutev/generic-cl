@@ -31,7 +31,6 @@
 	:anaphora
 	:cl-arrows
         :trivia
-        :iterate
 	:cl-custom-hash-table)
 
   (:import-from :agutil
