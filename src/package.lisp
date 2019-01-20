@@ -169,7 +169,7 @@
    :make-sequence-of-type
 
    :make-collector
-   :collect
+   :accumulate
    :extend
    :collector-sequence
 

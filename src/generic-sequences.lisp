@@ -265,11 +265,11 @@
 		 (elem2 (at it2)))
 	     (cond
 	       ((less elem2 elem1)
-		(collect collector elem2)
+		(accumulate collector elem2)
 		(advance it2))
 
 	       (t
-		(collect collector elem1)
+		(accumulate collector elem1)
 		(advance it1)))))
 
       (cond
@@ -305,7 +305,7 @@
 
 	   (seq-with-item (item)
 	     (let ((collector (make-collector (empty-clone sequence))))
-	       (collect collector item)
+	       (accumulate collector item)
 	       (collector-sequence collector)))
 
 	   (split (it)
@@ -382,14 +382,14 @@
 	       (doseq (item sequence :start start :end end :from-end from-end)
 		 (cond
 		   ((and count (cl:= n count))
-		    (collect collector item))
+		    (accumulate collector item))
 
 		   ((funcall test (funcall key item))
-		    (collect collector new)
+		    (accumulate collector new)
 		    (cl:incf n))
 
 		   (t
-		    (collect collector item)))))))
+		    (accumulate collector item)))))))
 
       (collect-perform-op collector sequence #'substitute :start start :end end :from-end from-end)
       (collector-sequence collector))))
@@ -422,13 +422,13 @@
 	       (doseq (item sequence :start start :end end :from-end from-end)
 		 (cond
 		   ((and count (cl:= n count))
-		    (collect collector item))
+		    (accumulate collector item))
 
 		   ((funcall test (funcall key item))
 		    (cl:incf n))
 
 		   (t
-		    (collect collector item)))))))
+		    (accumulate collector item)))))))
 
       (collect-perform-op collector sequence #'remove-items :start start :end end :from-end from-end)
       (collector-sequence collector))))
@@ -478,7 +478,7 @@
 	     (let ((items (make-hash-map-table :test test)))
 	       (doseq (item sequence :start start :end end :from-end from-end)
 		 (unless (nth-value 1 (ensure-gethash (funcall key item) items))
-		   (collect collector item)))))
+		   (accumulate collector item)))))
 
 	   (remove-duplicates-list ()
 	     (let ((items nil))
@@ -486,7 +486,7 @@
 		 (let ((elem (funcall key item)))
 		  (unless (member elem items :test test :key key)
 		    (setf items (cons elem items))
-		    (collect collector item)))))))
+		    (accumulate collector item)))))))
 
       (-<> (if (hash-map-test-p test)
 	       #'remove-duplicates-hash
@@ -627,7 +627,7 @@
        with iters = (make-iters sequences)
        until (some-endp iters)
        do
-	 (collect collector (apply function (get-elements iters)))
+	 (accumulate collector (apply function (get-elements iters)))
 	 (advance-all iters))
 
     (collector-sequence collector)))

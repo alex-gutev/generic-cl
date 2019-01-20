@@ -96,8 +96,8 @@
 (defmethod make-collector ((seq list-wrapper) &key front)
   (make-list-wrapper-collector :collector (make-collector (list-wrapper-list seq) :front front)))
 
-(defmethod collect ((c list-wrapper-collector) item)
-  (collect (list-wrapper-collector-collector c) item))
+(defmethod accumulate ((c list-wrapper-collector) item)
+  (accumulate (list-wrapper-collector-collector c) item))
 
 (defmethod collector-sequence ((c list-wrapper-collector))
   (make-list-wrapper :list (collector-sequence (list-wrapper-collector-collector c))))
@@ -1687,7 +1687,7 @@
 	 (let ((collector (make-collector (list-wrap))))
 	   (foreach
 	    (lambda (x)
-	      (collect collector x))
+	      (accumulate collector x))
 	    seq)
 
 	   (is (collector-sequence collector) (list-wrap 1 2 3 4) :test #'equalp))
@@ -1695,7 +1695,7 @@
 	 (let ((collector (make-collector (list-wrap))))
 	   (foreach
 	    (lambda (x y)
-	      (collect collector (+ x y)))
+	      (accumulate collector (+ x y)))
 	    seq seq)
 
 	   (is (collector-sequence collector) (list-wrap 2 4 6 8) :test #'equalp))

@@ -47,7 +47,7 @@
     true the items will be added to the front of the sequence rather
     than the back."))
 
-(defgeneric collect (collector item)
+(defgeneric accumulate (collector item)
   (:documentation
    "Adds ITEM to the sequence with collector COLLECTOR."))
 
@@ -58,13 +58,13 @@
 
   (:method (collector seq)
     (doseq (item seq)
-      (collect collector item)))
+      (accumulate collector item)))
 
   (:method (collector (it iterator))
     (loop
        until (endp it)
        do
-	 (collect collector (at it))
+	 (accumulate collector (at it))
 	 (advance it))))
 
 (defgeneric collector-sequence (collector)
@@ -133,7 +133,7 @@
 
 ;;; Back
 
-(defmethod collect ((c list-collector) item)
+(defmethod accumulate ((c list-collector) item)
   (slet (list-collector-tail c)
     (setf it (setf (cdr it) (cons item nil)))))
 
@@ -150,7 +150,7 @@
 
 ;;; Front
 
-(defmethod collect ((c front-list-collector) item)
+(defmethod accumulate ((c front-list-collector) item)
   (push item (front-list-collector-cons c)))
 
 (defmethod collector-sequence ((c front-list-collector))
@@ -185,7 +185,7 @@
 
 ;;; Front
 
-(defmethod collect ((vec vector) item)
+(defmethod accumulate ((vec vector) item)
   (vector-push-extend item vec))
 
 (defmethod collector-sequence ((vec vector))
@@ -194,7 +194,7 @@
 
 ;;; Back
 
-(defmethod collect ((c front-vector-collector) item)
+(defmethod accumulate ((c front-vector-collector) item)
   (vector-push-extend item (front-vector-collector-vector c)))
 
 (defmethod collector-sequence ((c front-vector-collector))

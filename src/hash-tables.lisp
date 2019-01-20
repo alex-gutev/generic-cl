@@ -236,7 +236,7 @@
   (declare (ignore front))
   map)
 
-(defmethod collect ((map hash-map) item)
+(defmethod accumulate ((map hash-map) item)
   (destructuring-bind (key . value) item
     (with-custom-hash-table
       (setf (gethash key (hash-map-table map)) value))))
