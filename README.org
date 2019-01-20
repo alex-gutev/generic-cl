@@ -1,10 +1,13 @@
 * GENRIC-CL
+#+OPTIONS: toc:nil
 
 GENERIC-CL provides a generic function wrapper over various functions
 in the Common Lisp standard, such as equality predicates and sequence
 operations. The goal of the wrapper is to provide a standard interface
 to common operations, such as testing for the equality of two objects,
 which is extensible to user-defined types.
+
+#+TOC: headlines 3
 
 ** Usage
 
