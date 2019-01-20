@@ -753,7 +753,7 @@ The default (~T T~) method simply calls ~CL:COERCE~.
 
 *** Iterator
 
-The iterator interface is generic interface for iterating over the
+The iterator interface is a generic interface for iterating over the
 elements of sequences and containers.
 
 The iterator interface is implemented for lists, vectors,
@@ -877,6 +877,24 @@ Implementing the following functions for user-defined iterators is
 optional either because, a default method is provided which is
 implemented using the mandatory functions, or the function is only
 used by a selected few sequence operations.
+
+***** START
+
+Generic Function: ~START ITERATOR~
+
+Returns the element at the current position of the iterator, if the
+iterator is not at the end of the sequence, otherwise returns ~NIL~.
+
+The default method first checks whether the end of the iterator has
+been reached, using ~ENDP~, and if not returns the current element
+using ~AT~.
+
+The default method is equivalent to the following:
+
+#+BEGIN_SRC lisp
+(unless (endp iterator)
+  (at iterator))
+#+END_SRC
 
 ***** (SETF AT)
 
