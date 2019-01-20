@@ -1056,5 +1056,175 @@ If ~TYPE~ is a list the ~CAR~ of the list is passed as the first
 argument, to ~MAKE-SEQUENCE-OF-TYPE~, and the ~CDR~ is passed as the
 second argument. Otherwise, if ~TYPE~ is not a list, it is passed as
 the first argument and ~NIL~ is passed as the second argument.
+
+**** Element Access
+
+***** ELT
+
+Generic Function: ~ELT SEQUENCE INDEX~
+
+Returns the element at position ~INDEX~ in the sequence ~SEQUENCE~.
+
+Methods:
+
+   - ~SEQUENCE T~
+
+     Returns ~(CL:ELT SEQUENCE INDEX)~.
+
+***** (SETF ELT)
+
+Generic Function: ~(SETF ELT) VALUE SEQUENCE INDEX~
+
+Sets the value of the element at position ~INDEX~ in the sequence
+~SEQUENCE~.
+
+Methods:
+
+   - ~T SEQUENCE T~
+
+     Returns ~(SETF (CL:ELT SEQUENCE INDEX) VALUE)~.
+
+***** FIRST
+
+Generic Function: ~FIRST SEQUENCE~
+
+Returns the first element in the sequence ~SEQUENCE~.
+
+Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the first element is obtained by
+~ROW-MAJOR-AREF~.
+
+The default method returns the first element of a generic sequence by
+creating an iterator for the sequence and returning the first element
+returned by the iterator.
+
+***** LAST
+
+Generic Function: ~LAST SEQUENCE~
+
+Returns the last element of the sequence ~SEQUENCE~.
+
+Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the last element is obtained by:
+
+#+BEGIN_SRC lisp
+(row-major-aref sequence (1- (array-total-size array)))
+#+END_SRC
+
+The default method returns the last element of a generic sequence by
+creating a reverse iterator for the sequence and returning the first
+element element returned by the iterator.
+
+*Note:* The behaviour of this function differs from ~CL:LAST~ when
+called on lists, it returns the last element rather than the last
+~CONS~ cell.
+
+
+**** Length
+
+***** Length
+
+Generic Function: ~LENGTH SEQUENCE~
+
+Returns the number of elements in the sequence ~SEQUENCE~. If
+~SEQUENCE~ is an iterator, returns the number of remaining elements to
+be iterated over.
+
+This function is implemented for all Common Lisp sequences, returning
+the length of the sequence (by ~CL:LENGTH~), multi-dimensional arrays,
+returning the total number of elements in the array (by
+~ARRAY-TOTAL-SIZE~), and hash maps/hash tables, returning the total
+number of elements in the map/table.
+
+The following default methods are implemented:
+
+   - ~ITERATOR~
+
+     Returns the number of elements between the iterator's current
+     position (inclusive) and the end of the iterator's subsequence.
+
+     This is implemented by advancing the iterator (by ~ADVANCE~) till
+     ~ENDP~ returns true, thus is a linear ~O(n)~, in time, operation.
+
+     More efficient specialized methods are provided for iterators to
+     sequences for which the size is known.
+
+   - ~T~
+
+     Returns the length of the generic sequence by creating an
+     iterator to the sequence and calling the ~ITERATOR~ specialized
+     method. Thus this is a linear ~O(n)~, in time, operation unless a
+     more efficient method, which is specialized on the sequence's
+     iterator type, is implemented.
+
+
+**** Subsequences
+
+***** SUBSEQ
+      :PROPERTIES:
+      :CUSTOM_ID: subseq
+      :END:
+
+Generic Function: ~SUBSEQ SEQUENCE START &OPTIONAL END~
+
+Returns a new sequence that contains the elements of ~SEQUENCE~ at the
+positions in the range ~[START, END)~. If ~SEQUENCE~ is an iterator,
+an iterator for the sub-sequence relative to the current position of
+the iterator is returned.
+
+~START~ is the index of the first element of the subsequence, with ~0~
+indicating the start of the sequence. if ~SEQUENCE~ is an iterator,
+~START~ is the number of times the iterator should be ~ADVANCE~'d to
+reach the first element of the subsequence.
+
+~END~ is the index of the element following the last element of the
+subsequence. ~NIL~ (the default) indicates the end of the sequence. If
+~SEQUENCE~ is an iterator, ~END~ is the number of times the iterator
+should be ~ADVANCE~'d till the end position is reached.
+
+Methods:
+
+   - ~SEQUENCE T~
+
+     Returns the subsequence using ~CL:SUBSEQ~.
+
+   - ~ITERATOR T~
+
+     Returns a subsequence iterator which wraps a copy of the original
+     iterator.
+
+   - ~T T~
+
+     Returns the subsequence of the generic sequence. This requires
+     that the ~CLEARED~ method, the iterator interface and collector
+     interface are implemented for the generic sequence type.
+
+***** (SETF SUBSEQ)
+
+Generic Function: ~(SETF SUBSEQ) NEW-SEQUENCE SEQUENCE START &OPTIONAL END~
+
+Replaces the elements of ~SEQUENCE~ at the positions in the range
+~[START, END)~, with the elements of ~NEW-SEQUENCE~. The shorter
+length of ~NEW-SEQUENCE~ and the number of elements between ~START~
+and ~END~ determines how many elements of ~SEQUENCE~ are actually
+modified.
+
+See [[#subseq][SUBSEQ]] for more details of how the ~START~ and ~END~ arguments are
+interpreted.
+
+Methods:
+
+   - ~SEQEUNCE SEQUENCE T~
+
+     Sets the elements of the subsequence using ~(SETF CL:SUBSEQ)~.
+
+   - ~T T T~
+
+     Sets the elements of the generic sequence using the iterator
+     interface, which should be implemented for both the types of
+     ~SEQUENCE~ and ~NEW-SEQUENCE~. This method requires that the
+     ~(SETF AT)~ method is implemented for the iterator type of
+     ~SEQUENCE~.
+
 *** Generic Hash-Tables
 *** Set Operations
