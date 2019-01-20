@@ -163,7 +163,7 @@
    :doiters
 
    ;; Collector Interface
-   :empty-clone
+   :cleared
    :sequence-of-type
    :make-sequence-of-type
 

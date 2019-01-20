@@ -28,7 +28,7 @@
 
 ;;;; Generic Collector Interface
 
-(defgeneric empty-clone (sequence &key &allow-other-keys)
+(defgeneric cleared (sequence &key &allow-other-keys)
   (:documentation
    "Creates a new sequence of the same type and with the same
     properties as SEQUENCE however without any elements."))
@@ -92,14 +92,14 @@
 
 (defmethod make-sequence-of-type (type args)
   (let ((type (if args (cons type args) type)))
-    (empty-clone (make-sequence type 0) :keep-element-type t)))
+    (cleared (make-sequence type 0) :keep-element-type t)))
 
 
 ;;;; Lists
 
 ;;; Creation
 
-(defmethod empty-clone ((sequence list) &key)
+(defmethod cleared ((sequence list) &key)
   "Returns NIL the empty list."
   nil)
 
@@ -161,7 +161,7 @@
 
 ;;; Creation
 
-(defmethod empty-clone ((vec vector) &key keep-element-type)
+(defmethod cleared ((vec vector) &key keep-element-type)
   (make-array (cl:length vec)
 	      :element-type (if keep-element-type
 				(array-element-type vec)

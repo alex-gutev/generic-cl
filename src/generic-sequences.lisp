@@ -63,7 +63,7 @@
 ;;; Subsequence
 
 (defmethod subseq (seq start &optional end)
-  (let ((collector (make-collector (empty-clone seq))))
+  (let ((collector (make-collector (cleared seq))))
     (extend collector (iterator seq :start start :end end))
     (collector-sequence collector)))
 
@@ -240,7 +240,7 @@
 ;; Reversing
 
 (defmethod reverse (seq)
-  (let* ((collector (make-collector (empty-clone seq))))
+  (let* ((collector (make-collector (cleared seq))))
     (extend collector (iterator seq :from-end t))
     (collector-sequence collector)))
 
@@ -252,7 +252,7 @@
 
 (defmethod merge (seq1 seq2 test &key key)
   (let ((key (or key #'identity))
-	(collector (make-collector (empty-clone seq1)))
+	(collector (make-collector (cleared seq1)))
 	(it1 (iterator seq1))
 	(it2 (iterator seq2)))
 
@@ -300,11 +300,11 @@
 
 	   (make-seq (it)
 	     (if (endp it)
-		 (empty-clone sequence)
+		 (cleared sequence)
 		 (seq-with-item (at it))))
 
 	   (seq-with-item (item)
-	     (let ((collector (make-collector (empty-clone sequence))))
+	     (let ((collector (make-collector (cleared sequence))))
 	       (accumulate collector item)
 	       (collector-sequence collector)))
 
@@ -375,7 +375,7 @@
 
 (defmethod substitute-if (new test sequence &key from-end (start 0) end count key)
   (let ((key (or key #'identity))
-	(collector (make-collector (empty-clone sequence) :front from-end)))
+	(collector (make-collector (cleared sequence) :front from-end)))
 
     (flet ((substitute ()
 	     (let ((n 0))
@@ -415,7 +415,7 @@
 
 (defmethod remove-if (test sequence &key from-end (start 0) end count key)
   (let ((key (or key #'identity))
-	(collector (make-collector (empty-clone sequence) :front from-end)))
+	(collector (make-collector (cleared sequence) :front from-end)))
 
     (flet ((remove-items ()
 	     (let ((n 0))
@@ -472,7 +472,7 @@
 (defmethod remove-duplicates (sequence &key from-end (test #'equalp) (start 0) end key)
   (let* ((key (or key #'identity))
 	 (from-end (not from-end))
-	 (collector (make-collector (empty-clone sequence) :front from-end)))
+	 (collector (make-collector (cleared sequence) :front from-end)))
 
     (flet ((remove-duplicates-hash ()
 	     (let ((items (make-hash-map-table :test test)))
@@ -564,7 +564,7 @@
   "Returns a new sequence containing all the elements of SEQUENCE and
    of each sequence in SEQUENCES, in the order they are supplied."
 
-  (apply #'nconcatenate (empty-clone sequence) sequence sequences))
+  (apply #'nconcatenate (cleared sequence) sequence sequences))
 
 (defun nconcatenate (result &rest sequences)
   "Destructively concatenates each sequence in SEQUENCES to the
@@ -586,11 +586,11 @@
 
 (defun map (function sequence &rest sequences)
   "Creates a new sequence, of the same type as SEQUENCE (by
-   EMPTY-CLONE), containing the result of applying FUNCTION to each
+   CLEARED), containing the result of applying FUNCTION to each
    element of SEQUENCE and each element of each SEQUENCE in
    SEQUENCES."
 
-  (apply #'map-into (empty-clone sequence) function sequence sequences))
+  (apply #'map-into (cleared sequence) function sequence sequences))
 
 (defun nmap (result function &rest sequences)
   "Destructively replaces each element of RESULT with the result of

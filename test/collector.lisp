@@ -31,10 +31,10 @@
 
 (subtest "Test Collector Interface"
   (subtest "List Collector"
-    (diag "Test EMPTY-CLONE")
-    (is (empty-clone '(1 2 3 4)) nil)
-    (is (empty-clone (cons 'a 'b)) nil)
-    (is (empty-clone nil) nil)
+    (diag "Test CLEARED")
+    (is (cleared '(1 2 3 4)) nil)
+    (is (cleared (cons 'a 'b)) nil)
+    (is (cleared nil) nil)
 
     (diag "Back Collector")
     (let ((collector (make-collector (list 1 2 3))))
@@ -55,8 +55,8 @@
       (is (collector-sequence collector) '(10 9 8 7 6 5 4 3 2 1))))
 
   (subtest "Vector Collector"
-    (diag "Test EMPTY-CLONE")
-    (let ((clone (empty-clone #(1 2 3 4))))
+    (diag "Test CLEARED")
+    (let ((clone (cleared #(1 2 3 4))))
       (is-type clone 'array)
       (is (array-dimension clone 0) 4 "Same Length")
       (ok (adjustable-array-p clone) "Adjustable")
@@ -81,8 +81,8 @@
       (is (collector-sequence collector) #(10 9 8 7 6 5 4 3 2 1) :test #'equalp)))
 
   (subtest "Hash-Map Collector"
-    (diag "Test EMPTY-CLONE")
-    (let ((clone (empty-clone (alist-hash-map '((a . 1) (b . 2) (c . 3))))))
+    (diag "Test CLEARED")
+    (let ((clone (cleared (alist-hash-map '((a . 1) (b . 2) (c . 3))))))
       (is-type clone 'hash-map)
       (is (length clone) 0 "Empty"))
 

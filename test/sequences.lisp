@@ -81,7 +81,7 @@
 
 ;;; Custom Sequence Collector
 
-(defmethod empty-clone ((seq list-wrapper) &key)
+(defmethod cleared ((seq list-wrapper) &key)
   (make-list-wrapper))
 
 (defmethod make-sequence-of-type ((type (eql 'list-wrapper)) (args t))
