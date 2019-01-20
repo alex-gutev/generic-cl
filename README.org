@@ -919,6 +919,137 @@ equivalent to the positioned obtained by calling ~ADVANCE~ ~N~ times.
 The default method simply calls ~ADVANCE~, on ~ITERATOR~, ~N~ times.
 
 *** Collector
-*** Sequence Operations
+
+The collector interface is a generic interface for accumulating items
+in a sequence/container.
+
+The collector interface is implemented for lists, vectors and
+~HASH-MAPS~.
+
+**** MAKE-COLLECTOR
+
+Generic Function: ~MAKE-COLLECTOR SEQUENCE &KEY FRONT~
+
+Returns a collector for accumulating items onto the back of the
+sequence ~SEQUENCE~. If ~:FRONT~ is provided and is true, the items
+are accumulated to the front of the sequence rather than back.
+
+The collector may destructively modify ~SEQUENCE~ however it is not
+mandatory and may modify accumulate items into a copy of ~SEQUENCE~
+instead.
+
+**** ACCUMULATE
+
+Generic Function: ~ACCUMULATE COLLECTOR ITEM~
+
+Accumulates ~ITEM~ into the sequence associated with the collector
+~COLLECTOR~.
+
+**** COLLECTOR-SEQUENCE
+
+Generic Function: ~COLLECTOR-SEQUENCE COLLECTOR~
+
+Returns the underlying sequence associated with the collector
+~COLLECTOR~. The sequence should contain all items accumulated up-to
+the call to this function.
+
+No items should be accumulated, by ~ACCUMULATE~ or ~EXTEND~, after
+this function is called.
+
+The sequence return might not be the same object passed to
+~MAKE-COLLECTOR~.
+
+**** EXTEND
+
+Generic Function: ~EXTEND COLLECTOR SEQUENCE~
+
+Accumulates all elements of the sequence ~SEQUENCE~ into the sequence
+associated with the collector ~COLLECTOR~.
+
+If ~SEQUENCE~ is an iterator all elements up-to the end of the
+iterator (till ~ENDP~ returns true) should be accumulated.
+
+Implementing this method as optional as default methods are provided
+for iterators and sequences, which simply accumulate each element one
+by one using ~ACCUMULATE~.
+
+Methods:
+
+   - ~T ITERATOR~
+
+     Accumulates all elements returned by the iterator ~SEQUENCE~
+     (till ~(ENDP SEQUENCE)~ returns true), into the sequence
+     associated with the collector. The elements are accumulated one
+     by one using ~ACCUMULATE~.
+
+     The iterator is copied thus the position of the iterated passed
+     as an argument is not modified.
+
+   - ~T T~
+
+     Accumulates all elements of ~SEQUENCE~, into the sequence
+     associated with the collector. The elements are accumulated one
+     by one using ~ACCUMULATE~.
+
+     The sequence iteration is done using the iterator interface.
+
+*** Sequences
+
+**** Creation
+
+The following functions are for creating a sequence into which items
+will be accumulated using the collector interface.
+
+***** CLEARED
+
+Generic Function: ~CLEARED SEQUENCE &KEY &ALLOW-OTHER-KEYS~
+
+Returns a new empty sequence, of the same type and with the same
+properties as ~SEQUENCE~, suitable for accumulating items into it
+using the collector interface.
+
+Individual methods may accept keyword parameters which specify certain
+options of the sequence which is to be created.
+
+Methods:
+
+   - ~LIST~
+
+     Returns ~NIL~.
+
+   - ~VECTOR~
+
+     Returns an adjustable vector of the same length as ~SEQUENCE~,
+     with the fill-pointer set to ~0~.
+
+     If the ~:KEEP-ELEMENT-TYPE~ argument is provided and is true, the
+     element type of the new vector is the same as the element type of
+     ~SEQUENCE~.
+
+***** MAKE-SEQUENCE-OF-TYPE
+
+Generic Function: ~MAKE-SEQUENCE-OF-TYPE TYPE ARGS~
+
+Returns a new empty sequence of type ~TYPE~. ~ARGS~ are the type
+arguments, if any.
+
+The default method creates a built-in sequence of the same type as
+that returned by:
+
+#+BEGIN_SRC lisp
+(make-sequence (cons type args) 0)
+#+END_SRC
+
+***** SEQUENCE-OF-TYPE
+
+Function: ~SEQUENCE-OF-TYPE TYPE~
+
+Creates a new sequence of type ~TYPE~, using
+~MAKE-SEQUENCE-OF-TYPE~.
+
+If ~TYPE~ is a list the ~CAR~ of the list is passed as the first
+argument, to ~MAKE-SEQUENCE-OF-TYPE~, and the ~CDR~ is passed as the
+second argument. Otherwise, if ~TYPE~ is not a list, it is passed as
+the first argument and ~NIL~ is passed as the second argument.
 *** Generic Hash-Tables
 *** Set Operations
