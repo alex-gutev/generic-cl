@@ -561,8 +561,9 @@
 ;;; Concatenation
 
 (defun concatenate (sequence &rest sequences)
-  "Returns a new sequence containing all the elements of SEQUENCE and
-   of each sequence in SEQUENCES, in the order they are supplied."
+  "Returns a new sequence, of the same type as SEQUENCE, containing
+   all the elements of SEQUENCE and of each sequence in SEQUENCES, in
+   the order they are supplied."
 
   (apply #'nconcatenate (cleared sequence) sequence sequences))
 
@@ -594,8 +595,8 @@
 
 (defun nmap (result function &rest sequences)
   "Destructively replaces each element of RESULT with the result of
-   applying FUNCTION to each element of RESULT and of each sequence in
-   SEQUENCE.
+   applying FUNCTION to each element of RESULT and each element of
+   each sequence in SEQUENCES.
 
    The shortest sequence of RESULT and SEQUENCE determines how many
    times FUNCTION is applied and how many elements are in the

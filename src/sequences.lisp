@@ -83,8 +83,9 @@
 
 (defgeneric replace (sequence1 sequence2 &key start1 end1 start2 end2)
   (:documentation
-   "Same as CL:REPLACE however can is extensible to other sequence
-    TYPES besides CL:SEQUENCE."))
+   "Destructively replaces the elements of SEQUENCE1, between START1
+    and END1, with the elements of SEQUENCE2, between START2 and
+    END2."))
 
 
 ;; Reduction
@@ -192,8 +193,8 @@
 (defgeneric merge (sequence1 sequence2 predicate &key key)
   (:documentation
    "Returns a new sequence (of the same type as SEQUENCE1) containing
-    the elements of SEQUENCE1 merge with SEQUENCE2. The elements are
-    ordered according the function PREDICATE.
+    the elements of SEQUENCE1 and SEQUENCE2. The elements are ordered
+    according to the function PREDICATE.
 
     PREDICATE is a function of two arguments (an element from
     SEQUENCE1 and an element from SEQUENCE2), which should return true

@@ -1265,5 +1265,159 @@ Methods:
      ~(SETF AT)~ method is implemented for the iterator type of
      ~SEQUENCE~.
 
+**** Sequence Operations
+
+Generic function wrappers are provided over all the Common Lisp
+sequence operations with methods specialized on ~CL:SEQUENCE~, that
+simply call the corresponding function in the ~COMMON-LISP~ package,
+and a default ~T~ method that is implemented using the iterator
+interface.
+
+Some functions have some differences in the arguments that are
+accepted, and a few non-destructive functions are provided for which
+there is only a destructive version in the ~COMMON-LISP~ package.
+
+The default value of the ~:TEST~ arguments is ~GENERIC-CL:EQUALP~. The
+~:TEST-NOT~ arguments have been removed.
+
+In this section, only the functions functions which differ (in
+behavior or arguments) from their ~CL~ counterparts, and functions
+which have no analogue in the ~CL~ package, are listed. The
+documentation focuses on the differences from the ~CL~ functions. For
+a full specification of the functions visit a Common Lisp reference.
+
+***** MERGE
+
+Generic Function: ~MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY~
+
+Returns a new sequence, of the same type as ~SEQUENCE1~, containing
+the elements of ~SEQUENCE1~ and ~SEQUENCE2~. The elements are ordered
+according the function ~PREDICATE~.
+
+Unlike ~CL:MERGE~ this function is non-destructive.
+
+***** NMERGE
+
+Generic Function: ~MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY~
+
+Same as ~MERGE~ however is permitted to destructively modify either
+~SEQUENCE1~ or ~SEQUENCE2~.
+
+***** SORT
+
+Generic Function: ~SORT SEQUENCE &KEY TEST KEY~
+
+Returns a new sequence of the same type as ~SEQUENCE~, with the same
+elements sorted according to the order determined by the function
+~TEST~. ~TEST~ is ~GENERIC-CL:LESSP~ by default.
+
+Unlike ~CL:SORT~ this function is non-destructive.
+
+The default ~T~ method requires that ~SUBSEQ~ and ~LENGTH~ methods are
+implemented for ~SEQUENCE~'s iterator type.
+
+***** STABLE-SORT
+
+Generic Function: ~STABLE-SORT SEQUENCE &KEY TEST KEY~
+
+Same as ~SORT~ however the sort operation is guaranteed to be
+stable. ~TEST~. ~TEST~ is ~GENERIC-CL:LESSP~ by default.
+
+Unlike ~CL:STABLE-SORT~ this function is non-destructive.
+
+The default ~T~ method requires that ~SUBSEQ~ and ~LENGTH~ methods are
+implemented for ~SEQUENCE~'s iterator type.
+
+***** NSORT
+
+Generic Function: ~NSORT SEQUENCE &KEY TEST KEY~
+
+Same as ~SORT~ however is permitted to destructively modify
+~SEQUENCE~.
+
+***** STABLE-NSORT
+
+Generic Function: ~STABLE-NSORT SEQUENCE &KEY TEST KEY~
+
+Same as ~STABLE-SORT~ however is permitted to destructively modify
+~SEQUENCE~.
+
+***** EVERY, SOME, NOTEVERY AND NOTANY
+
+These are not implemented as generic functions since they take an
+arbitrary number of sequences as arguments, however they are
+implemented using the iterator interface and will work with any
+sequence that implements that interface.
+
+There is no difference in behavior between these functions and the
+corresponding functions in the ~COMMON-LISP~ package.
+
+***** CONCATENATE
+
+Function: ~CONCATENATE SEQUENCE &REST SEQUENCES~
+
+Returns a new sequence, of the same type as ~SEQUENCE~, containing all
+the elements of ~SEQUENCE~ and of each sequence in ~SEQUENCES~, in the
+order they are supplied.
+
+Unlike ~CL:CONCATENATE~ does not take a result type argument.
+
+***** NCONCATENATE
+
+Function: ~NCONCATENATE RESUL &REST SEQUENCES~
+
+Destructively concatenates each sequence in ~SEQUENCES~ to the
+sequence ~RESULT~.
+
+***** MAP
+
+Function: ~MAP FUNCTION SEQUENCE &REST SEQUENCES~
+
+Creates a new sequence, of the same type as ~SEQUENCE~ (by ~CLEARED~),
+containing the result of applying ~FUNCTION~ to each element of
+SEQUENCE and each element of each ~SEQUENCE~ in ~SEQUENCES~.
+
+This is equivalent (in behavior) to the ~CL:MAP~ function except the
+resulting sequence is always of the same type as the first sequence
+passed as an argument, rather than being determined by a type
+argument.
+
+***** NMAP
+
+Function: ~NMAP RESULT FUNCTION &REST SEQUENCES~
+
+Destructively replaces each element of ~RESULT~ with the result of
+applying ~FUNCTION~ to each element of ~RESULT~ and each element of
+each sequence in SEQUENCES.
+
+This function is similar in behavior to ~CL:MAP-INTO~ with the
+exception that if ~RESULT~ is a vector, then ~FUNCTION~ is only
+applied on the elements up-to the fill pointer i.e. the fill-pointer
+is not ignored.
+
+***** MAP-INTO
+
+Function: ~MAP-INTO RESULT FUNCTION &REST SEQUENCES~
+
+Applies ~FUNCTION~ on each element of each sequence in ~SEQUENCES~ and
+stores the result in RESULT.
+
+***** MAP-TO
+
+Function: ~MAP-TO TYPE FUNCTION &REST SEQUENCES~
+
+Applies ~FUNCTION~ to each element of each sequence in ~SEQUENCES~ and
+stores the result in a new sequence of type ~TYPE~ (created using
+~SEQUENCE-OF-TYPE~).  Returns the sequence in which the results of
+applying function are stored.
+
+This function is equivalent in behavior and arguments to ~CL:MAP~.
+
+***** FOREACH
+
+Function: ~FOREACH &REST SEQUENCES~
+
+Applies ~FUNCTION~ on each element of each sequence in ~SEQUENCES~.
+
 *** Generic Hash-Tables
 *** Set Operations
