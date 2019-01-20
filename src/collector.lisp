@@ -62,6 +62,7 @@
 
   (:method (collector (it iterator))
     (loop
+       with it = (copy it)
        until (endp it)
        do
 	 (accumulate collector (at it))
