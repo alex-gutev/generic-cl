@@ -924,6 +924,45 @@ equivalent to the positioned obtained by calling ~ADVANCE~ ~N~ times.
 
 The default method simply calls ~ADVANCE~, on ~ITERATOR~, ~N~ times.
 
+**** Macros
+
+***** DOITERS
+      :PROPERTIES:
+      :CUSTOM_ID: doiters
+      :END:
+
+Macro: ~DOITERS (&REST ITERS) &BODY BODY~
+
+Iterates over one or more sequences with the sequence iterators bound
+to variables.
+
+Each element of ITERS is a list of the form ~(IT-VAR SEQUENCE
+. ARGS)~, where ~IT-VAR~ is the variable to which the iterator is
+bound, ~SEQUENCE~ is the sequence which will be iterated over and
+~ARGS~ are the remaining arguments passed to the [[#iterator-func][ITERATOR]] function.
+
+The bindings to the ~IT-VARS~'s are visible to the forms in ~BODY~,
+which are executed once for each element in the sequence. After each
+iteration the sequence iterators are ~ADVANCE~'d. The loop terminates
+when the end of a sequence is reached.
+
+***** DOITER
+
+Macro: ~DOITER (ITER &REST ARGS) &BODY BODY~
+
+The is the same as [[#doiters][DOITERS]] except only a single sequence is iterated
+over.
+
+***** DOSEQ
+
+Macro: ~DOSEQ (ELEMENT SEQUENCE &REST ARGS) &BODY BODY~
+
+Iterates over the elements of ~SEQUENCE~. ~ARGS~ are the remaining
+arguments passed to the [[#iterator-func][ITERATOR]] function.
+
+The forms in ~BODY~ are executed once for each element, with the value
+of the element bound to ~ELEMENT~.
+
 *** Collector
 
 The collector interface is a generic interface for accumulating items
