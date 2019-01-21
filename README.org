@@ -903,6 +903,9 @@ The default method is equivalent to the following:
 #+END_SRC
 
 ***** (SETF AT)
+      :PROPERTIES:
+      :CUSTOM_ID: setf-at
+      :END:
 
 Generic Function: ~(SETF AT) VALUE ITERATOR~
 
@@ -1045,6 +1048,9 @@ The following functions are for creating a sequence into which items
 will be accumulated using the collector interface.
 
 ***** CLEARED
+      :PROPERTIES:
+      :CUSTOM_ID: cleared
+      :END:
 
 Generic Function: ~CLEARED SEQUENCE &KEY &ALLOW-OTHER-KEYS~
 
@@ -1267,24 +1273,78 @@ Methods:
 
 **** Sequence Operations
 
-Generic function wrappers are provided over all the Common Lisp
-sequence operations with methods specialized on ~CL:SEQUENCE~, that
-simply call the corresponding function in the ~COMMON-LISP~ package,
-and a default ~T~ method that is implemented using the iterator
-interface.
+Generic function wrappers, which are identical in behavior to their
+counterparts in the ~COMMON-LISP~ package, are provided for the
+following sequence operations:
 
-Some functions have some differences in the arguments that are
-accepted, and a few non-destructive functions are provided for which
-there is only a destructive version in the ~COMMON-LISP~ package.
+   - ~FILL~
+   - ~REPLACE~
+   - ~REDUCE~
+   - ~COUNT~
+   - ~COUNT-IF~
+   - ~COUNT-IF-NOT~
+   - ~FIND~
+   - ~FIND-IF~
+   - ~FIND-IF-NOT~
+   - ~POSITION~
+   - ~POSITION-IF~
+   - ~POSITION-IF-NOT~
+   - ~SEARCH~
+   - ~MISMATCH~
+   - ~REVERSE~
+   - ~NREVERSE~
+   - ~SUBSTITUTE~
+   - ~NSUBSTITUTE~
+   - ~SUBSTITUTE-IF~
+   - ~NSUBSTITUTE-IF~
+   - ~SUBSTITUTE-IF-NOT~
+   - ~NSUBSTITUTE-IF-NOT~
+   - ~REMOVE~
+   - ~DELETE~
+   - ~REMOVE-IF~
+   - ~DELETE-IF~
+   - ~REMOVE-IF-NOT~
+   - ~DELETE-IF-NOT~
+   - ~REMOVE-DUPLICATES~
+   - ~DELETE-DUPLICATES~
 
-The default value of the ~:TEST~ arguments is ~GENERIC-CL:EQUALP~. The
-~:TEST-NOT~ arguments have been removed.
+Two methods are implemented for all functions:
 
-In this section, only the functions functions which differ (in
-behavior or arguments) from their ~CL~ counterparts, and functions
-which have no analogue in the ~CL~ package, are listed. The
-documentation focuses on the differences from the ~CL~ functions. For
-a full specification of the functions visit a Common Lisp reference.
+   - ~CL:SEQUENCE~
+
+     Simply calls the corresponding function in the ~COMMON-LISP~
+     package.
+
+   - ~T~
+
+     Implements the sequence operation for generic sequences using the
+     iterator interface.
+
+     The non-destructive functions only require that the mandatory
+     iterator functions, the collector interface and [[#cleared][CLEARED]] method
+     are implemented for the sequence's type.
+
+     The destructive versions may additionally require that the
+     optional [[#setf-at][(SETF AT)]] method is implemented as well.
+
+The default value of the ~:TEST~ keyword arguments is
+~GENERIC-CL:EQUALP~, this should be the default value when
+implementing methods of these functions. The ~:TEST-NOT~ keyword
+arguments have been removed.
+
+The following functions are identical in behavior to their ~CL~
+counterparts, however are re-implemented using the iterator
+interface. Unlike the functions in the previous list, these are not
+generic functions since they take an arbitrary number of sequences as
+arguments.
+
+   - ~EVERY~
+   - ~SOME~
+   - ~NOTEVERY~
+   - ~NOTANY~
+
+The following functions either have no ~CL~ counterparts or differ
+slightly in behavior from their ~CL~ counterparts.
 
 ***** MERGE
 
@@ -1292,7 +1352,7 @@ Generic Function: ~MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY~
 
 Returns a new sequence, of the same type as ~SEQUENCE1~, containing
 the elements of ~SEQUENCE1~ and ~SEQUENCE2~. The elements are ordered
-according the function ~PREDICATE~.
+according to the function ~PREDICATE~.
 
 Unlike ~CL:MERGE~ this function is non-destructive.
 
@@ -1341,16 +1401,6 @@ Generic Function: ~STABLE-NSORT SEQUENCE &KEY TEST KEY~
 
 Same as ~STABLE-SORT~ however is permitted to destructively modify
 ~SEQUENCE~.
-
-***** EVERY, SOME, NOTEVERY AND NOTANY
-
-These are not implemented as generic functions since they take an
-arbitrary number of sequences as arguments, however they are
-implemented using the iterator interface and will work with any
-sequence that implements that interface.
-
-There is no difference in behavior between these functions and the
-corresponding functions in the ~COMMON-LISP~ package.
 
 ***** CONCATENATE
 
