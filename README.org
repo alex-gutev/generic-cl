@@ -1756,3 +1756,43 @@ Returns a new empty ~HASH-SET~.
 
 Accepts the same keyword arguments as ~MAKE-HASH-MAP~. The default
 ~TEST~ function is ~GENERIC-CL:EQUALP~.
+
+*** Math Functions
+
+Generic function wrappers are provided over a number of math
+functions. Methods specialized on ~NUMBER~ are provided, which simply
+call the corresponding functions in the ~CL~ package. The idea of this
+interface is to allow the mathematical functions to be extended to
+vectors and matrices. This interface might not used as often as the
+previous interfaces, thus is contained in a separate package
+~GENERIC-MATH-CL~ which exports all symbols exported by ~GENERIC-CL~
+and shadows the math functions.
+
+Generic function wrappers are provided for the following functions:
+
+   - ~SIN~
+   - ~COS~
+   - ~TAN~
+   - ~ASIN~
+   - ~ACOS~
+   - ~ATAN~
+   - ~SINH~
+   - ~COSH~
+   - ~TANH~
+   - ~ASINH~
+   - ~ACOSH~
+   - ~ATANH~
+   - ~EXP~
+   - ~EXPT~
+   - ~LOG~
+   - ~SQRT~
+   - ~ISQRT~
+   - ~REALPART~
+   - ~IMAGPART~
+   - ~CIS~
+   - ~CONJUGATE~
+   - ~PHASE~
+   - ~NUMERATOR~
+   - ~DENOMINATOR~
+   - ~RATIONAL~
+   - ~RATIONALIZE~
