@@ -215,12 +215,16 @@
    :hash-map-table
    :hash-map-p
    :make-hash-map
+   :ensure-hash-map
 
    :hash
    :get
 
    :hash-map-alist
    :alist-hash-map
+
+   :alist
+   :plist
 
    ;; Sets
    :memberp :subsetp

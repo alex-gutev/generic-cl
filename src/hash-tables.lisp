@@ -94,6 +94,17 @@
       (eq test 'cl:equal) (eq test #'cl:equal)
       (eq test 'equalp) (eq test #'equalp)))
 
+(defun ensure-hash-map (map)
+  "If MAP is a `HASH-MAP' returns it, otherwise if MAP is a
+   `HASH-TABLE' or `CUSTOM-HASH-TABLE' returns a `HASH-MAP' which
+   wraps it. Signals an error if MAP is not of the aforementioned
+   types."
+
+  (etypecase map
+    (hash-map map)
+    (hash-table (hash-map map))
+    #+custom-hash-table-fallback
+    (custom-hash-table (hash-map table))))
 
 ;;;; Generic Lookup Functions
 

@@ -63,6 +63,24 @@
 
 
 (subtest "Test Generic Hash-Tables"
+  (subtest "Test ENSURE-HASH-MAP"
+    (let* ((table (make-hash-map))
+	   (map (ensure-hash-map table)))
+      (is-type map 'hash-map)
+      (is map table :test #'eq))
+
+    (let* ((table (make-hash-table))
+	   (map (ensure-hash-map table)))
+      (is-type map 'hash-map)
+      (is (hash-map-table map) table))
+
+    (let* ((table (generic-cl.impl::make-generic-hash-table))
+	   (map (ensure-hash-map table)))
+      (is-type map 'hash-map)
+      (is (hash-map-table map) table))
+
+    (is-error (ensure-hash-map 'x) 'type-error))
+
   (let ((*hash-function-called-p* nil)
 	(*equalp-function-called-p* nil))
 
