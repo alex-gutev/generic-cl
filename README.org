@@ -919,6 +919,9 @@ Implementing this function is only mandatory if destructive sequence
 operations will be used.
 
 ***** ADVANCE-N
+      :PROPERTIES:
+      :CUSTOM_ID: advance-n
+      :END:
 
 Generic Function: ~ADVANCE-N ITERATOR N~
 
@@ -967,6 +970,9 @@ The forms in ~BODY~ are executed once for each element, with the value
 of the element bound to ~ELEMENT~.
 
 *** Collector
+    :PROPERTIES:
+    :CUSTOM_ID: collector
+    :END:
 
 The collector interface is a generic interface for accumulating items
 in a sequence/container.
@@ -1167,7 +1173,10 @@ called on lists, it returns the last element rather than the last
 
 **** Length
 
-***** Length
+***** LENGTH
+      :PROPERTIES:
+      :CUSTOM_ID: length
+      :END:
 
 Generic Function: ~LENGTH SEQUENCE~
 
@@ -1308,7 +1317,8 @@ following sequence operations:
    - ~REMOVE-DUPLICATES~
    - ~DELETE-DUPLICATES~
 
-Two methods are implemented for all functions:
+Two methods are implemented, for all functions, which are specialized
+on the following types:
 
    - ~CL:SEQUENCE~
 
@@ -1329,8 +1339,8 @@ Two methods are implemented for all functions:
 
 The default value of the ~:TEST~ keyword arguments is
 ~GENERIC-CL:EQUALP~, this should be the default value when
-implementing methods of these functions. The ~:TEST-NOT~ keyword
-arguments have been removed.
+implementing methods for user-defined sequence types. The ~:TEST-NOT~
+keyword arguments have been removed.
 
 The following functions are identical in behavior to their ~CL~
 counterparts, however are re-implemented using the iterator
@@ -1344,7 +1354,7 @@ arguments.
    - ~NOTANY~
 
 The following functions either have no ~CL~ counterparts or differ
-slightly in behavior from their ~CL~ counterparts.
+slightly in behavior from their ~CL~ counterparts:
 
 ***** MERGE
 
@@ -1373,8 +1383,9 @@ elements sorted according to the order determined by the function
 
 Unlike ~CL:SORT~ this function is non-destructive.
 
-The default ~T~ method requires that ~SUBSEQ~ and ~LENGTH~ methods are
-implemented for ~SEQUENCE~'s iterator type.
+For the sort algorithm to be efficient, efficient [[#advance-n][ADVANCE-N,]] [[#subseq][SUBSEQ]]
+and [[#length][LENGTH]] methods should be implemented for the iterator type of
+~SEQUENCE~'s.
 
 ***** STABLE-SORT
 
@@ -1385,8 +1396,9 @@ stable. ~TEST~. ~TEST~ is ~GENERIC-CL:LESSP~ by default.
 
 Unlike ~CL:STABLE-SORT~ this function is non-destructive.
 
-The default ~T~ method requires that ~SUBSEQ~ and ~LENGTH~ methods are
-implemented for ~SEQUENCE~'s iterator type.
+For the sort algorithm to be efficient, efficient [[#advance-n][ADVANCE-N,]] [[#subseq][SUBSEQ]]
+and [[#length][LENGTH]] methods should be implemented for the iterator type of
+~SEQUENCE~'s.
 
 ***** NSORT
 
@@ -1414,7 +1426,7 @@ Unlike ~CL:CONCATENATE~ does not take a result type argument.
 
 ***** NCONCATENATE
 
-Function: ~NCONCATENATE RESUL &REST SEQUENCES~
+Function: ~NCONCATENATE RESULT &REST SEQUENCES~
 
 Destructively concatenates each sequence in ~SEQUENCES~ to the
 sequence ~RESULT~.
@@ -1450,7 +1462,7 @@ is not ignored.
 Function: ~MAP-INTO RESULT FUNCTION &REST SEQUENCES~
 
 Applies ~FUNCTION~ on each element of each sequence in ~SEQUENCES~ and
-stores the result in RESULT.
+accumulates the result in RESULT, using the [[#collector][Collector]] interface.
 
 ***** MAP-TO
 
@@ -1461,13 +1473,18 @@ stores the result in a new sequence of type ~TYPE~ (created using
 ~SEQUENCE-OF-TYPE~).  Returns the sequence in which the results of
 applying function are stored.
 
-This function is equivalent in behavior and arguments to ~CL:MAP~.
+This function is equivalent in arguments, and almost equivalent in
+behavior, to ~CL:MAP~. The only difference is that if ~TYPE~ is a
+subtype of vector, the vector returned is adjustable with a
+fill-pointer.
 
 ***** FOREACH
 
 Function: ~FOREACH &REST SEQUENCES~
 
 Applies ~FUNCTION~ on each element of each sequence in ~SEQUENCES~.
+
+Returns ~NIL~.
 
 *** Generic Hash-Tables
 *** Set Operations
