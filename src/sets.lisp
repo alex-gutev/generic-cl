@@ -149,7 +149,7 @@
   (hash-table-set (apply #'make-hash-map-table args)))
 
 (defun hash-set (&rest elements)
-  "Returns a `HASH-SET' containing the elements of ELEMENTS."
+  "Returns a `HASH-SET' with elements ELEMENTS."
 
   (let ((table (make-generic-hash-table)))
     (dolist (element elements)

@@ -1657,3 +1657,102 @@ The following ~COERCE~ methods are provided for ~HASH-MAPS~:
      the map.
 
 *** Set Operations
+
+The set interface provides generic functions for performing set
+operations and implementations of those operations for a hash-set data
+structure.
+
+Generic function wrappers are provided over the following Common Lisp
+set operation functions:
+
+   - ~SUBSETP~
+   - ~ADJOIN~
+   - ~INTERSECTION~
+   - ~NINTERSECTION~
+   - ~SET-DIFFERENCE~
+   - ~NSET-DIFFERENCE~
+   - ~SET-EXCLUSIVE-OR~
+   - ~NSET-EXCLUSIVE-OR~
+   - ~UNION~
+   - ~NUNION~
+
+For each function, methods specializing on ~LISTS~, which simply call
+the corresponding function in the ~CL~ package, and ~HASH-MAPS~ are
+implemented. Each function accepts all keyword arguments accepted by
+the corresponding ~CL~ functions however they are ignored by the
+~HASH-MAP~ methods.
+
+~HASH-MAP~'s may be used as sets, in which case the set elements are
+stored in the keys. The values of the map's entries are ignored by the
+set operations, and are unspecified in the sets returned by the set
+operation functions.
+
+**** ADJOIN
+
+Generic Function: ~ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS~
+
+Returns a new set, of the same type as ~SET~, which contains ~ITEM~
+and all element is ~SET~.
+
+This function is non-destructive. A new set is always returned even if
+~SET~ is a ~HASH-MAP~ / ~HASH-SET~.
+
+Accepts all keyword arguments accepted by ~CL:ADJOIN~ however they are
+ignored by the ~HASH-MAP~ method.
+
+**** NADJOIN
+
+Generic Function: ~ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS~
+
+Same as ~ADJOIN~ however is permitted to destructively modify ~SET~.
+
+The set returned is ~EQ~ to ~SET~ in the case of ~SET~ being a
+~HASH-MAP~ however is not ~EQ~ if ~SET~ is a list, and is not required
+to be ~EQ~. Thus this function should not be relied upon for its side
+effects.
+
+Implemented for both lists and ~HASH-MAPS~.
+
+**** MEMBERP
+
+Generic Function: ~MEMBERP ITEM SET &KEY &ALLOW-OTHER-KEYS~
+
+Returns true if ~ITEM~ is an element of the set ~SET~.
+
+Implemented for both lists and ~HASH-MAPS~. All keyword arguments
+accepted by ~CL:MEMBER~ are accepted, however are ignored by the
+~HASH-MAP~ method.
+
+**** HASH-SET
+
+Structure: ~HASH-SET~
+
+A hash-set is a ~HASH-MAP~ however it used to indicate that only the
+keys are important. This allows the ~EQUALP~ and ~COPY~ methods,
+specialized on ~HASH-SETS~ to be implemented more efficiently, as the
+keys are not compared/copied, than the methods specialized on
+~HASH-MAPS~.
+
+The set operations work on both ~HASH-MAPS~ and ~HASH-SETS~.
+
+**** HASH-TABLE-SET
+
+Function: ~HASH-TABLE-SET TABLE~
+
+Returns a ~HASH-SET~ structure wrapping the standard ~HASH-TABLE~ or
+~CUSTOM-HASH-TABLE~ ~TABLE~.
+
+**** HASH-SET
+
+Function: ~HASH-SET &REST ELEMENTS~
+
+Returns a ~HASH-SET~ with elements ~ELEMENTS~.
+
+**** MAKE-HASH-SET
+
+Function: ~MAKE-HASH-SET &KEY &ALLOW-OTHER-KEYS~
+
+Returns a new empty ~HASH-SET~.
+
+Accepts the same keyword arguments as ~MAKE-HASH-MAP~. The default
+~TEST~ function is ~GENERIC-CL:EQUALP~.
