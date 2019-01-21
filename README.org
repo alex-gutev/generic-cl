@@ -1,4 +1,4 @@
-* GENRIC-CL
+* GENERIC-CL
 #+OPTIONS: toc:nil
 
 GENERIC-CL provides a generic function wrapper over various functions
