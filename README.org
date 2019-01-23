@@ -1118,9 +1118,20 @@ Returns the element at position ~INDEX~ in the sequence ~SEQUENCE~.
 
 Methods:
 
-   - ~SEQUENCE T~
+   - ~SEQUENCE T~ and ~VECTOR T~
 
      Returns ~(CL:ELT SEQUENCE INDEX)~.
+
+   - ~ARRAY T~
+
+     Multi-dimensional Arrays.
+
+     Returns ~(ROW-MAJOR-AREF SEQUENCE INDEX)~.
+
+   - ~T T~
+
+     Creates an iterator for ~SEQUENCE~, with start position ~INDEX~,
+     and returns the first element returned by the iterator.
 
 ***** (SETF ELT)
 
@@ -1131,9 +1142,21 @@ Sets the value of the element at position ~INDEX~ in the sequence
 
 Methods:
 
-   - ~T SEQUENCE T~
+   - ~T SEQUENCE T~ and ~T VECTOR T~
 
      Returns ~(SETF (CL:ELT SEQUENCE INDEX) VALUE)~.
+
+   - ~T ARRAY T~
+
+     Multi-dimensional Arrays.
+
+     Returns ~(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)~
+
+   - ~T T T~
+
+     Creates an iterator for ~SEQUENCE~, with start position ~INDEX~,
+     and sets the value of the element at the starting position of the
+     iterator.
 
 ***** FIRST
 
@@ -1145,31 +1168,50 @@ Implemented for lists, vectors and multi-dimensional arrays. For
 multi-dimensional arrays, the first element is obtained by
 ~ROW-MAJOR-AREF~.
 
-The default method returns the first element of a generic sequence by
-creating an iterator for the sequence and returning the first element
-returned by the iterator.
+The default method is implemented using ~GENERIC-CL:ELT~, i.e. is
+equivalent to:
+
+#+BEGIN_SRC lisp
+(elt sequence index)
+#+END_SRC
 
 ***** LAST
 
-Generic Function: ~LAST SEQUENCE~
+Generic Function: ~LAST SEQUENCE &OPTIONAL (N 0)~
 
-Returns the last element of the sequence ~SEQUENCE~.
+Returns the ~N~'th element from the last element of the sequence
+~SEQUENCE~. ~N~ defaults to ~0~ which indicates the last element. ~1~
+indicates the second to last element, ~2~ the third to last and so on.
 
 Implemented for lists, vectors and multi-dimensional arrays. For
 multi-dimensional arrays, the last element is obtained by:
 
 #+BEGIN_SRC lisp
-(row-major-aref sequence (1- (array-total-size array)))
+(row-major-aref sequence (- (array-total-size array) 1 n))
 #+END_SRC
 
-The default method returns the last element of a generic sequence by
-creating a reverse iterator for the sequence and returning the first
-element element returned by the iterator.
+The default method is implemented using ~GENERIC-CL:ELT~, i.e. is
+equivalent to:
+
+#+BEGIN_SRC lisp
+(elt sequence (- (length sequence) 1 n))
+#+END_SRC
 
 *Note:* The behaviour of this function differs from ~CL:LAST~ when
 called on lists, it returns the last element rather than the last
-~CONS~ cell.
+~CONS~ cell. The [[#lastcdr][LASTCDR]] function performs the same function as
+~CL:LAST~.
 
+***** LASTCDR
+      :PROPERTIES:
+      :CUSTOM_ID: lastcdr
+      :END:
+
+Function: ~LASTCDR LIST &OPTIONAL (N 1)~
+
+This function is equivalent to ~CL:LAST~ list function.
+
+Returns the ~CDR~ of the ~N~'th ~CONS~ cell from the end of the list.
 
 **** Length
 
