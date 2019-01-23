@@ -27,7 +27,7 @@
 
 ;;;; Common Lisp Sequence Methods
 
-;;; Element Access
+;;; Elements
 
 ;; ELT
 
@@ -51,6 +51,8 @@
   (setf (row-major-aref array index) value))
 
 
+;; First
+
 (defmethod first ((list list))
   (cl:first list))
 
@@ -60,6 +62,8 @@
 (defmethod first ((array array))
   (row-major-aref array 0))
 
+
+;; Last
 
 (defmethod last ((list list) &optional (n 0))
   (car (cl:last list (cl:1+ n))))
@@ -76,6 +80,24 @@
    the last CONS cell in LIST."
 
   (cl:last list n))
+
+
+;; ERASE
+
+(defmethod erase ((vec vector) index)
+  (unless (adjustable-array-p vec)
+    (error 'type-error :datum vec :expected-type '(and vector (satisfies adjustable-array-p))))
+
+  (let ((len (cl:length vec)))
+    (loop
+       for i from (cl:1+ index) below len
+       do
+	 (setf (aref vec (cl:1- i)) (aref vec i)))
+
+    (if (array-has-fill-pointer-p vec)
+	(adjust-array vec (cl:1- len) :initial-element 0 :fill-pointer t)
+	(adjust-array vec (cl:1- len) :initial-element 0))))
+
 
 ;;; Length
 

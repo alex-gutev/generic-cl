@@ -205,6 +205,23 @@
 	(is (lastcdr list 1) (cl:last list 1) :test #'eq)
 	(is (lastcdr list 3) (cl:last list 3) :test #'eq)))
 
+    (subtest "Test ERASE"
+      (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t)
+	(erase it 2)
+	(is it #(1 2 4 5) :test #'equalp)
+
+	(erase it 0)
+	(is it #(2 4 5) :test #'equalp))
+
+      (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t :fill-pointer t)
+	(erase it 2)
+	(is it #(1 2 4 5) :test #'equalp)
+
+	(erase it 0)
+	(is it #(2 4 5) :test #'equalp))
+
+      (is-error (erase #(1 2 3 4) 1) 'type-error))
+
     (subtest "Test SUBSEQ"
       (diag "CL Sequences")
       (is (subseq '(1 2 3 4 5) 1 3) '(2 3))

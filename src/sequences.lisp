@@ -28,7 +28,7 @@
 
 ;;;; Generic Sequence Functions
 
-;;; Element Access
+;;; Elements
 
 (defgeneric elt (sequence index)
   (:documentation
