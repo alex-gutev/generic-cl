@@ -71,12 +71,11 @@
    both arrays have the same dimensions and each element of A is
    equal (by EQUALP) to the corresponding element of B."
 
-  (let ((size (array-total-size a)))
-    (and (cl:equal (array-dimensions a) (array-dimensions b))
-	 (loop
-	    for i from 0 below (array-total-size a)
-	    always (equalp (row-major-aref a i)
-			   (row-major-aref b i))))))
+  (and (cl:equal (array-dimensions a) (array-dimensions b))
+       (loop
+	  for i from 0 below (array-total-size a)
+	  always (equalp (row-major-aref a i)
+			 (row-major-aref b i)))))
 
 (defmethod equalp ((a string) (b string))
   "Returns true if both strings are equal by CL:STRING="

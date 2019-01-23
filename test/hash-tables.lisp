@@ -50,7 +50,7 @@
     (setf *hash-function-called-p* t)
 
     ;; Compute primitive hash
-    (* (hash slot1) (hash slot2))))
+    (logxor (hash slot1) (hash slot2))))
 
 (defmethod equalp ((a custom-key) (b custom-key))
   "EQUALP method for `CUSTOM-KEY'. Sets the *EQUALP-FUNCTION-CALLED-P*
@@ -109,7 +109,7 @@
 
       (subtest "Test ERASE"
 	(is (erase map 'a) nil)
-	(is (erase map (make-custom-key :slot1 1 :slot2 2)) t)
+	(ok (erase map (make-custom-key :slot1 1 :slot2 2)))
 
 	(is-values (get key map) '(nil nil))
 

@@ -113,7 +113,6 @@
     ;; possible cases
 
     (is (pathname "/usr/local/bin") #p"/usr/local/bin" :test #'equalp)
-    (is (make-pathname :directory "/usr/local/bin") #p"/usr/local/bin/" :test #'equalp)
 
     (isnt #p"/usr/local/bin" "/usr/local/bin" :test #'equalp)
     (isnt #p"/usr/local/bin" #p"/USR/local/bin" :test #'equalp))

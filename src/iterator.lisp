@@ -283,7 +283,7 @@
 
 (defmethod make-reverse-iterator ((vec vector) start end)
   (make-reverse-vector-iterator :array vec
-				:index (1- (or end (cl:length vec)))
+				:index (cl:1- (or end (cl:length vec)))
 				:end start))
 
 
@@ -293,7 +293,7 @@
 (defmethod endp ((iter reverse-vector-iterator))
   (with-accessors ((index reverse-vector-iterator-index)
 		   (end reverse-vector-iterator-end)) iter
-    (< index end)))
+    (cl:< index end)))
 
 
 (defmethod length ((iter reverse-vector-iterator))
@@ -356,7 +356,7 @@
 
 (defmethod make-reverse-iterator ((array array) start end)
   (make-reverse-array-iterator :array array
-			       :index (1- (or end (array-total-size array)))
+			       :index (cl:1- (or end (array-total-size array)))
 			       :end start))
 
 (defmethod at ((iter reverse-array-iterator))

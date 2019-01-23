@@ -158,7 +158,7 @@
 ;;; Alists/Plists
 
 (defmethod get (key (map list) &optional default)
-  (typecase (first map)
+  (typecase (cl:first map)
     (cons
      (aif (assoc key map :test #'equalp)
 	  (values (cdr it) t)

@@ -139,25 +139,25 @@
   (loop
      for (x . xs) on (cons x xs)
      while xs
-     always (lessp x (first xs))))
+     always (lessp x (cl:first xs))))
 
 (defun > (x &rest xs)
   (loop
      for (x . xs) on (cons x xs)
      while xs
-     always (greaterp x (first xs))))
+     always (greaterp x (cl:first xs))))
 
 (defun <= (x &rest xs)
   (loop
      for (x . xs) on (cons x xs)
      while xs
-     always (less-equal-p x (first xs))))
+     always (less-equal-p x (cl:first xs))))
 
 (defun >= (x &rest xs)
   (loop
      for (x . xs) on (cons x xs)
      while xs
-     always (greater-equal-p x (first xs))))
+     always (greater-equal-p x (cl:first xs))))
 
 
 (defun min (first &rest xs)

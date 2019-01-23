@@ -56,7 +56,7 @@
 	 (is (length iter) (cl:length test-list) "(LENGTH ITER)")
 
 	 (loop
-	    for cell on test-list by (nth (1- (or step 1)) '(cdr cddr cdddr))
+	    for cell on test-list by (or (nth (1- (or step 1)) (list #'cdr #'cddr #'cdddr)) #'cdr)
 	    for (expected) = cell
 	    for got = (start iter) then (at iter)
 	    until (endp iter)

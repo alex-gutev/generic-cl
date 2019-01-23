@@ -88,7 +88,7 @@
    returns true using a copy of IT."
 
   (do ((it (copy it))
-       (n 0 (1+ n)))
+       (n 0 (cl:1+ n)))
       ((endp it) n)
     (advance it)))
 
@@ -256,7 +256,7 @@
       (loop
 	 with it1 = (iterator seq1 :start start1 :end end1 :from-end from-end)
 	 with it2 = (iterator seq2 :start start2 :end end2 :from-end from-end)
-	 for pos = 0 then (1+ pos)
+	 for pos = 0 then (cl:1+ pos)
 	 until (or (endp it1) (endp it2))
 	 do
 	   (unless (funcall test (funcall key (at it1)) (funcall key (at it2)))

@@ -109,7 +109,7 @@
 					    (fill-pointer vec)))))
     (loop
        for elem across vec
-       for i = 0 then (1+ i)
+       for i = 0 then (cl:1+ i)
        do
 	 (setf (aref new i) (copy elem :deep t)))
 

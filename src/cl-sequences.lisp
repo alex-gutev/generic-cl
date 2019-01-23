@@ -69,7 +69,7 @@
   (car (cl:last list (cl:1+ n))))
 
 (defmethod last ((vec vector) &optional (n 0))
-  (aref vec (cl:- (length vec) 1 n)))
+  (aref vec (cl:- (cl:length vec) 1 n)))
 
 (defmethod last ((array array) &optional (n 0))
   (row-major-aref array (cl:- (array-total-size array) 1 n)))

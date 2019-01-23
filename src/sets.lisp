@@ -290,17 +290,17 @@
 ;;;; Lists as Sets
 
 (defmethod memberp (item (set list) &key (test #'equalp) key)
-  (member item set :test test :key key))
+  (member item set :test test :key (or key #'identity)))
 
 (defmethod subsetp ((set1 list) (set2 list) &key (test #'equalp) key)
   (cl:subsetp set1 set2 :test test :key key))
 
 
 (defmethod adjoin (item (set list) &key (test #'equalp) key)
-  (cl:adjoin item set :test test :key key))
+  (cl:adjoin item set :test test :key (or key #'identity)))
 
 (defmethod nadjoin (item (set list) &key (test #'equalp) key)
-  (cl:adjoin item set :test test :key key))
+  (cl:adjoin item set :test test :key (or key #'identity)))
 
 
 (defmethod intersection ((set1 list) (set2 list) &key (test #'equalp) key)
