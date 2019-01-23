@@ -30,11 +30,44 @@
 
 ;;; Element Access
 
-(defmethod first (sequence)
-  (at (iterator sequence)))
+;; ELT
 
-(defmethod last (sequence)
-  (at (iterator sequence :from-end t)))
+(defmethod elt (sequence index)
+  "Returns the element at index INDEX of the generic sequence SEQUENCE.
+
+   This is implemented by creating an iterator for sequence with start
+   position INDEX, and returning the first element returned by the
+   iterator."
+
+  (at (iterator sequence :start index)))
+
+(defmethod (setf elt) (value sequence index)
+  "Sets the value of the element at index INDEX of the generic
+   sequence SEQUENCE.
+
+   This is implemented by creating an iterator for sequence with start
+   position INDEX, and setting the value of the element at the
+   iterator's starting position."
+
+  (setf (at (iterator sequence :start index)) value))
+
+
+;; FIRST
+
+(defmethod first (sequence)
+  "Returns the first element of the generic sequence. Implemented
+   using ELT."
+
+  (elt sequence 0))
+
+
+;; LAST
+
+(defmethod last (sequence &optional (n 0))
+  "Returns the nth element from the last element of the generic
+   sequence. Implemented using ELT and LENGTH."
+
+  (elt sequence (cl:- (length sequence) 1 n)))
 
 
 ;;; Length

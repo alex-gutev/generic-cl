@@ -144,20 +144,66 @@
 	     `(ok ,form (format nil "~s" ',form))))
 
   (subtest "Test Sequence Functions"
-    (subtest "Test FIRST and LAST"
-      (is (first '(1 2 3 4)) 1)
-      (is (first #(a b c d)) 'a)
-      (is (first (make-list-wrapper :list '(x y z))) 'x)
-
-      (is (last '(1 2 3 4)) 4)
-      (is (last #(a b c d)) 'd)
-      (is (last (make-list-wrapper :list '(x y z))) 'z))
-
     (subtest "Test LENGTH"
       (is (length '(1 2 3 4)) 4)
       (is (length #(a b c d e)) 5)
       (is (length (make-array 7 :adjustable t :initial-element 0 :fill-pointer 3)) 3)
       (is (length (alist-hash-map '((a . 1) (b . 2) (c . 3)))) 3))
+
+    (subtest "Test ELT"
+      (loop for i below 4
+	 do
+	   (diag (format nil "Index = ~s" i))
+	   (is (elt '(1 2 3 4) i) (cl:elt '(1 2 3 4) i))
+	   (is (elt #(a b c d) i) (cl:elt #(a b c d) i))
+	   (is (elt #2A((1 2) (3 4)) i) (row-major-aref #2A((1 2) (3 4)) i))
+	   (is (elt (list-wrap 'w 'x 'y 'z) i) (nth i '(w x y z)))))
+
+    (subtest "Test (SETF ELT)"
+      (alet (list 1 2 3 4)
+	(is (setf (elt it 2) 'x) 'x)
+	(is it '(1 2 x 4)))
+
+      (alet (vector 1 2 3 4)
+	(is (setf (elt it 1) 'x) 'x)
+	(is it #(1 x 3 4) :test #'equalp))
+
+      (alet (make-array '(2 2) :initial-contents '((1 2) (3 4)))
+	(is (setf (elt it 3) 'a) 'a)
+	(is (setf (elt it 0) 'b) 'b)
+	(is it #2A((b 2) (3 a)) :test #'equalp))
+
+      (alet (list-wrap 1 2 3 4)
+	(is (setf (elt it 2) 'z) 'z)
+	(is it (list-wrap 1 2 'z 4) :test #'equalp)))
+
+    (subtest "Test FIRST"
+      (is (first '(1 2 3 4)) 1)
+      (is (first #(a b c d)) 'a)
+      (is (first #2A((1 2) (3 4))) 1)
+      (is (first (list-wrap 'x 'y 'z)) 'x))
+
+    (subtest "Test LAST"
+      (is (last '(1 2 3 4)) 4)
+      (is (last #(a b c d)) 'd)
+      (is (last #2A((1 2) (3 4))) 4)
+      (is (last (list-wrap 'x 'y 'z)) 'z)
+
+      (macrolet ((test-last (seq n)
+		   `(is (last ,seq ,n) (elt ,seq (- (length ,seq) 1 ,n)))))
+	(loop for n below 4
+	   do
+	     (diag (format nil "N = ~s" n))
+	     (test-last '(1 2 3 4) n)
+	     (test-last #(a b c d) n)
+	     (test-last #2A((1 2) (3 4)) n)
+	     (test-last (list-wrap 'w 'x 'y 'z) n))))
+
+    (subtest "Test LASTCDR"
+      (let ((list '(1 2 3 4)))
+	(is (lastcdr list) (cl:last list) :test #'eq)
+	(is (lastcdr list 1) (cl:last list 1) :test #'eq)
+	(is (lastcdr list 3) (cl:last list 3) :test #'eq)))
 
     (subtest "Test SUBSEQ"
       (diag "CL Sequences")

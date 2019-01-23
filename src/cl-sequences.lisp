@@ -29,11 +29,26 @@
 
 ;;; Element Access
 
+;; ELT
+
 (defmethod elt ((sequence sequence) index)
   (cl:elt sequence index))
 
 (defmethod (setf elt) (value (sequence sequence) index)
   (setf (cl:elt sequence index) value))
+
+
+(defmethod elt ((vec vector) index)
+  (cl:elt vec index))
+
+(defmethod (setf elt) (value (vec vector) index)
+  (setf (cl:elt vec index) value))
+
+(defmethod elt ((array array) index)
+  (row-major-aref array index))
+
+(defmethod (setf elt) (value (array array) index)
+  (setf (row-major-aref array index) value))
 
 
 (defmethod first ((list list))
@@ -46,15 +61,21 @@
   (row-major-aref array 0))
 
 
-(defmethod last ((list list))
-  (lastcar list))
+(defmethod last ((list list) &optional (n 0))
+  (car (cl:last list (cl:1+ n))))
 
-(defmethod last ((vec vector))
-  (aref vec (1- (length vec))))
+(defmethod last ((vec vector) &optional (n 0))
+  (aref vec (cl:- (length vec) 1 n)))
 
-(defmethod last ((array array))
-  (row-major-aref array (1- (array-total-size array))))
+(defmethod last ((array array) &optional (n 0))
+  (row-major-aref array (cl:- (array-total-size array) 1 n)))
 
+
+(defun lastcdr (list &optional (n 1))
+  "Equivalent to CL:LAST. Returns the CDR of the N'th CONS cell from
+   the last CONS cell in LIST."
+
+  (cl:last list n))
 
 ;;; Length
 

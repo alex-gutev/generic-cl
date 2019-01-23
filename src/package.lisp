@@ -175,7 +175,7 @@
 
    ;; Sequences
    :elt :length :subseq
-   :first :last
+   :first :last :lastcdr
    :erase
 
    :map :nmap :map-into :map-to :foreach
