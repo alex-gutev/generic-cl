@@ -510,8 +510,11 @@
     (flet ((remove-duplicates-hash ()
 	     (let ((items (make-hash-map-table :test test)))
 	       (doseq (item sequence :start start :end end :from-end from-end)
-		 (unless (nth-value 1 (ensure-gethash (funcall key item) items))
-		   (accumulate collector item)))))
+		 (with-custom-hash-table
+		   (let ((key (funcall key item)))
+		    (unless (nth-value 1 (gethash key items))
+		      (setf (gethash key items) t)
+		      (accumulate collector item)))))))
 
 	   (remove-duplicates-list ()
 	     (let ((items nil))

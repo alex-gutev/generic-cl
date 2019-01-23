@@ -104,7 +104,7 @@
     (hash-map map)
     (hash-table (hash-map map))
     #+custom-hash-table-fallback
-    (custom-hash-table (hash-map table))))
+    (custom-hash-table (hash-map map))))
 
 ;;;; Generic Lookup Functions
 
