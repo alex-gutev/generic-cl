@@ -1702,8 +1702,8 @@ Returns true if the map contained an entry with key ~KEY~.
 
 Function: ~HASH-MAP-ALIST MAP~
 
-Returns an association list (~ALIST~) contain all the entries in the
-map ~MAP~.
+Returns an association list (~ALIST~) containing all the entries in
+the map ~MAP~.
 
 **** ALIST-HASH-MAP
 
