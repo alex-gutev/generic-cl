@@ -1690,6 +1690,14 @@ Sets the value of the entry corresponding to the key ~KEY~ in the map
 
 Only a method for ~HASH-MAPS~ and ~HASH-TABLES~ is provided.
 
+**** ERASE Method
+
+Method: ~ERASE (MAP HASH-MAP) KEY~
+
+Removes the entry with key ~KEY~ from ~MAP~.
+
+Returns true if the map contained an entry with key ~KEY~.
+
 **** HASH-MAP-ALIST
 
 Function: ~HASH-MAP-ALIST MAP~
