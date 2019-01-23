@@ -79,7 +79,7 @@
   (subtest "Test Hash Set Functions"
     (subtest "Test EQUALP"
       (is (hash-set 1 2 3 4) (hash-set 1 4 2 3) :test #'equalp)
-      (is (hash-set "abc" #(a b c d)) (hash-set #(a b c d) "abc") :test #'equalp)
+      (is (hash-set "abc" #S(custom-key :slot1 a :slot2 b)) (hash-set #S(custom-key :slot1 a :slot2 b) "abc") :test #'equalp)
 
       (isnt (hash-set 1 2 3 4) (hash-set 1 2 3 4 5) :test #'equalp)
       (isnt (hash-set 1 2 3 4 5) (hash-set 1 2 3 4) :test #'equalp)
@@ -89,13 +89,13 @@
   (subtest "Test Generic Set Functions"
     (subtest "Test MEMBERP"
       (test-set-fn
-       ((set 1 3 "hello" #(a b c) 4 9 15)
+       ((set 1 3 "hello" #S(custom-key :slot1 a :slot2 c) 4 9 15)
 	(empty))
 
        (ok (memberp 1 set))
        (ok (memberp 3 set))
        (ok (memberp "hello" set))
-       (ok (memberp #(a b c) set))
+       (ok (memberp #S(custom-key :slot1 a :slot2 c) set))
        (ok (memberp 4 set))
        (ok (memberp 9 set))
        (ok (memberp 15 set))
@@ -106,9 +106,9 @@
 
     (subtest "Test SUBSETP"
       (test-set-fn
-       ((super 1 3 "hello" #(a b c) 4 9 15)
+       ((super 1 3 "hello" #S(custom-key :slot1 a :slot2 c) 4 9 15)
 	(sub1 1 9 "hello")
-	(sub2 #(a b c) 15)
+	(sub2 #S(custom-key :slot1 a :slot2 c) 15)
 	(sub3 3)
 	(not-sub 1 3 4 5)
 	(empty))
@@ -128,41 +128,41 @@
     (subtest "Test ADJOIN Functions"
       (subtest "Test ADJOIN"
 	(test-set-fn
-	 ((elems 1 2 3 "hello" #(a b))
-	  (res 1 2 3 4 "hello" #(a b)))
+	 ((elems 1 2 3 "hello" #S(custom-key :slot1 a :slot2 b))
+	  (res 1 2 3 4 "hello" #S(custom-key :slot1 a :slot2 b)))
 
 	 (test-not-modified
 	  ((set elems))
 	  (is-set (adjoin 4 set) res)))
 
 	(test-set-fn
-	 ((set 1 2 3 "hello" #(a b))
+	 ((set 1 2 3 "hello" #S(custom-key :slot1 a :slot2 b))
 	  (empty)
 	  (res 1))
 
-	 (is-set (adjoin #(a b) set) set)
+	 (is-set (adjoin #S(custom-key :slot1 a :slot2 b) set) set)
 	 (is-set (adjoin 1 empty) res)))
 
       (subtest "Test NADJOIN"
 	(test-set-fn
-	 ((set 1 2 3 "hello" #(a b))
-	  (res1 1 2 3 4 "hello" #(a b))
+	 ((set 1 2 3 "hello" #S(custom-key :slot1 a :slot2 b))
+	  (res1 1 2 3 4 "hello" #S(custom-key :slot1 a :slot2 b))
 
 	  (empty)
 	  (res2 1))
 
 	 (is-set (nadjoin 4 set) res1)
-	 (is-set (nadjoin #(a b) set) set)
+	 (is-set (nadjoin #S(custom-key :slot1 a :slot2 b) set) set)
 	 (is-set (nadjoin 1 empty) res2))))
 
     (subtest "Test INTERSECTION Functions"
       (subtest "Test INTERSECTION"
 	(test-set-fn
-	 ((elems1 1 2 3 #(1 2) #(a b c) "hello")
-	  (elems2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (elems3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((elems1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (elems2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (elems3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res 3 #(1 2) "hello"))
+	  (res 3 #S(custom-key :slot1 1 :slot2 2) "hello"))
 
 	 ;; Test non-empty intersection
 
@@ -216,11 +216,11 @@
 
       (subtest "Test NINTERSECTION"
 	(test-set-fn
-	 ((set1 1 2 3 #(1 2) #(a b c) "hello")
-	  (set2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (set3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((set1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (set2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (set3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res 3 #(1 2) "hello"))
+	  (res 3 #S(custom-key :slot1 1 :slot2 2) "hello"))
 
 	 ;; Test non-empty intersection
 	 (is-set (nintersection set1 set2) res)
@@ -238,12 +238,12 @@
     (subtest "Test SET-DIFFERENCE Functions"
       (subtest "Test SET-DIFFERENCE"
 	(test-set-fn
-	 ((elems1 1 2 3 #(1 2) #(a b c) "hello")
-	  (elems2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (elems3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((elems1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (elems2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (elems3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res1 1 2 #(a b c))
-	  (res2 6 9 "world" #(a b)))
+	  (res1 1 2 #S(custom-key :slot1 a :slot2 c))
+	  (res2 6 9 "world" #S(custom-key :slot1 a :slot2 b)))
 
 	 ;; Test set-difference with common elements
 
@@ -301,12 +301,12 @@
 
       (subtest "Test NSET-DIFFERENCE"
 	(test-set-fn
-	 ((set1 1 2 3 #(1 2) #(a b c) "hello")
-	  (set2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (set3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((set1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (set2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (set3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res1 1 2 #(a b c))
-	  (res2 6 9 "world" #(a b)))
+	  (res1 1 2 #S(custom-key :slot1 a :slot2 c))
+	  (res2 6 9 "world" #S(custom-key :slot1 a :slot2 b)))
 
 	 ;; Test set-difference with common elements
 	 (is-set (nset-difference set1 set2) res1)
@@ -327,12 +327,12 @@
     (subtest "Test SET-EXCLUSIVE-OR Functions"
       (subtest "Test SET-EXCLUSIVE-OR"
 	(test-set-fn
-	 ((elems1 1 2 3 #(1 2) #(a b c) "hello")
-	  (elems2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (elems3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((elems1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (elems2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (elems3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res1 1 2 6 9 "world" #(a b c) #(a b))
-	  (res2 1 2 3 4 5 #(1 2) #(1 2 3) #(a b) #(a b c) "hello" "Hello"))
+	  (res1 1 2 6 9 "world" #S(custom-key :slot1 a :slot2 c) #S(custom-key :slot1 a :slot2 b))
+	  (res2 1 2 3 4 5 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) #S(custom-key :slot1 a :slot2 c) "hello" "Hello"))
 
 	 ;; Test set-exclusive-or with common elements
 
@@ -390,12 +390,12 @@
 
       (subtest "Test NSET-EXCLUSIVE-OR"
 	(test-set-fn
-	 ((set1 1 2 3 #(1 2) #(a b c) "hello")
-	  (set2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (set3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((set1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (set2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (set3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res1 1 2 6 9 "world" #(a b c) #(a b))
-	  (res2 1 2 3 4 5 #(1 2) #(1 2 3) #(a b) #(a b c) "hello" "Hello"))
+	  (res1 1 2 6 9 "world" #S(custom-key :slot1 a :slot2 c) #S(custom-key :slot1 a :slot2 b))
+	  (res2 1 2 3 4 5 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) #S(custom-key :slot1 a :slot2 c) "hello" "Hello"))
 
 	 ;; Test set-exclusive-or with common elements
 	 (is-set (nset-exclusive-or set1 set2) res1)
@@ -416,12 +416,12 @@
     (subtest "Test UNION Functions"
       (subtest "Test UNION"
 	(test-set-fn
-	 ((elems1 1 2 3 #(1 2) #(a b c) "hello")
-	  (elems2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (elems3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((elems1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (elems2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (elems3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res1 1 2 3 6 9 #(1 2) #(a b) #(a b c) "hello" "world")
-	  (res2 1 2 3 4 5 #(1 2) #(1 2 3) #(a b) #(a b c) "hello" "Hello"))
+	  (res1 1 2 3 6 9 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b) #S(custom-key :slot1 a :slot2 c) "hello" "world")
+	  (res2 1 2 3 4 5 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) #S(custom-key :slot1 a :slot2 c) "hello" "Hello"))
 
 	 ;; Test union with common elements
 
@@ -479,12 +479,12 @@
 
       (subtest "Test NUNION"
 	(test-set-fn
-	 ((set1 1 2 3 #(1 2) #(a b c) "hello")
-	  (set2 3 6 9 "hello" "world" #(1 2) #(a b))
-	  (set3 4 5 #(1 2 3) #(a b) "Hello")
+	 ((set1 1 2 3 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 c) "hello")
+	  (set2 3 6 9 "hello" "world" #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b))
+	  (set3 4 5 #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) "Hello")
 	  (empty)
-	  (res1 1 2 3 6 9 #(1 2) #(a b) #(a b c) "hello" "world")
-	  (res2 1 2 3 4 5 #(1 2) #(1 2 3) #(a b) #(a b c) "hello" "Hello"))
+	  (res1 1 2 3 6 9 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 a :slot2 b) #S(custom-key :slot1 a :slot2 c) "hello" "world")
+	  (res2 1 2 3 4 5 #S(custom-key :slot1 1 :slot2 2) #S(custom-key :slot1 2 :slot2 3) #S(custom-key :slot1 a :slot2 b) #S(custom-key :slot1 a :slot2 c) "hello" "Hello"))
 
 	 ;; Test union with common elements
 	 (is-set (nunion set1 set2) res1)

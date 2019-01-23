@@ -124,20 +124,20 @@
       (is (get 'c map) 3)
 
       (setf (get (make-custom-key :slot1 5 :slot2 'x) map) "hello")
-      (is (get #S(custom-key slot1 5 slot2 x) map) "hello")
+      (is (get #S(custom-key :slot1 5 :slot2 x) map) "hello")
 
       (is (length map) 4)
 
       (is (hash-map-alist map)
-	  '((a . 1) (b . 2) (c . 3) (#S(custom-key slot1 5 slot2 x) . "hello"))
+	  '((a . 1) (b . 2) (c . 3) (#S(custom-key :slot1 5 :slot2 x) . "hello"))
 	  :test (rcurry #'set-equal :test #'equalp))
 
       (is (coerce map 'alist)
-	  '((a . 1) (b . 2) (c . 3) (#S(custom-key slot1 5 slot2 x) . "hello"))
+	  '((a . 1) (b . 2) (c . 3) (#S(custom-key :slot1 5 :slot2 x) . "hello"))
 	  :test (rcurry #'set-equal :test #'equalp))
 
       (is (plist-alist (coerce map 'plist))
-	  '((a . 1) (b . 2) (c . 3) (#S(custom-key slot1 5 slot2 x) . "hello"))
+	  '((a . 1) (b . 2) (c . 3) (#S(custom-key :slot1 5 :slot2 x) . "hello"))
 	  :test (rcurry #'set-equal :test #'equalp)))))
 
 (subtest "Test Non-Generic Hash-Tables"
@@ -151,7 +151,7 @@
       (setf (get "mary" map) 3)
 
       (is-values (get key map) '(a t))
-      (is-values (get #S(custom-key slot1 1 slot2 2) map) '(nil nil))
+      (is-values (get #S(custom-key :slot1 1 :slot2 2) map) '(nil nil))
       (is-values (get "ALEX" map) '(nil nil))
       (is-values (get "ALEX" map 5) '(5 nil))
 
@@ -188,7 +188,7 @@
 
 (subtest "Test ALISTS and PLISTS"
   (subtest "Test ALISTS"
-    (let ((alist '((#S(custom-key slot1 5 slot2 7) . 1) (a . 3) (#(b c) . "x"))))
+    (let ((alist '((#S(custom-key :slot1 5 :slot2 7) . 1) (a . 3) (#(b c) . "x"))))
       (is-values (get (make-custom-key :slot1 5 :slot2 7) alist) '(1 t))
       (is-values (get 'a alist) '(3 t))
       (is-values (get #(b c) alist) '("x" t))
