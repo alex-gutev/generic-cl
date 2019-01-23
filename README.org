@@ -1108,7 +1108,7 @@ argument, to ~MAKE-SEQUENCE-OF-TYPE~, and the ~CDR~ is passed as the
 second argument. Otherwise, if ~TYPE~ is not a list, it is passed as
 the first argument and ~NIL~ is passed as the second argument.
 
-**** Element Access
+**** Sequence Elements
 
 ***** ELT
 
@@ -1212,6 +1212,27 @@ Function: ~LASTCDR LIST &OPTIONAL (N 1)~
 This function is equivalent to ~CL:LAST~ list function.
 
 Returns the ~CDR~ of the ~N~'th ~CONS~ cell from the end of the list.
+
+***** ERASE
+
+Generic Function: ~ERASE SEQUENCE INDEX~
+
+Removes the element at index ~INDEX~ from the sequence ~SEQUENCE~.
+
+Destructively modifies ~SEQUENCE~.
+
+Methods:
+
+   - ~VECTOR T~
+
+     Shifts the elements following ~INDEX~ one elements towards the
+     front of the vector and shrinks the vector by one element.
+
+     *Note:* Signals a ~TYPE-ERROR~ if the vector is not adjustable.
+
+*Note:* This method is not implemented for lists as remove the first
+element of a list cannot be implemented (efficiently) as a side effect
+alone.
 
 **** Length
 
