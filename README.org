@@ -362,11 +362,24 @@ The comparisons are performed by [[#greaterp][GREATERP]]. Any one of the argumen
 which is greater than or equal to the other arguments may be returned.
 
 *** Arithmetic
+    :PROPERTIES:
+    :CUSTOM_ID: arithmetic
+    :END:
 
 The arithmetic interface provides generic functions for arithmetic
 operations.
 
+[[#add][ADD]], [[#subtract][SUBTRACT]], [[#multiply][MULTIPLY]], [[#divide][DIVIDE]] are the generic binary arithmetic
+functions, and [[#negate][NEGATE]] is the generic unary negation function, to
+implement for user-defined types.
+
+[[#add-nary][+]], [[#subtract-nary][-]], [[#multiply-nary][*]], [[#divide-nary][/]] are the n-ary arithmetic functions similar to the functions
+with the same names in the ~COMMON-LISP~ package.
+
 **** ADD
+     :PROPERTIES:
+     :CUSTOM_ID: add
+     :END:
 
 Generic Function: ~ADD A B~
 
@@ -379,10 +392,13 @@ Methods:
      Returns ~(CL:+ A B)~.
 
 **** SUBTRACT
+     :PROPERTIES:
+     :CUSTOM_ID: subtract
+     :END:
 
 Generic Function: ~SUBTRACT A B~
 
-Returns the sum of ~A~ and ~B~.
+Returns the difference of ~A~ and ~B~.
 
 Methods:
 
@@ -391,10 +407,13 @@ Methods:
      Returns ~(CL:- A B)~.
 
 **** MULTIPLY
+     :PROPERTIES:
+     :CUSTOM_ID: multiply
+     :END:
 
 Generic Function: ~MULTIPLY A B~
 
-Returns the sum of ~A~ and ~B~.
+Returns the product of ~A~ and ~B~.
 
 Methods:
 
@@ -403,11 +422,14 @@ Methods:
      Returns ~(CL:* A B)~.
 
 **** DIVIDE
+     :PROPERTIES:
+     :CUSTOM_ID: divide
+     :END:
 
 Generic Function: ~DIVIDE A B~
 
-Returns the sum of ~A~ and ~B~. If ~A~ is the constant ~1~, the result
-should be the reciprocal of ~B~.
+Returns the quotient of ~A~ and ~B~. If ~A~ is the constant ~1~, the
+result should be the reciprocal of ~B~.
 
 Methods:
 
@@ -416,6 +438,9 @@ Methods:
      Returns ~(CL:/ A B)~.
 
 **** NEGATE
+     :PROPERTIES:
+     :CUSTOM_ID: negate
+     :END:
 
 Generic Function: ~NEGATE A~
 
@@ -428,46 +453,61 @@ Methods:
      Returns ~(CL:- A)~.
 
 **** +
+     :PROPERTIES:
+     :CUSTOM_ID: add-nary
+     :END:
 
 Function: ~+ X &REST XS~
 
 Returns the sum of all the arguments, computed by reducing over the
-argument list with the ~ADD~ function.
+argument list with the [[#add][ADD]] function.
 
 If no arguments are provided, ~0~ is returned. If a single argument is
 provided it is returned.
 
 **** -
+     :PROPERTIES:
+     :CUSTOM_ID: subtract-nary
+     :END:
 
 Function: ~- X &REST XS~
 
 Returns the difference of all the arguments, computed by reducing over
-the argument list with the ~SUBTRACT~ function.
+the argument list with the [[#subtract][SUBTRACT]] function.
 
 If only a single argument is provided the negation of that argument is
-returned, by the ~NEGATE~ function.
+returned, by the [[#negate][NEGATE]] function.
 
 **** *
+     :PROPERTIES:
+     :CUSTOM_ID: multiply-nary
+     :END:
 
 Function: ~* X &REST XS~
 
 Returns the product of all the arguments, computed by reducing over
-the argument list with the ~MULTIPLY~ function.
+the argument list with the [[#multiply][MULTIPLY]] function.
 
 If no arguments are provided, ~1~ is returned. If a single argument is
 provided it is returned.
 
 **** /
+     :PROPERTIES:
+     :CUSTOM_ID: divide-nary
+     :END:
 
 Function: ~/ X &REST XS~
 
 Returns the quotient of all the arguments, computed by reducing over
-the argument list with the ~DIVIDE~ function.
+the argument list with the [[#divide][DIVIDE]] function.
 
-If only a single argument is provided it, the reciprocal of that
-argument, ~(DIVIDE 1 X)~, is returned.
+If only a single argument is provided, the reciprocal of the argument,
+~(DIVIDE 1 X)~, is returned.
 
 **** 1+
+     :PROPERTIES:
+     :CUSTOM_ID: add-1
+     :END:
 
 Generic Function: ~1+ A~
 
@@ -484,6 +524,9 @@ Methods:
      Returns ~(ADD A 1)~.
 
 **** 1-
+     :PROPERTIES:
+     :CUSTOM_ID: subtract-1
+     :END:
 
 Generic Function: ~1- A~
 
@@ -500,11 +543,14 @@ Methods:
      Returns ~(SUBTRACT A 1)~.
 
 **** INCF
+     :PROPERTIES:
+     :CUSTOM_ID: incf
+     :END:
 
 Macro: ~INCF PLACE &OPTIONAL (DELTA 1)~
 
 Increments the value of ~PLACE~ by ~DELTA~, which defaults to ~1~,
-using the ~ADD~ function.
+using the [[#add][ADD]] function.
 
 Effectively:
 
@@ -513,11 +559,14 @@ Effectively:
 #+END_SRC
 
 **** DECF
+     :PROPERTIES:
+     :CUSTOM_ID: decf
+     :END:
 
 Macro: ~DECF PLACE &OPTIONAL (DELTA 1)~
 
 Decrements the value of ~PLACE~ by ~DELTA~, which defaults to ~1~,
-using the ~SUBTRACT~ function.
+using the [[#subtract][SUBTRACT]] function.
 
 Effectively:
 
@@ -526,6 +575,9 @@ Effectively:
 #+END_SRC
 
 **** MINUSP
+     :PROPERTIES:
+     :CUSTOM_ID: minusp
+     :END:
 
 Generic Function: ~MINUSP A~
 
@@ -539,13 +591,16 @@ Methods:
 
    - ~T~
 
-     Returns true if ~A~ compares less than ~0~, by ~LESSP~.
+     Returns true if ~A~ compares less than ~0~, by [[#lessp][LESSP]].
 
      #+BEGIN_SRC lisp
      (lessp a 0)
      #+END_SRC
 
 **** PLUSP
+     :PROPERTIES:
+     :CUSTOM_ID: plusp
+     :END:
 
 Generic Function: ~PLUSP A~
 
@@ -559,13 +614,16 @@ Methods:
 
    - ~T~
 
-     Returns true if ~A~ compares greater than ~0~, by ~GREATERP~.
+     Returns true if ~A~ compares greater than ~0~, by [[#greaterp][GREATERP]].
 
      #+BEGIN_SRC lisp
      (greaterp a 0)
      #+END_SRC
 
 **** ZEROP
+     :PROPERTIES:
+     :CUSTOM_ID: zerop
+     :END:
 
 Generic Function: ~ZEROP A~
 
@@ -579,13 +637,16 @@ Methods:
 
    - ~T~
 
-     Returns true if ~A~ is equal to ~0~, by ~EQUALP~.
+     Returns true if ~A~ is equal to ~0~, by [[#equalp][EQUALP]].
 
      #+BEGIN_SRC lisp
      (equalp a 0)
      #+END_SRC
 
 **** SIGNUM
+     :PROPERTIES:
+     :CUSTOM_ID: signum
+     :END:
 
 Generic Function: ~SIGNUM A~
 
@@ -604,6 +665,9 @@ Methods:
      ~1~ otherwise.
 
 **** ABS
+     :PROPERTIES:
+     :CUSTOM_ID: abs
+     :END:
 
 Generic Function: ~ABS A~
 
@@ -627,6 +691,9 @@ Methods:
      #+END_SRC
 
 **** EVENP
+     :PROPERTIES:
+     :CUSTOM_ID: evenp
+     :END:
 
 Generic Function: ~EVENP A~
 
@@ -643,6 +710,9 @@ Methods:
      Returns ~(ZEROP (MOD A 2))~
 
 **** ODDP
+     :PROPERTIES:
+     :CUSTOM_ID: oddp
+     :END:
 
 Generic Function: ~ODDP A~
 
@@ -658,14 +728,17 @@ Methods:
 
      Returns ~(NOT (EVENP A))~
 
-
 **** FLOOR
+     :PROPERTIES:
+     :CUSTOM_ID: floor
+     :END:
 
 Generic Function: ~FLOOR N D~
 
-Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards negative
-infinity, as the first value, and the remainder of the division if
-any, as the second return value.
+Performs the division ~N/D~ if ~D~ is provided, otherwise equivalent
+to ~N/1~, and returns the result rounded towards negative infinity as
+the first value, and the remainder ~N - result * D~ as the second return
+value.
 
 Methods:
 
@@ -675,12 +748,15 @@ Methods:
      ~(CL:FLOOR N)~.
 
 **** CEILING
+     :PROPERTIES:
+     :CUSTOM_ID: ceiling
+     :END:
 
 Generic Function: ~CEILING N D~
 
-Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards positive
-infinity, as the first value, and the remainder of the division if
-any, as the second return value.
+Performs the division ~N/D~ if ~D~ is provided, otherwise equivalent
+to ~N/1~, and returns the result rounded towards positive infinity as
+the first value, and the ~N - result * D~ as the second return value.
 
 Methods:
 
@@ -690,12 +766,15 @@ Methods:
      ~(CL:CEILING N)~.
 
 **** TRUNCATE
+     :PROPERTIES:
+     :CUSTOM_ID: truncate
+     :END:
 
 Generic Function: ~TRUNCATE N D~
 
-Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards zero, as the
-first value, and the remainder of the division if any, as the second
-return value.
+Performs the division ~N/D~ if ~D~ is provided, otherwise equivalent
+to ~N/1~, and returns the result rounded towards zero as the first
+value, and the remainder ~N - result * D~ as the second return value.
 
 Methods:
 
@@ -705,13 +784,19 @@ Methods:
      ~(CL:TRUNCATE N)~.
 
 **** ROUND
+     :PROPERTIES:
+     :CUSTOM_ID: round
+     :END:
 
 Generic Function: ~ROUND N D~
 
-Returns ~N~, or ~N/D~ if ~D~ is provided, rounded towards the nearest
-integer. If ~N~, or ~N/D~, lies exactly halfway between two integers,
-it is rounded to the nearest even integer. The remainder of the
-division if any, is returned as the second return value.
+Performs the division ~N/D~ if ~D~ is provided, otherwise equivalent
+to ~N/1~, and returns the result rounded towards the nearest integer
+as the first value, and the remainder ~N - result * D~ as the second
+return value.
+
+If the result lies exactly halfway between two integers, it is rounded
+to the nearest even integer.
 
 Methods:
 
@@ -721,10 +806,13 @@ Methods:
      ~(CL:ROUND N)~.
 
 **** MOD
+     :PROPERTIES:
+     :CUSTOM_ID: mod
+     :END:
 
 Generic Function: ~MOD N D~
 
-Returns the remainder of the ~FLOOR~ operation on ~N~ and ~D~.
+Returns the remainder of the [[#floor][FLOOR]] operation on ~N~ and ~D~.
 
 Methods:
 
@@ -737,10 +825,13 @@ Methods:
      Returns the second return value of ~(FLOOR N D)~.
 
 **** REM
+     :PROPERTIES:
+     :CUSTOM_ID: rem
+     :END:
 
 Generic Function: ~REM N D~
 
-Returns the remainder of the ~TRUNCATE~ operation on ~N~ and ~D~.
+Returns the remainder of the [[#truncate][TRUNCATE]] operation on ~N~ and ~D~.
 
 Methods:
 

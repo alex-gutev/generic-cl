@@ -5,23 +5,23 @@ GENERIC-CL provides a generic function wrapper over various functions in the Com
 
 # Table of Contents
 
-1.  [GENERIC-CL](#org4ec875c)
-    1.  [Usage](#orge79c52e)
-    2.  [Generic Interfaces](#org2dd3697)
+1.  [GENERIC-CL](#generic-cl)
+    1.  [Usage](#generic-cl-usage)
+    2.  [Generic Interfaces](#interfaces)
         1.  [Equality](#equality)
-        2.  [Comparison](#org6d4600e)
-        3.  [Arithmetic](#org3110b14)
-        4.  [Objects](#org0ba52f1)
-        5.  [Iterator](#orgf7c951e)
+        2.  [Comparison](#comparison)
+        3.  [Arithmetic](#arithmetic)
+        4.  [Objects](#org5ed408a)
+        5.  [Iterator](#orga08fb97)
         6.  [Collector](#collector)
-        7.  [Sequences](#orgcecb05b)
-        8.  [Generic Hash-Tables](#org5af77e8)
-        9.  [Set Operations](#orgd350f03)
-        10. [Math Functions](#orgb29ad22)
-    3.  [Optimization](#org7cc6579)
+        7.  [Sequences](#orgd690908)
+        8.  [Generic Hash-Tables](#org04b26f0)
+        9.  [Set Operations](#orgd93f3b9)
+        10. [Math Functions](#org41fbc1a)
+    3.  [Optimization](#orgaa6253c)
 
 
-<a id="orge79c52e"></a>
+<a id="generic-cl-usage"></a>
 
 ## Usage
 
@@ -30,7 +30,7 @@ The generic function interface is contained in the `GENERIC-CL` package. This pa
 The `GENERIC-CL-USER` is also provided, which contains all the symbols in the `CL-USER` package and `GENERIC-CL`. This package is intended to be used only at the REPL.
 
 
-<a id="org2dd3697"></a>
+<a id="interfaces"></a>
 
 ## Generic Interfaces
 
@@ -111,7 +111,7 @@ Function: `= X &REST XS`
 Returns true if at least one object in `XS` is not equal (by `EQUALP`) to `X`.
 
 
-<a id="org6d4600e"></a>
+<a id="comparison"></a>
 
 ### Comparison
 
@@ -311,12 +311,18 @@ Returns the maximum argument.
 The comparisons are performed by [GREATERP](#greaterp). Any one of the arguments which is greater than or equal to the other arguments may be returned.
 
 
-<a id="org3110b14"></a>
+<a id="arithmetic"></a>
 
 ### Arithmetic
 
 The arithmetic interface provides generic functions for arithmetic operations.
 
+[ADD](#add), [SUBTRACT](#subtract), [MULTIPLY](#multiply), [DIVIDE](#divide) are the generic binary arithmetic functions, and [NEGATE](#negate) is the generic unary negation function, to implement for user-defined types.
+
+[+](#add-nary), [-](#subtract-nary), [\*](#multiply-nary), [/](#divide-nary) are the n-ary arithmetic functions similar to the functions with the same names in the `COMMON-LISP` package.
+
+
+<a id="add"></a>
 
 #### ADD
 
@@ -331,11 +337,13 @@ Methods:
     Returns `(CL:+ A B)`.
 
 
+<a id="subtract"></a>
+
 #### SUBTRACT
 
 Generic Function: `SUBTRACT A B`
 
-Returns the sum of `A` and `B`.
+Returns the difference of `A` and `B`.
 
 Methods:
 
@@ -344,11 +352,13 @@ Methods:
     Returns `(CL:- A B)`.
 
 
+<a id="multiply"></a>
+
 #### MULTIPLY
 
 Generic Function: `MULTIPLY A B`
 
-Returns the sum of `A` and `B`.
+Returns the product of `A` and `B`.
 
 Methods:
 
@@ -357,11 +367,13 @@ Methods:
     Returns `(CL:* A B)`.
 
 
+<a id="divide"></a>
+
 #### DIVIDE
 
 Generic Function: `DIVIDE A B`
 
-Returns the sum of `A` and `B`. If `A` is the constant `1`, the result should be the reciprocal of `B`.
+Returns the quotient of `A` and `B`. If `A` is the constant `1`, the result should be the reciprocal of `B`.
 
 Methods:
 
@@ -369,6 +381,8 @@ Methods:
     
     Returns `(CL:/ A B)`.
 
+
+<a id="negate"></a>
 
 #### NEGATE
 
@@ -383,40 +397,48 @@ Methods:
     Returns `(CL:- A)`.
 
 
+<a id="add-nary"></a>
+
 #### +
 
 Function: `+ X &REST XS`
 
-Returns the sum of all the arguments, computed by reducing over the argument list with the `ADD` function.
+Returns the sum of all the arguments, computed by reducing over the argument list with the [ADD](#add) function.
 
 If no arguments are provided, `0` is returned. If a single argument is provided it is returned.
 
+
+<a id="subtract-nary"></a>
 
 #### -
 
 Function: `- X &REST XS`
 
-Returns the difference of all the arguments, computed by reducing over the argument list with the `SUBTRACT` function.
+Returns the difference of all the arguments, computed by reducing over the argument list with the [SUBTRACT](#subtract) function.
 
-If only a single argument is provided the negation of that argument is returned, by the `NEGATE` function.
+If only a single argument is provided the negation of that argument is returned, by the [NEGATE](#negate) function.
 
+
+<a id="multiply-nary"></a>
 
 #### \*
 
 Function: `* X &REST XS`
 
-Returns the product of all the arguments, computed by reducing over the argument list with the `MULTIPLY` function.
+Returns the product of all the arguments, computed by reducing over the argument list with the [MULTIPLY](#multiply) function.
 
 If no arguments are provided, `1` is returned. If a single argument is provided it is returned.
 
+
+<a id="divide-nary"></a>
 
 #### /
 
 Function: `/ X &REST XS`
 
-Returns the quotient of all the arguments, computed by reducing over the argument list with the `DIVIDE` function.
+Returns the quotient of all the arguments, computed by reducing over the argument list with the [DIVIDE](#divide) function.
 
-If only a single argument is provided it, the reciprocal of that argument, `(DIVIDE 1 X)`, is returned.
+If only a single argument is provided, the reciprocal of the argument, `(DIVIDE 1 X)`, is returned.
 
 
 #### 1+
@@ -457,7 +479,7 @@ Methods:
 
 Macro: `INCF PLACE &OPTIONAL (DELTA 1)`
 
-Increments the value of `PLACE` by `DELTA`, which defaults to `1`, using the `ADD` function.
+Increments the value of `PLACE` by `DELTA`, which defaults to `1`, using the [ADD](#add) function.
 
 Effectively:
 
@@ -470,7 +492,7 @@ Effectively:
 
 Macro: `DECF PLACE &OPTIONAL (DELTA 1)`
 
-Decrements the value of `PLACE` by `DELTA`, which defaults to `1`, using the `SUBTRACT` function.
+Decrements the value of `PLACE` by `DELTA`, which defaults to `1`, using the [SUBTRACT](#subtract) function.
 
 Effectively:
 
@@ -493,7 +515,7 @@ Methods:
 
 -   `T`
     
-    Returns true if `A` compares less than `0`, by `LESSP`.
+    Returns true if `A` compares less than `0`, by [LESSP](#lessp).
     
     ```lisp
     (lessp a 0)
@@ -514,7 +536,7 @@ Methods:
 
 -   `T`
     
-    Returns true if `A` compares greater than `0`, by `GREATERP`.
+    Returns true if `A` compares greater than `0`, by [GREATERP](#greaterp).
     
     ```lisp
     (greaterp a 0)
@@ -535,7 +557,7 @@ Methods:
 
 -   `T`
     
-    Returns true if `A` is equal to `0`, by `EQUALP`.
+    Returns true if `A` is equal to `0`, by [EQUALP](#equalp).
     
     ```lisp
     (equalp a 0)
@@ -616,11 +638,13 @@ Methods:
     Returns `(NOT (EVENP A))`
 
 
+<a id="floor"></a>
+
 #### FLOOR
 
 Generic Function: `FLOOR N D`
 
-Returns `N`, or `N/D` if `D` is provided, rounded towards negative infinity, as the first value, and the remainder of the division if any, as the second return value.
+Performs the division `N/D` if `D` is provided, otherwise equivalent to `N/1`, and returns the result rounded towards negative infinity as the first value, and the remainder `N - result * D` as the second return value.
 
 Methods:
 
@@ -633,7 +657,7 @@ Methods:
 
 Generic Function: `CEILING N D`
 
-Returns `N`, or `N/D` if `D` is provided, rounded towards positive infinity, as the first value, and the remainder of the division if any, as the second return value.
+Performs the division `N/D` if `D` is provided, otherwise equivalent to `N/1`, and returns the result rounded towards positive infinity as the first value, and the `N - result * D` as the second return value.
 
 Methods:
 
@@ -642,11 +666,13 @@ Methods:
     Returns `(CL:CEILING N D)` if `D` is provided otherwise returns `(CL:CEILING N)`.
 
 
+<a id="truncate"></a>
+
 #### TRUNCATE
 
 Generic Function: `TRUNCATE N D`
 
-Returns `N`, or `N/D` if `D` is provided, rounded towards zero, as the first value, and the remainder of the division if any, as the second return value.
+Performs the division `N/D` if `D` is provided, otherwise equivalent to `N/1`, and returns the result rounded towards zero as the first value, and the remainder `N - result * D` as the second return value.
 
 Methods:
 
@@ -659,7 +685,9 @@ Methods:
 
 Generic Function: `ROUND N D`
 
-Returns `N`, or `N/D` if `D` is provided, rounded towards the nearest integer. If `N`, or `N/D`, lies exactly halfway between two integers, it is rounded to the nearest even integer. The remainder of the division if any, is returned as the second return value.
+Performs the division `N/D` if `D` is provided, otherwise equivalent to `N/1`, and returns the result rounded towards the nearest integer as the first value, and the remainder `N - result * D` as the second return value.
+
+If the result lies exactly halfway between two integers, it is rounded to the nearest even integer.
 
 Methods:
 
@@ -672,7 +700,7 @@ Methods:
 
 Generic Function: `MOD N D`
 
-Returns the remainder of the `FLOOR` operation on `N` and `D`.
+Returns the remainder of the [FLOOR](#floor) operation on `N` and `D`.
 
 Methods:
 
@@ -689,7 +717,7 @@ Methods:
 
 Generic Function: `REM N D`
 
-Returns the remainder of the `TRUNCATE` operation on `N` and `D`.
+Returns the remainder of the [TRUNCATE](#truncate) operation on `N` and `D`.
 
 Methods:
 
@@ -702,7 +730,7 @@ Methods:
     Returns the second return value of `(TRUNCATE N D)`.
 
 
-<a id="org0ba52f1"></a>
+<a id="org5ed408a"></a>
 
 ### Objects
 
@@ -758,7 +786,7 @@ Coerces `OBJECT` to the type `TYPE`.
 The default (`T T`) method simply calls `CL:COERCE`.
 
 
-<a id="orgf7c951e"></a>
+<a id="orga08fb97"></a>
 
 ### Iterator
 
@@ -996,7 +1024,7 @@ Methods:
     The sequence iteration is done using the iterator interface.
 
 
-<a id="orgcecb05b"></a>
+<a id="orgd690908"></a>
 
 ### Sequences
 
@@ -1415,7 +1443,7 @@ Applies `FUNCTION` on each element of each sequence in `SEQUENCES`.
 Returns `NIL`.
 
 
-<a id="org5af77e8"></a>
+<a id="org04b26f0"></a>
 
 ### Generic Hash-Tables
 
@@ -1535,7 +1563,7 @@ The following `COERCE` methods are provided for `HASH-MAPS`:
     Returns a property list (`PLIST`) containing all the entries in the map.
 
 
-<a id="orgd350f03"></a>
+<a id="orgd93f3b9"></a>
 
 ### Set Operations
 
@@ -1622,7 +1650,7 @@ Returns a new empty `HASH-SET`.
 Accepts the same keyword arguments as `MAKE-HASH-MAP`. The default `TEST` function is `GENERIC-CL:EQUALP`.
 
 
-<a id="orgb29ad22"></a>
+<a id="org41fbc1a"></a>
 
 ### Math Functions
 
@@ -1658,7 +1686,7 @@ Generic function wrappers are provided for the following functions:
 -   `RATIONALIZE`
 
 
-<a id="org7cc6579"></a>
+<a id="orgaa6253c"></a>
 
 ## Optimization
 
