@@ -1878,10 +1878,13 @@ Applies ~FUNCTION~ on each element of each sequence in ~SEQUENCES~.
 Returns ~NIL~.
 
 *** Generic Hash-Tables
+    :PROPERTIES:
+    :CUSTOM_ID: generic-hash-tables
+    :END:
 
 This interface provides a hash-table data structure with the generic
-function ~HASH~ as the hash function and the generic function
-~GENERIC-CL:EQUALP~ as the key comparison function. This allows the
+function [[#hash][HASH]] as the hash function and the generic function
+[[#equalp][GENERIC-CL:EQUALP]] as the key comparison function. This allows the
 hash-tables to utilize keys of user-defined types, whereas the keys of
 standard hash tables are limited to numbers, characters, lists and
 strings.
@@ -1889,23 +1892,32 @@ strings.
 The generic hash-tables are implemented using [[https://github.com/metawilm/cl-custom-hash-table][CL-CUSTOM-HASH-TABLE]]. If
 the Common Lisp implementation supports creating hash-tables with
 user-defined hash and comparison functions, standard hash-tables are
-used. However if the implementation does not support, user-defined has
-and comparison functions, a fallback solution is used, which is a
+used. However if the implementation does not support user-defined
+hash and comparison functions, a fallback solution is used, which is a
 custom hash-table implementation on top of standard hash-tables. The
-~HASH-MAP~ structure wraps the custom hash-table which allows methods
+[[#hash-map][HASH-MAP]] structure wraps the custom hash-table which allows methods
 methods to be specialized on a single type ~HASH-MAP~ regardless of
-whether standard or custom hash-tables are used. Otherwise two
-identical methods would have to be implemented, one specializing on
-standard hash-tables and one specializing on custom hash-tables. More
-identical methods would have to be implemented if the method has
-hash-table specializers for more than one arguments, leading to a
-combinatorial explosion.
+whether standard or custom hash-tables are used. If the ~HASH-MAP~
+wrapper were not used, two identical methods would have to be
+implemented, one specializing on standard hash-tables and one
+specializing on custom hash-tables. More identical methods would have
+to be implemented if the method has hash-table specializers for more
+than one arguments, leading to a combinatorial explosion.
 
 The functions in this interface are specialized on the ~HASH-MAP~
 type, due to the issue described above, thus use this type, created
-with ~MAKE-HASH-MAP~, rather than built-in hash-tables. If a
-hash-table is obtained from an external source, use ~HASH-MAP~ or
-~ENSURE-HASH-MAP~ to convert it to a ~HASH-MAP~.
+with [[#make-hash-map][MAKE-HASH-MAP]], rather than built-in hash-tables. If a hash-table
+is obtained from an external source, use [[#hash-map][HASH-MAP]] or [[#ensure-hash-map][ENSURE-HASH-MAP]]
+to convert it to a ~HASH-MAP~.
+
+*Standard Hash-Table Analogues:*
+
+| ~CL:HASH-TABLE~  | ~HASH-MAP~ |
+|------------------+------------|
+| GETHASH          | GET        |
+| HASH-TABLE-COUNT | LENGTH     |
+| REMHASH          | ERASE      |
+
 
 **** HASH-MAP
      :PROPERTIES:
@@ -1920,41 +1932,49 @@ The ~HASH-MAP~ structure wraps a standard ~HASH-TABLE~ or
 ~CUSTOM-HASH-TABLE~. The ~TABLE~ slot, accessed with ~HASH-MAP-TABLE~,
 stores the underlying hash-table.
 
-The ~HASH-MAP~ function creates a hash-map wrapping ~TABLE~.
+The ~HASH-MAP~ function creates a hash-map wrapping a hash table
+passed as its only argument.
 
 ***** Implemented Interfaces
+      :PROPERTIES:
+      :CUSTOM_ID: hash-map-interfaces
+      :END:
 
 The iterator interface is implemented for ~HASH-MAP~'s. Each element
-returned by the iterator is a ~CONS~' with the key in the ~CAR~ and
-the corresponding value in the ~CDR~. The order in which the entries
-are iterated over is unspecified. Likewise it is unspecified which
-entries will be iterated over if ~START~ or ~END~ is provided, the
-only guarantee being that ~END - START~ entries are iterated over. The
-reverse iterator iterates over the entries in the same order as the
-normal iterator due to the order of iteration being unspecified.
+returned by the iterator is a ~CONS~ with the key in the ~CAR~ and the
+corresponding value in the ~CDR~. The order in which the entries are
+iterated over is unspecified. Likewise it is unspecified which entries
+will be iterated over if ~START~ is non-zero and/or ~END~ is non-NIL,
+the only guarantee being that ~END - START~ entries are iterated
+over. The reverse iterator iterates over the entries in the same order
+as the normal iterator due to the order of iteration being
+unspecified.
 
 The [[#setf-at][(SETF AT)]] method for the ~HASH-MAP~ iterator sets the value
 corresponding to the key of the current entry, being iterated over, to
 the value passed as the argument to ~SETF~.
 
 The collector interface is implemented for ~HASH-MAP~'s. The
-~ACCUMULATE~ method expects a ~CONS~ where the ~CAR~ is the key of the
+[[#accumulate][ACCUMULATE]] method expects a ~CONS~ where the ~CAR~ is the key of the
 entry to create and the ~CDR~ is the corresponding value.
 
-An ~EQUALP~ method is implemented for ~HASH-MAP~'s which returns true
-if both maps contain the same number of ~ENTRIES~ and each key in the
-first map is present in the second map, with the corresponding value
-in the first map equal (by ~EQUALP~) to the corresponding value in the
-second map. *Note:* if the two maps have different test functions,
+An [[#equalp][EQUALP]] method is implemented for ~HASH-MAP~'s which returns true if
+both maps contain the same number of entries and each key in the first
+map is present in the second map, with the corresponding value in the
+first map equal (by ~EQUALP~) to the corresponding value in the second
+map. *Note:* if the two maps have different test functions, the
 ~EQUALP~ is not necessarily symmetric i.e. ~(EQUALP A B)~ does not
 imply ~(EQUALP B A)~.
 
-A ~COPY~ method is implemented for ~HASH-MAPS~ which by default
-creates a new map with the same entries as the original map. If ~:DEEP
-T~ is provided the values (but not the keys) are copied by ~(COPY
-VALUE :DEEP T)~.
+A [[#copy][COPY]] method is implemented for ~HASH-MAP~'s which by default creates
+a new map with the same entries as the original map. If ~:DEEP T~ is
+provided the values (but not the keys) are copied by ~(COPY VALUE
+:DEEP T)~.
 
 **** MAKE-HASH-MAP
+     :PROPERTIES:
+     :CUSTOM_ID: make-hash-map
+     :END:
 
 Function: ~MAKE-HASH-MAP &KEY TEST &ALLOW-OTHER-KEYS~
 
@@ -1962,22 +1982,28 @@ Creates a ~HASH-MAP~ wrapping a hash table with test function ~TEST~,
 which defaults to ~#'GENERIC-CL:EQUALP~.
 
 If ~TEST~ is either the symbol or function ~GENERIC-CL:EQUALP~, then a
-generic hash-table with hash function ~HASH~ and comparison function
-~GENERIC-CL:EQUALP~ is created. Otherwise ~TEST~ may be any of the
+generic hash-table with hash function [[#hash][HASH]] and comparison function
+[[#equalp][GENERIC-CL:EQUALP]] is created. Otherwise ~TEST~ may be any of the
 standard hash-table test specifiers.
 
 The function accepts all additional arguments (including
 implementation specific arguments) accepted by ~CL:MAKE-HASH-TABLE~.
 
 **** ENSURE-HASH-MAP
+     :PROPERTIES:
+     :CUSTOM_ID: ensure-hash-map
+     :END:
 
 Function: ~ENSURE-HASH-MAP THING~
 
-If ~MAP~ is a ~HASH-MAP~ returns it, otherwise if ~MAP~ is a
+If ~MAP~ is a [[#hash-map][HASH-MAP]] returns it, otherwise if ~MAP~ is a
 ~HASH-TABLE~ or ~CUSTOM-HASH-TABLE~ returns a ~HASH-MAP~ which wraps
 it. Signals an error if ~MAP~ is not of the aforementioned types.
 
 **** HASH
+     :PROPERTIES:
+     :CUSTOM_ID: hash
+     :END:
 
 Generic Function: ~HASH OBJECT~
 
@@ -1985,7 +2011,7 @@ Hash function for hash tables with the ~GENERIC-CL:EQUALP~ test
 specifier.
 
 Returns a hash code for ~OBJECT~, which is a non-negative fixnum. If
-two objects are equal (under ~GENERIC-CL:EQUALP~) then the hash codes,
+two objects are equal (under [[#equalp][GENERIC-CL:EQUALP]]) then the hash codes,
 for the two objects, returned by ~HASH~ should be equal.
 
 The default method calls ~CL:SXHASH~ which satisfies the constraint
@@ -1994,11 +2020,14 @@ Y))~.
 
 Currently no specialized method is provided for container/sequence
 objects such as lists. The default method does not violate the
-constraint for lists as keys, provided all ~EQUALP~ methods specialize
-on the same types for both their arguments, however will likely be
-inefficient.
+constraint for lists (but does violate the constraints for non-string
+vectors) as keys, provided all ~EQUALP~ methods specialize on the same
+types for both their arguments, however will likely be inefficient.
 
 **** GET
+     :PROPERTIES:
+     :CUSTOM_ID: get
+     :END:
 
 Generic Function: ~GET KEY MAP &OPTIONAL DEFAULT~
 
@@ -2007,12 +2036,15 @@ map ~MAP~. If the ~MAP~ does not contain any entry with that key,
 ~DEFAULT~ is returned. The second return value is true if an entry
 with key ~KEY~ was found in the map, false otherwise.
 
-Methods are provided ~HASH-MAP~'s, standard ~HASH-TABLE~'s,
-association lists (~ALISTS~) and property lists ~PLISTS~. For ~ALISTS~
-the ~EQUALP~ key comparison function is used. For ~PLISTS~ the ~EQ~
-key comparison function is used.
+Methods are provided for ~HASH-MAP~'s, standard ~HASH-TABLE~'s,
+association lists (~ALISTS~) and property lists (~PLISTS~). For
+~ALISTS~ the [[#equalp][EQUALP]] key comparison function is used. For ~PLISTS~ the
+~EQ~ key comparison function is used.
 
 **** (SETF GET)
+     :PROPERTIES:
+     :CUSTOM_ID: setf-get
+     :END:
 
 Generic Function: ~(SETF GET) VALUE KEY MAP &OPTIONAL DEFAULT~
 
@@ -2022,6 +2054,9 @@ Sets the value of the entry corresponding to the key ~KEY~ in the map
 Only a method for ~HASH-MAPS~ and ~HASH-TABLES~ is provided.
 
 **** ERASE Method
+     :PROPERTIES:
+     :CUSTOM_ID: erase-hash-map
+     :END:
 
 Method: ~ERASE (MAP HASH-MAP) KEY~
 
@@ -2030,6 +2065,9 @@ Removes the entry with key ~KEY~ from ~MAP~.
 Returns true if the map contained an entry with key ~KEY~.
 
 **** HASH-MAP-ALIST
+     :PROPERTIES:
+     :CUSTOM_ID: hash-map-alist
+     :END:
 
 Function: ~HASH-MAP-ALIST MAP~
 
@@ -2037,21 +2075,26 @@ Returns an association list (~ALIST~) containing all the entries in
 the map ~MAP~.
 
 **** ALIST-HASH-MAP
+     :PROPERTIES:
+     :CUSTOM_ID: alist-hash-map
+     :END:
 
 Function: ~ALIST-HASH-MAP ALIST &REST ARGS~
 
-Returns a ~HASH-MAP~ containing all entries in the association list
-~ALIST~. ~ARGS~ are the additional arguments passed to
-~MAKE-HASH-MAP~.
+Returns a [[#hash-map][HASH-MAP]] containing all entries in the association list
+~ALIST~. ~ARGS~ are the additional arguments passed to [[#make-hash-map][MAKE-HASH-MAP]].
 
 **** COERCE Methods
+     :PROPERTIES:
+     :CUSTOM_ID: coerce-hash-map
+     :END:
 
 The following ~COERCE~ methods are provided for ~HASH-MAPS~:
 
    - ~HASH-MAP (EQL 'ALIST)~
 
      Returns an association list (~ALIST~) containing all the entries
-     in the map. Equivalent to ~HASH-MAP-ALIST~.
+     in the map. Equivalent to [[#hash-map-alist][HASH-MAP-ALIST]].
 
    - ~HASH-MAP (EQL 'PLIST)~
 
