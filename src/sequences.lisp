@@ -57,6 +57,13 @@
   (:documentation
    "Returns the number of elements in SEQUENCE."))
 
+(defgeneric emptyp (sequence)
+  (:documentation
+   "Returns true if SEQUENCE is empty."))
+
+(defgeneric clear (sequence)
+  (:documentation
+   "Destructively removes all elements from SEQUENCE."))
 
 ;;; Subsequence
 

@@ -92,6 +92,12 @@
       ((endp it) n)
     (advance it)))
 
+(defmethod emptyp (sequence)
+  "Returns true if an iterator created for SEQUENCE is immediately at
+   its end position (ENDP returns true)."
+
+  (endp (iterator sequence)))
+
 
 ;;; Subsequence
 

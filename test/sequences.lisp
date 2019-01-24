@@ -150,6 +150,28 @@
       (is (length (make-array 7 :adjustable t :initial-element 0 :fill-pointer 3)) 3)
       (is (length (alist-hash-map '((a . 1) (b . 2) (c . 3)))) 3))
 
+    (subtest "Test EMPTYP"
+      (ok (emptyp nil))
+      (ok (emptyp (make-hash-map)))
+      (ok (list-wrap))
+
+      (ok (not (emptyp '(1 2 3))))
+      (ok (not (emptyp #(a b c))))
+      (ok (not (emptyp #2A((1 2 3) (4 5 6)))))
+      (ok (not (emptyp (alist-hash-map '((a . 1) (b . 2))))))
+      (ok (not (emptyp (list-wrap 1 2 3)))))
+
+    (subtest "Test CLEAR"
+      (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t)
+	(clear it)
+	(is (cl:length it) 0))
+
+      (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t :fill-pointer t)
+	(clear it)
+	(is (cl:length it) 0))
+
+      (is-error (clear #(1 2 3)) 'type-error))
+
     (subtest "Test ELT"
       (loop for i below 4
 	 do

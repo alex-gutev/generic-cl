@@ -1255,7 +1255,7 @@ Generic Function: `LENGTH SEQUENCE`
 
 Returns the number of elements in the sequence `SEQUENCE`. If `SEQUENCE` is an iterator, returns the number of remaining elements to be iterated over.
 
-This function is implemented for all Common Lisp sequences, returning the length of the sequence (by `CL:LENGTH`), multi-dimensional arrays, returning the total number of elements in the array (by `ARRAY-TOTAL-SIZE`), and hash maps/hash tables, returning the total number of elements in the map/table.
+This function is implemented for all Common Lisp sequences, returning the length of the sequence (by `CL:LENGTH`), multi-dimensional arrays, returning the total number of elements in the array (by `ARRAY-TOTAL-SIZE`), and [HASH-MAP](#hash-map)'s / hash tables, returning the total number of elements in the map/table.
 
 The following default methods are implemented:
 
@@ -1270,6 +1270,26 @@ The following default methods are implemented:
 -   `T`
     
     Returns the length of the generic sequence by creating an iterator to the sequence and calling the [ITERATOR](#iterator-struct) specialized method. Thus this is a linear `O(n)`, in time, operation unless a more efficient method, which is specialized on the sequence's iterator type, is implemented.
+
+
+##### EMPTYP
+
+Generic Function: `EMPTYP SEQUENCE`
+
+Returns true if the sequence `SEQUENCE` is empty.
+
+Implemented for lists, vectors, multi-dimensional arrays (always returns `NIL`) and [HASH-MAP](#hash-map)'s.
+
+The default returns true if [ENDP](#endp) returns true for a newly created iterator for `SEQUENCE`.
+
+
+##### CLEAR
+
+Generic Function: `CLEAR SEQUENCE`
+
+Destructively removes all elements from the sequence `SEQUENCE`.
+
+Implemented for vectors and [HASH-MAP](#hash-map)'s.
 
 
 #### Subsequences
@@ -1512,6 +1532,7 @@ The functions in this interface are specialized on the `HASH-MAP` type, due to t
 | GETHASH          | GET        |
 | HASH-TABLE-COUNT | LENGTH     |
 | REMHASH          | ERASE      |
+| CLRHASH          | CLEAR      |
 
 
 <a id="hash-map"></a>

@@ -28,7 +28,10 @@
         :prove
         :alexandria
 	:anaphora
-	:cl-arrows))
+	:cl-arrows)
+
+  (:shadowing-import-from :generic-cl
+			  :emptyp))
 
 (prove:plan nil)
 (prove:finalize)

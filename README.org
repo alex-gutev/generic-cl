@@ -1530,7 +1530,7 @@ be iterated over.
 This function is implemented for all Common Lisp sequences, returning
 the length of the sequence (by ~CL:LENGTH~), multi-dimensional arrays,
 returning the total number of elements in the array (by
-~ARRAY-TOTAL-SIZE~), and hash maps/hash tables, returning the total
+~ARRAY-TOTAL-SIZE~), and [[#hash-map][HASH-MAP]]'s / hash tables, returning the total
 number of elements in the map/table.
 
 The following default methods are implemented:
@@ -1553,6 +1553,32 @@ The following default methods are implemented:
      method. Thus this is a linear ~O(n)~, in time, operation unless a
      more efficient method, which is specialized on the sequence's
      iterator type, is implemented.
+
+***** EMPTYP
+      :PROPERTIES:
+      :CUSTOM_ID: emptyp
+      :END:
+
+Generic Function: ~EMPTYP SEQUENCE~
+
+Returns true if the sequence ~SEQUENCE~ is empty.
+
+Implemented for lists, vectors, multi-dimensional arrays (always
+returns ~NIL~) and [[#hash-map][HASH-MAP]]'s.
+
+The default returns true if [[#endp][ENDP]] returns true for a newly created
+iterator for ~SEQUENCE~.
+
+***** CLEAR
+      :PROPERTIES:
+      :CUSTOM_ID: clear
+      :END:
+
+Generic Function: ~CLEAR SEQUENCE~
+
+Destructively removes all elements from the sequence ~SEQUENCE~.
+
+Implemented for vectors and [[#hash-map][HASH-MAP]]'s.
 
 **** Subsequences
      :PROPERTIES:
@@ -1917,6 +1943,7 @@ to convert it to a ~HASH-MAP~.
 | GETHASH          | GET        |
 | HASH-TABLE-COUNT | LENGTH     |
 | REMHASH          | ERASE      |
+| CLRHASH          | CLEAR      |
 
 
 **** HASH-MAP

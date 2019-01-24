@@ -349,6 +349,25 @@
   (hash-table-count table))
 
 
+(defmethod emptyp ((map hash-map))
+  "Returns true if MAP has no entries."
+
+  (with-custom-hash-table
+    (cl:zerop (hash-table-count (hash-map-table map)))))
+
+(defmethod emptyp ((map hash-table))
+  (cl:zerop (hash-table-count map)))
+
+
+(defmethod clear ((map hash-map))
+  "Removes all entries from the hash-map MAP."
+
+  (with-custom-hash-table
+    (clrhash (hash-map-table map))))
+
+(defmethod clear ((map hash-table))
+  (clrhash map))
+
 ;;;; Hash-Table Utilities
 
 (defun alist-hash-map (alist &rest args)

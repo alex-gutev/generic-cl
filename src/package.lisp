@@ -66,6 +66,7 @@
    ;; Sequences
    :elt
    :length
+   :emptyp
    :subseq
    :endp
    :first
@@ -174,9 +175,9 @@
 
 
    ;; Sequences
-   :elt :length :subseq
+   :elt :length :emptyp :subseq
    :first :last :lastcdr
-   :erase
+   :erase :clear
 
    :map :nmap :map-into :map-to :foreach
    :fill :replace

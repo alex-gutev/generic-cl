@@ -118,6 +118,26 @@
   (array-total-size array))
 
 
+(defmethod emptyp ((list list))
+  (null list))
+
+(defmethod emptyp ((vec vector))
+  (cl:zerop (cl:length vec)))
+
+(defmethod emptyp ((array array))
+  "Always returns false as a multi-dimensional array can never be
+   empty."
+  nil)
+
+
+(defmethod clear ((vec vector))
+  (unless (adjustable-array-p vec)
+    (error 'type-error :datum vec :expected-type '(and vector (satisfies adjustable-array-p))))
+
+  (if (array-has-fill-pointer-p vec)
+      (adjust-array vec 0 :initial-element 0 :fill-pointer t)
+      (adjust-array vec 0 :initial-element 0)))
+
 ;;; Subsequence
 
 (defmethod subseq ((seq sequence) start &optional end)

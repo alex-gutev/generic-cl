@@ -88,6 +88,8 @@
 	  (map (make-hash-map)))
 
       (subtest "Test HASH, EQUALP and GET"
+	(ok (emptyp map) "EMPTYP")
+
 	(setf (get key map) 'a)
 	(setf (get (make-custom-key) map) 'b)
 	(setf (get (make-custom-key :slot1 100 :slot2 "a") map) 'c)
@@ -107,13 +109,16 @@
 
 	(ok *equalp-function-called-p* "EQUALP called"))
 
-      (subtest "Test ERASE"
+      (subtest "Test ERASE and CLEAR"
 	(is (erase map 'a) nil)
 	(ok (erase map (make-custom-key :slot1 1 :slot2 2)))
 
 	(is-values (get key map) '(nil nil))
 
-	(is (length map) 2))))
+	(is (length map) 2)
+
+	(clear map)
+	(is (length map) 0 "Cleared"))))
 
   (subtest "Test Hash-Map to list conversions and vice versa"
     (let ((map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))
@@ -173,6 +178,8 @@
 
   (subtest "Raw Hash-Tables"
     (let ((map (make-hash-table :test #'cl:equalp)))
+      (ok (emptyp map) "EMPTYP")
+
       (setf (get "alex" map) 1)
       (setf (get "Alex" map) 2)
       (setf (get "bob" map) 3)
@@ -184,7 +191,11 @@
       (is-values (get "z" map) '(nil nil))
       (is-values (get "z" map 'some-value) '(some-value nil))
 
-      (is (erase map "bob") t))))
+      (is (erase map "bob") t)
+
+      (is (length map) 1)
+      (clear map)
+      (is (length map) 0 "Cleared"))))
 
 (subtest "Test ALISTS and PLISTS"
   (subtest "Test ALISTS"
