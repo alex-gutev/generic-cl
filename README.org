@@ -1,5 +1,7 @@
-* GENERIC-CL
 #+OPTIONS: toc:nil
+#+OPTIONS: H:5
+
+* GENERIC-CL
 
 GENERIC-CL provides a generic function wrapper over various functions
 in the Common Lisp standard, such as equality predicates and sequence
