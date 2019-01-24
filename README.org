@@ -2,6 +2,9 @@
 #+OPTIONS: H:5
 
 * GENERIC-CL
+  :PROPERTIES:
+  :CUSTOM_ID: generic-cl
+  :END:
 
 GENERIC-CL provides a generic function wrapper over various functions
 in the Common Lisp standard, such as equality predicates and sequence
@@ -12,6 +15,9 @@ which is extensible to user-defined types.
 #+TOC: headlines 3
 
 ** Usage
+   :PROPERTIES:
+   :CUSTOM_ID: generic-cl-usage
+   :END:
 
 The generic function interface is contained in the ~GENERIC-CL~
 package. This package should be used rather than ~COMMON-LISP~, as it
@@ -25,6 +31,9 @@ in the ~CL-USER~ package and ~GENERIC-CL~. This package is intended to
 be used only at the REPL.
 
 ** Generic Interfaces
+   :PROPERTIES:
+   :CUSTOM_ID: interfaces
+   :END:
 
 The generic function interface consists of the following functions
 divided into the following categories:
@@ -120,6 +129,9 @@ Returns true if at least one object in ~XS~ is not equal (by ~EQUALP~)
 to ~X~.
 
 *** Comparison
+    :PROPERTIES:
+    :CUSTOM_ID: comparison
+    :END:
 
 The comparison interface provides functions for comparing objects in
 terms of greater than, less than, greater than or equal to and less
@@ -326,6 +338,9 @@ Returns true if each argument is greater than or equal to (by
 [[#greater-equal-p][GREATER-EQUAL-P]]) than the following argument.
 
 **** MIN
+     :PROPERTIES:
+     :CUSTOM_ID: min
+     :END:
 
 Function: ~MIN X &REST XS~
 
@@ -335,6 +350,9 @@ The comparisons are performed by [[#lessp][LESSP]]. Any one of the arguments whi
 is less than or equal to the other arguments may be returned.
 
 **** MAX
+     :PROPERTIES:
+     :CUSTOM_ID: max
+     :END:
 
 Function: ~MAX X &REST XS~
 
