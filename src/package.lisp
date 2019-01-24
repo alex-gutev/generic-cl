@@ -266,3 +266,7 @@
 (agutil:define-merged-package :generic-math-cl
     :generic-cl
   :generic-cl.math)
+
+(agutil:define-merged-package :generic-cl-user
+    (:internal :cl-user)
+  :generic-cl)
