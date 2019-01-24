@@ -5,42 +5,48 @@ GENERIC-CL provides a generic function wrapper over various functions in the Com
 
 # Table of Contents
 
-1.  [GENERIC-CL](#org6c41a7e)
-    1.  [Usage](#org09a3eda)
-    2.  [Generic Interfaces](#org1faea8a)
-        1.  [Equality](#org6d6be84)
-        2.  [Comparison](#org5725a9c)
-        3.  [Arithmetic](#orgd5d8987)
-        4.  [Objects](#org9081a3c)
-        5.  [Iterator](#org68548d8)
+1.  [GENERIC-CL](#org4ec875c)
+    1.  [Usage](#orge79c52e)
+    2.  [Generic Interfaces](#org2dd3697)
+        1.  [Equality](#equality)
+        2.  [Comparison](#org6d4600e)
+        3.  [Arithmetic](#org3110b14)
+        4.  [Objects](#org0ba52f1)
+        5.  [Iterator](#orgf7c951e)
         6.  [Collector](#collector)
-        7.  [Sequences](#orge14063b)
-        8.  [Generic Hash-Tables](#orgee8ebe6)
-        9.  [Set Operations](#org48aa648)
-        10. [Math Functions](#org89ae6b5)
-    3.  [Optimization](#orga6ce778)
+        7.  [Sequences](#orgcecb05b)
+        8.  [Generic Hash-Tables](#org5af77e8)
+        9.  [Set Operations](#orgd350f03)
+        10. [Math Functions](#orgb29ad22)
+    3.  [Optimization](#org7cc6579)
 
 
-<a id="org09a3eda"></a>
+<a id="orge79c52e"></a>
 
 ## Usage
 
 The generic function interface is contained in the `GENERIC-CL` package. This package should be used rather than `COMMON-LISP`, as it shadows the symbols, in the `COMMON-LISP` package, which name a function for which there is a generic function wrapper. The `GENERIC-CL` additionally reexports the remaining non-shadowed symbols in `COMMON-LISP`.
 
+The `GENERIC-CL-USER` is also provided, which contains all the symbols in the `CL-USER` package and `GENERIC-CL`. This package is intended to be used only at the REPL.
 
-<a id="org1faea8a"></a>
+
+<a id="org2dd3697"></a>
 
 ## Generic Interfaces
 
 The generic function interface consists of the following functions divided into the following categories:
 
 
-<a id="org6d6be84"></a>
+<a id="equality"></a>
 
 ### Equality
 
-The equality interface provides functions for testing objects for equality.
+The equality interface provides functions for testing for equality of objects.
 
+[EQUALP](#equalp) is the generic binary equality predicate function to implement for user-defined types. [=](#equalp-nary) and [/=](#not-equalp-nary) are the n-ary equality predicates similar to the functions with the same names in the `COMMON-LISP` package.
+
+
+<a id="equalp"></a>
 
 #### EQUALP
 
@@ -48,15 +54,15 @@ Generic Function: `EQUALP A B`
 
 Returns true if object `A` is equal to object `B`.
 
-Has methods specialized on the following types:
+Methods:
 
 -   `NUMBER NUMBER`
     
-    Returns true if `A` and `B` represent the same numeric value, as per `CL:=`.
+    Returns true if `A` and `B` represent the same numeric value, by `CL:=`.
 
 -   `CHARACTER CHARACTER`
     
-    Returns true if `A` and `B` represent the same character, as per `CL:CHAR=`.
+    Returns true if `A` and `B` represent the same character, by `CL:CHAR=`.
 
 -   `CONS CONS`
     
@@ -74,7 +80,7 @@ Has methods specialized on the following types:
 
 -   `STRING STRING`
     
-    Returns true if both strings are equal (by `CL:STRING=`).
+    Returns true if both strings are equal, by `CL:STRING=`.
 
 -   `PATHNAME PATHNAME`
     
@@ -84,8 +90,10 @@ Has methods specialized on the following types:
     
     Default method.
     
-    Returns true if `A` and `B` are the same object, as per `CL:EQ`.
+    Returns true if `A` and `B` are the same object, by `CL:EQ`.
 
+
+<a id="equalp-nary"></a>
 
 #### =
 
@@ -94,6 +102,8 @@ Function: `= X &REST XS`
 Returns true if all objects in `XS` are equal (by `EQUALP`) to `X`.
 
 
+<a id="not-equalp-nary"></a>
+
 #### /=
 
 Function: `= X &REST XS`
@@ -101,12 +111,18 @@ Function: `= X &REST XS`
 Returns true if at least one object in `XS` is not equal (by `EQUALP`) to `X`.
 
 
-<a id="org5725a9c"></a>
+<a id="org6d4600e"></a>
 
 ### Comparison
 
 The comparison interface provides functions for comparing objects in terms of greater than, less than, greater than or equal to and less than or equal to relations.
 
+[LESSP](#lessp), [LESS-EQUAL-P](#less-equal-p), [GREATERP](#greaterp), [GREATER-EQUAL-P](#greater-equal-p) are the generic binary comparison functions to implement for user-defined types. It is sufficient to just implement `LESSP` as the remaining functions have default methods that are implemented in terms of `LESSP`.
+
+[<](#lessp-nary), [<=](#less-equal-p-nary), [>](#greaterp-nary), [>=](#greater-equal-p-nary) are the n-ary comparison function similar to the functions with the same names in the `COMMON-LISP` package.
+
+
+<a id="lessp"></a>
 
 #### LESSP
 
@@ -116,7 +132,7 @@ Returns true if object `A` is less than object `B`.
 
 It is sufficient to just implement this function, for user-defined types, as the rest of the comparison functions have default (`T T`) methods which are implemented in terms of `LESSP`.
 
-Has the following methods:
+Methods:
 
 -   `NUMBER NUMBER`
     
@@ -131,13 +147,15 @@ Has the following methods:
     Returns true if the string `A` is lexicographically less than `B`, by `CL:STRING<`.
 
 
+<a id="less-equal-p"></a>
+
 #### LESS-EQUAL-P
 
 Generic Function: `LESS-EQUAL-P A B`
 
 Returns true if object `A` is less than or equal to object `B`.
 
-Has the following methods:
+Methods:
 
 -   `NUMBER NUMBER`
     
@@ -153,12 +171,14 @@ Has the following methods:
 
 -   `T T`
     
-    Returns true if either `A` is less than `B` (by `LESSP`) or `A` is equal to `B` (by ~EQUALP).
+    Returns true if either `A` is less than `B` (by [LESSP](#lessp)) or `A` is equal to `B` (by [EQUALP](#equalp)).
     
     ```lisp
     (or (lessp a b) (equalp a b))
     ```
 
+
+<a id="greaterp"></a>
 
 #### GREATERP
 
@@ -166,7 +186,7 @@ Generic Function: `GREATERP A B`
 
 Returns true if object `A` is greater than object `B`.
 
-Has the following methods:
+Methods:
 
 -   `NUMBER NUMBER`
     
@@ -182,20 +202,22 @@ Has the following methods:
 
 -   `T T`
     
-    Returns true if `A` is not less than or equal to `B`, by `LESS-EQUAL-P`.
+    Returns true if `A` is not less than or equal to `B`, by [LESS-EQUAL-P](#less-equal-p).
     
     ```lisp
     (not (less-equal-p a b))
     ```
 
 
-#### GREATER-EQUALP
+<a id="greater-equal-p"></a>
+
+#### GREATER-EQUAL-P
 
 Generic Function: `GREATER-EQUAL-P A B`
 
 Returns true if object `A` is greater than or equal to object `B`.
 
-Has the following methods:
+Methods:
 
 -   `NUMBER NUMBER`
     
@@ -211,7 +233,7 @@ Has the following methods:
 
 -   `T T`
     
-    Returns true if `A` is not less than `B`, by `LESSP`.
+    Returns true if `A` is not less than `B`, by [LESSP](#lessp).
     
     ```lisp
     (not (lessp a b))
@@ -235,49 +257,61 @@ The default `T T` method returns:
 -   **`:GREATER`:** otherwise.
 
 
-#### >
+<a id="lessp-nary"></a>
+
+#### <
 
 Function: `< X &REST XS`
 
-Returns true if each argument is less than (by `LESSP`) than the following argument.
+Returns true if each argument is less than (by [LESSP](#lessp)) than the following argument.
 
+
+<a id="less-equal-p-nary"></a>
 
 #### <=
 
 Function: `<= X &REST XS`
 
-Returns true if each argument is less than or equal to (by `LESS-EQUAL-P`) than the following argument.
+Returns true if each argument is less than or equal to (by [LESS-EQUAL-P](#less-equal-p)) than the following argument.
 
 
-#### <
+<a id="greaterp-nary"></a>
+
+#### >
 
 Function: `> X &REST XS`
 
-Returns true if each argument is greater than (by `GREATERP`) than the following argument.
+Returns true if each argument is greater than (by [GREATERP](#greaterp)) than the following argument.
 
+
+<a id="greater-equal-p-nary"></a>
 
 #### >=
 
 Function: `>= X &REST XS`
 
-Returns true if each argument is greater than or equal to (by `GREATER-EQUAL-P`) than the following argument.
+Returns true if each argument is greater than or equal to (by [GREATER-EQUAL-P](#greater-equal-p)) than the following argument.
 
 
 #### MIN
 
 Function: `MIN X &REST XS`
 
-Returns the argument which is less than or equal to all other arguments, the actual comparisons are performed using `LESSP`. Any one of the arguments which satisfies this condition may be returned.
+Returns the minimum argument.
+
+The comparisons are performed by [LESSP](#lessp). Any one of the arguments which is less than or equal to the other arguments may be returned.
 
 
 #### MAX
 
 Function: `MAX X &REST XS`
 
-Returns the argument which is greater than or equal to all other arguments, the actual comparisons are performed using `GREATERP`. Any one of the arguments which satisfies this condition may be returned.
+Returns the maximum argument.
+
+The comparisons are performed by [GREATERP](#greaterp). Any one of the arguments which is greater than or equal to the other arguments may be returned.
 
 
-<a id="orgd5d8987"></a>
+<a id="org3110b14"></a>
 
 ### Arithmetic
 
@@ -668,7 +702,7 @@ Methods:
     Returns the second return value of `(TRUNCATE N D)`.
 
 
-<a id="org9081a3c"></a>
+<a id="org0ba52f1"></a>
 
 ### Objects
 
@@ -724,7 +758,7 @@ Coerces `OBJECT` to the type `TYPE`.
 The default (`T T`) method simply calls `CL:COERCE`.
 
 
-<a id="org68548d8"></a>
+<a id="orgf7c951e"></a>
 
 ### Iterator
 
@@ -962,7 +996,7 @@ Methods:
     The sequence iteration is done using the iterator interface.
 
 
-<a id="orge14063b"></a>
+<a id="orgcecb05b"></a>
 
 ### Sequences
 
@@ -1381,7 +1415,7 @@ Applies `FUNCTION` on each element of each sequence in `SEQUENCES`.
 Returns `NIL`.
 
 
-<a id="orgee8ebe6"></a>
+<a id="org5af77e8"></a>
 
 ### Generic Hash-Tables
 
@@ -1501,7 +1535,7 @@ The following `COERCE` methods are provided for `HASH-MAPS`:
     Returns a property list (`PLIST`) containing all the entries in the map.
 
 
-<a id="org48aa648"></a>
+<a id="orgd350f03"></a>
 
 ### Set Operations
 
@@ -1588,7 +1622,7 @@ Returns a new empty `HASH-SET`.
 Accepts the same keyword arguments as `MAKE-HASH-MAP`. The default `TEST` function is `GENERIC-CL:EQUALP`.
 
 
-<a id="org89ae6b5"></a>
+<a id="orgb29ad22"></a>
 
 ### Math Functions
 
@@ -1624,7 +1658,7 @@ Generic function wrappers are provided for the following functions:
 -   `RATIONALIZE`
 
 
-<a id="orga6ce778"></a>
+<a id="org7cc6579"></a>
 
 ## Optimization
 

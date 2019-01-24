@@ -20,32 +20,47 @@ function for which there is a generic function wrapper. The
 ~GENERIC-CL~ additionally reexports the remaining non-shadowed symbols
 in ~COMMON-LISP~.
 
+The ~GENERIC-CL-USER~ is also provided, which contains all the symbols
+in the ~CL-USER~ package and ~GENERIC-CL~. This package is intended to
+be used only at the REPL.
+
 ** Generic Interfaces
 
 The generic function interface consists of the following functions
 divided into the following categories:
 
 *** Equality
+    :PROPERTIES:
+    :CUSTOM_ID: equality
+    :END:
 
-The equality interface provides functions for testing objects for
-equality.
+The equality interface provides functions for testing for equality of
+objects.
+
+[[#equalp][EQUALP]] is the generic binary equality predicate function to implement
+for user-defined types. [[#equalp-nary][=]] and [[#not-equalp-nary][/=]] are the n-ary equality predicates
+similar to the functions with the same names in the ~COMMON-LISP~
+package.
 
 **** EQUALP
+     :PROPERTIES:
+     :CUSTOM_ID: equalp
+     :END:
 
 Generic Function: ~EQUALP A B~
 
 Returns true if object ~A~ is equal to object ~B~.
 
-Has methods specialized on the following types:
+Methods:
 
    - ~NUMBER NUMBER~
 
-     Returns true if ~A~ and ~B~ represent the same numeric value,
-     as per ~CL:=~.
+     Returns true if ~A~ and ~B~ represent the same numeric value, by
+     ~CL:=~.
 
    - ~CHARACTER CHARACTER~
 
-     Returns true if ~A~ and ~B~ represent the same character, as per
+     Returns true if ~A~ and ~B~ represent the same character, by
      ~CL:CHAR=~.
 
    - ~CONS CONS~
@@ -70,7 +85,7 @@ Has methods specialized on the following types:
 
    - ~STRING STRING~
 
-     Returns true if both strings are equal (by ~CL:STRING=~).
+     Returns true if both strings are equal, by ~CL:STRING=~.
 
    - ~PATHNAME PATHNAME~
 
@@ -82,17 +97,22 @@ Has methods specialized on the following types:
 
      Default method.
 
-     Returns true if ~A~ and ~B~ are the same object,
-     as per ~CL:EQ~.
+     Returns true if ~A~ and ~B~ are the same object, by ~CL:EQ~.
 
 
 **** =
+     :PROPERTIES:
+     :CUSTOM_ID: equalp-nary
+     :END:
 
 Function: ~= X &REST XS~
 
 Returns true if all objects in ~XS~ are equal (by ~EQUALP~) to ~X~.
 
 **** /=
+     :PROPERTIES:
+     :CUSTOM_ID: not-equalp-nary
+     :END:
 
 Function: ~= X &REST XS~
 
@@ -105,7 +125,18 @@ The comparison interface provides functions for comparing objects in
 terms of greater than, less than, greater than or equal to and less
 than or equal to relations.
 
+[[#lessp][LESSP]], [[#less-equal-p][LESS-EQUAL-P]], [[#greaterp][GREATERP]], [[#greater-equal-p][GREATER-EQUAL-P]] are the generic binary
+comparison functions to implement for user-defined types. It is
+sufficient to just implement ~LESSP~ as the remaining functions have
+default methods that are implemented in terms of ~LESSP~.
+
+[[#lessp-nary][<]], [[#less-equal-p-nary][<=]], [[#greaterp-nary][>]], [[#greater-equal-p-nary][>=]] are the n-ary comparison function similar to the
+functions with the same names in the ~COMMON-LISP~ package.
+
 **** LESSP
+     :PROPERTIES:
+     :CUSTOM_ID: lessp
+     :END:
 
 Generic Function: ~LESSP A B~
 
@@ -115,7 +146,7 @@ It is sufficient to just implement this function, for user-defined
 types, as the rest of the comparison functions have default (~T T~)
 methods which are implemented in terms of ~LESSP~.
 
-Has the following methods:
+Methods:
 
    - ~NUMBER NUMBER~
 
@@ -132,14 +163,16 @@ Has the following methods:
      Returns true if the string ~A~ is lexicographically less than
      ~B~, by ~CL:STRING<~.
 
-
 **** LESS-EQUAL-P
+     :PROPERTIES:
+     :CUSTOM_ID: less-equal-p
+     :END:
 
 Generic Function: ~LESS-EQUAL-P A B~
 
 Returns true if object ~A~ is less than or equal to object ~B~.
 
-Has the following methods:
+Methods:
 
    - ~NUMBER NUMBER~
 
@@ -158,21 +191,23 @@ Has the following methods:
 
    - ~T T~
 
-     Returns true if either ~A~ is less than ~B~ (by ~LESSP~) or ~A~
-     is equal to ~B~ (by ~EQUALP).
+     Returns true if either ~A~ is less than ~B~ (by [[#lessp][LESSP]]) or ~A~
+     is equal to ~B~ (by [[#equalp][EQUALP]]).
 
      #+BEGIN_SRC lisp
      (or (lessp a b) (equalp a b))
      #+END_SRC
 
-
 **** GREATERP
+     :PROPERTIES:
+     :CUSTOM_ID: greaterp
+     :END:
 
 Generic Function: ~GREATERP A B~
 
 Returns true if object ~A~ is greater than object ~B~.
 
-Has the following methods:
+Methods:
 
    - ~NUMBER NUMBER~
 
@@ -191,20 +226,22 @@ Has the following methods:
 
    - ~T T~
 
-     Returns true if ~A~ is not less than or equal to ~B~, by ~LESS-EQUAL-P~.
+     Returns true if ~A~ is not less than or equal to ~B~, by [[#less-equal-p][LESS-EQUAL-P]].
 
      #+BEGIN_SRC lisp
      (not (less-equal-p a b))
      #+END_SRC
 
-
-**** GREATER-EQUALP
+**** GREATER-EQUAL-P
+     :PROPERTIES:
+     :CUSTOM_ID: greater-equal-p
+     :END:
 
 Generic Function: ~GREATER-EQUAL-P A B~
 
 Returns true if object ~A~ is greater than or equal to object ~B~.
 
-Has the following methods:
+Methods:
 
    - ~NUMBER NUMBER~
 
@@ -223,14 +260,16 @@ Has the following methods:
 
    - ~T T~
 
-     Returns true if ~A~ is not less than ~B~, by ~LESSP~.
+     Returns true if ~A~ is not less than ~B~, by [[#lessp][LESSP]].
 
      #+BEGIN_SRC lisp
      (not (lessp a b))
      #+END_SRC
 
-
 **** COMPARE
+     :PROPERTIES:
+     :CUSTOM_ID: compare
+     :END:
 
 Generic Function: ~COMPARE A B~
 
@@ -246,49 +285,63 @@ The default ~T T~ method returns:
    - ~:EQUAL~ :: if ~(EQUALP A B)~ is true.
    - ~:GREATER~ :: otherwise.
 
-**** >
+**** <
+     :PROPERTIES:
+     :CUSTOM_ID: lessp-nary
+     :END:
 
 Function: ~< X &REST XS~
 
-Returns true if each argument is less than (by ~LESSP~) than the
+Returns true if each argument is less than (by [[#lessp][LESSP]]) than the
 following argument.
 
 **** <=
+     :PROPERTIES:
+     :CUSTOM_ID: less-equal-p-nary
+     :END:
 
 Function: ~<= X &REST XS~
 
-Returns true if each argument is less than or equal to (by ~LESS-EQUAL-P~)
+Returns true if each argument is less than or equal to (by [[#less-equal-p][LESS-EQUAL-P]])
 than the following argument.
 
-**** <
+**** >
+     :PROPERTIES:
+     :CUSTOM_ID: greaterp-nary
+     :END:
 
 Function: ~> X &REST XS~
 
-Returns true if each argument is greater than (by ~GREATERP~) than the
+Returns true if each argument is greater than (by [[#greaterp][GREATERP]]) than the
 following argument.
 
 **** >=
+     :PROPERTIES:
+     :CUSTOM_ID: greater-equal-p-nary
+     :END:
 
 Function: ~>= X &REST XS~
 
 Returns true if each argument is greater than or equal to (by
-~GREATER-EQUAL-P~) than the following argument.
+[[#greater-equal-p][GREATER-EQUAL-P]]) than the following argument.
 
 **** MIN
 
 Function: ~MIN X &REST XS~
 
-Returns the argument which is less than or equal to all other
-arguments, the actual comparisons are performed using ~LESSP~. Any one
-of the arguments which satisfies this condition may be returned.
+Returns the minimum argument.
+
+The comparisons are performed by [[#lessp][LESSP]]. Any one of the arguments which
+is less than or equal to the other arguments may be returned.
 
 **** MAX
 
 Function: ~MAX X &REST XS~
 
-Returns the argument which is greater than or equal to all other
-arguments, the actual comparisons are performed using ~GREATERP~. Any
-one of the arguments which satisfies this condition may be returned.
+Returns the maximum argument.
+
+The comparisons are performed by [[#greaterp][GREATERP]]. Any one of the arguments
+which is greater than or equal to the other arguments may be returned.
 
 *** Arithmetic
 
