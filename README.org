@@ -2102,6 +2102,9 @@ The following ~COERCE~ methods are provided for ~HASH-MAPS~:
      the map.
 
 *** Set Operations
+    :PROPERTIES:
+    :CUSTOM_ID: set-operations
+    :END:
 
 The set interface provides generic functions for performing set
 operations and implementations of those operations for a hash-set data
@@ -2122,65 +2125,80 @@ set operation functions:
    - ~NUNION~
 
 For each function, methods specializing on ~LISTS~, which simply call
-the corresponding function in the ~CL~ package, and ~HASH-MAPS~ are
+the corresponding function in the ~CL~ package, and [[#hash-map][HASH-MAP]]'s are
 implemented. Each function accepts all keyword arguments accepted by
 the corresponding ~CL~ functions however they are ignored by the
 ~HASH-MAP~ methods.
 
-~HASH-MAP~'s may be used as sets, in which case the set elements are
+[[#hash-map][HASH-MAP]]'s may be used as sets, in which case the set elements are
 stored in the keys. The values of the map's entries are ignored by the
-set operations, and are unspecified in the sets returned by the set
-operation functions.
+set operations. The values in the maps returned by the set operation
+functions are unspecified.
 
 **** ADJOIN
+     :PROPERTIES:
+     :CUSTOM_ID: adjoin
+     :END:
 
 Generic Function: ~ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS~
 
 Returns a new set, of the same type as ~SET~, which contains ~ITEM~
-and all element is ~SET~.
+and all elements in ~SET~.
 
 This function is non-destructive. A new set is always returned even if
-~SET~ is a ~HASH-MAP~ / ~HASH-SET~.
+~SET~ is a [[#hash-map][HASH-MAP]] / [[#hash-set][HASH-SET]].
 
 Accepts all keyword arguments accepted by ~CL:ADJOIN~ however they are
-ignored by the ~HASH-MAP~ method.
+ignored by the [[#hash-map][HASH-MAP]] method.
 
 **** NADJOIN
+     :PROPERTIES:
+     :CUSTOM_ID: nadjoin
+     :END:
 
 Generic Function: ~ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS~
 
-Same as ~ADJOIN~ however is permitted to destructively modify ~SET~.
+Same as [[#adjoin][ADJOIN]] however is permitted to destructively modify ~SET~.
 
 The set returned is ~EQ~ to ~SET~ in the case of ~SET~ being a
-~HASH-MAP~ however is not ~EQ~ if ~SET~ is a list, and is not required
+[[#hash-map][HASH-MAP]] however is not ~EQ~ if ~SET~ is a list, and is not required
 to be ~EQ~. Thus this function should not be relied upon for its side
 effects.
 
-Implemented for both lists and ~HASH-MAPS~.
+Implemented for both lists and  [[#hash-map][HASH-MAP]]'s.
 
 **** MEMBERP
+     :PROPERTIES:
+     :CUSTOM_ID: memberp
+     :END:
 
 Generic Function: ~MEMBERP ITEM SET &KEY &ALLOW-OTHER-KEYS~
 
 Returns true if ~ITEM~ is an element of the set ~SET~.
 
-Implemented for both lists and ~HASH-MAPS~. All keyword arguments
+Implemented for both lists and [[#hash-map][HASH-MAP]]'s. All keyword arguments
 accepted by ~CL:MEMBER~ are accepted, however are ignored by the
 ~HASH-MAP~ method.
 
 **** HASH-SET
+     :PROPERTIES:
+     :CUSTOM_ID: hash-set
+     :END:
 
 Structure: ~HASH-SET~
 
-A hash-set is a ~HASH-MAP~ however it used to indicate that only the
-keys are important. This allows the ~EQUALP~ and ~COPY~ methods,
-specialized on ~HASH-SETS~ to be implemented more efficiently, as the
+A hash-set is a [[#hash-map][HASH-MAP]] however it is used to indicate that only the
+keys are important. This allows the [[#equalp][EQUALP]] and [[#copy][COPY]] methods,
+specialized on ~HASH-SET~'s to be implemented more efficiently, as the
 keys are not compared/copied, than the methods specialized on
 ~HASH-MAPS~.
 
 The set operations work on both ~HASH-MAPS~ and ~HASH-SETS~.
 
 **** HASH-TABLE-SET
+     :PROPERTIES:
+     :CUSTOM_ID: hash-table-set
+     :END:
 
 Function: ~HASH-TABLE-SET TABLE~
 
@@ -2188,21 +2206,30 @@ Returns a ~HASH-SET~ structure wrapping the standard ~HASH-TABLE~ or
 ~CUSTOM-HASH-TABLE~ ~TABLE~.
 
 **** HASH-SET
+     :PROPERTIES:
+     :CUSTOM_ID: hash-set-func
+     :END:
 
 Function: ~HASH-SET &REST ELEMENTS~
 
-Returns a ~HASH-SET~ with elements ~ELEMENTS~.
+Returns a [[#hash-set][HASH-SET]] with elements ~ELEMENTS~.
 
 **** MAKE-HASH-SET
+     :PROPERTIES:
+     :CUSTOM_ID: make-hash-set
+     :END:
 
 Function: ~MAKE-HASH-SET &KEY &ALLOW-OTHER-KEYS~
 
-Returns a new empty ~HASH-SET~.
+Returns a new empty [[#hash-set][HASH-SET]].
 
-Accepts the same keyword arguments as ~MAKE-HASH-MAP~. The default
-~TEST~ function is ~GENERIC-CL:EQUALP~.
+Accepts the same keyword arguments as [[#make-hash-map][MAKE-HASH-MAP]]. The default
+~TEST~ function is [[#equalp][GENERIC-CL:EQUALP]].
 
 *** Math Functions
+    :PROPERTIES:
+    :CUSTOM_ID: math-functions
+    :END:
 
 Generic function wrappers are provided over a number of math
 functions. Methods specialized on ~NUMBER~ are provided, which simply
@@ -2243,6 +2270,9 @@ Generic function wrappers are provided for the following functions:
    - ~RATIONALIZE~
 
 ** Optimization
+   :PROPERTIES:
+   :CUSTOM_ID: optimization
+   :END:
 
 There is an overhead associated with generic functions. Code making
 use of the generic function interface will be slower than code which
@@ -2276,10 +2306,10 @@ Example:
 This will result in the call to the ~EQUALP~ function being replaced
 with the body of the ~NUMBER NUMBER~ method.
 
-The n-argument equality and comparison functions also have associated
-compiler-macros which replace the calls to the n-argument functions
-with multiple inline calls to the binary functions, e.g. ~(= 1 2 3)~
-is replaced with ~(and (equalp 1 2) (equalp 1 3))~.
+The n-argument equality, comparison and arithmetic functions also have
+associated compiler-macros which replace the calls to the n-argument
+functions with multiple inline calls to the binary functions, e.g. ~(=
+1 2 3)~ is replaced with ~(and (equalp 1 2) (equalp 1 3))~.
 
 Thus the following should also result in the ~EQUALP~ function calls
 being statically dispatched, though this has not yet been tested:
@@ -2299,5 +2329,5 @@ being statically dispatched, though this has not yet been tested:
  ~ENABLE-HOOK~ function (exported by ~GENERIC-CL~) has to be called at
  some point before the generic function call is compiled.
 
-Visit [[https://github.com/alex-gutev/static-dispatch][STATIC-DISPATCH]] and [[https://github.com/alex-gutev/cl-environments][CL-ENVIRONMENTS]] for more information about
+See [[https://github.com/alex-gutev/static-dispatch][STATIC-DISPATCH]] and [[https://github.com/alex-gutev/cl-environments][CL-ENVIRONMENTS]] for more information about
 these optimizations and the current limitations.
