@@ -1292,8 +1292,16 @@ Methods:
      The sequence iteration is done using the [[#iterator][Iterator]] interface.
 
 *** Sequences
+    :PROPERTIES:
+    :CUSTOM_ID: sequences
+    :END:
+
+Generic sequence functions.
 
 **** Creation
+     :PROPERTIES:
+     :CUSTOM_ID: sequence-creation
+     :END:
 
 The following functions are for creating a sequence into which items
 will be accumulated using the collector interface.
@@ -1328,6 +1336,9 @@ Methods:
      ~SEQUENCE~.
 
 ***** MAKE-SEQUENCE-OF-TYPE
+      :PROPERTIES:
+      :CUSTOM_ID: make-sequence-of-type
+      :END:
 
 Generic Function: ~MAKE-SEQUENCE-OF-TYPE TYPE ARGS~
 
@@ -1342,11 +1353,14 @@ that returned by:
 #+END_SRC
 
 ***** SEQUENCE-OF-TYPE
+      :PROPERTIES:
+      :CUSTOM_ID: sequence-of-type
+      :END:
 
 Function: ~SEQUENCE-OF-TYPE TYPE~
 
 Creates a new sequence of type ~TYPE~, using
-~MAKE-SEQUENCE-OF-TYPE~.
+[[#make-sequence-of-type][MAKE-SEQUENCE-OF-TYPE]].
 
 If ~TYPE~ is a list the ~CAR~ of the list is passed as the first
 argument, to ~MAKE-SEQUENCE-OF-TYPE~, and the ~CDR~ is passed as the
@@ -1354,8 +1368,14 @@ second argument. Otherwise, if ~TYPE~ is not a list, it is passed as
 the first argument and ~NIL~ is passed as the second argument.
 
 **** Sequence Elements
+     :PROPERTIES:
+     :CUSTOM_ID: sequence-elements
+     :END:
 
 ***** ELT
+      :PROPERTIES:
+      :CUSTOM_ID: elt
+      :END:
 
 Generic Function: ~ELT SEQUENCE INDEX~
 
@@ -1369,7 +1389,7 @@ Methods:
 
    - ~ARRAY T~
 
-     Multi-dimensional Arrays.
+     Multi-Dimensional Arrays.
 
      Returns ~(ROW-MAJOR-AREF SEQUENCE INDEX)~.
 
@@ -1379,6 +1399,9 @@ Methods:
      and returns the first element returned by the iterator.
 
 ***** (SETF ELT)
+      :PROPERTIES:
+      :CUSTOM_ID: setf-elt
+      :END:
 
 Generic Function: ~(SETF ELT) VALUE SEQUENCE INDEX~
 
@@ -1393,7 +1416,7 @@ Methods:
 
    - ~T ARRAY T~
 
-     Multi-dimensional Arrays.
+     Multi-Dimensional Arrays.
 
      Returns ~(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)~
 
@@ -1404,6 +1427,9 @@ Methods:
      iterator.
 
 ***** FIRST
+      :PROPERTIES:
+      :CUSTOM_ID: first-func
+      :END:
 
 Generic Function: ~FIRST SEQUENCE~
 
@@ -1413,7 +1439,7 @@ Implemented for lists, vectors and multi-dimensional arrays. For
 multi-dimensional arrays, the first element is obtained by
 ~ROW-MAJOR-AREF~.
 
-The default method is implemented using ~GENERIC-CL:ELT~, i.e. is
+The default method is implemented using [[#elt][GENERIC-CL:ELT]], i.e. is
 equivalent to:
 
 #+BEGIN_SRC lisp
@@ -1421,6 +1447,9 @@ equivalent to:
 #+END_SRC
 
 ***** LAST
+      :PROPERTIES:
+      :CUSTOM_ID: last-func
+      :END:
 
 Generic Function: ~LAST SEQUENCE &OPTIONAL (N 0)~
 
@@ -1435,7 +1464,7 @@ multi-dimensional arrays, the last element is obtained by:
 (row-major-aref sequence (- (array-total-size array) 1 n))
 #+END_SRC
 
-The default method is implemented using ~GENERIC-CL:ELT~, i.e. is
+The default method is implemented using [[#elt][GENERIC-CL:ELT]], i.e. is
 equivalent to:
 
 #+BEGIN_SRC lisp
@@ -1459,6 +1488,9 @@ This function is equivalent to ~CL:LAST~ list function.
 Returns the ~CDR~ of the ~N~'th ~CONS~ cell from the end of the list.
 
 ***** ERASE
+      :PROPERTIES:
+      :CUSTOM_ID: erase
+      :END:
 
 Generic Function: ~ERASE SEQUENCE INDEX~
 
@@ -1475,15 +1507,18 @@ Methods:
 
      *Note:* Signals a ~TYPE-ERROR~ if the vector is not adjustable.
 
-*Note:* This method is not implemented for lists as remove the first
+*Note:* This method is not implemented for lists as removing the first
 element of a list cannot be implemented (efficiently) as a side effect
 alone.
 
 **** Length
+     :PROPERTIES:
+     :CUSTOM_ID: length-functions
+     :END:
 
 ***** LENGTH
       :PROPERTIES:
-      :CUSTOM_ID: length
+      :CUSTOM_ID: length-func
       :END:
 
 Generic Function: ~LENGTH SEQUENCE~
@@ -1505,8 +1540,8 @@ The following default methods are implemented:
      Returns the number of elements between the iterator's current
      position (inclusive) and the end of the iterator's subsequence.
 
-     This is implemented by advancing the iterator (by ~ADVANCE~) till
-     ~ENDP~ returns true, thus is a linear ~O(n)~, in time, operation.
+     This is implemented by advancing the iterator (by [[#advance][ADVANCE]]) till
+     [[#endp][ENDP]] returns true, thus is a linear ~O(n)~ time operation.
 
      More efficient specialized methods are provided for iterators to
      sequences for which the size is known.
@@ -1514,13 +1549,15 @@ The following default methods are implemented:
    - ~T~
 
      Returns the length of the generic sequence by creating an
-     iterator to the sequence and calling the ~ITERATOR~ specialized
+     iterator to the sequence and calling the [[#iterator-struct][ITERATOR]] specialized
      method. Thus this is a linear ~O(n)~, in time, operation unless a
      more efficient method, which is specialized on the sequence's
      iterator type, is implemented.
 
-
 **** Subsequences
+     :PROPERTIES:
+     :CUSTOM_ID: subsequences
+     :END:
 
 ***** SUBSEQ
       :PROPERTIES:
@@ -1536,13 +1573,13 @@ the iterator is returned.
 
 ~START~ is the index of the first element of the subsequence, with ~0~
 indicating the start of the sequence. if ~SEQUENCE~ is an iterator,
-~START~ is the number of times the iterator should be ~ADVANCE~'d to
+~START~ is the number of times the iterator should be [[#advance][ADVANCE]]'d to
 reach the first element of the subsequence.
 
 ~END~ is the index of the element following the last element of the
 subsequence. ~NIL~ (the default) indicates the end of the sequence. If
 ~SEQUENCE~ is an iterator, ~END~ is the number of times the iterator
-should be ~ADVANCE~'d till the end position is reached.
+should be [[#advance][ADVANCE]]'d till the end position is reached.
 
 Methods:
 
@@ -1558,10 +1595,13 @@ Methods:
    - ~T T~
 
      Returns the subsequence of the generic sequence. This requires
-     that the ~CLEARED~ method, the iterator interface and collector
+     that the [[#cleared][CLEARED]] method, the [[#iterator][Iterator]] interface and [[#collector][Collector]]
      interface are implemented for the generic sequence type.
 
 ***** (SETF SUBSEQ)
+      :PROPERTIES:
+      :CUSTOM_ID: setf-subseq
+      :END:
 
 Generic Function: ~(SETF SUBSEQ) NEW-SEQUENCE SEQUENCE START &OPTIONAL END~
 
@@ -1582,13 +1622,16 @@ Methods:
 
    - ~T T T~
 
-     Sets the elements of the generic sequence using the iterator
+     Sets the elements of the generic sequence using the [[#iterator][Iterator]]
      interface, which should be implemented for both the types of
      ~SEQUENCE~ and ~NEW-SEQUENCE~. This method requires that the
-     ~(SETF AT)~ method is implemented for the iterator type of
+     [[#setf-at][(SETF AT)]] method is implemented for the iterator type of
      ~SEQUENCE~.
 
 **** Sequence Operations
+     :PROPERTIES:
+     :CUSTOM_ID: sequence-operations
+     :END:
 
 Generic function wrappers, which are identical in behavior to their
 counterparts in the ~COMMON-LISP~ package, are provided for the
@@ -1638,17 +1681,17 @@ on the following types:
      Implements the sequence operation for generic sequences using the
      iterator interface.
 
-     The non-destructive functions only require that the mandatory
-     iterator functions, the collector interface and [[#cleared][CLEARED]] method
+     The non-destructive functions only require that the [[#mandatory-iterator-funcs][mandatory
+     iterator functions]], the [[#collector][Collector]] interface and [[#cleared][CLEARED]] method
      are implemented for the sequence's type.
 
      The destructive versions may additionally require that the
      optional [[#setf-at][(SETF AT)]] method is implemented as well.
 
 The default value of the ~:TEST~ keyword arguments is
-~GENERIC-CL:EQUALP~, this should be the default value when
-implementing methods for user-defined sequence types. The ~:TEST-NOT~
-keyword arguments have been removed.
+[[#equalp][GENERIC-CL:EQUALP]], this should be the default value when implementing
+methods for user-defined sequence types. The ~:TEST-NOT~ keyword
+arguments have been removed.
 
 The following functions are identical in behavior to their ~CL~
 counterparts, however are re-implemented using the iterator
@@ -1665,6 +1708,9 @@ The following functions either have no ~CL~ counterparts or differ
 slightly in behavior from their ~CL~ counterparts:
 
 ***** MERGE
+      :PROPERTIES:
+      :CUSTOM_ID: merge
+      :END:
 
 Generic Function: ~MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY~
 
@@ -1675,6 +1721,9 @@ according to the function ~PREDICATE~.
 Unlike ~CL:MERGE~ this function is non-destructive.
 
 ***** NMERGE
+      :PROPERTIES:
+      :CUSTOM_ID: nmerge
+      :END:
 
 Generic Function: ~MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY~
 
@@ -1682,33 +1731,42 @@ Same as ~MERGE~ however is permitted to destructively modify either
 ~SEQUENCE1~ or ~SEQUENCE2~.
 
 ***** SORT
+      :PROPERTIES:
+      :CUSTOM_ID: sort
+      :END:
 
 Generic Function: ~SORT SEQUENCE &KEY TEST KEY~
 
 Returns a new sequence of the same type as ~SEQUENCE~, with the same
 elements sorted according to the order determined by the function
-~TEST~. ~TEST~ is ~GENERIC-CL:LESSP~ by default.
+~TEST~. ~TEST~ is [[#lessp][GENERIC-CL:LESSP]] by default.
 
 Unlike ~CL:SORT~ this function is non-destructive.
 
-For the sort algorithm to be efficient, efficient [[#advance-n][ADVANCE-N,]] [[#subseq][SUBSEQ]]
+For the default method to be efficient, efficient [[#advance-n][ADVANCE-N,]] [[#subseq][SUBSEQ]]
 and [[#length][LENGTH]] methods should be implemented for the iterator type of
-~SEQUENCE~'s.
+~SEQUENCE~.
 
 ***** STABLE-SORT
+      :PROPERTIES:
+      :CUSTOM_ID: stable-sort
+      :END:
 
 Generic Function: ~STABLE-SORT SEQUENCE &KEY TEST KEY~
 
 Same as ~SORT~ however the sort operation is guaranteed to be
-stable. ~TEST~. ~TEST~ is ~GENERIC-CL:LESSP~ by default.
+stable. ~TEST~. ~TEST~ is [[#lessp][GENERIC-CL:LESSP]] by default.
 
 Unlike ~CL:STABLE-SORT~ this function is non-destructive.
 
-For the sort algorithm to be efficient, efficient [[#advance-n][ADVANCE-N,]] [[#subseq][SUBSEQ]]
+For the default method to be efficient, efficient [[#advance-n][ADVANCE-N,]] [[#subseq][SUBSEQ]]
 and [[#length][LENGTH]] methods should be implemented for the iterator type of
-~SEQUENCE~'s.
+~SEQUENCE~.
 
 ***** NSORT
+      :PROPERTIES:
+      :CUSTOM_ID: nsort
+      :END:
 
 Generic Function: ~NSORT SEQUENCE &KEY TEST KEY~
 
@@ -1716,6 +1774,9 @@ Same as ~SORT~ however is permitted to destructively modify
 ~SEQUENCE~.
 
 ***** STABLE-NSORT
+      :PROPERTIES:
+      :CUSTOM_ID: stable-nsort
+      :END:
 
 Generic Function: ~STABLE-NSORT SEQUENCE &KEY TEST KEY~
 
@@ -1723,6 +1784,9 @@ Same as ~STABLE-SORT~ however is permitted to destructively modify
 ~SEQUENCE~.
 
 ***** CONCATENATE
+      :PROPERTIES:
+      :CUSTOM_ID: concatenate
+      :END:
 
 Function: ~CONCATENATE SEQUENCE &REST SEQUENCES~
 
@@ -1733,6 +1797,9 @@ order they are supplied.
 Unlike ~CL:CONCATENATE~ does not take a result type argument.
 
 ***** NCONCATENATE
+      :PROPERTIES:
+      :CUSTOM_ID: nconcatenate
+      :END:
 
 Function: ~NCONCATENATE RESULT &REST SEQUENCES~
 
@@ -1740,10 +1807,13 @@ Destructively concatenates each sequence in ~SEQUENCES~ to the
 sequence ~RESULT~.
 
 ***** MAP
+      :PROPERTIES:
+      :CUSTOM_ID: map-func
+      :END:
 
 Function: ~MAP FUNCTION SEQUENCE &REST SEQUENCES~
 
-Creates a new sequence, of the same type as ~SEQUENCE~ (by ~CLEARED~),
+Creates a new sequence, of the same type as ~SEQUENCE~ (by [[#cleared][CLEARED]]),
 containing the result of applying ~FUNCTION~ to each element of
 SEQUENCE and each element of each ~SEQUENCE~ in ~SEQUENCES~.
 
@@ -1753,6 +1823,9 @@ passed as an argument, rather than being determined by a type
 argument.
 
 ***** NMAP
+      :PROPERTIES:
+      :CUSTOM_ID: nmap
+      :END:
 
 Function: ~NMAP RESULT FUNCTION &REST SEQUENCES~
 
@@ -1766,6 +1839,9 @@ applied on the elements up-to the fill pointer i.e. the fill-pointer
 is not ignored.
 
 ***** MAP-INTO
+      :PROPERTIES:
+      :CUSTOM_ID: map-into
+      :END:
 
 Function: ~MAP-INTO RESULT FUNCTION &REST SEQUENCES~
 
@@ -1773,20 +1849,27 @@ Applies ~FUNCTION~ on each element of each sequence in ~SEQUENCES~ and
 accumulates the result in RESULT, using the [[#collector][Collector]] interface.
 
 ***** MAP-TO
+      :PROPERTIES:
+      :CUSTOM_ID: map-to
+      :END:
 
 Function: ~MAP-TO TYPE FUNCTION &REST SEQUENCES~
 
 Applies ~FUNCTION~ to each element of each sequence in ~SEQUENCES~ and
 stores the result in a new sequence of type ~TYPE~ (created using
-~SEQUENCE-OF-TYPE~).  Returns the sequence in which the results of
-applying function are stored.
+[[#sequence-of-type][SEQUENCE-OF-TYPE]]).  Returns the sequence in which the results of
+applying the function are stored.
 
 This function is equivalent in arguments, and almost equivalent in
 behavior, to ~CL:MAP~. The only difference is that if ~TYPE~ is a
 subtype of vector, the vector returned is adjustable with a
-fill-pointer.
+fill-pointer. A ~NIL~ type argument is not interpreted as do not
+accumulate the results, use [[#foreach][FOREACH]] for that.
 
 ***** FOREACH
+      :PROPERTIES:
+      :CUSTOM_ID: foreach
+      :END:
 
 Function: ~FOREACH &REST SEQUENCES~
 
