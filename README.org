@@ -1518,7 +1518,7 @@ alone.
 
 ***** LENGTH
       :PROPERTIES:
-      :CUSTOM_ID: length-func
+      :CUSTOM_ID: length
       :END:
 
 Generic Function: ~LENGTH SEQUENCE~

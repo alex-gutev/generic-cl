@@ -11,14 +11,14 @@ GENERIC-CL provides a generic function wrapper over various functions in the Com
         1.  [Equality](#equality)
         2.  [Comparison](#comparison)
         3.  [Arithmetic](#arithmetic)
-        4.  [Objects](#org5ed408a)
-        5.  [Iterator](#orga08fb97)
+        4.  [Objects](#object-interface)
+        5.  [Iterator](#iterator)
         6.  [Collector](#collector)
-        7.  [Sequences](#orgd690908)
-        8.  [Generic Hash-Tables](#org04b26f0)
-        9.  [Set Operations](#orgd93f3b9)
-        10. [Math Functions](#org41fbc1a)
-    3.  [Optimization](#orgaa6253c)
+        7.  [Sequences](#sequences)
+        8.  [Generic Hash-Tables](#generic-hash-tables)
+        9.  [Set Operations](#set-operations)
+        10. [Math Functions](#math-functions)
+    3.  [Optimization](#optimization)
 
 
 <a id="generic-cl-usage"></a>
@@ -730,12 +730,14 @@ Methods:
     Returns the second return value of `(TRUNCATE N D)`.
 
 
-<a id="org5ed408a"></a>
+<a id="object-interface"></a>
 
 ### Objects
 
 The object interface provides miscellaneous functions for manipulating objects.
 
+
+<a id="copy"></a>
 
 #### COPY
 
@@ -743,23 +745,23 @@ Generic Function: `COPY OBJECT &KEY &ALLOW-OTHER-KEYS`
 
 Returns a copy of `OBJECT`. If `OBJECT` is mutable, by some other functions, then the returned object should be distinct (not `EQ`) from `OBJECT`, otherwise the return value may be identical (`EQ`) to `OBJECT`.
 
-This function may accept additional keyword arguments which specify certain options as to how the object should be copied. Methods specialized on sequences accept a `:DEEP` keyword parameter, which if provided and is true a deep copy is returned otherwise a shallow copy is returned. If this applicable to a user-defined type, the `COPY` method for that type should also accept the `DEEP` keyword parameter.
+This function may accept additional keyword arguments which specify certain options as to how the object should be copied. Methods specialized on sequences accept a `:DEEP` keyword parameter, which if provided and is true a deep copy is returned otherwise a shallow copy is returned. If a user-defined type acts as a container or sequence then the `COPY` method for that type should also accept the `DEEP` keyword parameter.
 
 Methods:
 
 -   `CONS`
     
-    Returns a new list which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the list returned contains a copy of elements, copied using `(COPY ELEM :DEEP T)`.
+    Returns a new list which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the list returned contains a copy of the elements, copied using `(COPY ELEM :DEEP T)`.
 
 -   `VECTOR`
     
-    Returns a new vector which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the vector returned contains a copy of elements, copied using `(COPY ELEM :DEEP T)`.
+    Returns a new vector which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the vector returned contains a copy of the elements, copied using `(COPY ELEM :DEEP T)`.
 
 -   `ARRAY`
     
     Multi-Dimensional Arrays.
     
-    Returns a new array, of the same dimensions as `OBJECT`, which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the array returned contains a copy of elements, copied using `(COPY ELEM :DEEP T)`.
+    Returns a new array, of the same dimensions as `OBJECT`, which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the array returned contains a copy of the elements, copied using `(COPY ELEM :DEEP T)`.
 
 -   `T`
     
@@ -774,7 +776,7 @@ Methods:
 
 Macro: `DEFSTRUCT OPTIONS &REST SLOTS`
 
-This is the same as `CL:DEFSTRUCT` however a `COPY` method for the structure type is automatically generated, which simply calls the structure's copier function. If the `(:COPIER NIL)` option is provided, the `COPY` method is not generated.
+This is the same as `CL:DEFSTRUCT` however a [COPY](#copy) method for the structure type is automatically generated, which simply calls the structure's copier function. If the `(:COPIER NIL)` option is provided, the `COPY` method is not generated.
 
 
 #### COERCE
@@ -786,29 +788,42 @@ Coerces `OBJECT` to the type `TYPE`.
 The default (`T T`) method simply calls `CL:COERCE`.
 
 
-<a id="orga08fb97"></a>
+<a id="iterator"></a>
 
 ### Iterator
 
 The iterator interface is a generic interface for iterating over the elements of sequences and containers.
 
-The iterator interface is implemented for lists, vectors, multi-dimensional arrays and `HASH-MAPS`.
+Implemented for lists, vectors, multi-dimensional arrays and [HASH-MAP](#hash-map)'s.
 
+Basic Usage:
+
+```lisp
+(loop
+   with it = (iterator sequence) ; Create iterator for SEQUENCE
+   until (endp it) ; Loop until the iterator's end position is reach
+   do
+     (pprint (at it)) ; Print element at iterator's position
+     (advance it)) ; Advance iterator to next position
+```
+
+
+<a id="iterator-struct"></a>
 
 #### Base Iterator Type
 
 Structure: `ITERATOR`
 
-This structure serves as the base iterator type and is used as by certain methods of generic functions to specialize on iterators.
+This structure serves as the base iterator type and is used by certain methods of generic functions to specialize on iterators.
 
 All iterators should inherit from (include) `ITERATOR`, in order for methods which specialize on iterators to be invoked.
 
-**Note:** A `COPY` method should be implemented for user-defined iterators.
+**Note:** A [COPY](#copy) method should be implemented for user-defined iterators.
 
 
 #### Iterator Creation
 
-[ITERATOR](#iterator-func) is the high-level function for creating iterators, whereas [MAKE-ITERATOR](#make-iterator) AND [MAKE-REVERSE-ITERATOR](#make-reverse-iterator) are the generic functions to implement for creating iterators for user-defined sequence types.
+[ITERATOR](#iterator-func) is the high-level function for creating iterators, whereas [MAKE-ITERATOR](#make-iterator) AND [MAKE-REVERSE-ITERATOR](#make-reverse-iterator) are the generic iterator creation functions to implement for user-defined sequence types.
 
 
 <a id="make-iterator"></a>
@@ -821,7 +836,7 @@ Returns an iterator for the sub-sequence of `SEQUENCE`, identified by the range 
 
 `START` is the index of the first element to iterate over. `0` indicates the first element of the sequence.
 
-`END` is the index of the element at which to terminate the iteration, i.e. 1 + the index of the last element to be iterated over. `NIL` indicates the end of the sequence.
+`END` is the index of the element at which to terminate the iteration, i.e. 1 + the index of the last element to be iterated over. `NIL` indicates iterate till the end of the sequence.
 
 
 <a id="make-reverse-iterator"></a>
@@ -832,7 +847,7 @@ Generic Function: `MAKE-REVERSE-ITERATOR SEQUENCE START END`
 
 Returns an iterator for the sub-sequence of `SEQUENCE`, identified by the range `[START, END)`, in which the elements are iterated over in reverse order.
 
-Even though the elements are iterated over in reverse order, `START` and `END` are still relative to the start of the sequence, as in `MAKE-ITERATOR`.
+**Note:** Even though the elements are iterated over in reverse order, `START` and `END` are still relative to the start of the sequence, as in `MAKE-ITERATOR`.
 
 `START` is the index of the last element to visit.
 
@@ -847,15 +862,19 @@ Function: `ITERATOR SEQUENCE &KEY (START 0) END FROM-END`
 
 Returns an iterator for the sub-sequence of `SEQUENCE` identified by the range `[START, END)`.
 
-`START` (defaults to `0` - the start of the sequence) and `END` (defaults to `NIL` - the end of the sequence) are the start and end indices of the sub-sequence to iterated over (see [MAKE-ITERATOR](#make-iterator) and [MAKE-REVERSE-ITERATOR](#make-reverse-iterator) for more information).
+`START` (defaults to `0` - the start of the sequence) and `END` (defaults to `NIL` - the end of the sequence) are the start and end indices of the sub-sequence to iterated over (see [MAKE-ITERATOR](#make-iterator) and [MAKE-REVERSE-ITERATOR](#make-reverse-iterator) for more a detailed description).
 
-If `FROM-END` is true a reverse iterator is created (by `MAKE-REVERSE-ITERATOR`) otherwise a normal iterator is created (by `MAKE-ITERATOR`).
+If `FROM-END` is true a reverse iterator is created (by [MAKE-REVERSE-ITERATOR](#make-reverse-iterator)) otherwise a normal iterator is created (by [MAKE-ITERATOR](#make-iterator)).
 
+
+<a id="mandatory-iterator-funcs"></a>
 
 #### Mandatory Functions
 
 These functions have to be implemented for all user-defined iterators.
 
+
+<a id="at"></a>
 
 ##### AT
 
@@ -866,24 +885,28 @@ Returns the value of the element at the current position of the iterator `ITERAT
 The effects of calling this method, after the iterator has reached the end of the subsequence are unspecified.
 
 
+<a id="endp"></a>
+
 ##### ENDP
 
 Generic Function: `ENDP ITERATOR`
 
 Returns true if the iterator is at the end of the subsequence, false otherwise.
 
-The end of the subsequence is defined as the position past the last element of the subsequence, that is the position of the iterating after advancing it (by `ADVANCE`) from the position of the last element.
+The end of the subsequence is defined as the position past the last element of the subsequence, that is the position of the iterator after advancing it (by [ADVANCE](#advance)) from the position of the last element.
 
 If the subsequence is empty `ENDP` should immediately return true.
 
 **Note:** The default `T` method calls `CL:ENDP` since this function shadows the `CL:ENDP` function.
 
 
+<a id="advance"></a>
+
 ##### ADVANCE
 
 Generic Function: `ADVANCE ITERATOR`
 
-Advances the iterator to the next element in the subsequence. After this method is called, subsequent calls to `AT` should return the next element in the sequence or if the last element has already been iterated over, `ENDP` should return true.
+Advances the iterator to the next element in the subsequence. After this method is called, subsequent calls to [AT](#at) should return the next element in the sequence or if the last element has already been iterated over, [ENDP](#endp) should return true.
 
 
 #### Optional Functions
@@ -926,12 +949,14 @@ Implementing this function is only mandatory if destructive sequence operations 
 
 Generic Function: `ADVANCE-N ITERATOR N`
 
-Advances the iterator by `N` elements. This position should be equivalent to the positioned obtained by calling `ADVANCE` `N` times.
+Advances the iterator by `N` elements. This position should be equivalent to the positioned obtained by calling [ADVANCE](#advance) `N` times.
 
-The default method simply calls `ADVANCE`, on `ITERATOR`, `N` times.
+The default method simply calls [ADVANCE](#advance), on `ITERATOR`, `N` times.
 
 
 #### Macros
+
+Macros for iterator over a generic sequence. Analogous to `CL:DOLIST`.
 
 
 <a id="doiters"></a>
@@ -942,9 +967,9 @@ Macro: `DOITERS (&REST ITERS) &BODY BODY`
 
 Iterates over one or more sequences with the sequence iterators bound to variables.
 
-Each element of ITERS is a list of the form `(IT-VAR SEQUENCE . ARGS)`, where `IT-VAR` is the variable to which the iterator is bound, `SEQUENCE` is the sequence which will be iterated over and `ARGS` are the remaining arguments passed to the [ITERATOR](#iterator-func) function.
+Each element of `ITERS` is a list of the form `(IT-VAR SEQUENCE . ARGS)`, where `IT-VAR` is the variable to which the iterator is bound, `SEQUENCE` is the sequence which will be iterated over and `ARGS` are the remaining arguments passed to the [ITERATOR](#iterator-func) function.
 
-The bindings to the `IT-VARS`'s are visible to the forms in `BODY`, which are executed once for each element in the sequence. After each iteration the sequence iterators are `ADVANCE`'d. The loop terminates when the end of a sequence is reached.
+The bindings to the `IT-VAR`'s are visible to the forms in `BODY`, which are executed once for each element in the sequence. After each iteration the sequence iterators are [ADVANCE](#advance)'d. The loop terminates when the end of a sequence is reached.
 
 
 ##### DOITER
@@ -969,17 +994,32 @@ The forms in `BODY` are executed once for each element, with the value of the el
 
 The collector interface is a generic interface for accumulating items in a sequence/container.
 
-The collector interface is implemented for lists, vectors and `HASH-MAPS`.
+Implemented for lists, vectors and [HASH-MAP](#hash-map)'s.
 
+Basic Usage:
+
+```lisp
+;; Create collector for the sequence, in this case an empty list
+(let ((c (make-collector nil)))
+  (accumulate c 1) ; Collect 1 into the sequence
+  (accumulate c 2) ; Collect 2 into the sequence
+  (extend c '(3 4 5)) ; Collect 3 4 5 into the sequence
+  (collector-sequence c)) ; Get the resulting sequence => '(1 2 3 4 5)
+```
+
+
+<a id="make-collector"></a>
 
 #### MAKE-COLLECTOR
 
 Generic Function: `MAKE-COLLECTOR SEQUENCE &KEY FRONT`
 
-Returns a collector for accumulating items onto the back of the sequence `SEQUENCE`. If `:FRONT` is provided and is true, the items are accumulated to the front of the sequence rather than back.
+Returns a collector for accumulating items to the end of the sequence `SEQUENCE`. If `:FRONT` is provided and is true, the items are accumulated to the front of the sequence rather than end.
 
 The collector may destructively modify `SEQUENCE` however it is not mandatory and may accumulate items into a copy of `SEQUENCE` instead.
 
+
+<a id="accumulate"></a>
 
 #### ACCUMULATE
 
@@ -994,10 +1034,12 @@ Generic Function: `COLLECTOR-SEQUENCE COLLECTOR`
 
 Returns the underlying sequence associated with the collector `COLLECTOR`. The sequence should contain all items accumulated up to the call to this function.
 
-No items should be accumulated, by `ACCUMULATE` or `EXTEND`, after this function is called.
+No items should be accumulated, by [ACCUMULATE](#accumulate) or [EXTEND](#extend), after this function is called.
 
-The sequence returned might not be the same object passed to `MAKE-COLLECTOR`.
+The sequence returned might not be the same object passed to [MAKE-COLLECTOR](#make-collector).
 
+
+<a id="extend"></a>
 
 #### EXTEND
 
@@ -1005,28 +1047,30 @@ Generic Function: `EXTEND COLLECTOR SEQUENCE`
 
 Accumulates all elements of the sequence `SEQUENCE` into the sequence associated with the collector `COLLECTOR`.
 
-If `SEQUENCE` is an iterator all elements up-to the end of the iterator (till `ENDP` returns true) should be accumulated.
+If `SEQUENCE` is an iterator all elements up-to the end of the iterator (till [ENDP](#endp) returns true) should be accumulated.
 
-Implementing this method is optional as default methods are provided for iterators and sequences, which simply accumulate each element one by one using `ACCUMULATE`.
+Implementing this method is optional as default methods are provided for iterators and sequences, which simply accumulate each element one by one using [ACCUMULATE](#accumulate).
 
 Methods:
 
 -   `T ITERATOR`
     
-    Accumulates all elements returned by the iterator `SEQUENCE` (till `(ENDP SEQUENCE)` returns true), into the sequence associated with the collector. The elements are accumulated one by one using `ACCUMULATE`.
+    Accumulates all elements returned by the iterator `SEQUENCE` (till `(ENDP SEQUENCE)` returns true), into the sequence associated with the collector. The elements are accumulated one by one using [ACCUMULATE](#accumulate).
     
     The iterator is copied thus the position of the iterator passed as an argument is not modified.
 
 -   `T T`
     
-    Accumulates all elements of `SEQUENCE`, into the sequence associated with the collector. The elements are accumulated one by one using `ACCUMULATE`.
+    Accumulates all elements of `SEQUENCE`, into the sequence associated with the collector. The elements are accumulated one by one using [ACCUMULATE](#accumulate).
     
-    The sequence iteration is done using the iterator interface.
+    The sequence iteration is done using the [Iterator](#iterator) interface.
 
 
-<a id="orgd690908"></a>
+<a id="sequences"></a>
 
 ### Sequences
+
+Generic sequence functions.
 
 
 #### Creation
@@ -1057,6 +1101,8 @@ Methods:
     If the `:KEEP-ELEMENT-TYPE` argument is provided and is true, the element type of the new vector is the same as the element type of `SEQUENCE`.
 
 
+<a id="make-sequence-of-type"></a>
+
 ##### MAKE-SEQUENCE-OF-TYPE
 
 Generic Function: `MAKE-SEQUENCE-OF-TYPE TYPE ARGS`
@@ -1070,17 +1116,21 @@ The default method creates a built-in sequence of the same type as that returned
 ```
 
 
+<a id="sequence-of-type"></a>
+
 ##### SEQUENCE-OF-TYPE
 
 Function: `SEQUENCE-OF-TYPE TYPE`
 
-Creates a new sequence of type `TYPE`, using `MAKE-SEQUENCE-OF-TYPE`.
+Creates a new sequence of type `TYPE`, using [MAKE-SEQUENCE-OF-TYPE](#make-sequence-of-type).
 
 If `TYPE` is a list the `CAR` of the list is passed as the first argument, to `MAKE-SEQUENCE-OF-TYPE`, and the `CDR` is passed as the second argument. Otherwise, if `TYPE` is not a list, it is passed as the first argument and `NIL` is passed as the second argument.
 
 
 #### Sequence Elements
 
+
+<a id="elt"></a>
 
 ##### ELT
 
@@ -1096,7 +1146,7 @@ Methods:
 
 -   `ARRAY T`
     
-    Multi-dimensional Arrays.
+    Multi-Dimensional Arrays.
     
     Returns `(ROW-MAJOR-AREF SEQUENCE INDEX)`.
 
@@ -1119,7 +1169,7 @@ Methods:
 
 -   `T ARRAY T`
     
-    Multi-dimensional Arrays.
+    Multi-Dimensional Arrays.
     
     Returns `(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)`
 
@@ -1136,7 +1186,7 @@ Returns the first element in the sequence `SEQUENCE`.
 
 Implemented for lists, vectors and multi-dimensional arrays. For multi-dimensional arrays, the first element is obtained by `ROW-MAJOR-AREF`.
 
-The default method is implemented using `GENERIC-CL:ELT`, i.e. is equivalent to:
+The default method is implemented using [GENERIC-CL:ELT](#elt), i.e. is equivalent to:
 
 ```lisp
 (elt sequence index)
@@ -1155,7 +1205,7 @@ Implemented for lists, vectors and multi-dimensional arrays. For multi-dimension
 (row-major-aref sequence (- (array-total-size array) 1 n))
 ```
 
-The default method is implemented using `GENERIC-CL:ELT`, i.e. is equivalent to:
+The default method is implemented using [GENERIC-CL:ELT](#elt), i.e. is equivalent to:
 
 ```lisp
 (elt sequence (- (length sequence) 1 n))
@@ -1191,7 +1241,7 @@ Methods:
     
     **Note:** Signals a `TYPE-ERROR` if the vector is not adjustable.
 
-**Note:** This method is not implemented for lists as remove the first element of a list cannot be implemented (efficiently) as a side effect alone.
+**Note:** This method is not implemented for lists as removing the first element of a list cannot be implemented (efficiently) as a side effect alone.
 
 
 #### Length
@@ -1213,13 +1263,13 @@ The following default methods are implemented:
     
     Returns the number of elements between the iterator's current position (inclusive) and the end of the iterator's subsequence.
     
-    This is implemented by advancing the iterator (by `ADVANCE`) till `ENDP` returns true, thus is a linear `O(n)`, in time, operation.
+    This is implemented by advancing the iterator (by [ADVANCE](#advance)) till [ENDP](#endp) returns true, thus is a linear `O(n)` time operation.
     
     More efficient specialized methods are provided for iterators to sequences for which the size is known.
 
 -   `T`
     
-    Returns the length of the generic sequence by creating an iterator to the sequence and calling the `ITERATOR` specialized method. Thus this is a linear `O(n)`, in time, operation unless a more efficient method, which is specialized on the sequence's iterator type, is implemented.
+    Returns the length of the generic sequence by creating an iterator to the sequence and calling the [ITERATOR](#iterator-struct) specialized method. Thus this is a linear `O(n)`, in time, operation unless a more efficient method, which is specialized on the sequence's iterator type, is implemented.
 
 
 #### Subsequences
@@ -1233,9 +1283,9 @@ Generic Function: `SUBSEQ SEQUENCE START &OPTIONAL END`
 
 Returns a new sequence that contains the elements of `SEQUENCE` at the positions in the range `[START, END)`. If `SEQUENCE` is an iterator, an iterator for the sub-sequence relative to the current position of the iterator is returned.
 
-`START` is the index of the first element of the subsequence, with `0` indicating the start of the sequence. if `SEQUENCE` is an iterator, `START` is the number of times the iterator should be `ADVANCE`'d to reach the first element of the subsequence.
+`START` is the index of the first element of the subsequence, with `0` indicating the start of the sequence. if `SEQUENCE` is an iterator, `START` is the number of times the iterator should be [ADVANCE](#advance)'d to reach the first element of the subsequence.
 
-`END` is the index of the element following the last element of the subsequence. `NIL` (the default) indicates the end of the sequence. If `SEQUENCE` is an iterator, `END` is the number of times the iterator should be `ADVANCE`'d till the end position is reached.
+`END` is the index of the element following the last element of the subsequence. `NIL` (the default) indicates the end of the sequence. If `SEQUENCE` is an iterator, `END` is the number of times the iterator should be [ADVANCE](#advance)'d till the end position is reached.
 
 Methods:
 
@@ -1249,7 +1299,7 @@ Methods:
 
 -   `T T`
     
-    Returns the subsequence of the generic sequence. This requires that the `CLEARED` method, the iterator interface and collector interface are implemented for the generic sequence type.
+    Returns the subsequence of the generic sequence. This requires that the [CLEARED](#cleared) method, the [Iterator](#iterator) interface and [Collector](#collector) interface are implemented for the generic sequence type.
 
 
 ##### (SETF SUBSEQ)
@@ -1268,7 +1318,7 @@ Methods:
 
 -   `T T T`
     
-    Sets the elements of the generic sequence using the iterator interface, which should be implemented for both the types of `SEQUENCE` and `NEW-SEQUENCE`. This method requires that the `(SETF AT)` method is implemented for the iterator type of `SEQUENCE`.
+    Sets the elements of the generic sequence using the [Iterator](#iterator) interface, which should be implemented for both the types of `SEQUENCE` and `NEW-SEQUENCE`. This method requires that the [(SETF AT)](#setf-at) method is implemented for the iterator type of `SEQUENCE`.
 
 
 #### Sequence Operations
@@ -1316,11 +1366,11 @@ Two methods are implemented, for all functions, which are specialized on the fol
     
     Implements the sequence operation for generic sequences using the iterator interface.
     
-    The non-destructive functions only require that the mandatory iterator functions, the collector interface and [CLEARED](#cleared) method are implemented for the sequence's type.
+    The non-destructive functions only require that the [mandatory iterator functions](#mandatory-iterator-funcs), the [Collector](#collector) interface and [CLEARED](#cleared) method are implemented for the sequence's type.
     
     The destructive versions may additionally require that the optional [(SETF AT)](#setf-at) method is implemented as well.
 
-The default value of the `:TEST` keyword arguments is `GENERIC-CL:EQUALP`, this should be the default value when implementing methods for user-defined sequence types. The `:TEST-NOT` keyword arguments have been removed.
+The default value of the `:TEST` keyword arguments is [GENERIC-CL:EQUALP](#equalp), this should be the default value when implementing methods for user-defined sequence types. The `:TEST-NOT` keyword arguments have been removed.
 
 The following functions are identical in behavior to their `CL` counterparts, however are re-implemented using the iterator interface. Unlike the functions in the previous list, these are not generic functions since they take an arbitrary number of sequences as arguments.
 
@@ -1352,22 +1402,22 @@ Same as `MERGE` however is permitted to destructively modify either `SEQUENCE1` 
 
 Generic Function: `SORT SEQUENCE &KEY TEST KEY`
 
-Returns a new sequence of the same type as `SEQUENCE`, with the same elements sorted according to the order determined by the function `TEST`. `TEST` is `GENERIC-CL:LESSP` by default.
+Returns a new sequence of the same type as `SEQUENCE`, with the same elements sorted according to the order determined by the function `TEST`. `TEST` is [GENERIC-CL:LESSP](#lessp) by default.
 
 Unlike `CL:SORT` this function is non-destructive.
 
-For the sort algorithm to be efficient, efficient [ADVANCE-N,](#advance-n) [SUBSEQ](#subseq) and [LENGTH](#length) methods should be implemented for the iterator type of `SEQUENCE`'s.
+For the default method to be efficient, efficient [ADVANCE-N,](#advance-n) [SUBSEQ](#subseq) and [LENGTH](#length) methods should be implemented for the iterator type of `SEQUENCE`.
 
 
 ##### STABLE-SORT
 
 Generic Function: `STABLE-SORT SEQUENCE &KEY TEST KEY`
 
-Same as `SORT` however the sort operation is guaranteed to be stable. `TEST`. `TEST` is `GENERIC-CL:LESSP` by default.
+Same as `SORT` however the sort operation is guaranteed to be stable. `TEST`. `TEST` is [GENERIC-CL:LESSP](#lessp) by default.
 
 Unlike `CL:STABLE-SORT` this function is non-destructive.
 
-For the sort algorithm to be efficient, efficient [ADVANCE-N,](#advance-n) [SUBSEQ](#subseq) and [LENGTH](#length) methods should be implemented for the iterator type of `SEQUENCE`'s.
+For the default method to be efficient, efficient [ADVANCE-N,](#advance-n) [SUBSEQ](#subseq) and [LENGTH](#length) methods should be implemented for the iterator type of `SEQUENCE`.
 
 
 ##### NSORT
@@ -1404,7 +1454,7 @@ Destructively concatenates each sequence in `SEQUENCES` to the sequence `RESULT`
 
 Function: `MAP FUNCTION SEQUENCE &REST SEQUENCES`
 
-Creates a new sequence, of the same type as `SEQUENCE` (by `CLEARED`), containing the result of applying `FUNCTION` to each element of SEQUENCE and each element of each `SEQUENCE` in `SEQUENCES`.
+Creates a new sequence, of the same type as `SEQUENCE` (by [CLEARED](#cleared)), containing the result of applying `FUNCTION` to each element of SEQUENCE and each element of each `SEQUENCE` in `SEQUENCES`.
 
 This is equivalent (in behavior) to the `CL:MAP` function except the resulting sequence is always of the same type as the first sequence passed as an argument, rather than being determined by a type argument.
 
@@ -1429,10 +1479,12 @@ Applies `FUNCTION` on each element of each sequence in `SEQUENCES` and accumulat
 
 Function: `MAP-TO TYPE FUNCTION &REST SEQUENCES`
 
-Applies `FUNCTION` to each element of each sequence in `SEQUENCES` and stores the result in a new sequence of type `TYPE` (created using `SEQUENCE-OF-TYPE`). Returns the sequence in which the results of applying function are stored.
+Applies `FUNCTION` to each element of each sequence in `SEQUENCES` and stores the result in a new sequence of type `TYPE` (created using [SEQUENCE-OF-TYPE](#sequence-of-type)). Returns the sequence in which the results of applying the function are stored.
 
-This function is equivalent in arguments, and almost equivalent in behavior, to `CL:MAP`. The only difference is that if `TYPE` is a subtype of vector, the vector returned is adjustable with a fill-pointer.
+This function is equivalent in arguments, and almost equivalent in behavior, to `CL:MAP`. The only difference is that if `TYPE` is a subtype of vector, the vector returned is adjustable with a fill-pointer. A `NIL` type argument is not interpreted as do not accumulate the results, use [FOREACH](#foreach) for that.
 
+
+<a id="foreach"></a>
 
 ##### FOREACH
 
@@ -1443,16 +1495,26 @@ Applies `FUNCTION` on each element of each sequence in `SEQUENCES`.
 Returns `NIL`.
 
 
-<a id="org04b26f0"></a>
+<a id="generic-hash-tables"></a>
 
 ### Generic Hash-Tables
 
-This interface provides a hash-table data structure with the generic function `HASH` as the hash function and the generic function `GENERIC-CL:EQUALP` as the key comparison function. This allows the hash-tables to utilize keys of user-defined types, whereas the keys of standard hash tables are limited to numbers, characters, lists and strings.
+This interface provides a hash-table data structure with the generic function [HASH](#hash) as the hash function and the generic function [GENERIC-CL:EQUALP](#equalp) as the key comparison function. This allows the hash-tables to utilize keys of user-defined types, whereas the keys of standard hash tables are limited to numbers, characters, lists and strings.
 
-The generic hash-tables are implemented using [CL-CUSTOM-HASH-TABLE](https://github.com/metawilm/cl-custom-hash-table). If the Common Lisp implementation supports creating hash-tables with user-defined hash and comparison functions, standard hash-tables are used. However if the implementation does not support, user-defined has and comparison functions, a fallback solution is used, which is a custom hash-table implementation on top of standard hash-tables. The `HASH-MAP` structure wraps the custom hash-table which allows methods methods to be specialized on a single type `HASH-MAP` regardless of whether standard or custom hash-tables are used. Otherwise two identical methods would have to be implemented, one specializing on standard hash-tables and one specializing on custom hash-tables. More identical methods would have to be implemented if the method has hash-table specializers for more than one arguments, leading to a combinatorial explosion.
+The generic hash-tables are implemented using [CL-CUSTOM-HASH-TABLE](https://github.com/metawilm/cl-custom-hash-table). If the Common Lisp implementation supports creating hash-tables with user-defined hash and comparison functions, standard hash-tables are used. However if the implementation does not support user-defined hash and comparison functions, a fallback solution is used, which is a custom hash-table implementation on top of standard hash-tables. The [HASH-MAP](#hash-map) structure wraps the custom hash-table which allows methods methods to be specialized on a single type `HASH-MAP` regardless of whether standard or custom hash-tables are used. If the `HASH-MAP` wrapper were not used, two identical methods would have to be implemented, one specializing on standard hash-tables and one specializing on custom hash-tables. More identical methods would have to be implemented if the method has hash-table specializers for more than one arguments, leading to a combinatorial explosion.
 
-The functions in this interface are specialized on the `HASH-MAP` type, due to the issue described above, thus use this type, created with `MAKE-HASH-MAP`, rather than built-in hash-tables. If a hash-table is obtained from an external source, use `HASH-MAP` or `ENSURE-HASH-MAP` to convert it to a `HASH-MAP`.
+The functions in this interface are specialized on the `HASH-MAP` type, due to the issue described above, thus use this type, created with [MAKE-HASH-MAP](#make-hash-map), rather than built-in hash-tables. If a hash-table is obtained from an external source, use [HASH-MAP](#hash-map) or [ENSURE-HASH-MAP](#ensure-hash-map) to convert it to a `HASH-MAP`.
 
+**Standard Hash-Table Analogues:**
+
+| `CL:HASH-TABLE`  | `HASH-MAP` |
+|---------------- |---------- |
+| GETHASH          | GET        |
+| HASH-TABLE-COUNT | LENGTH     |
+| REMHASH          | ERASE      |
+
+
+<a id="hash-map"></a>
 
 #### HASH-MAP
 
@@ -1462,21 +1524,23 @@ Function: `HASH-MAP TABLE`
 
 The `HASH-MAP` structure wraps a standard `HASH-TABLE` or `CUSTOM-HASH-TABLE`. The `TABLE` slot, accessed with `HASH-MAP-TABLE`, stores the underlying hash-table.
 
-The `HASH-MAP` function creates a hash-map wrapping `TABLE`.
+The `HASH-MAP` function creates a hash-map wrapping a hash table passed as its only argument.
 
 
 ##### Implemented Interfaces
 
-The iterator interface is implemented for `HASH-MAP`'s. Each element returned by the iterator is a `CONS`' with the key in the `CAR` and the corresponding value in the `CDR`. The order in which the entries are iterated over is unspecified. Likewise it is unspecified which entries will be iterated over if `START` or `END` is provided, the only guarantee being that `END - START` entries are iterated over. The reverse iterator iterates over the entries in the same order as the normal iterator due to the order of iteration being unspecified.
+The iterator interface is implemented for `HASH-MAP`'s. Each element returned by the iterator is a `CONS` with the key in the `CAR` and the corresponding value in the `CDR`. The order in which the entries are iterated over is unspecified. Likewise it is unspecified which entries will be iterated over if `START` is non-zero and/or `END` is non-NIL, the only guarantee being that `END - START` entries are iterated over. The reverse iterator iterates over the entries in the same order as the normal iterator due to the order of iteration being unspecified.
 
 The [(SETF AT)](#setf-at) method for the `HASH-MAP` iterator sets the value corresponding to the key of the current entry, being iterated over, to the value passed as the argument to `SETF`.
 
-The collector interface is implemented for `HASH-MAP`'s. The `ACCUMULATE` method expects a `CONS` where the `CAR` is the key of the entry to create and the `CDR` is the corresponding value.
+The collector interface is implemented for `HASH-MAP`'s. The [ACCUMULATE](#accumulate) method expects a `CONS` where the `CAR` is the key of the entry to create and the `CDR` is the corresponding value.
 
-An `EQUALP` method is implemented for `HASH-MAP`'s which returns true if both maps contain the same number of `ENTRIES` and each key in the first map is present in the second map, with the corresponding value in the first map equal (by `EQUALP`) to the corresponding value in the second map. **Note:** if the two maps have different test functions, `EQUALP` is not necessarily symmetric i.e. `(EQUALP A B)` does not imply `(EQUALP B A)`.
+An [EQUALP](#equalp) method is implemented for `HASH-MAP`'s which returns true if both maps contain the same number of entries and each key in the first map is present in the second map, with the corresponding value in the first map equal (by `EQUALP`) to the corresponding value in the second map. **Note:** if the two maps have different test functions, the `EQUALP` is not necessarily symmetric i.e. `(EQUALP A B)` does not imply `(EQUALP B A)`.
 
-A `COPY` method is implemented for `HASH-MAPS` which by default creates a new map with the same entries as the original map. If `:DEEP T` is provided the values (but not the keys) are copied by `(COPY VALUE :DEEP T)`.
+A [COPY](#copy) method is implemented for `HASH-MAP`'s which by default creates a new map with the same entries as the original map. If `:DEEP T` is provided the values (but not the keys) are copied by `(COPY VALUE :DEEP T)`.
 
+
+<a id="make-hash-map"></a>
 
 #### MAKE-HASH-MAP
 
@@ -1484,17 +1548,21 @@ Function: `MAKE-HASH-MAP &KEY TEST &ALLOW-OTHER-KEYS`
 
 Creates a `HASH-MAP` wrapping a hash table with test function `TEST`, which defaults to `#'GENERIC-CL:EQUALP`.
 
-If `TEST` is either the symbol or function `GENERIC-CL:EQUALP`, then a generic hash-table with hash function `HASH` and comparison function `GENERIC-CL:EQUALP` is created. Otherwise `TEST` may be any of the standard hash-table test specifiers.
+If `TEST` is either the symbol or function `GENERIC-CL:EQUALP`, then a generic hash-table with hash function [HASH](#hash) and comparison function [GENERIC-CL:EQUALP](#equalp) is created. Otherwise `TEST` may be any of the standard hash-table test specifiers.
 
 The function accepts all additional arguments (including implementation specific arguments) accepted by `CL:MAKE-HASH-TABLE`.
 
+
+<a id="ensure-hash-map"></a>
 
 #### ENSURE-HASH-MAP
 
 Function: `ENSURE-HASH-MAP THING`
 
-If `MAP` is a `HASH-MAP` returns it, otherwise if `MAP` is a `HASH-TABLE` or `CUSTOM-HASH-TABLE` returns a `HASH-MAP` which wraps it. Signals an error if `MAP` is not of the aforementioned types.
+If `MAP` is a [HASH-MAP](#hash-map) returns it, otherwise if `MAP` is a `HASH-TABLE` or `CUSTOM-HASH-TABLE` returns a `HASH-MAP` which wraps it. Signals an error if `MAP` is not of the aforementioned types.
 
+
+<a id="hash"></a>
 
 #### HASH
 
@@ -1502,11 +1570,11 @@ Generic Function: `HASH OBJECT`
 
 Hash function for hash tables with the `GENERIC-CL:EQUALP` test specifier.
 
-Returns a hash code for `OBJECT`, which is a non-negative fixnum. If two objects are equal (under `GENERIC-CL:EQUALP`) then the hash codes, for the two objects, returned by `HASH` should be equal.
+Returns a hash code for `OBJECT`, which is a non-negative fixnum. If two objects are equal (under [GENERIC-CL:EQUALP](#equalp)) then the hash codes, for the two objects, returned by `HASH` should be equal.
 
 The default method calls `CL:SXHASH` which satisfies the constraint that `(CL:EQUAL X Y)` implies `(= (CL:SXHASH X) (CL:SXHASH Y))`.
 
-Currently no specialized method is provided for container/sequence objects such as lists. The default method does not violate the constraint for lists as keys, provided all `EQUALP` methods specialize on the same types for both their arguments, however will likely be inefficient.
+Currently no specialized method is provided for container/sequence objects such as lists. The default method does not violate the constraint for lists (but does violate the constraints for non-string vectors) as keys, provided all `EQUALP` methods specialize on the same types for both their arguments, however will likely be inefficient.
 
 
 #### GET
@@ -1515,7 +1583,7 @@ Generic Function: `GET KEY MAP &OPTIONAL DEFAULT`
 
 Returns the value of the entry corresponding to the key `KEY` in the map `MAP`. If the `MAP` does not contain any entry with that key, `DEFAULT` is returned. The second return value is true if an entry with key `KEY` was found in the map, false otherwise.
 
-Methods are provided `HASH-MAP`'s, standard `HASH-TABLE`'s, association lists (`ALISTS`) and property lists `PLISTS`. For `ALISTS` the `EQUALP` key comparison function is used. For `PLISTS` the `EQ` key comparison function is used.
+Methods are provided for `HASH-MAP`'s, standard `HASH-TABLE`'s, association lists (`ALISTS`) and property lists (`PLISTS`). For `ALISTS` the [EQUALP](#equalp) key comparison function is used. For `PLISTS` the `EQ` key comparison function is used.
 
 
 #### (SETF GET)
@@ -1536,6 +1604,8 @@ Removes the entry with key `KEY` from `MAP`.
 Returns true if the map contained an entry with key `KEY`.
 
 
+<a id="hash-map-alist"></a>
+
 #### HASH-MAP-ALIST
 
 Function: `HASH-MAP-ALIST MAP`
@@ -1547,7 +1617,7 @@ Returns an association list (`ALIST`) containing all the entries in the map `MAP
 
 Function: `ALIST-HASH-MAP ALIST &REST ARGS`
 
-Returns a `HASH-MAP` containing all entries in the association list `ALIST`. `ARGS` are the additional arguments passed to `MAKE-HASH-MAP`.
+Returns a [HASH-MAP](#hash-map) containing all entries in the association list `ALIST`. `ARGS` are the additional arguments passed to [MAKE-HASH-MAP](#make-hash-map).
 
 
 #### COERCE Methods
@@ -1556,14 +1626,14 @@ The following `COERCE` methods are provided for `HASH-MAPS`:
 
 -   `HASH-MAP (EQL 'ALIST)`
     
-    Returns an association list (`ALIST`) containing all the entries in the map. Equivalent to `HASH-MAP-ALIST`.
+    Returns an association list (`ALIST`) containing all the entries in the map. Equivalent to [HASH-MAP-ALIST](#hash-map-alist).
 
 -   `HASH-MAP (EQL 'PLIST)`
     
     Returns a property list (`PLIST`) containing all the entries in the map.
 
 
-<a id="orgd93f3b9"></a>
+<a id="set-operations"></a>
 
 ### Set Operations
 
@@ -1582,31 +1652,33 @@ Generic function wrappers are provided over the following Common Lisp set operat
 -   `UNION`
 -   `NUNION`
 
-For each function, methods specializing on `LISTS`, which simply call the corresponding function in the `CL` package, and `HASH-MAPS` are implemented. Each function accepts all keyword arguments accepted by the corresponding `CL` functions however they are ignored by the `HASH-MAP` methods.
+For each function, methods specializing on `LISTS`, which simply call the corresponding function in the `CL` package, and [HASH-MAP](#hash-map)'s are implemented. Each function accepts all keyword arguments accepted by the corresponding `CL` functions however they are ignored by the `HASH-MAP` methods.
 
-`HASH-MAP`'s may be used as sets, in which case the set elements are stored in the keys. The values of the map's entries are ignored by the set operations, and are unspecified in the sets returned by the set operation functions.
+[HASH-MAP](#hash-map)'s may be used as sets, in which case the set elements are stored in the keys. The values of the map's entries are ignored by the set operations. The values in the maps returned by the set operation functions are unspecified.
 
+
+<a id="adjoin"></a>
 
 #### ADJOIN
 
 Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
 
-Returns a new set, of the same type as `SET`, which contains `ITEM` and all element is `SET`.
+Returns a new set, of the same type as `SET`, which contains `ITEM` and all elements in `SET`.
 
-This function is non-destructive. A new set is always returned even if `SET` is a `HASH-MAP` / `HASH-SET`.
+This function is non-destructive. A new set is always returned even if `SET` is a [HASH-MAP](#hash-map) / [HASH-SET](#hash-set).
 
-Accepts all keyword arguments accepted by `CL:ADJOIN` however they are ignored by the `HASH-MAP` method.
+Accepts all keyword arguments accepted by `CL:ADJOIN` however they are ignored by the [HASH-MAP](#hash-map) method.
 
 
 #### NADJOIN
 
 Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
 
-Same as `ADJOIN` however is permitted to destructively modify `SET`.
+Same as [ADJOIN](#adjoin) however is permitted to destructively modify `SET`.
 
-The set returned is `EQ` to `SET` in the case of `SET` being a `HASH-MAP` however is not `EQ` if `SET` is a list, and is not required to be `EQ`. Thus this function should not be relied upon for its side effects.
+The set returned is `EQ` to `SET` in the case of `SET` being a [HASH-MAP](#hash-map) however is not `EQ` if `SET` is a list, and is not required to be `EQ`. Thus this function should not be relied upon for its side effects.
 
-Implemented for both lists and `HASH-MAPS`.
+Implemented for both lists and [HASH-MAP](#hash-map)'s.
 
 
 #### MEMBERP
@@ -1615,14 +1687,16 @@ Generic Function: `MEMBERP ITEM SET &KEY &ALLOW-OTHER-KEYS`
 
 Returns true if `ITEM` is an element of the set `SET`.
 
-Implemented for both lists and `HASH-MAPS`. All keyword arguments accepted by `CL:MEMBER` are accepted, however are ignored by the `HASH-MAP` method.
+Implemented for both lists and [HASH-MAP](#hash-map)'s. All keyword arguments accepted by `CL:MEMBER` are accepted, however are ignored by the `HASH-MAP` method.
 
+
+<a id="hash-set"></a>
 
 #### HASH-SET
 
 Structure: `HASH-SET`
 
-A hash-set is a `HASH-MAP` however it used to indicate that only the keys are important. This allows the `EQUALP` and `COPY` methods, specialized on `HASH-SETS` to be implemented more efficiently, as the keys are not compared/copied, than the methods specialized on `HASH-MAPS`.
+A hash-set is a [HASH-MAP](#hash-map) however it is used to indicate that only the keys are important. This allows the [EQUALP](#equalp) and [COPY](#copy) methods, specialized on `HASH-SET`'s to be implemented more efficiently, as the keys are not compared/copied, than the methods specialized on `HASH-MAPS`.
 
 The set operations work on both `HASH-MAPS` and `HASH-SETS`.
 
@@ -1638,19 +1712,19 @@ Returns a `HASH-SET` structure wrapping the standard `HASH-TABLE` or `CUSTOM-HAS
 
 Function: `HASH-SET &REST ELEMENTS`
 
-Returns a `HASH-SET` with elements `ELEMENTS`.
+Returns a [HASH-SET](#hash-set) with elements `ELEMENTS`.
 
 
 #### MAKE-HASH-SET
 
 Function: `MAKE-HASH-SET &KEY &ALLOW-OTHER-KEYS`
 
-Returns a new empty `HASH-SET`.
+Returns a new empty [HASH-SET](#hash-set).
 
-Accepts the same keyword arguments as `MAKE-HASH-MAP`. The default `TEST` function is `GENERIC-CL:EQUALP`.
+Accepts the same keyword arguments as [MAKE-HASH-MAP](#make-hash-map). The default `TEST` function is [GENERIC-CL:EQUALP](#equalp).
 
 
-<a id="org41fbc1a"></a>
+<a id="math-functions"></a>
 
 ### Math Functions
 
@@ -1686,7 +1760,7 @@ Generic function wrappers are provided for the following functions:
 -   `RATIONALIZE`
 
 
-<a id="orgaa6253c"></a>
+<a id="optimization"></a>
 
 ## Optimization
 
@@ -1708,7 +1782,7 @@ Example:
 
 This will result in the call to the `EQUALP` function being replaced with the body of the `NUMBER NUMBER` method.
 
-The n-argument equality and comparison functions also have associated compiler-macros which replace the calls to the n-argument functions with multiple inline calls to the binary functions, e.g. `(= 1 2 3)` is replaced with `(and (equalp 1 2) (equalp 1 3))`.
+The n-argument equality, comparison and arithmetic functions also have associated compiler-macros which replace the calls to the n-argument functions with multiple inline calls to the binary functions, e.g. `(= 1 2 3)` is replaced with `(and (equalp 1 2) (equalp 1 3))`.
 
 Thus the following should also result in the `EQUALP` function calls being statically dispatched, though this has not yet been tested:
 
@@ -1722,4 +1796,4 @@ Thus the following should also result in the `EQUALP` function calls being stati
 
 **Note:** STATIC-DISPATCH requires the ability to extract `TYPE` and `INLINE` declarations from implementation specific environment objects. This is provided by the [CL-ENVIRONMENTS](https://github.com/alex-gutev/cl-environments) library however in order for it to work on all supported implementations, the `ENABLE-HOOK` function (exported by `GENERIC-CL`) has to be called at some point before the generic function call is compiled.
 
-Visit [STATIC-DISPATCH](https://github.com/alex-gutev/static-dispatch) and [CL-ENVIRONMENTS](https://github.com/alex-gutev/cl-environments) for more information about these optimizations and the current limitations.
+See [STATIC-DISPATCH](https://github.com/alex-gutev/static-dispatch) and [CL-ENVIRONMENTS](https://github.com/alex-gutev/cl-environments) for more information about these optimizations and the current limitations.
