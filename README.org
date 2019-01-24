@@ -933,31 +933,51 @@ Coerces ~OBJECT~ to the type ~TYPE~.
 The default (~T T~) method simply calls ~CL:COERCE~.
 
 *** Iterator
+    :PROPERTIES:
+    :CUSTOM_ID: iterator
+    :END:
 
 The iterator interface is a generic interface for iterating over the
 elements of sequences and containers.
 
-The iterator interface is implemented for lists, vectors,
-multi-dimensional arrays and ~HASH-MAPS~.
+Implemented for lists, vectors, multi-dimensional arrays and
+[[#hash-map][HASH-MAP]]'s.
+
+Basic Usage:
+
+#+BEGIN_SRC lisp
+(loop
+   with it = (iterator sequence) ; Create iterator for SEQUENCE
+   until (endp it) ; Loop until the iterator's end position is reach
+   do
+     (pprint (at it)) ; Print element at iterator's position
+     (advance it)) ; Advance iterator to next position
+#+END_SRC
 
 **** Base Iterator Type
+     :PROPERTIES:
+     :CUSTOM_ID: iterator-struct
+     :END:
 
 Structure: ~ITERATOR~
 
-This structure serves as the base iterator type and is used as by
-certain methods of generic functions to specialize on iterators.
+This structure serves as the base iterator type and is used by certain
+methods of generic functions to specialize on iterators.
 
 All iterators should inherit from (include) ~ITERATOR~, in order for
 methods which specialize on iterators to be invoked.
 
-*Note:* A ~COPY~ method should be implemented for user-defined
+*Note:* A [[#copy][COPY]] method should be implemented for user-defined
 iterators.
 
 **** Iterator Creation
+     :PROPERTIES:
+     :CUSTOM_ID: iterator-creation
+     :END:
 
 [[#iterator-func][ITERATOR]] is the high-level function for creating iterators, whereas
-[[#make-iterator][MAKE-ITERATOR]] AND [[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] are the generic functions to
-implement for creating iterators for user-defined sequence types.
+[[#make-iterator][MAKE-ITERATOR]] AND [[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] are the generic iterator
+creation functions to implement for user-defined sequence types.
 
 ***** MAKE-ITERATOR
       :PROPERTIES:
@@ -974,7 +994,7 @@ indicates the first element of the sequence.
 
 ~END~ is the index of the element at which to terminate the iteration,
 i.e.  1 + the index of the last element to be iterated over. ~NIL~
-indicates the end of the sequence.
+indicates iterate till the end of the sequence.
 
 ***** MAKE-REVERSE-ITERATOR
       :PROPERTIES:
@@ -987,9 +1007,9 @@ Returns an iterator for the sub-sequence of ~SEQUENCE~, identified by
 the range ~[START, END)~, in which the elements are iterated over in
 reverse order.
 
-Even though the elements are iterated over in reverse order, ~START~
-and ~END~ are still relative to the start of the sequence, as in
-~MAKE-ITERATOR~.
+*Note:* Even though the elements are iterated over in reverse order,
+~START~ and ~END~ are still relative to the start of the sequence, as
+in ~MAKE-ITERATOR~.
 
 ~START~ is the index of the last element to visit.
 
@@ -1009,17 +1029,23 @@ the range ~[START, END)~.
 ~START~ (defaults to ~0~ - the start of the sequence) and ~END~
 (defaults to ~NIL~ - the end of the sequence) are the start and end
 indices of the sub-sequence to iterated over (see [[#make-iterator][MAKE-ITERATOR]] and
-[[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] for more information).
+[[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] for more a detailed description).
 
 If ~FROM-END~ is true a reverse iterator is created (by
-~MAKE-REVERSE-ITERATOR~) otherwise a normal iterator is created (by
-~MAKE-ITERATOR~).
+[[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]]) otherwise a normal iterator is created (by
+[[#make-iterator][MAKE-ITERATOR]]).
 
 **** Mandatory Functions
+     :PROPERTIES:
+     :CUSTOM_ID: mandatory-iterator-funcs
+     :END:
 
 These functions have to be implemented for all user-defined iterators.
 
 ***** AT
+      :PROPERTIES:
+      :CUSTOM_ID: at
+      :END:
 
 Generic Function: ~AT ITERATOR~
 
@@ -1030,6 +1056,9 @@ The effects of calling this method, after the iterator has reached the
 end of the subsequence are unspecified.
 
 ***** ENDP
+      :PROPERTIES:
+      :CUSTOM_ID: endp
+      :END:
 
 Generic Function: ~ENDP ITERATOR~
 
@@ -1037,9 +1066,8 @@ Returns true if the iterator is at the end of the subsequence, false
 otherwise.
 
 The end of the subsequence is defined as the position past the last
-element of the subsequence, that is the position of the iterating
-after advancing it (by ~ADVANCE~) from the position of the last
-element.
+element of the subsequence, that is the position of the iterator after
+advancing it (by [[#advance][ADVANCE]]) from the position of the last element.
 
 If the subsequence is empty ~ENDP~ should immediately return true.
 
@@ -1047,15 +1075,21 @@ If the subsequence is empty ~ENDP~ should immediately return true.
 shadows the ~CL:ENDP~ function.
 
 ***** ADVANCE
+      :PROPERTIES:
+      :CUSTOM_ID: advance
+      :END:
 
 Generic Function: ~ADVANCE ITERATOR~
 
 Advances the iterator to the next element in the subsequence. After
-this method is called, subsequent calls to ~AT~ should return the next
+this method is called, subsequent calls to [[#at][AT]] should return the next
 element in the sequence or if the last element has already been
-iterated over, ~ENDP~ should return true.
+iterated over, [[#endp][ENDP]] should return true.
 
 **** Optional Functions
+     :PROPERTIES:
+     :CUSTOM_ID: optional-iterator-funcs
+     :END:
 
 Implementing the following functions for user-defined iterators is
 optional either because, a default method is provided which is
@@ -1063,6 +1097,9 @@ implemented using the mandatory functions, or the function is only
 used by a selected few sequence operations.
 
 ***** START
+      :PROPERTIES:
+      :CUSTOM_ID: start-func
+      :END:
 
 Generic Function: ~START ITERATOR~
 
@@ -1104,11 +1141,16 @@ operations will be used.
 Generic Function: ~ADVANCE-N ITERATOR N~
 
 Advances the iterator by ~N~ elements. This position should be
-equivalent to the positioned obtained by calling ~ADVANCE~ ~N~ times.
+equivalent to the positioned obtained by calling [[#advance][ADVANCE]] ~N~ times.
 
-The default method simply calls ~ADVANCE~, on ~ITERATOR~, ~N~ times.
+The default method simply calls [[#advance][ADVANCE]], on ~ITERATOR~, ~N~ times.
 
 **** Macros
+     :PROPERTIES:
+     :CUSTOM_ID: iteration-macros
+     :END:
+
+Macros for iterator over a generic sequence. Analogous to ~CL:DOLIST~.
 
 ***** DOITERS
       :PROPERTIES:
@@ -1120,14 +1162,14 @@ Macro: ~DOITERS (&REST ITERS) &BODY BODY~
 Iterates over one or more sequences with the sequence iterators bound
 to variables.
 
-Each element of ITERS is a list of the form ~(IT-VAR SEQUENCE
+Each element of ~ITERS~ is a list of the form ~(IT-VAR SEQUENCE
 . ARGS)~, where ~IT-VAR~ is the variable to which the iterator is
 bound, ~SEQUENCE~ is the sequence which will be iterated over and
 ~ARGS~ are the remaining arguments passed to the [[#iterator-func][ITERATOR]] function.
 
-The bindings to the ~IT-VARS~'s are visible to the forms in ~BODY~,
+The bindings to the ~IT-VAR~'s are visible to the forms in ~BODY~,
 which are executed once for each element in the sequence. After each
-iteration the sequence iterators are ~ADVANCE~'d. The loop terminates
+iteration the sequence iterators are [[#advance][ADVANCE]]'d. The loop terminates
 when the end of a sequence is reached.
 
 ***** DOITER
@@ -1138,6 +1180,9 @@ The is the same as [[#doiters][DOITERS]] except only a single sequence is iterat
 over.
 
 ***** DOSEQ
+      :PROPERTIES:
+      :CUSTOM_ID: doseq
+      :END:
 
 Macro: ~DOSEQ (ELEMENT SEQUENCE &REST ARGS) &BODY BODY~
 
@@ -1155,21 +1200,37 @@ of the element bound to ~ELEMENT~.
 The collector interface is a generic interface for accumulating items
 in a sequence/container.
 
-The collector interface is implemented for lists, vectors and
-~HASH-MAPS~.
+Implemented for lists, vectors and [[#hash-map][HASH-MAP]]'s.
+
+Basic Usage:
+
+#+begin_src lisp
+;; Create collector for the sequence, in this case an empty list
+(let ((c (make-collector nil)))
+  (accumulate c 1) ; Collect 1 into the sequence
+  (accumulate c 2) ; Collect 2 into the sequence
+  (extend c '(3 4 5)) ; Collect 3 4 5 into the sequence
+  (collector-sequence c)) ; Get the resulting sequence => '(1 2 3 4 5)
+#+end_src
 
 **** MAKE-COLLECTOR
+     :PROPERTIES:
+     :CUSTOM_ID: make-collector
+     :END:
 
 Generic Function: ~MAKE-COLLECTOR SEQUENCE &KEY FRONT~
 
-Returns a collector for accumulating items onto the back of the
-sequence ~SEQUENCE~. If ~:FRONT~ is provided and is true, the items
-are accumulated to the front of the sequence rather than back.
+Returns a collector for accumulating items to the end of the sequence
+~SEQUENCE~. If ~:FRONT~ is provided and is true, the items are
+accumulated to the front of the sequence rather than end.
 
 The collector may destructively modify ~SEQUENCE~ however it is not
 mandatory and may accumulate items into a copy of ~SEQUENCE~ instead.
 
 **** ACCUMULATE
+     :PROPERTIES:
+     :CUSTOM_ID: accumulate
+     :END:
 
 Generic Function: ~ACCUMULATE COLLECTOR ITEM~
 
@@ -1177,6 +1238,9 @@ Accumulates ~ITEM~ into the sequence associated with the collector
 ~COLLECTOR~.
 
 **** COLLECTOR-SEQUENCE
+     :PROPERTIES:
+     :CUSTOM_ID: collector-sequence
+     :END:
 
 Generic Function: ~COLLECTOR-SEQUENCE COLLECTOR~
 
@@ -1184,13 +1248,16 @@ Returns the underlying sequence associated with the collector
 ~COLLECTOR~. The sequence should contain all items accumulated up to
 the call to this function.
 
-No items should be accumulated, by ~ACCUMULATE~ or ~EXTEND~, after
-this function is called.
+No items should be accumulated, by [[#accumulate][ACCUMULATE]] or [[#extend][EXTEND]], after this
+function is called.
 
 The sequence returned might not be the same object passed to
-~MAKE-COLLECTOR~.
+[[#make-collector][MAKE-COLLECTOR]].
 
 **** EXTEND
+     :PROPERTIES:
+     :CUSTOM_ID: extend
+     :END:
 
 Generic Function: ~EXTEND COLLECTOR SEQUENCE~
 
@@ -1198,11 +1265,11 @@ Accumulates all elements of the sequence ~SEQUENCE~ into the sequence
 associated with the collector ~COLLECTOR~.
 
 If ~SEQUENCE~ is an iterator all elements up-to the end of the
-iterator (till ~ENDP~ returns true) should be accumulated.
+iterator (till [[#endp][ENDP]] returns true) should be accumulated.
 
 Implementing this method is optional as default methods are provided
 for iterators and sequences, which simply accumulate each element one
-by one using ~ACCUMULATE~.
+by one using [[#accumulate][ACCUMULATE]].
 
 Methods:
 
@@ -1211,7 +1278,7 @@ Methods:
      Accumulates all elements returned by the iterator ~SEQUENCE~
      (till ~(ENDP SEQUENCE)~ returns true), into the sequence
      associated with the collector. The elements are accumulated one
-     by one using ~ACCUMULATE~.
+     by one using [[#accumulate][ACCUMULATE]].
 
      The iterator is copied thus the position of the iterator passed
      as an argument is not modified.
@@ -1220,9 +1287,9 @@ Methods:
 
      Accumulates all elements of ~SEQUENCE~, into the sequence
      associated with the collector. The elements are accumulated one
-     by one using ~ACCUMULATE~.
+     by one using [[#accumulate][ACCUMULATE]].
 
-     The sequence iteration is done using the iterator interface.
+     The sequence iteration is done using the [[#iterator][Iterator]] interface.
 
 *** Sequences
 
@@ -1758,6 +1825,9 @@ hash-table is obtained from an external source, use ~HASH-MAP~ or
 ~ENSURE-HASH-MAP~ to convert it to a ~HASH-MAP~.
 
 **** HASH-MAP
+     :PROPERTIES:
+     :CUSTOM_ID: hash-map
+     :END:
 
 Structure: ~HASH-MAP~ with slots: ~TABLE~
 
