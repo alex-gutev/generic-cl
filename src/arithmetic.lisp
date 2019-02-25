@@ -273,30 +273,42 @@
 
 ;;; Optimizations
 
-(define-compiler-macro + (&rest xs)
-  (match xs
-    (nil 0)
+(define-compiler-macro + (&rest xs &environment env)
+  (if (numbers? xs env)
+      `(cl:+ ,@xs)
 
-    ((list x) x)
+      (match xs
+	(nil 0)
 
-    ((list* x xs)
-     (cl:reduce (lambda (sum x) `(add ,sum ,x)) xs :initial-value x))))
+	((list x) x)
 
-(define-compiler-macro - (x &rest xs)
-  (if xs
-      (cl:reduce (lambda (diff x) `(subtract ,diff ,x)) xs :initial-value x)
-      `(negate ,x)))
+	((list* x xs)
+	 (cl:reduce (lambda (sum x) `(add ,sum ,x)) xs :initial-value x)))))
 
-(define-compiler-macro * (&rest xs)
-  (match xs
-    (nil 1)
+(define-compiler-macro - (x &rest xs &environment env)
+  (if (numbers? (cons x xs) env)
+      `(cl:- ,x ,@xs)
 
-    ((list x) x)
+      (if xs
+	  (cl:reduce (lambda (diff x) `(subtract ,diff ,x)) xs :initial-value x)
+	  `(negate ,x))))
 
-    ((list* x xs)
-     (cl:reduce (lambda (prod x) `(multiply ,prod ,x)) xs :initial-value x))))
+(define-compiler-macro * (&rest xs &environment env)
+  (if (numbers? xs env)
+      `(cl:* ,@xs)
 
-(define-compiler-macro / (x &rest xs)
-  (if xs
-      (cl:reduce (lambda (frac x) `(divide ,frac ,x)) xs :initial-value x)
-      `(divide 1 ,x)))
+      (match xs
+	(nil 1)
+
+	((list x) x)
+
+	((list* x xs)
+	 (cl:reduce (lambda (prod x) `(multiply ,prod ,x)) xs :initial-value x)))))
+
+(define-compiler-macro / (x &rest xs &environment env)
+  (if (numbers? (cons x xs) env)
+      `(cl:/ ,x ,@xs)
+
+      (if xs
+	  (cl:reduce (lambda (frac x) `(divide ,frac ,x)) xs :initial-value x)
+	  `(divide 1 ,x))))

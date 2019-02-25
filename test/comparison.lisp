@@ -160,57 +160,63 @@
 
     (subtest "Test N-Argument Functions"
       (subtest "Test <"
-	(test (< 1))
-	(test (< -1))
-	(test (< #\a #\b))
-	(test (< 3 4))
-	(test (< 3 4 5))
-	(test (< 2 3 4 5 6))
-	(test (not (< 2 3 5 4 6))))
+	(test-nary <
+	  (test (< 1))
+	  (test (< -1))
+	  (test (< #\a #\b))
+	  (test (< 3 4))
+	  (test (< 3 4 5))
+	  (test (< 2 3 4 5 6))
+	  (test (not (< 2 3 5 4 6)))))
 
       (subtest "Test >"
-	(test (> 2))
-	(test (> -3))
-	(test (> #\3 #\1))
-	(test (> 5 3))
-	(test (> 5 4 3))
-	(test (> 5 4 3 2 1))
-	(test (not (> 5 4 1 2 3))))
+	(test-nary >
+	  (test (> 2))
+	  (test (> -3))
+	  (test (> #\3 #\1))
+	  (test (> 5 3))
+	  (test (> 5 4 3))
+	  (test (> 5 4 3 2 1))
+	  (test (not (> 5 4 1 2 3)))))
 
       (subtest "Test <="
-	(test (<= 1))
-	(test (<= -1))
-	(test (<= #\a #\a))
-	(test (<= 1 1))
-	(test (<= 1 2))
-	(test (<= 1 2 3))
-	(test (<= 1 2 3 4))
-	(test (not (<= 1 2 4 3))))
+	(test-nary <=
+	  (test (<= 1))
+	  (test (<= -1))
+	  (test (<= #\a #\a))
+	  (test (<= 1 1))
+	  (test (<= 1 2))
+	  (test (<= 1 2 3))
+	  (test (<= 1 2 3 4))
+	  (test (not (<= 1 2 4 3)))))
 
       (subtest "Test >="
-	(test (>= 4))
-	(test (>= -4))
-	(test (>= #\1 #\1))
-	(test (>= 2 2))
-	(test (>= 3 2))
-	(test (>= 3 2 1))
-	(test (>= 3 3 2 1))
-	(test (not (>= 3 4 2 1))))
+	(test-nary >=
+	  (test (>= 4))
+	  (test (>= -4))
+	  (test (>= #\1 #\1))
+	  (test (>= 2 2))
+	  (test (>= 3 2))
+	  (test (>= 3 2 1))
+	  (test (>= 3 3 2 1))
+	  (test (not (>= 3 4 2 1)))))
 
       (subtest "Test MAX"
-	(is (max 1 3 5 0 2) 5)
-	(is (max #\a #\b #\z #\d) #\z)
-	(is (max "abc" "def" "xyz") "xyz")
+	(test-nary max
+	  (is (max 1 3 5 0 2) 5)
+	  (is (max #\a #\b #\z #\d) #\z)
+	  (is (max "abc" "def" "xyz") "xyz")
 
-	(is (max 1) 1)
-	(is (max #\a) #\a))
+	  (is (max 1) 1)
+	  (is (max #\a) #\a)))
 
       (subtest "Test MIN"
-	(is (min 1 3 5 0 2) 0)
-	(is (min #\a #\b #\z #\d) #\a)
-	(is (min "def" "abc" "xyz") "abc")
+	(test-nary min
+	  (is (min 1 3 5 0 2) 0)
+	  (is (min #\a #\b #\z #\d) #\a)
+	  (is (min "def" "abc" "xyz") "abc")
 
-	(is (min 1) 1)
-	(is (min #\a) #\a)))))
+	  (is (min 1) 1)
+	  (is (min #\a) #\a))))))
 
 (finalize)

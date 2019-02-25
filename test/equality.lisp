@@ -29,39 +29,59 @@
 
 (plan nil)
 
+(defmacro test-nary (fn &body tests)
+  "Evaluates the forms TESTS once in a LOCALLY block with the n-ary
+   function FN declared INLINE (hinting that compiler-macros should be
+   expanded) and once in a LOCALLY block with FN declared NOTINLINE,
+   thus preventing compiler-macros from being expanded."
+
+  `(progn
+     (subtest "With Compiler Macros (Declared Inline)"
+       (locally (declare (inline ,fn))
+	 ,@tests))
+
+     (subtest "Without Compiler Macros (Declared Notinline)"
+       (locally (declare (notinline ,fn))
+	 ,@tests))))
+
+
 (subtest "Equality Predicates"
   (subtest "Numeric Equality"
     (is 1 1 :test #'equalp)
     (is 2.0 2 :test #'equalp)
     (is 6/3 2 :test #'equalp)
 
-    (ok (= 1) "(= 1)")
-    (ok (= 1 1.0 2/2))
-    (ok (not (/= 1 1.0 2/2)))
-
-
     (isnt 1 0 :test #'equalp)
     (isnt 1 'x :test #'equalp)
     (isnt 1 #\1 :test #'equalp)
 
-    (ok (/= 1) "(/= 1)")
-    (ok (/= 1 "1" #\1))
-    (ok (not (= 1 "1" #\1))))
+
+    (test-nary =
+      (ok (= 1) "(= 1)")
+      (ok (= 1 1.0 2/2))
+      (ok (not (= 1 "1" #\1))))
+
+    (test-nary /=
+      (ok (/= 1) "(/= 1)")
+      (ok (/= 1 "1" #\1))
+      (ok (not (/= 1 1.0 2/2)))))
 
   (subtest "Character Equality"
     (is #\a #\a :test #'equalp)
     (is #\0 #\0 :test #'equalp)
 
-    (ok (= #\a #\a #\a))
-    (ok (not (= #\a #\A 'a)))
-
-
     (isnt #\a #\A :test #'equalp)
     (isnt #\a 'a :test #'equalp)
     (isnt #\a "a" :test #'equalp)
 
-    (ok (/= #\a 'a "a"))
-    (ok (not (/= #\a #\a #\a))))
+
+    (test-nary =
+      (ok (= #\a #\a #\a))
+      (ok (not (= #\a #\A 'a))))
+
+    (test-nary /=
+      (ok (/= #\a 'a "a"))
+      (ok (not (/= #\a #\a #\a)))))
 
   (subtest "Cons/List Equality"
     (is '(1 2 3) (list 1.0 2 3.0) :test #'equalp)
@@ -109,8 +129,8 @@
     (isnt "world" "worlds" :test #'equalp))
 
   (subtest "Pathname Equality"
-    ;; This quite complicated to test properly as there are a lot of
-    ;; possible cases
+    ;; This is quite complicated to test properly as there are a lot
+    ;; of possible cases
 
     (is (pathname "/usr/local/bin") #p"/usr/local/bin" :test #'equalp)
 

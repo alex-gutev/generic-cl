@@ -113,14 +113,31 @@
 
 ;;; Optimizations
 
-(define-compiler-macro = (first &rest rest)
+(define-compiler-macro = (first &rest rest &environment env)
   (flet ((make-equalp (arg)
            `(equalp ,first ,arg)))
-    (or (null rest)
-	`(and ,@(mapcar #'make-equalp rest)))))
 
-(define-compiler-macro /= (first &rest rest)
+    (if (numbers? (cons first rest) env)
+	`(cl:= ,first ,@rest)
+
+	(or (null rest)
+	    `(and ,@(mapcar #'make-equalp rest))))))
+
+(define-compiler-macro /= (first &rest rest &environment env)
   (flet ((make-equalp (arg)
            `(not (equalp ,first ,arg))))
-    (or (null rest)
-	`(or ,@(mapcar #'make-equalp rest)))))
+
+    (if (numbers? (cons first rest) env)
+	`(cl:/= ,first ,@rest)
+
+	(or (null rest)
+	    `(or ,@(mapcar #'make-equalp rest))))))
+
+(defun numbers? (args env)
+  "Returns true if each form in ARGS evaluates (within the lexical
+   environment ENV) to a type that is a subtype of NUMBER."
+
+  (flet ((number? (thing)
+	   (subtypep (get-return-type thing env) 'number env)))
+
+    (every #'number? args)))

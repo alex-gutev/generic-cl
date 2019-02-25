@@ -25,6 +25,7 @@
 
 (defpackage :generic-cl.impl
   (:use :static-dispatch-cl
+	:cl-environments.tools
 	:agutil
 
 	:alexandria

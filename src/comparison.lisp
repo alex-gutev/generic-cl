@@ -185,22 +185,45 @@
 
 ;;; Optimizations
 
-(define-compiler-macro < (x1 &rest xs)
-  (or (null xs)
-      (cons 'and
-	    (mapcar (curry #'list 'lessp) (cons x1 xs) xs))))
+(define-compiler-macro < (x1 &rest xs &environment env)
+  (if (numbers? (cons x1 xs) env)
+      `(cl:< ,x1 ,@xs)
 
-(define-compiler-macro > (x1 &rest xs)
-  (or (null xs)
-      (cons 'and
-	    (mapcar (curry #'list 'greaterp) (cons x1 xs) xs))))
+      (or (null xs)
+	  (cons 'and
+		(mapcar (curry #'list 'lessp) (cons x1 xs) xs)))))
 
-(define-compiler-macro <= (x1 &rest xs)
-  (or (null xs)
-      (cons 'and
-	    (mapcar (curry #'list 'less-equal-p) (cons x1 xs) xs))))
+(define-compiler-macro > (x1 &rest xs &environment env)
+  (if (numbers? (cons x1 xs) env)
+      `(cl:> ,x1 ,@xs)
 
-(define-compiler-macro >= (x1 &rest xs)
-  (or (null xs)
-      (cons 'and
-	    (mapcar (curry #'list 'greater-equal-p) (cons x1 xs) xs))))
+      (or (null xs)
+	  (cons 'and
+		(mapcar (curry #'list 'greaterp) (cons x1 xs) xs)))))
+
+(define-compiler-macro <= (x1 &rest xs &environment env)
+  (if (numbers? (cons x1 xs) env)
+      `(cl:<= ,x1 ,@xs)
+
+      (or (null xs)
+	  (cons 'and
+		(mapcar (curry #'list 'less-equal-p) (cons x1 xs) xs)))))
+
+(define-compiler-macro >= (x1 &rest xs &environment env)
+  (if (numbers? (cons x1 xs) env)
+      `(cl:>= ,x1 ,@xs)
+
+      (or (null xs)
+	  (cons 'and
+		(mapcar (curry #'list 'greater-equal-p) (cons x1 xs) xs)))))
+
+
+(define-compiler-macro min (&whole form x &rest xs &environment env)
+  (if (numbers? (cons x xs) env)
+      `(cl:min ,x ,@xs)
+      form))
+
+(define-compiler-macro max (&whole form x &rest xs &environment env)
+  (if (numbers? (cons x xs) env)
+      `(cl:max ,x ,@xs)
+      form))
