@@ -2296,6 +2296,20 @@ Generic function wrappers are provided for the following functions:
    - ~RATIONAL~
    - ~RATIONALIZE~
 
+*** Miscellaneous
+
+**** DEFCONSTANT
+
+Macro: ~DEFCONSTANT SYMBOL VALUE &OPTIONAL DOCUMENTATION~
+
+Ensures that ~SYMBOL~ is a constant with a value that is equal, by
+~GENERIC-CL:EQUALP~ to ~VALUE~. This means that if ~SYMBOL~ already
+names a constant, which occurs when the ~DEFCONSTANT~ form is
+reevaluated, no condition will be signalled if its value is equal (by
+~GENERIC-CL:EQUALP~) to ~VALUE~.
+
+/Implemented using ~ALEXANDRIA:DEFINE-CONSTANT~/
+
 ** Optimization
    :PROPERTIES:
    :CUSTOM_ID: optimization

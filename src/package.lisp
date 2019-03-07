@@ -41,6 +41,7 @@
   (:shadow
    ;; Macros
    :defstruct
+   :defconstant
 
    ;; Equality
    :equalp := :/=
@@ -240,7 +241,10 @@
    :make-hash-set
    :hash-table-set
    :hash-set-table
-   :hash-set-p))
+   :hash-set-p
+
+   ;; Miscellaneous
+   :defconstant))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

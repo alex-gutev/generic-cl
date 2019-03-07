@@ -57,6 +57,7 @@
 		 (:file "hash-tables")
 		 (:file "sets")
 		 (:file "generic-sequences")
+		 (:file "misc")
 		 (:file "math"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
@@ -80,7 +81,8 @@
 		 (:test-file "sequences")
 		 (:test-file "object")
 		 (:test-file "hash-tables")
-		 (:test-file "sets"))))
+		 (:test-file "sets")
+		 (:test-file "misc"))))
 
   :perform (asdf:test-op :after (op c)
 			 (funcall (intern #.(string :run) :prove) c)))
