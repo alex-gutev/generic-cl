@@ -67,7 +67,9 @@
     (let* ((table (make-hash-map))
 	   (map (ensure-hash-map table)))
       (is-type map 'hash-map)
-      (is map table :test #'eq))
+      (is map table :test #'eq)
+
+      (is (hash-map-test map) 'equalp "Hash-table test is GENERIC-CL:EQUALP"))
 
     (let* ((table (make-hash-table))
 	   (map (ensure-hash-map table)))
@@ -118,7 +120,16 @@
 	(is (length map) 2)
 
 	(clear map)
-	(is (length map) 0 "Cleared"))))
+	(is (length map) 0 "Cleared")))
+
+    (subtest "Test ENSURE-GET"
+      (let ((map (make-hash-map)))
+	(is-values (ensure-get 'x map 3) '(3 nil))
+	(is-values (ensure-get 'y map) '(nil nil))
+
+	(is-values (ensure-get 'x map 5) '(3 t))
+	(is-values (ensure-get 'x map) '(3 t))
+	(is-values (ensure-get 'y map 4) '(nil t)))))
 
   (subtest "Test Hash-Map to list conversions and vice versa"
     (let ((map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))
@@ -150,6 +161,8 @@
     (let ((map (make-hash-map :test #'equal))
 	  (key (make-custom-key :slot1 1 :slot2 2)))
 
+      (is (hash-map-test map) 'equal "Hash-table test is CL:EQUAL")
+
       (setf (get key map) 'a)
       (setf (get "alex" map) 1)
       (setf (get "bob" map) 2)
@@ -168,6 +181,9 @@
 
   (subtest "Hash-Tables with CL:EQUALP test function"
     (let ((map (make-hash-map :test #'cl:equalp)))
+
+      (is (hash-map-test map) 'cl:equalp "Hash-table test is CL:EQUALP")
+
       (setf (get "alex" map) 1)
       (setf (get "Alex" map) 2)
       (setf (get "bob" map) 3)

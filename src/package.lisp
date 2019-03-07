@@ -219,9 +219,11 @@
    :hash-map-p
    :make-hash-map
    :ensure-hash-map
+   :hash-map-test
 
    :hash
    :get
+   :ensure-get
 
    :hash-map-alist
    :alist-hash-map

@@ -2027,6 +2027,15 @@ If ~MAP~ is a [[#hash-map][HASH-MAP]] returns it, otherwise if ~MAP~ is a
 ~HASH-TABLE~ or ~CUSTOM-HASH-TABLE~ returns a ~HASH-MAP~ which wraps
 it. Signals an error if ~MAP~ is not of the aforementioned types.
 
+**** HASH-MAP-TEST
+     :PROPERTIES:
+     :CUSTOM_ID: hash-map-test
+     :END:
+
+Function: ~HASH-MAP-TEST MAP~
+
+Returns the test function, as a symbol, of the underlying hash table.
+
 **** HASH
      :PROPERTIES:
      :CUSTOM_ID: hash
@@ -2079,6 +2088,20 @@ Sets the value of the entry corresponding to the key ~KEY~ in the map
 ~MAP~. ~DEFAULT~ is ignored.
 
 Only a method for ~HASH-MAPS~ and ~HASH-TABLES~ is provided.
+
+**** ENSURE-GET
+     :PROPERTIES:
+     :CUSTOM_ID: ensure-get
+     :END:
+
+Macro: ~ENSURE-GET KEY MAP &OPTIONAL DEFAULT~
+
+Like ~GET~ however if ~KEY~ is not found in ~MAP~ it is added, by
+~(SETF GET)~ with the value ~DEFAULT~.
+
+The first return value is the value corresponding to the key ~KEY~, or
+~DEFAULT~ if ~KEY~ is not found in ~MAP~. The second return value is
+true if ~KEY~ was found in ~MAP~, false otherwise.
 
 **** ERASE Method
      :PROPERTIES:

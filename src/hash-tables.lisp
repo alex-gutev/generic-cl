@@ -60,6 +60,7 @@
 
   table)
 
+
 (defun make-hash-map (&rest args &key &allow-other-keys)
   "Creates a hash map. If TEST is GENERIC-CL:EQUALP (the default), a
    generic hash-table, with GENERIC-CL:HASH as the hash function and
@@ -106,6 +107,13 @@
     #+custom-hash-table-fallback
     (custom-hash-table (hash-map map))))
 
+
+(defun hash-map-test (map)
+  "Returns the TEST function (as a symbol) of the underlying
+   hash-table of the `HASH-MAP' MAP."
+
+  (with-custom-hash-table
+    (hash-table-test (hash-map-table map))))
 
 (defmethod make-load-form ((map hash-map) &optional environment)
   (make-load-form-saving-slots map :environment environment))
@@ -158,6 +166,17 @@
 
 (defmethod erase ((table hash-table) key)
   (remhash key table))
+
+
+;;; Utility Macros
+
+(defmacro! ensure-get (o!key o!map &optional default)
+  `(multiple-value-bind (,g!value ,g!in-map?) (get ,g!key ,g!map)
+     (if ,g!in-map?
+	 (values ,g!value t)
+	 (values
+	  (setf (get ,g!key ,g!map) ,default)
+	  nil))))
 
 
 ;;; Alists/Plists
