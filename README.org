@@ -2320,8 +2320,14 @@ Generic function wrappers are provided for the following functions:
    - ~RATIONALIZE~
 
 *** Miscellaneous
+    :PROPERTIES:
+    :CUSTOM_ID: miscellaneous
+    :END:
 
 **** DEFCONSTANT
+     :PROPERTIES:
+     :CUSTOM_ID: defconstant
+     :END:
 
 Macro: ~DEFCONSTANT SYMBOL VALUE &OPTIONAL DOCUMENTATION~
 
