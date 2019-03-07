@@ -106,6 +106,11 @@
     #+custom-hash-table-fallback
     (custom-hash-table (hash-map map))))
 
+
+(defmethod make-load-form ((map hash-map) &optional environment)
+  (make-load-form-saving-slots map :environment environment))
+
+
 ;;;; Generic Lookup Functions
 
 (defgeneric get (key map &optional default)
