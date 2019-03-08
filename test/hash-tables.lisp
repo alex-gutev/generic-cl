@@ -131,6 +131,15 @@
 	(is-values (ensure-get 'x map) '(3 t))
 	(is-values (ensure-get 'y map 4) '(nil t)))))
 
+  (subtest "Test MAP-KEYS and MAP-VALUES"
+    (let ((map (make-hash-map)))
+      (setf (get 'a map) 1)
+      (setf (get 'b map) 2)
+      (setf (get "hello" map) #\z)
+
+      (is (map-keys map) '(a b "hello") :test (rcurry #'set-equal :test #'equal))
+      (is (map-values map) '(1 2 #\z) :test (rcurry #'set-equal :test #'equal))))
+
   (subtest "Test Hash-Map to list conversions and vice versa"
     (let ((map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))
       (is (length map) 3)

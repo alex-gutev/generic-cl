@@ -417,6 +417,44 @@
 	(push (cons key value) list))
       list)))
 
+
+(defgeneric map-keys (map)
+  (:documentation
+   "Returns a sequence containing all the keys in MAP."))
+
+(defgeneric map-values (map)
+  (:documentation
+   "Returns a sequence containing all the values in MAP."))
+
+
+(defmethod map-keys ((map hash-map))
+  (hashmap-keys (hash-map-table map)))
+
+(defmethod map-keys ((map hash-table))
+  (hashmap-keys map))
+
+(defun hashmap-keys (table)
+  "Returns a list containing the keys in the hash table TABLE."
+
+  (let (keys)
+    (do-generic-map (key nil table keys)
+      (push key keys))))
+
+
+(defmethod map-values ((map hash-map))
+  (hashmap-values (hash-map-table map)))
+
+(defmethod map-values ((map hash-table))
+  (hashmap-values map))
+
+(defun hashmap-values (table)
+  "Returns a list containing the values in the hash table TABLE."
+
+  (let (values)
+    (do-generic-map (nil value table values)
+      (push value values))))
+
+
 ;;;; Type Conversions
 
 (defmethod coerce ((map hash-map) (type (eql 'alist)))

@@ -2134,6 +2134,28 @@ Function: ~ALIST-HASH-MAP ALIST &REST ARGS~
 Returns a [[#hash-map][HASH-MAP]] containing all entries in the association list
 ~ALIST~. ~ARGS~ are the additional arguments passed to [[#make-hash-map][MAKE-HASH-MAP]].
 
+**** MAP-KEYS
+     :PROPERTIES:
+     :CUSTOM_ID: map-keys
+     :END:
+
+Generic Function: ~MAP-KEYS MAP~
+
+Returns a sequence containing all the keys in the map ~MAP~.
+
+Specialized only on ~HASH-MAP~'s and ~CL:HASH-TABLE~'s.
+
+**** MAP-VALUES
+     :PROPERTIES:
+     :CUSTOM_ID: map-values
+     :END:
+
+Generic Function: ~MAP-VALUES MAP~
+
+Returns a sequence containing all the values in the map ~MAP~.
+
+Specialized only on ~HASH-MAP~'s and ~CL:HASH-TABLE~'s.
+
 **** COERCE Methods
      :PROPERTIES:
      :CUSTOM_ID: coerce-hash-map

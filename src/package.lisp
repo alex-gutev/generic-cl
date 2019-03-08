@@ -228,6 +228,9 @@
    :hash-map-alist
    :alist-hash-map
 
+   :map-keys
+   :map-values
+
    :alist
    :plist
 
