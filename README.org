@@ -2305,6 +2305,9 @@ Accepts the same keyword arguments as [[#make-hash-map][MAKE-HASH-MAP]]. The def
 ~TEST~ function is [[#equalp][GENERIC-CL:EQUALP]].
 
 **** COERCE Methods
+     :PROPERTIES:
+     :CUSTOM_ID: coerce-hash-set
+     :END:
 
 The following ~COERCE~ Methods are provided:
 
