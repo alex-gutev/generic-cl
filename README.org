@@ -2204,8 +2204,8 @@ the corresponding ~CL~ functions however they are ignored by the
 
 [[#hash-map][HASH-MAP]]'s may be used as sets, in which case the set elements are
 stored in the keys. The values of the map's entries are ignored by the
-set operations. The values in the maps returned by the set operation
-functions are unspecified.
+set operations, thus the values of the sets returned, by the set
+operation functions, are unspecified.
 
 **** ADJOIN
      :PROPERTIES:
@@ -2265,7 +2265,13 @@ specialized on ~HASH-SET~'s to be implemented more efficiently, as the
 keys are not compared/copied, than the methods specialized on
 ~HASH-MAPS~.
 
-The set operations work on both ~HASH-MAPS~ and ~HASH-SETS~.
+The implementation of the [[#iterator][Iterator]] interface for ~HASH-SETS~ differs
+from the implementation for ~HASH-MAPS~ in that only the set elements,
+i.e. the keys of the underlying hash table, are returned rather than
+the key-value pairs.
+
+The set operations are implemented both for ~HASH-MAPS~ and
+~HASH-SETS~.
 
 **** HASH-TABLE-SET
      :PROPERTIES:

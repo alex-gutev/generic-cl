@@ -158,6 +158,44 @@
     (hash-table-set table)))
 
 
+
+;;; Iterators
+
+(defmethod make-iterator ((set hash-set) start end)
+  (make-list-iterator :cons (hash-set->list set start end)))
+
+(defmethod make-reverse-iterator ((set hash-set) start end)
+  (make-iterator set start end))
+
+
+(defun hash-set->list (set &optional (start 0) end)
+  "Returns a list containing the elements of the hash set SET,
+   i.e. the keys of the underlying hash table. START and END determine
+   the number of elements that will be returned. If START is zero and
+   END is NIL all elements are returned."
+
+  (let ((table (hash-set-table set)))
+    (flet ((get-all ()
+	     (let (list)
+	       (do-generic-map (key nil table)
+		 (push key list))
+	       list))
+
+	   (get-some (count)
+	     (let (list (n 0))
+	       (do-generic-map (key nil table)
+		 (when (cl:= n count)
+		   (return nil))
+		 (push key list)
+		 (cl:incf n))
+	       list)))
+
+      (with-custom-hash-table
+	(if (or (cl:plusp start) end)
+	    (get-some (cl:- (or end (hash-table-count table)) start))
+	    (get-all))))))
+
+
 ;;; Checking for membership and subsets
 
 (defmethod memberp (item (set hash-map) &key)

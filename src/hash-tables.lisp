@@ -326,9 +326,9 @@
 
 (defun hash-map->list (map &optional (start 0) end)
   "Returns an ALIST containing the elements of the hash map MAP. START
-   and END determine the number of elements that the hash map
-   contains. If START is zero and END is NIL all elements are included
-   in the ALIST."
+   and END determine the number of elements that will be returned. If
+   START is zero and END is NIL all elements are included in the
+   ALIST."
 
   (let ((table (hash-map-table map)))
     (flet ((get-all ()

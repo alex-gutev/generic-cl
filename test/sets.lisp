@@ -47,7 +47,7 @@
 
 		  (macrolet ((is-set (got expected &rest args)
 			       `(is ,got ,expected ,@args
-				   :test (rcurry #'set-equal :test #'equalp))))
+				    :test (rcurry #'set-equal :test #'equalp))))
 		    ,@tests))
 
 		(symbol-macrolet
@@ -500,6 +500,41 @@
 	 ;; Test union with the empty set
 	 (is-set (nunion empty set2) set2)
 	 (is-set (nunion set2 empty) set2)
-	 (is-set (nunion empty empty) empty))))))
+	 (is-set (nunion empty empty) empty)))))
+
+  (subtest "Test Hash Set Iterators"
+    (labels ((test-set-iterator (set &rest args &key start end &allow-other-keys)
+	       (let ((new-set (make-hash-set))
+		     (iter (apply #'iterator set args)))
+		 (loop
+		    until (endp iter)
+		    do
+		      (setf (get (at iter) new-set) t)
+		      (advance iter))
+
+		 (cond
+		   ((or start end)
+		    (ok (subsetp new-set set)
+			(format nil "~a is a subset of ~a" new-set set))
+
+		    (let ((len (- (or end (length set))
+				  (or start 0))))
+		      (is (length new-set)
+			  len
+			  (format nil "~a elements iterated over" len))))
+
+		   (t (is new-set set :test #'equalp))))))
+
+      (test-set-iterator (hash-set 1 2 'a "hello" #\z))
+      (test-set-iterator (hash-set 1 2 'a "hello" #\z) :from-end t)
+
+      (test-set-iterator (hash-set 'a 'b 'c 1 2 3) :start 2 :end 4)
+      (test-set-iterator (hash-set 'a 'b 'c 1 2 3) :start 2 :end 4 :from-end t)
+
+      (test-set-iterator (hash-set 'a 'b 'c 1 2 3) :end 3)
+      (test-set-iterator (hash-set 'a 'b 'c 1 2 3) :end 3 :from-end t)
+
+      (test-set-iterator (hash-set 'a 'b 'c 1 2 3) :start 1)
+      (test-set-iterator (hash-set 'a 'b 'c 1 2 3) :start 1 :from-end t))))
 
 (finalize)
