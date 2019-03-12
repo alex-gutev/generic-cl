@@ -132,7 +132,7 @@
 
 (defstruct (hash-set (:include hash-map)
 		     (:constructor hash-table-set (table))
-		     (:copier nil)) ;; Use `HASH-MAP' COPY method
+		     (:copier nil))
 
   "Set data structure implemented using hash tables.
 
@@ -157,6 +157,8 @@
 	(setf (gethash element table) t)))
     (hash-table-set table)))
 
+(defmethod copy ((set hash-set) &key)
+  (hash-table-set (copy-generic-hash-table (hash-set-table set) nil)))
 
 
 ;;; Iterators
