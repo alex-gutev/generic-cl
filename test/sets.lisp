@@ -77,6 +77,16 @@
 		       collect `(is-set ,var ,set "Not Modified"))))))
 
   (subtest "Test Hash Set Functions"
+    (subtest "Test HASH-SET Creation"
+      (flet ((contains-elements? (set list)
+	       (ok
+		(loop for elem in list
+		   always (nth-value 1 (get elem set)))
+		(format nil "~a contains elements ~a" set list))))
+
+	(contains-elements? (hash-set 'a 'b 'c 1 2 3 "hello" #\z) '(a b c 1 2 3 "hello" #\z))
+	(contains-elements? (coerce #1='(a b c 1 2 3 "hello" #\z) 'hash-set) #1#)))
+
     (subtest "Test EQUALP"
       (is (hash-set 1 2 3 4) (hash-set 1 4 2 3) :test #'equalp)
       (is (hash-set "abc" #S(custom-key :slot1 a :slot2 b)) (hash-set #S(custom-key :slot1 a :slot2 b) "abc") :test #'equalp)
