@@ -2304,6 +2304,14 @@ Returns a new empty [[#hash-set][HASH-SET]].
 Accepts the same keyword arguments as [[#make-hash-map][MAKE-HASH-MAP]]. The default
 ~TEST~ function is [[#equalp][GENERIC-CL:EQUALP]].
 
+**** COERCE Methods
+
+The following ~COERCE~ Methods are provided:
+
+   - ~LIST (EQL 'HASH-SET)~
+
+     Returns a ~HASH-SET~ containing the elements in the list.
+
 *** Math Functions
     :PROPERTIES:
     :CUSTOM_ID: math-functions

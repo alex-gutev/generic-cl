@@ -151,8 +151,13 @@
 (defun hash-set (&rest elements)
   "Returns a `HASH-SET' with elements ELEMENTS."
 
+  (list->hash-set elements))
+
+(defun list->hash-set (list)
+  "Returns a `HASH-SET' containing all the elements in LIST."
+
   (let ((table (make-generic-hash-table)))
-    (dolist (element elements)
+    (dolist (element list)
       (with-custom-hash-table
 	(setf (gethash element table) t)))
     (hash-table-set table)))
@@ -369,3 +374,9 @@
 
 (defmethod nunion ((set1 list) (set2 list) &key (test #'equalp) key)
   (cl:nunion set1 set2 :test test :key key))
+
+
+;;;; COERCE Methods
+
+(defmethod coerce ((list list) (type (eql 'hash-set)))
+  (list->hash-set list))
