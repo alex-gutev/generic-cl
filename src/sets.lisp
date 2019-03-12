@@ -203,6 +203,16 @@
 	    (get-all))))))
 
 
+;;; Collector
+
+(defmethod cleared ((set hash-set) &key)
+  (hash-table-set (make-empty-hash-table (hash-set-table set))))
+
+(defmethod accumulate ((set hash-set) item)
+  (with-custom-hash-table
+    (setf (gethash item (hash-set-table set)) t)))
+
+
 ;;; Checking for membership and subsets
 
 (defmethod memberp (item (set hash-map) &key)
