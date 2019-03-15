@@ -32,6 +32,3 @@
 
   (:shadowing-import-from :generic-cl
 			  :emptyp))
-
-(prove:plan nil)
-(prove:finalize)

@@ -72,7 +72,7 @@
 		"test"
 
 		:components
-		((:test-file "package")
+		((:file "package")
 		 (:test-file "equality")
 		 (:test-file "arithmetic")
 		 (:test-file "comparison")
