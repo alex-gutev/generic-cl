@@ -422,6 +422,13 @@
 	(doseq (elem list :start 1 :end 4)
 	  (is elem (car test-list))
 	  (setf test-list (cdr test-list)))
-	(is test-list nil)))))
+	(is test-list nil))
+
+      (let* ((map (alist-hash-map '((a . 1) (b . 2) (c . 3))))
+	     (new-map (make-hash-map)))
+	(doseq ((key . value) map)
+	  (setf (get key new-map) value))
+
+	(is map new-map :test #'equalp)))))
 
 (finalize)

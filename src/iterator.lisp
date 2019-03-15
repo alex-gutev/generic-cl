@@ -494,7 +494,9 @@
 (defmacro! doseq ((element o!sequence &rest args) &body body)
   "Iterates over the elements of the sequence SEQUENCE. For each
    element the forms in BODY are evaluated with the symbol named by
-   ELEMENT bound to the current element of the sequence.
+   ELEMENT bound to the current element of the sequence. If ELEMENT is
+   a list, destructuring is performed (as if by DESTRUCTURING-BIND) on
+   the sequence element.
 
    ARGS are additional arguments passed to the ITERATOR function.
 
@@ -504,5 +506,11 @@
    RETURN."
 
   `(doiter (,g!iter ,g!sequence ,@args)
-     (let ((,element (at ,g!iter)))
-       ,@body)))
+     ,(match element
+	((type list)
+	 `(destructuring-bind ,element (at ,g!iter)
+	    ,@body))
+
+	(_
+	 `(let ((,element (at ,g!iter)))
+	    ,@body)))))

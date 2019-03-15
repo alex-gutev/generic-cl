@@ -1190,7 +1190,9 @@ Iterates over the elements of ~SEQUENCE~. ~ARGS~ are the remaining
 arguments passed to the [[#iterator-func][ITERATOR]] function.
 
 The forms in ~BODY~ are executed once for each element, with the value
-of the element bound to ~ELEMENT~.
+of the element bound to ~ELEMENT~. If ~ELEMENT~ is a list, the
+sequence element is destructured, as if by ~DESTRUCTURING-BIND~
+according to the pattern specified by ~ELEMENT~.
 
 *** Collector
     :PROPERTIES:
