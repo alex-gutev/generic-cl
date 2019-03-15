@@ -69,6 +69,12 @@
       (is-type map 'hash-map)
       (is map table :test #'eq)
 
+      ;; Fails on CMUCL as CL-CUSTOM-HASH-TABLE uses a longer
+      ;; identifier of the form:
+      ;;
+      ;; CL-CUSTOM-HASH-TABLE:|custom-hash-table EQUALP HASH|
+
+      #-cmucl
       (is (hash-map-test map) 'equalp "Hash-table test is GENERIC-CL:EQUALP"))
 
     (let* ((table (make-hash-table))
