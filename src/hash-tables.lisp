@@ -150,7 +150,8 @@
   (declare (ignore default))
 
   (with-custom-hash-table
-    (setf (gethash key (hash-map-table map)) value)))
+    (setf (gethash key (hash-map-table map)) value)
+    value)) ; Return value as CL-CUSTOM-HASH-TABLE:GETHASH doesn't
 
 (defmethod (setf get) (value key (table hash-table) &optional default)
   (declare (ignore default))

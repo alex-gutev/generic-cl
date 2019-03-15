@@ -170,6 +170,11 @@
     (let ((map (make-hash-map :test #'equal))
 	  (key (make-custom-key :slot1 1 :slot2 2)))
 
+      ;; The following fails on CLISP as for some reason
+      ;; EXT:FASTHASH-EQUAL is returned, if the test function is
+      ;; EQUAL. Not sure whether this is against the Common Lisp Spec.
+
+      #-clisp
       (is (hash-map-test map) 'equal "Hash-table test is CL:EQUAL")
 
       (setf (get key map) 'a)
