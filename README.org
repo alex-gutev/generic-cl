@@ -22,13 +22,13 @@ which is extensible to user-defined types.
 The generic function interface is contained in the ~GENERIC-CL~
 package. This package should be used rather than ~COMMON-LISP~, as it
 shadows the symbols, in the ~COMMON-LISP~ package, which name a
-function for which there is a generic function wrapper. The
-~GENERIC-CL~ additionally reexports the remaining non-shadowed symbols
-in ~COMMON-LISP~.
+function for which there is a generic function wrapper. ~GENERIC-CL~
+additionally reexports the remaining non-shadowed symbols in
+~COMMON-LISP~.
 
-The ~GENERIC-CL-USER~ is also provided, which contains all the symbols
-in the ~CL-USER~ package and ~GENERIC-CL~. This package is intended to
-be used only at the REPL.
+The ~GENERIC-CL-USER~ package is also provided, which contains all the
+symbols in the ~CL-USER~ package and ~GENERIC-CL~. This package is
+intended to be used only at the REPL.
 
 ** Generic Interfaces
    :PROPERTIES:
@@ -142,7 +142,7 @@ comparison functions to implement for user-defined types. It is
 sufficient to just implement ~LESSP~ as the remaining functions have
 default methods that are implemented in terms of ~LESSP~.
 
-[[#lessp-nary][<]], [[#less-equal-p-nary][<=]], [[#greaterp-nary][>]], [[#greater-equal-p-nary][>=]] are the n-ary comparison function similar to the
+[[#lessp-nary][<]], [[#less-equal-p-nary][<=]], [[#greaterp-nary][>]], [[#greater-equal-p-nary][>=]] are the n-ary comparison functions similar to the
 functions with the same names in the ~COMMON-LISP~ package.
 
 **** LESSP
@@ -304,8 +304,8 @@ The default ~T T~ method returns:
 
 Function: ~< X &REST XS~
 
-Returns true if each argument is less than (by [[#lessp][LESSP]]) than the
-following argument.
+Returns true if each argument is less than the following argument, by
+[[#lessp][LESSP]].
 
 **** <=
      :PROPERTIES:
@@ -314,8 +314,8 @@ following argument.
 
 Function: ~<= X &REST XS~
 
-Returns true if each argument is less than or equal to (by [[#less-equal-p][LESS-EQUAL-P]])
-than the following argument.
+Returns true if each argument is less than or equal to the following
+argument, by [[#less-equal-p][LESS-EQUAL-P]].
 
 **** >
      :PROPERTIES:
@@ -324,8 +324,8 @@ than the following argument.
 
 Function: ~> X &REST XS~
 
-Returns true if each argument is greater than (by [[#greaterp][GREATERP]]) than the
-following argument.
+Returns true if each argument is greater than the following argument,
+by [[#greaterp][GREATERP]].
 
 **** >=
      :PROPERTIES:
@@ -334,8 +334,8 @@ following argument.
 
 Function: ~>= X &REST XS~
 
-Returns true if each argument is greater than or equal to (by
-[[#greater-equal-p][GREATER-EQUAL-P]]) than the following argument.
+Returns true if each argument is greater than or equal to the
+following argument, by [[#greater-equal-p][GREATER-EQUAL-P]].
 
 **** MIN
      :PROPERTIES:
@@ -650,8 +650,8 @@ Methods:
 
 Generic Function: ~SIGNUM A~
 
-Returns ~-1~, ~0~ or ~1~ depending on whether ~A~ is negative, ~A~ is
-equal to zero or ~A~ is positive.
+Returns ~-1~, ~0~ or ~1~ depending on whether ~A~ is negative, is
+equal to zero or is positive.
 
 Methods:
 
@@ -1028,7 +1028,7 @@ the range ~[START, END)~.
 
 ~START~ (defaults to ~0~ - the start of the sequence) and ~END~
 (defaults to ~NIL~ - the end of the sequence) are the start and end
-indices of the sub-sequence to iterated over (see [[#make-iterator][MAKE-ITERATOR]] and
+indices of the sub-sequence to iterate over (see [[#make-iterator][MAKE-ITERATOR]] and
 [[#make-reverse-iterator][MAKE-REVERSE-ITERATOR]] for more a detailed description).
 
 If ~FROM-END~ is true a reverse iterator is created (by
@@ -1094,7 +1094,7 @@ iterated over, [[#endp][ENDP]] should return true.
 Implementing the following functions for user-defined iterators is
 optional either because, a default method is provided which is
 implemented using the mandatory functions, or the function is only
-used by a selected few sequence operations.
+used by a select few sequence operations.
 
 ***** START
       :PROPERTIES:
@@ -1150,7 +1150,8 @@ The default method simply calls [[#advance][ADVANCE]], on ~ITERATOR~, ~N~ times.
      :CUSTOM_ID: iteration-macros
      :END:
 
-Macros for iterator over a generic sequence. Analogous to ~CL:DOLIST~.
+Macros for iteratoring over a generic sequence. Analogous to
+~CL:DOLIST~.
 
 ***** DOITERS
       :PROPERTIES:
@@ -1250,8 +1251,8 @@ Returns the underlying sequence associated with the collector
 ~COLLECTOR~. The sequence should contain all items accumulated up to
 the call to this function.
 
-No items should be accumulated, by [[#accumulate][ACCUMULATE]] or [[#extend][EXTEND]], after this
-function is called.
+The effects of accumulating items into the sequence, by [[#accumulate][ACCUMULATE]] or
+[[#extend][EXTEND]], after this function is called, are unspecified.
 
 The sequence returned might not be the same object passed to
 [[#make-collector][MAKE-COLLECTOR]].
@@ -1504,7 +1505,7 @@ Methods:
 
    - ~VECTOR T~
 
-     Shifts the elements following ~INDEX~ one elements towards the
+     Shifts the elements following ~INDEX~ one element towards the
      front of the vector and shrinks the vector by one element.
 
      *Note:* Signals a ~TYPE-ERROR~ if the vector is not adjustable.
@@ -1783,7 +1784,7 @@ and [[#length][LENGTH]] methods should be implemented for the iterator type of
 Generic Function: ~STABLE-SORT SEQUENCE &KEY TEST KEY~
 
 Same as ~SORT~ however the sort operation is guaranteed to be
-stable. ~TEST~. ~TEST~ is [[#lessp][GENERIC-CL:LESSP]] by default.
+stable. ~TEST~ is [[#lessp][GENERIC-CL:LESSP]] by default.
 
 Unlike ~CL:STABLE-SORT~ this function is non-destructive.
 
@@ -1992,13 +1993,13 @@ both maps contain the same number of entries and each key in the first
 map is present in the second map, with the corresponding value in the
 first map equal (by ~EQUALP~) to the corresponding value in the second
 map. *Note:* if the two maps have different test functions, the
-~EQUALP~ is not necessarily symmetric i.e. ~(EQUALP A B)~ does not
-imply ~(EQUALP B A)~.
+~EQUALP~ method is not necessarily symmetric i.e. ~(EQUALP A B)~ does
+not imply ~(EQUALP B A)~.
 
 A [[#copy][COPY]] method is implemented for ~HASH-MAP~'s which by default creates
 a new map with the same entries as the original map. If ~:DEEP T~ is
-provided the values (but not the keys) are copied by ~(COPY VALUE
-:DEEP T)~.
+provided the values (but not the keys as they should be immutable) are
+copied by ~(COPY VALUE :DEEP T)~.
 
 **** MAKE-HASH-MAP
      :PROPERTIES:
@@ -2038,6 +2039,10 @@ Function: ~HASH-MAP-TEST MAP~
 
 Returns the test function, as a symbol, of the underlying hash table.
 
+*Note:* On some implementations the return value is not
+~GENERIC-CL:EQUALP~, even if the hash table has ~HASH~ and
+~GENERIC-CL:EQUALP~ as its hash and comparison functions.
+
 **** HASH
      :PROPERTIES:
      :CUSTOM_ID: hash
@@ -2059,8 +2064,8 @@ Y))~.
 Currently no specialized method is provided for container/sequence
 objects such as lists. The default method does not violate the
 constraint for lists (but does violate the constraints for non-string
-vectors) as keys, provided all ~EQUALP~ methods specialize on the same
-types for both their arguments, however will likely be inefficient.
+vectors) as keys provided the lists only contain numbers, characters,
+symbols, strings and other lists.
 
 **** GET
      :PROPERTIES:
@@ -2206,7 +2211,7 @@ the corresponding ~CL~ functions however they are ignored by the
 
 [[#hash-map][HASH-MAP]]'s may be used as sets, in which case the set elements are
 stored in the keys. The values of the map's entries are ignored by the
-set operations, thus the values of the sets returned, by the set
+set operations, thus the map values of the sets returned, by the set
 operation functions, are unspecified.
 
 **** ADJOIN
@@ -2263,9 +2268,9 @@ Structure: ~HASH-SET~
 
 A hash-set is a [[#hash-map][HASH-MAP]] however it is used to indicate that only the
 keys are important. This allows the [[#equalp][EQUALP]] and [[#copy][COPY]] methods,
-specialized on ~HASH-SET~'s to be implemented more efficiently, as the
-keys are not compared/copied, than the methods specialized on
-~HASH-MAPS~.
+specialized on ~HASH-SET~'s to be implemented more efficiently, than
+the methods specialized on ~HASH-MAPS~, as the map values are not
+compared/copied.
 
 The implementation of the [[#iterator][Iterator]] interface for ~HASH-SETS~ differs
 from the implementation for ~HASH-MAPS~ in that only the set elements,
