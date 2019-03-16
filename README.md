@@ -26,9 +26,9 @@ GENERIC-CL provides a generic function wrapper over various functions in the Com
 
 ## Usage
 
-The generic function interface is contained in the `GENERIC-CL` package. This package should be used rather than `COMMON-LISP`, as it shadows the symbols, in the `COMMON-LISP` package, which name a function for which there is a generic function wrapper. The `GENERIC-CL` additionally reexports the remaining non-shadowed symbols in `COMMON-LISP`.
+The generic function interface is contained in the `GENERIC-CL` package. This package should be used rather than `COMMON-LISP`, as it shadows the symbols, in the `COMMON-LISP` package, which name a function for which there is a generic function wrapper. `GENERIC-CL` additionally reexports the remaining non-shadowed symbols in `COMMON-LISP`.
 
-The `GENERIC-CL-USER` is also provided, which contains all the symbols in the `CL-USER` package and `GENERIC-CL`. This package is intended to be used only at the REPL.
+The `GENERIC-CL-USER` package is also provided, which contains all the symbols in the `CL-USER` package and `GENERIC-CL`. This package is intended to be used only at the REPL.
 
 
 <a id="interfaces"></a>
@@ -58,39 +58,39 @@ Returns true if object `A` is equal to object `B`.
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns true if `A` and `B` represent the same numeric value, by `CL:=`.
 
 -   `CHARACTER CHARACTER`
-
+    
     Returns true if `A` and `B` represent the same character, by `CL:CHAR=`.
 
 -   `CONS CONS`
-
+    
     Returns true if the `CAR` of `A` is equal (by `EQUALP`) to the `CAR` of `B` and if the `CDR` of `A` is equal (by `EQUALP`) to the `CDR` of `B`.
 
 -   `VECTOR VECTOR`
-
+    
     Returns true if `A` and `B` are vectors of the same length and each element of `A` is equal (by `EQUALP`) to the corresponding element of `B`.
 
 -   `ARRAY ARRAY`
-
+    
     Multi-dimensional arrays.
-
+    
     Returns true if `A` and `B` have the same dimensions and each element of `A` is equal (by `EQUALP`) to the corresponding element of `B`.
 
 -   `STRING STRING`
-
+    
     Returns true if both strings are equal, by `CL:STRING=`.
 
 -   `PATHNAME PATHNAME`
-
+    
     Returns true if both `PATHNAME` objects are functionally equivalent, as per the `PATHNAME-EQUAL` function from the `CL-FAD` library.
 
 -   `T T`
-
+    
     Default method.
-
+    
     Returns true if `A` and `B` are the same object, by `CL:EQ`.
 
 
@@ -120,7 +120,7 @@ The comparison interface provides functions for comparing objects in terms of gr
 
 [LESSP](#lessp), [LESS-EQUAL-P](#less-equal-p), [GREATERP](#greaterp), [GREATER-EQUAL-P](#greater-equal-p) are the generic binary comparison functions to implement for user-defined types. It is sufficient to just implement `LESSP` as the remaining functions have default methods that are implemented in terms of `LESSP`.
 
-[<](#lessp-nary), [<=](#less-equal-p-nary), [>](#greaterp-nary), [>=](#greater-equal-p-nary) are the n-ary comparison function similar to the functions with the same names in the `COMMON-LISP` package.
+[<](#lessp-nary), [<=](#less-equal-p-nary), [>](#greaterp-nary), [>=](#greater-equal-p-nary) are the n-ary comparison functions similar to the functions with the same names in the `COMMON-LISP` package.
 
 
 <a id="lessp"></a>
@@ -136,15 +136,15 @@ It is sufficient to just implement this function, for user-defined types, as the
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns true if the numeric value of `A` is less than the numeric value of `B`, by `CL:<`.
 
 -   `CHARACTER CHARACTER`
-
+    
     Returns true if the character code of `A` is less than the character code of `B`, by `CL:CHAR<`.
 
 -   `STRING STRING`
-
+    
     Returns true if the string `A` is lexicographically less than `B`, by `CL:STRING<`.
 
 
@@ -159,21 +159,21 @@ Returns true if object `A` is less than or equal to object `B`.
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns true if the numeric value of `A` is less than or equal to the numeric value of `B`, by `CL:<=`.
 
 -   `CHARACTER CHARACTER`
-
+    
     Returns true if the character code of `A` is less than or equal to the character code of `B`, by `CL:CHAR<=`.
 
 -   `STRING STRING`
-
+    
     Returns true if the string `A` is lexicographically less than or equal to `B`, by `CL:STRING<=`.
 
 -   `T T`
-
+    
     Returns true if either `A` is less than `B` (by [LESSP](#lessp)) or `A` is equal to `B` (by [EQUALP](#equalp)).
-
+    
     ```lisp
     (or (lessp a b) (equalp a b))
     ```
@@ -190,21 +190,21 @@ Returns true if object `A` is greater than object `B`.
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns true if the numeric value of `A` is greater than the numeric value of `B`, by `CL:>`.
 
 -   `CHARACTER CHARACTER`
-
+    
     Returns true if the character code of `A` is greater than the character code of `B`, by `CL:CHAR>`.
 
 -   `STRING STRING`
-
+    
     Returns true if the string `A` is lexicographically greater than `B`, by `CL:STRING>`.
 
 -   `T T`
-
+    
     Returns true if `A` is not less than or equal to `B`, by [LESS-EQUAL-P](#less-equal-p).
-
+    
     ```lisp
     (not (less-equal-p a b))
     ```
@@ -221,21 +221,21 @@ Returns true if object `A` is greater than or equal to object `B`.
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns true if the numeric value of `A` is greater than or equal to the numeric value of `B`, by `CL:>=`.
 
 -   `CHARACTER CHARACTER`
-
+    
     Returns true if the character code of `A` is greater than or equal to the character code of `B`, by `CL:CHAR>=`.
 
 -   `STRING STRING`
-
+    
     Returns true if the string `A` is lexicographically greater than or equal to `B`, by `CL:STRING>=`.
 
 -   `T T`
-
+    
     Returns true if `A` is not less than `B`, by [LESSP](#lessp).
-
+    
     ```lisp
     (not (lessp a b))
     ```
@@ -264,7 +264,7 @@ The default `T T` method returns:
 
 Function: `< X &REST XS`
 
-Returns true if each argument is less than (by [LESSP](#lessp)) than the following argument.
+Returns true if each argument is less than the following argument, by [LESSP](#lessp).
 
 
 <a id="less-equal-p-nary"></a>
@@ -273,7 +273,7 @@ Returns true if each argument is less than (by [LESSP](#lessp)) than the followi
 
 Function: `<= X &REST XS`
 
-Returns true if each argument is less than or equal to (by [LESS-EQUAL-P](#less-equal-p)) than the following argument.
+Returns true if each argument is less than or equal to the following argument, by [LESS-EQUAL-P](#less-equal-p).
 
 
 <a id="greaterp-nary"></a>
@@ -282,7 +282,7 @@ Returns true if each argument is less than or equal to (by [LESS-EQUAL-P](#less-
 
 Function: `> X &REST XS`
 
-Returns true if each argument is greater than (by [GREATERP](#greaterp)) than the following argument.
+Returns true if each argument is greater than the following argument, by [GREATERP](#greaterp).
 
 
 <a id="greater-equal-p-nary"></a>
@@ -291,7 +291,7 @@ Returns true if each argument is greater than (by [GREATERP](#greaterp)) than th
 
 Function: `>= X &REST XS`
 
-Returns true if each argument is greater than or equal to (by [GREATER-EQUAL-P](#greater-equal-p)) than the following argument.
+Returns true if each argument is greater than or equal to the following argument, by [GREATER-EQUAL-P](#greater-equal-p).
 
 
 #### MIN
@@ -334,7 +334,7 @@ Returns the sum of `A` and `B`.
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns `(CL:+ A B)`.
 
 
@@ -349,7 +349,7 @@ Returns the difference of `A` and `B`.
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns `(CL:- A B)`.
 
 
@@ -364,7 +364,7 @@ Returns the product of `A` and `B`.
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns `(CL:* A B)`.
 
 
@@ -379,7 +379,7 @@ Returns the quotient of `A` and `B`. If `A` is the constant `1`, the result shou
 Methods:
 
 -   `NUMBER NUMBER`
-
+    
     Returns `(CL:/ A B)`.
 
 
@@ -394,7 +394,7 @@ Returns the negation of `A`.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:- A)`.
 
 
@@ -451,11 +451,11 @@ Returns `A + 1`.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:1+ A)`.
 
 -   `T`
-
+    
     Returns `(ADD A 1)`.
 
 
@@ -468,11 +468,11 @@ Returns `A - 1`.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:1- A)`.
 
 -   `T`
-
+    
     Returns `(SUBTRACT A 1)`.
 
 
@@ -511,13 +511,13 @@ Returns true if `A` is less than zero.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:MINUSP A)`.
 
 -   `T`
-
+    
     Returns true if `A` compares less than `0`, by [LESSP](#lessp).
-
+    
     ```lisp
     (lessp a 0)
     ```
@@ -532,13 +532,13 @@ Returns true if `A` is greater than zero.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:PLUSP A)`.
 
 -   `T`
-
+    
     Returns true if `A` compares greater than `0`, by [GREATERP](#greaterp).
-
+    
     ```lisp
     (greaterp a 0)
     ```
@@ -553,13 +553,13 @@ Returns true if `A` is equal to zero.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:ZEROP A)`.
 
 -   `T`
-
+    
     Returns true if `A` is equal to `0`, by [EQUALP](#equalp).
-
+    
     ```lisp
     (equalp a 0)
     ```
@@ -569,16 +569,16 @@ Methods:
 
 Generic Function: `SIGNUM A`
 
-Returns `-1`, `0` or `1` depending on whether `A` is negative, `A` is equal to zero or `A` is positive.
+Returns `-1`, `0` or `1` depending on whether `A` is negative, is equal to zero or is positive.
 
 Methods:
 
 -   `SIGNUM`
-
+    
     Returns `(CL:SIGNUM A)`.
 
 -   `T`
-
+    
     Returns `-1` if `(MINUSP A)` is true, `0` if `(ZEROP A)` is true, `1` otherwise.
 
 
@@ -591,13 +591,13 @@ Returns the absolute value of `A`.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:ABS A)`.
 
 -   `T`
-
+    
     If `(MINUSP A)` is true, returns `(NEGATE A)` otherwise returns `A`.
-
+    
     ```lisp
     (if (minusp a)
         (negate a)
@@ -614,11 +614,11 @@ Returns true if `A` is even.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:EVENP A)`
 
 -   `T`
-
+    
     Returns `(ZEROP (MOD A 2))`
 
 
@@ -631,11 +631,11 @@ Returns true if `A` is odd.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:ODDP A)`
 
 -   `T`
-
+    
     Returns `(NOT (EVENP A))`
 
 
@@ -650,7 +650,7 @@ Performs the division `N/D` if `D` is provided, otherwise equivalent to `N/1`, a
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:FLOOR N D)` if `D` is provided otherwise returns `(CL:FLOOR N)`.
 
 
@@ -663,7 +663,7 @@ Performs the division `N/D` if `D` is provided, otherwise equivalent to `N/1`, a
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:CEILING N D)` if `D` is provided otherwise returns `(CL:CEILING N)`.
 
 
@@ -678,7 +678,7 @@ Performs the division `N/D` if `D` is provided, otherwise equivalent to `N/1`, a
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:TRUNCATE N D)` if `D` is provided otherwise returns `(CL:TRUNCATE N)`.
 
 
@@ -693,7 +693,7 @@ If the result lies exactly halfway between two integers, it is rounded to the ne
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:ROUND N D)` if `D` is provided otherwise returns `(CL:ROUND N)`.
 
 
@@ -706,11 +706,11 @@ Returns the remainder of the [FLOOR](#floor) operation on `N` and `D`.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:MOD N D)`.
 
 -   `T`
-
+    
     Returns the second return value of `(FLOOR N D)`.
 
 
@@ -723,11 +723,11 @@ Returns the remainder of the [TRUNCATE](#truncate) operation on `N` and `D`.
 Methods:
 
 -   `NUMBER`
-
+    
     Returns `(CL:REM N D)`.
 
 -   `T`
-
+    
     Returns the second return value of `(TRUNCATE N D)`.
 
 
@@ -751,25 +751,25 @@ This function may accept additional keyword arguments which specify certain opti
 Methods:
 
 -   `CONS`
-
+    
     Returns a new list which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the list returned contains a copy of the elements, copied using `(COPY ELEM :DEEP T)`.
 
 -   `VECTOR`
-
+    
     Returns a new vector which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the vector returned contains a copy of the elements, copied using `(COPY ELEM :DEEP T)`.
 
 -   `ARRAY`
-
+    
     Multi-Dimensional Arrays.
-
+    
     Returns a new array, of the same dimensions as `OBJECT`, which contains all the elements in `OBJECT`. If `:DEEP` is provided and is true, the array returned contains a copy of the elements, copied using `(COPY ELEM :DEEP T)`.
 
 -   `T`
-
+    
     Simply returns `OBJECT`.
-
+    
     This method is provided to allow sequences containing arbitrary objects to be copied safely, without signaling a condition, and to avoid having to write simple pass-through methods for each user-defined type.
-
+    
     However this means that if the object, for which there is no specialized copy method, can be mutated, the constraints of the `COPY` function are violated.
 
 
@@ -863,7 +863,7 @@ Function: `ITERATOR SEQUENCE &KEY (START 0) END FROM-END`
 
 Returns an iterator for the sub-sequence of `SEQUENCE` identified by the range `[START, END)`.
 
-`START` (defaults to `0` - the start of the sequence) and `END` (defaults to `NIL` - the end of the sequence) are the start and end indices of the sub-sequence to iterated over (see [MAKE-ITERATOR](#make-iterator) and [MAKE-REVERSE-ITERATOR](#make-reverse-iterator) for more a detailed description).
+`START` (defaults to `0` - the start of the sequence) and `END` (defaults to `NIL` - the end of the sequence) are the start and end indices of the sub-sequence to iterate over (see [MAKE-ITERATOR](#make-iterator) and [MAKE-REVERSE-ITERATOR](#make-reverse-iterator) for more a detailed description).
 
 If `FROM-END` is true a reverse iterator is created (by [MAKE-REVERSE-ITERATOR](#make-reverse-iterator)) otherwise a normal iterator is created (by [MAKE-ITERATOR](#make-iterator)).
 
@@ -912,7 +912,7 @@ Advances the iterator to the next element in the subsequence. After this method 
 
 #### Optional Functions
 
-Implementing the following functions for user-defined iterators is optional either because, a default method is provided which is implemented using the mandatory functions, or the function is only used by a selected few sequence operations.
+Implementing the following functions for user-defined iterators is optional either because, a default method is provided which is implemented using the mandatory functions, or the function is only used by a select few sequence operations.
 
 
 ##### START
@@ -957,7 +957,7 @@ The default method simply calls [ADVANCE](#advance), on `ITERATOR`, `N` times.
 
 #### Macros
 
-Macros for iterator over a generic sequence. Analogous to `CL:DOLIST`.
+Macros for iteratoring over a generic sequence. Analogous to `CL:DOLIST`.
 
 
 <a id="doiters"></a>
@@ -1035,7 +1035,7 @@ Generic Function: `COLLECTOR-SEQUENCE COLLECTOR`
 
 Returns the underlying sequence associated with the collector `COLLECTOR`. The sequence should contain all items accumulated up to the call to this function.
 
-No items should be accumulated, by [ACCUMULATE](#accumulate) or [EXTEND](#extend), after this function is called.
+The effects of accumulating items into the sequence, by [ACCUMULATE](#accumulate) or [EXTEND](#extend), after this function is called, are unspecified.
 
 The sequence returned might not be the same object passed to [MAKE-COLLECTOR](#make-collector).
 
@@ -1055,15 +1055,15 @@ Implementing this method is optional as default methods are provided for iterato
 Methods:
 
 -   `T ITERATOR`
-
+    
     Accumulates all elements returned by the iterator `SEQUENCE` (till `(ENDP SEQUENCE)` returns true), into the sequence associated with the collector. The elements are accumulated one by one using [ACCUMULATE](#accumulate).
-
+    
     The iterator is copied thus the position of the iterator passed as an argument is not modified.
 
 -   `T T`
-
+    
     Accumulates all elements of `SEQUENCE`, into the sequence associated with the collector. The elements are accumulated one by one using [ACCUMULATE](#accumulate).
-
+    
     The sequence iteration is done using the [Iterator](#iterator) interface.
 
 
@@ -1092,13 +1092,13 @@ Individual methods may accept keyword parameters which specify certain options o
 Methods:
 
 -   `LIST`
-
+    
     Returns `NIL`.
 
 -   `VECTOR`
-
+    
     Returns an adjustable vector of the same length as `SEQUENCE`, with the fill-pointer set to `0`.
-
+    
     If the `:KEEP-ELEMENT-TYPE` argument is provided and is true, the element type of the new vector is the same as the element type of `SEQUENCE`.
 
 
@@ -1142,17 +1142,17 @@ Returns the element at position `INDEX` in the sequence `SEQUENCE`.
 Methods:
 
 -   `SEQUENCE T` and `VECTOR T`
-
+    
     Returns `(CL:ELT SEQUENCE INDEX)`.
 
 -   `ARRAY T`
-
+    
     Multi-Dimensional Arrays.
-
+    
     Returns `(ROW-MAJOR-AREF SEQUENCE INDEX)`.
 
 -   `T T`
-
+    
     Creates an iterator for `SEQUENCE`, with start position `INDEX`, and returns the first element returned by the iterator.
 
 
@@ -1165,17 +1165,17 @@ Sets the value of the element at position `INDEX` in the sequence `SEQUENCE`.
 Methods:
 
 -   `T SEQUENCE T` and `T VECTOR T`
-
+    
     Returns `(SETF (CL:ELT SEQUENCE INDEX) VALUE)`.
 
 -   `T ARRAY T`
-
+    
     Multi-Dimensional Arrays.
-
+    
     Returns `(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)`
 
 -   `T T T`
-
+    
     Creates an iterator for `SEQUENCE`, with start position `INDEX`, and sets the value of the element at the starting position of the iterator.
 
 
@@ -1237,9 +1237,9 @@ Destructively modifies `SEQUENCE`.
 Methods:
 
 -   `VECTOR T`
-
-    Shifts the elements following `INDEX` one elements towards the front of the vector and shrinks the vector by one element.
-
+    
+    Shifts the elements following `INDEX` one element towards the front of the vector and shrinks the vector by one element.
+    
     **Note:** Signals a `TYPE-ERROR` if the vector is not adjustable.
 
 **Note:** This method is not implemented for lists as removing the first element of a list cannot be implemented (efficiently) as a side effect alone.
@@ -1261,15 +1261,15 @@ This function is implemented for all Common Lisp sequences, returning the length
 The following default methods are implemented:
 
 -   `ITERATOR`
-
+    
     Returns the number of elements between the iterator's current position (inclusive) and the end of the iterator's subsequence.
-
+    
     This is implemented by advancing the iterator (by [ADVANCE](#advance)) till [ENDP](#endp) returns true, thus is a linear `O(n)` time operation.
-
+    
     More efficient specialized methods are provided for iterators to sequences for which the size is known.
 
 -   `T`
-
+    
     Returns the length of the generic sequence by creating an iterator to the sequence and calling the [ITERATOR](#iterator-struct) specialized method. Thus this is a linear `O(n)`, in time, operation unless a more efficient method, which is specialized on the sequence's iterator type, is implemented.
 
 
@@ -1311,15 +1311,15 @@ Returns a new sequence that contains the elements of `SEQUENCE` at the positions
 Methods:
 
 -   `SEQUENCE T`
-
+    
     Returns the subsequence using `CL:SUBSEQ`.
 
 -   `ITERATOR T`
-
+    
     Returns a subsequence iterator which wraps a copy of the original iterator.
 
 -   `T T`
-
+    
     Returns the subsequence of the generic sequence. This requires that the [CLEARED](#cleared) method, the [Iterator](#iterator) interface and [Collector](#collector) interface are implemented for the generic sequence type.
 
 
@@ -1334,11 +1334,11 @@ See [SUBSEQ](#subseq) for more details of how the `START` and `END` arguments ar
 Methods:
 
 -   `SEQEUNCE SEQUENCE T`
-
+    
     Sets the elements of the subsequence using `(SETF CL:SUBSEQ)`.
 
 -   `T T T`
-
+    
     Sets the elements of the generic sequence using the [Iterator](#iterator) interface, which should be implemented for both the types of `SEQUENCE` and `NEW-SEQUENCE`. This method requires that the [(SETF AT)](#setf-at) method is implemented for the iterator type of `SEQUENCE`.
 
 
@@ -1380,15 +1380,15 @@ Generic function wrappers, which are identical in behavior to their counterparts
 Two methods are implemented, for all functions, which are specialized on the following types:
 
 -   `CL:SEQUENCE`
-
+    
     Simply calls the corresponding function in the `COMMON-LISP` package.
 
 -   `T`
-
+    
     Implements the sequence operation for generic sequences using the iterator interface.
-
+    
     The non-destructive functions only require that the [mandatory iterator functions](#mandatory-iterator-funcs), the [Collector](#collector) interface and [CLEARED](#cleared) method are implemented for the sequence's type.
-
+    
     The destructive versions may additionally require that the optional [(SETF AT)](#setf-at) method is implemented as well.
 
 The default value of the `:TEST` keyword arguments is [GENERIC-CL:EQUALP](#equalp), this should be the default value when implementing methods for user-defined sequence types. The `:TEST-NOT` keyword arguments have been removed.
@@ -1434,7 +1434,7 @@ For the default method to be efficient, efficient [ADVANCE-N,](#advance-n) [SUBS
 
 Generic Function: `STABLE-SORT SEQUENCE &KEY TEST KEY`
 
-Same as `SORT` however the sort operation is guaranteed to be stable. `TEST`. `TEST` is [GENERIC-CL:LESSP](#lessp) by default.
+Same as `SORT` however the sort operation is guaranteed to be stable. `TEST` is [GENERIC-CL:LESSP](#lessp) by default.
 
 Unlike `CL:STABLE-SORT` this function is non-destructive.
 
@@ -1557,9 +1557,9 @@ The [(SETF AT)](#setf-at) method for the `HASH-MAP` iterator sets the value corr
 
 The collector interface is implemented for `HASH-MAP`'s. The [ACCUMULATE](#accumulate) method expects a `CONS` where the `CAR` is the key of the entry to create and the `CDR` is the corresponding value.
 
-An [EQUALP](#equalp) method is implemented for `HASH-MAP`'s which returns true if both maps contain the same number of entries and each key in the first map is present in the second map, with the corresponding value in the first map equal (by `EQUALP`) to the corresponding value in the second map. **Note:** if the two maps have different test functions, the `EQUALP` is not necessarily symmetric i.e. `(EQUALP A B)` does not imply `(EQUALP B A)`.
+An [EQUALP](#equalp) method is implemented for `HASH-MAP`'s which returns true if both maps contain the same number of entries and each key in the first map is present in the second map, with the corresponding value in the first map equal (by `EQUALP`) to the corresponding value in the second map. **Note:** if the two maps have different test functions, the `EQUALP` method is not necessarily symmetric i.e. `(EQUALP A B)` does not imply `(EQUALP B A)`.
 
-A [COPY](#copy) method is implemented for `HASH-MAP`'s which by default creates a new map with the same entries as the original map. If `:DEEP T` is provided the values (but not the keys) are copied by `(COPY VALUE :DEEP T)`.
+A [COPY](#copy) method is implemented for `HASH-MAP`'s which by default creates a new map with the same entries as the original map. If `:DEEP T` is provided the values (but not the keys as they should be immutable) are copied by `(COPY VALUE :DEEP T)`.
 
 
 <a id="make-hash-map"></a>
@@ -1590,6 +1590,8 @@ Function: `HASH-MAP-TEST MAP`
 
 Returns the test function, as a symbol, of the underlying hash table.
 
+**Note:** On some implementations the return value is not `GENERIC-CL:EQUALP`, even if the hash table has `HASH` and `GENERIC-CL:EQUALP` as its hash and comparison functions.
+
 
 <a id="hash"></a>
 
@@ -1603,7 +1605,7 @@ Returns a hash code for `OBJECT`, which is a non-negative fixnum. If two objects
 
 The default method calls `CL:SXHASH` which satisfies the constraint that `(CL:EQUAL X Y)` implies `(= (CL:SXHASH X) (CL:SXHASH Y))`.
 
-Currently no specialized method is provided for container/sequence objects such as lists. The default method does not violate the constraint for lists (but does violate the constraints for non-string vectors) as keys, provided all `EQUALP` methods specialize on the same types for both their arguments, however will likely be inefficient.
+Currently no specialized method is provided for container/sequence objects such as lists. The default method does not violate the constraint for lists (but does violate the constraints for non-string vectors) as keys provided the lists only contain numbers, characters, symbols, strings and other lists.
 
 
 #### GET
@@ -1681,11 +1683,11 @@ Specialized only on `HASH-MAP`'s and `CL:HASH-TABLE`'s.
 The following `COERCE` methods are provided for `HASH-MAPS`:
 
 -   `HASH-MAP (EQL 'ALIST)`
-
+    
     Returns an association list (`ALIST`) containing all the entries in the map. Equivalent to [HASH-MAP-ALIST](#hash-map-alist).
 
 -   `HASH-MAP (EQL 'PLIST)`
-
+    
     Returns a property list (`PLIST`) containing all the entries in the map.
 
 
@@ -1710,7 +1712,7 @@ Generic function wrappers are provided over the following Common Lisp set operat
 
 For each function, methods specializing on `LISTS`, which simply call the corresponding function in the `CL` package, and [HASH-MAP](#hash-map)'s are implemented. Each function accepts all keyword arguments accepted by the corresponding `CL` functions however they are ignored by the `HASH-MAP` methods.
 
-[HASH-MAP](#hash-map)'s may be used as sets, in which case the set elements are stored in the keys. The values of the map's entries are ignored by the set operations, thus the values of the sets returned, by the set operation functions, are unspecified.
+[HASH-MAP](#hash-map)'s may be used as sets, in which case the set elements are stored in the keys. The values of the map's entries are ignored by the set operations, thus the map values of the sets returned, by the set operation functions, are unspecified.
 
 
 <a id="adjoin"></a>
@@ -1752,7 +1754,7 @@ Implemented for both lists and [HASH-MAP](#hash-map)'s. All keyword arguments ac
 
 Structure: `HASH-SET`
 
-A hash-set is a [HASH-MAP](#hash-map) however it is used to indicate that only the keys are important. This allows the [EQUALP](#equalp) and [COPY](#copy) methods, specialized on `HASH-SET`'s to be implemented more efficiently, as the keys are not compared/copied, than the methods specialized on `HASH-MAPS`.
+A hash-set is a [HASH-MAP](#hash-map) however it is used to indicate that only the keys are important. This allows the [EQUALP](#equalp) and [COPY](#copy) methods, specialized on `HASH-SET`'s to be implemented more efficiently, than the methods specialized on `HASH-MAPS`, as the map values are not compared/copied.
 
 The implementation of the [Iterator](#iterator) interface for `HASH-SETS` differs from the implementation for `HASH-MAPS` in that only the set elements, i.e. the keys of the underlying hash table, are returned rather than the key-value pairs.
 
@@ -1787,7 +1789,7 @@ Accepts the same keyword arguments as [MAKE-HASH-MAP](#make-hash-map). The defau
 The following `COERCE` Methods are provided:
 
 -   `LIST (EQL 'HASH-SET)`
-
+    
     Returns a `HASH-SET` containing the elements in the list.
 
 
