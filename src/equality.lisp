@@ -86,7 +86,7 @@
   "Returns true if both `pathname' objects are equal by
    CL-FAD:PATHNAME-EQUAL."
 
-  (cl-fad:pathname-equal a b))
+  (uiop:pathname-equal a b))
 
 
 (defmethod equalp (a b)
