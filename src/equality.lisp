@@ -138,6 +138,6 @@
    environment ENV) to a type that is a subtype of NUMBER."
 
   (flet ((number? (thing)
-	   (subtypep (get-return-type thing env) 'number env)))
+	   (subtypep (get-value-type thing env) 'number env)))
 
     (every #'number? args)))
