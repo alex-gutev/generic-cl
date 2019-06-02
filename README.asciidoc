@@ -97,6 +97,7 @@ Default method.
 Returns true if `A` and `B` are the same object, by `CL:EQ`.
 
 
+[[equalp-nary, =]]
 ===== = =====
 
 Function: `= X &REST XS`
@@ -104,6 +105,7 @@ Function: `= X &REST XS`
 Returns true if all objects in `XS` are equal (by `EQUALP`) to `X`.
 
 
+[[not-equalp-nary, /=]]
 ===== /= =====
 
 Function: `= X &REST XS`
@@ -272,6 +274,7 @@ The default `T T` method returns:
 `:GREATER`:: otherwise.
 
 
+[[lessp-nary, <]]
 ===== < =====
 
 Function: `< X &REST XS`
@@ -280,6 +283,7 @@ Returns true if each argument is less than the following argument, by
 <<lessp,LESSP>>.
 
 
+[[less-equal-p-nary, <=]]
 ===== <= =====
 
 Function: `<= X &REST XS`
@@ -288,6 +292,7 @@ Returns true if each argument is less than or equal to the following
 argument, by <<less-equal-p,LESS-EQUAL-P>>.
 
 
+[[greaterp-nary, >]]
 ===== > =====
 
 Function: `> X &REST XS`
@@ -296,6 +301,7 @@ Returns true if each argument is greater than the following argument,
 by <<greaterp,GREATERP>>.
 
 
+[[greater-equal-p-nary, >=]]
 ===== >= =====
 
 Function: `>= X &REST XS`
@@ -403,6 +409,7 @@ Methods:
 Returns `(CL:- A)`.
 
 
+[[add-nary, +]]
 ===== + =====
 
 Function: `+ X &REST XS`
@@ -414,6 +421,7 @@ If no arguments are provided, `0` is returned. If a single argument is
 provided it is returned.
 
 
+[[subtract-nary, -]]
 ===== - =====
 
 Function: `- X &REST XS`
@@ -425,6 +433,7 @@ If only a single argument is provided the negation of that argument is
 returned, by the <<negate,NEGATE>> function.
 
 
+[[multiply-nary, *]]
 ===== * =====
 
 Function: `* X &REST XS`
@@ -436,6 +445,7 @@ If no arguments are provided, `1` is returned. If a single argument is
 provided it is returned.
 
 
+[[divide-nary, /]]
 ===== / =====
 
 Function: `/ X &REST XS`
@@ -616,8 +626,8 @@ If `(MINUSP A)` is true, returns `(NEGATE A)` otherwise returns
 [source,lisp]
 ----
 (if (minusp a)
-        (negate a)
-	a)
+    (negate a)
+    a)
 ----
 
 
@@ -860,6 +870,7 @@ Basic Usage:
 ----
 
 
+[[iterator-struct, ITERATOR]]
 ===== Base Iterator Type =====
 
 Structure: `ITERATOR`
@@ -914,6 +925,7 @@ in `MAKE-ITERATOR`.
 iterated over.
 
 
+[[iterator-func, ITERATOR]]
 ====== ITERATOR ======
 
 Function: `ITERATOR SEQUENCE &KEY (START 0) END FROM-END`
@@ -1001,7 +1013,7 @@ The default method is equivalent to the following:
   (at iterator))
 ----
 
-
+[[setf-at, (SETF AT)]]
 ====== (SETF AT) ======
 
 Generic Function: `(SETF AT) VALUE ITERATOR`
@@ -1059,6 +1071,7 @@ over.
 
 
 ====== DOSEQ ======
+
 Macro: `DOSEQ (ELEMENT SEQUENCE &REST ARGS) &BODY BODY`
 
 Iterates over the elements of `SEQUENCE`. `ARGS` are the remaining
