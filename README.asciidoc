@@ -1,7 +1,7 @@
 = GENERIC-CL =
 :AUTHOR: Alexander Gutev
 :EMAIL: <alex.gutev@gmail.com>
-:toc:
+:toc: preamble
 :toclevels: 4
 
 GENERIC-CL provides a generic function wrapper over various functions
