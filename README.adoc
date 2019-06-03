@@ -96,9 +96,8 @@ Returns true if both strings are equal, by `CL:STRING=`.
 
 * `PATHNAME PATHNAME`
 +
-Returns true if both `PATHNAME` objects are functionally
-equivalent, as per the `PATHNAME-EQUAL` function from the
-`CL-FAD` library.
+Returns true if both `PATHNAME` objects are functionally equivalent,
+by `UIOP:PATHNAME-EQUAL`.
 
 * `T T`
 +
