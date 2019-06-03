@@ -477,7 +477,7 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#greater_equal_p">GREATER-EQUAL-P</a></li>
 <li><a href="#compare">COMPARE</a></li>
 <li><a href="#lessp-nary">&lt;</a></li>
-<li><a href="#less-equal-p-nary">&#8656;</a></li>
+<li><a href="#less-equal-p-nary">&lt;=</a></li>
 <li><a href="#greaterp-nary">&gt;</a></li>
 <li><a href="#greater-equal-p-nary">&gt;=</a></li>
 <li><a href="#min">MIN</a></li>
@@ -768,9 +768,8 @@ element of <code>B</code>.</p>
 <li>
 <p><code>PATHNAME PATHNAME</code></p>
 <div class="paragraph">
-<p>Returns true if both <code>PATHNAME</code> objects are functionally
-equivalent, as per the <code>PATHNAME-EQUAL</code> function from the
-<code>CL-FAD</code> library.</p>
+<p>Returns true if both <code>PATHNAME</code> objects are functionally equivalent,
+by <code>UIOP:PATHNAME-EQUAL</code>.</p>
 </div>
 </li>
 <li>
@@ -820,7 +819,7 @@ functions have default methods that are implemented in terms of
 <code>LESSP</code>.</p>
 </div>
 <div class="paragraph">
-<p><a href="#lessp-nary">&lt;</a>, <a href="#less-equal-p-nary">&#8656;</a>, <a href="#greaterp-nary">&gt;</a>,
+<p><a href="#lessp-nary">&lt;</a>, <a href="#less-equal-p-nary">&lt;=</a>, <a href="#greaterp-nary">&gt;</a>,
 <a href="#greater-equal-p-nary">&gt;=</a> are the n-ary comparison functions similar to
 the functions with the same names in the <code>COMMON-LISP</code> package.</p>
 </div>
@@ -892,21 +891,21 @@ character code of <code>B</code>, by <code>CL:CHAR&lt;</code>.</p>
 <p><code>NUMBER NUMBER</code></p>
 <div class="paragraph">
 <p>Returns true if the numeric value of <code>A</code> is less than or equal to
-the numeric value of <code>B</code>, by <code>CL:&#8656;</code>.</p>
+the numeric value of <code>B</code>, by <code>CL:&lt;=</code>.</p>
 </div>
 </li>
 <li>
 <p><code>CHARACTER CHARACTER</code></p>
 <div class="paragraph">
 <p>Returns true if the character code of <code>A</code> is less than or equal
-to the character code of <code>B</code>, by <code>CL:CHAR&#8656;</code>.</p>
+to the character code of <code>B</code>, by <code>CL:CHAR&lt;=</code>.</p>
 </div>
 </li>
 <li>
 <p><code>STRING STRING</code></p>
 <div class="paragraph">
 <p>Returns true if the string <code>A</code> is lexicographically less than or
-equal to <code>B</code>, by <code>CL:STRING&#8656;</code>.</p>
+equal to <code>B</code>, by <code>CL:STRING&lt;=</code>.</p>
 </div>
 </li>
 <li>
@@ -1075,9 +1074,9 @@ or equal to <code>B</code>, by <code>CL:STRING&gt;=</code>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="less-equal-p-nary">&#8656;</h4>
+<h4 id="less-equal-p-nary">&lt;=</h4>
 <div class="paragraph">
-<p>Function: <code>&#8656; X &amp;REST XS</code></p>
+<p>Function: <code>&lt;= X &amp;REST XS</code></p>
 </div>
 <div class="paragraph">
 <p>Returns true if each argument is less than or equal to the following
@@ -4196,7 +4195,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-06-03 10:24:03 +0200
+Last updated 2019-06-03 15:49:09 +0200
 </div>
 </div>
 </body>
