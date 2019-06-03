@@ -9,7 +9,8 @@
 ifdef::env-github[]
 :tip-caption: :bulb:
 :note-caption: :information_source:
-:important-caption: :fire:
+:caution-caption: :fire:
+:important-caption: :exclamation:
 :warning-caption: :warning:
 endif::[]
 
