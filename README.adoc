@@ -180,17 +180,17 @@ Methods:
 * `NUMBER NUMBER`
 +
 Returns true if the numeric value of `A` is less than or equal to
-the numeric value of `B`, by `CL:<=`.
+the numeric value of `B`, by `+CL:<=+`.
 
 * `CHARACTER CHARACTER`
 +
 Returns true if the character code of `A` is less than or equal
-to the character code of `B`, by `CL:CHAR<=`.
+to the character code of `B`, by `+CL:CHAR<=+`.
 
 * `STRING STRING`
 +
 Returns true if the string `A` is lexicographically less than or
-equal to `B`, by `CL:STRING<=`.
+equal to `B`, by `+CL:STRING<=+`.
 
 * `T T`
 +
@@ -295,10 +295,10 @@ Returns true if each argument is less than the following argument, by
 <<lessp,LESSP>>.
 
 
-[[less-equal-p-nary, <=]]
-==== <= ====
+[[less-equal-p-nary, \<=]]
+==== +<=+ ====
 
-Function: `<= X &REST XS`
+Function: `+<= X &REST XS+`
 
 Returns true if each argument is less than or equal to the following
 argument, by <<LESS-EQUAL-P>>.
