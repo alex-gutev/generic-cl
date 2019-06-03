@@ -12,6 +12,7 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
+
 GENERIC-CL provides a generic function wrapper over various functions
 in the Common Lisp standard, such as equality predicates and sequence
 operations. The goal of the wrapper is to provide a standard interface
