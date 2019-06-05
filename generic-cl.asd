@@ -59,9 +59,9 @@
 		 (:file "misc")
 		 (:file "math"))))
 
-  :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.test))))
+  :in-order-to ((asdf:test-op (asdf:test-op :generic-cl/test))))
 
-(asdf:defsystem #:generic-cl.test
+(asdf:defsystem #:generic-cl/test
   :description "Tests for generic-cl."
   :author "Alexander Gutev"
   :license "MIT"
@@ -84,4 +84,4 @@
 		 (:test-file "misc"))))
 
   :perform (asdf:test-op :after (op c)
-			 (funcall (intern #.(string :run) :prove) c)))
+			 (funcall (intern #.(string :run) :prove) c :reporter :fiveam)))
