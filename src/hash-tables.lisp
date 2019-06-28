@@ -119,6 +119,10 @@
   (make-load-form-saving-slots map :environment environment))
 
 
+(defmethod make-sequence-of-type ((type (eql 'hash-map)) (args null))
+  (make-hash-map))
+
+
 ;;;; Generic Lookup Functions
 
 (defgeneric get (key map &optional default)

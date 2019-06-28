@@ -165,6 +165,9 @@
 (defmethod copy ((set hash-set) &key)
   (hash-table-set (copy-generic-hash-table (hash-set-table set) nil)))
 
+(defmethod make-sequence-of-type ((type (eql 'hash-set)) (args null))
+  (make-hash-set))
+
 
 ;;; Iterators
 
