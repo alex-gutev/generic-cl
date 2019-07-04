@@ -526,7 +526,7 @@
 	     (let ((items nil))
 	       (doseq (item sequence :start start :end end :from-end from-end)
 		 (let ((elem (funcall key item)))
-		  (unless (member elem items :test test :key key)
+		  (unless (member elem items :test test)
 		    (setf items (cons elem items))
 		    (accumulate collector item)))))))
 
