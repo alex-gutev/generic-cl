@@ -248,6 +248,15 @@
    :hash-set-table
    :hash-set-p
 
+   ;; Lazy Sequences
+   :make-lazy-seq
+   :lazy-seq
+   :lazy-seq-p
+   :lazy-seq-head
+   :lazy-seq-tail
+
+   :range
+
    ;; Miscellaneous
    :defconstant))
 

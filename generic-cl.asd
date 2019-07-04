@@ -56,6 +56,7 @@
 		 (:file "hash-tables")
 		 (:file "sets")
 		 (:file "generic-sequences")
+		 (:file "lazy-seq")
 		 (:file "misc")
 		 (:file "math"))))
 
@@ -81,6 +82,7 @@
 		 (:test-file "object")
 		 (:test-file "hash-tables")
 		 (:test-file "sets")
+		 (:test-file "lazy-seq")
 		 (:test-file "misc"))))
 
   :perform (asdf:test-op :after (op c)
