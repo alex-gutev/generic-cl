@@ -1740,6 +1740,137 @@ Applies `FUNCTION` on each element of each sequence in `SEQUENCES`.
 
 Returns `NIL`.
 
+=== Lazy Sequences ===
+
+Lazy sequences are sequences in which the elements are only computed
+when they are actually referenced, rather than being computed
+immediately.
+
+Lazy sequences are implemented with `LAZY-SEQ` structure which is
+similar to a `CONS` cell, however the `CDR`, the `TAIL` slot of the
+`LAZY-SEQ` structure, stores a function which computes and returns the
+remainder of the sequence, rather than storing the sequence directly.
+
+==== LAZY-SEQ Structure ====
+
+Structure: `LAZY-SEQ`
+
+Lazy sequence analogous to a `CONS`.
+
+.*Slots:*
+`HEAD`:: The first element of the sequence. _Can be accessed with
+the `LAZY-SEQ-HEAD` accessor function._
+
+`TAIL`:: A function of zero arguments which returns a `LAZY-SEQ`
+containing the remaining elements in the sequence. If there are no
+more elements the function returns `NIL`. _Can be accessed with the
+`LAZY-SEQ-TAIL` accessor function_.
+
+.*Implemented Interfaces:*
+* <<_equalp,`EQUALP`>> function.
+
+* <<_copy,`COPY`>> function. Accepts the `:DEEP` keyword parameter
+      which indicates whether the elements should also be copied.
+
+* <<_coerce,`COERCE`>> function.
+
+* <<_mandatory_functions,Mandatory Functions>>, of the
+<<_iterator,Iterator>> interface.
+
+* <<_make_collector,`MAKE-COLLECTOR`>> function of the
+<<_collector,Collector>> interface.
++
+--
+NOTE: The method specialized on ``LAZY-SEQ``'s returns a collector
+for a `LIST` since it does not make sense to be collecting items,
+which have already been evaluated, into a `LAZY-SEQ`.
+--
+
+* <<_subseq,SUBSEQ>> function which returns the subsequence as a
+`LAZY-SEQ`.
+
+* Methods, specialized on `LAZY-SEQ`, are implemented for the
+following <<_sequence_operations,Sequence Operations>> and their
+destructive counterparts:
++
+--
+** `REMOVE`
+** `REMOVE-IF`
+** `REMOVE-IF-NOT`
+** `SUBSTITUTE`
+** `SUBSTITUTE-IF`
+** `SUBSTITUTE-IF-NOT`
+** `REMOVE-DUPLICATES`
+
+
+These methods return a `LAZY-SEQ` with the sequence operation
+'lazily' applied to the sequence.
+
+NOTE: The destructive versions are identical to the
+non-destructive versions.
+--
+    
+
+==== MAKE-LAZY-SEQ ====
+
+Function: `MAKE-LAZY-SEQ HEAD TAIL`
+
+Creates a `LAZY-SEQ` with the `HEAD` slot initialized to `HEAD` and
+the `TAIL` slot initialized to `TAIL`.
+
+IMPORTANT: `TAIL` must be a function of zero arguments that returns
+either a `LAZY-SEQ` containing the remaining elements in the sequence
+or `NIL` indicating there are no more elements.
+
+NOTE: For efficiency the function in `TAIL` should only compute the
+remainder of the sequence the first time it is called. Remaining calls
+to the function should simply return the previously computed result.
+
+TIP: The <<_lazy_seq_macro,`LAZY-SEQ`>> macro automatically wraps the
+form, which returns the remainder of the sequence, in a function.
+
+==== LAZY-SEQ Macro ====
+
+Macro: `LAZY-SEQ HEAD &OPTIONAL TAIL`
+
+Creates a `LAZY-SEQ` instance with the `HEAD` slot initialized to
+`HEAD` and the `TAIL` slot initialized to a function which evaluates
+the form `TAIL`.
+
+NOTE: The function only evaluates `TAIL` the first time it is
+call. Subsequent calls will simply return the previously computed
+result.
+
+
+==== COERCE Methods ====
+
+The following `COERCE` methods are provided which specialize on
+``LAZY-SEQ``'s.
+
+- `LAZY-SEQ (EQL 'LIST)`
++
+--
+Returns a list containing all the elements in the `LAZY-SEQ`.
+
+WARNING: If the `LAZY-SEQ` is an infinite sequence, this function
+will never terminate.
+--
+
+==== Utilities ====
+
+===== RANGE =====
+
+Function: `RANGE START &OPTIONAL END STEP`
+
+Returns a `LAZY-SEQ` containing all numbers in the range `[START,
+END)`.
+
+If `END` is `NIL`, an infinite sequence, without an upper bound, is
+returned.
+
+`STEP`, defaults to `1`, is the delta by which each number is incremented
+to obtain the next successive number in the sequence.
+
 
 === Generic Hash-Tables ===
 
