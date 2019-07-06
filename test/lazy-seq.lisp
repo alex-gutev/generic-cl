@@ -220,6 +220,15 @@
 			(is-type ,result ',type
 				 ,(format nil "Result is of type: ~a" type))))))
 
+	(subtest "SUBSEQ"
+	  (test-seq-fn
+	   (lazy-seq (2 3))
+	   (subseq (lseq 1 2 3 4 5) 1 3))
+
+	  (test-seq-fn
+	   (lazy-seq (3 4 5))
+	   (subseq (lseq 1 2 3 4 5) 2)))
+
 	(subtest "SUBSTITUTE Functions"
 	  (subtest "SUBSTITUTE"
 	    (test-seq-fn

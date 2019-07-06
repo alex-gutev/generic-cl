@@ -177,6 +177,17 @@
 
   nil)
 
+(defmethod subseq ((seq lazy-seq) start &optional end)
+  (labels ((copy-subseq (seq end)
+	     (when (more? seq end nil)
+	       (lazy-seq
+		(lazy-seq-head seq)
+		(copy-subseq (funcall (lazy-seq-tail seq))
+			     (and end (cl:1- end)))))))
+
+    (copy-subseq (sub-lazy-seq seq start)
+		 (and end (cl:- end start)))))
+
 
 ;;;; Sequence Operations
 
