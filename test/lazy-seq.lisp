@@ -924,7 +924,52 @@
 	  (subtest "Test CONCATENATE-TO"
 	    (test-seq-fn
 	     (lazy-seq (1 2 3 4 5 6 7 8 9))
-	     (concatenate-to 'lazy-seq #(1 2 3) nil '(4 5 6) (lseq 7 8 9) nil))))))
+	     (concatenate-to 'lazy-seq #(1 2 3) nil '(4 5 6) (lseq 7 8 9) nil))))
+
+	(subtest "Mapping Functions"
+	  (subtest "Test MAP"
+	    (subtest "Single Sequence"
+	      (test-seq-fn
+	       (lazy-seq (2 3 4 5))
+	       (map #'1+ (lseq 1 2 3 4))))
+
+	    (subtest "Multiple Sequences"
+	      (test-seq-fn
+	       (lazy-seq (3 5 7 9))
+	       (map #'+ (lseq 1 2 3 4) #(2 3 4 5)))))
+
+	  (subtest "Test NMAP"
+	    (subtest "Single Sequence"
+	      (test-seq-fn
+	       (lazy-seq (2 3 4 5))
+	       (nmap #'1+ (lseq 1 2 3 4))))
+
+	    (subtest "Multiple Sequences"
+	      (test-seq-fn
+	       (lazy-seq (3 5 7 9))
+	       (nmap #'+ (lseq 1 2 3 4) #(2 3 4 5)))))
+
+	  (subtest "Test MAP-INTO"
+	    (subtest "Single Sequence"
+	      (test-seq-fn
+	       (lazy-seq (1 2 3 4))
+	       (map-into (lseq 1 2) #'1+ '(2 3))))
+
+	    (subtest "Multiple Sequences"
+	      (test-seq-fn
+	       (lazy-seq (1 2 3 4))
+	       (map-into (lseq 1 2) #'+ '(2 3) (lseq 1 1)))))
+
+	  (subtest "Test MAP-TO"
+	    (subtest "Single Sequence"
+	      (test-seq-fn
+	       (lazy-seq (2 3 4 5))
+	       (map-to 'lazy-seq #'1+ '(1 2 3 4))))
+
+	    (subtest "Multiple Sequences"
+	      (test-seq-fn
+	       (lazy-seq (2 4 6 8))
+	       (map-to 'lazy-seq #'+ '(1 2 3 4) #(1 2 3 4))))))))
 
     (subtest "COERCE Methods"
       (subtest "Coerce to list"

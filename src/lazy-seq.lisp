@@ -459,6 +459,32 @@
     (concat-seqs sequences)))
 
 
+;;; Mapping
+
+(defmethod map (function (sequence lazy-seq) &rest sequences)
+  (apply #'map-to 'lazy-seq function sequence sequences))
+
+(defmethod nmap (function (sequence lazy-seq) &rest sequences)
+  (apply #'map-to 'lazy-seq function sequence sequences))
+
+(defmethod map-into ((result lazy-seq) function &rest sequences)
+  (->> (apply #'map-to 'lazy-seq function sequences)
+       (concatenate-to 'lazy-seq result)))
+
+(defmethod map-to ((type (eql 'lazy-seq)) function &rest sequences)
+  (labels ((map-seqs (iters)
+	     (unless (some-endp iters)
+	       (lazy-seq
+		(apply function (get-elements iters))
+		(map-seqs (next-iters iters)))))
+
+	   (next-iters (iters)
+	     (advance-all iters)
+	     iters))
+
+    (map-seqs (make-iters sequences))))
+
+
 ;;;; Miscellaneous Methods
 
 ;;; Equality
