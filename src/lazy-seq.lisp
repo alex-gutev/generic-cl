@@ -62,7 +62,7 @@
   `(make-lazy-seq :head ,head :tail (thunk ,tail)))
 
 
-;; ;;;; Lazy Sequence Iterator
+;;;; Lazy Sequence Iterator
 
 (defstruct (lazy-seq-iterator (:include iterator))
   "Unbounded lazy sequence iterator. Iterates through all elements of
@@ -422,6 +422,41 @@
 		   (lazy-seq new))
 	      (lazy-seq head (substitute-rest count))))
 	seq)))
+
+
+;;; Concatenation
+
+(defmethod concatenate ((sequence lazy-seq) &rest sequences)
+  "Lazily concatenates SEQUENCES to SEQUENCE."
+
+  (apply #'concatenate-to 'lazy-seq sequence sequences))
+
+(defmethod nconcatenate ((sequence lazy-seq) &rest sequences)
+  "Lazily concatenates SEQUENCES to SEQUENCE."
+
+  (apply #'concatenate-to 'lazy-seq sequence sequences))
+
+(defmethod concatenate-to ((type (eql 'lazy-seq)) &rest sequences)
+  "Lazily concatenates SEQUENCES"
+
+  (labels ((concat-seqs (seqs)
+	     (match seqs
+	       ((list* seq seqs)
+		(concat (iterator seq) seqs))))
+
+	   (concat (it seqs)
+	     (if (endp it)
+		 (concat-seqs seqs)
+
+		 (lazy-seq
+		  (at it)
+		  (concat (next-it it) seqs))))
+
+	   (next-it (it)
+	     (advance it)
+	     it))
+
+    (concat-seqs sequences)))
 
 
 ;;;; Miscellaneous Methods

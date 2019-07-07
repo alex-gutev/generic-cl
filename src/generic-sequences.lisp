@@ -602,26 +602,16 @@
 
 ;;; Concatenation
 
-(defun concatenate (sequence &rest sequences)
-  "Returns a new sequence, of the same type as SEQUENCE, containing
-   all the elements of SEQUENCE and of each sequence in SEQUENCES, in
-   the order they are supplied."
-
+(defmethod concatenate (sequence &rest sequences)
   (apply #'nconcatenate (cleared sequence) sequence sequences))
 
-(defun nconcatenate (result &rest sequences)
-  "Destructively concatenates each sequence in SEQUENCES to the
-   sequence RESULT."
-
+(defmethod nconcatenate (result &rest sequences)
   (let ((collector (make-collector result)))
     (dolist (seq sequences)
       (extend collector seq))
     (collector-sequence collector)))
 
-(defun concatenate-to (type &rest sequences)
-  "Returns a sequence of type TYPE containing all the elements of each
-   sequence in SEQUENCES, in the order they are supplied."
-
+(defmethod concatenate-to (type &rest sequences)
   (apply #'nconcatenate (sequence-of-type type) sequences))
 
 

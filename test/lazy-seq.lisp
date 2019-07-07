@@ -908,7 +908,23 @@
 	       (lazy-seq (#\a #\B #\c #\D))
 	       (remove-duplicates
 	    	(lseq #\a #\B #\c #\D #\A #\b #\C #\d)
-	    	:from-end t :test #'char-equal)))))))
+	    	:from-end t :test #'char-equal)))))
+
+	(subtest "Concatenation Functions"
+	  (subtest "Test CONCATENATE"
+	    (test-seq-fn
+	     (lazy-seq (1 2 3 4 5 6 7 8 9))
+	     (concatenate (lseq 1 2 3) nil '(4 5 6) (lseq 7 8 9) nil)))
+
+	  (subtest "Test NCONCATENATE"
+	    (test-seq-fn
+	     (lazy-seq (1 2 3 4 5 6 7 8 9))
+	     (concatenate (lseq 1 2 3) nil '(4 5 6) #(7 8 9) nil)))
+
+	  (subtest "Test CONCATENATE-TO"
+	    (test-seq-fn
+	     (lazy-seq (1 2 3 4 5 6 7 8 9))
+	     (concatenate-to 'lazy-seq #(1 2 3) nil '(4 5 6) (lseq 7 8 9) nil))))))
 
     (subtest "COERCE Methods"
       (subtest "Coerce to list"

@@ -347,3 +347,22 @@
 
     The default TEST function is GENERIC-CL:EQUALP. The TEST-NOT
     argument is removed."))
+
+
+;;; Concatenation
+
+(defgeneric concatenate (sequence &rest sequences)
+  (:documentation
+   "Returns a new sequence, of the same type as SEQUENCE, containing
+    all the elements of SEQUENCE and of each sequence in SEQUENCES, in
+    the order they are supplied."))
+
+(defgeneric nconcatenate (sequence &rest sequences)
+  (:documentation
+   "Destructively concatenates each sequence in SEQUENCES to the
+    sequence RESULT."))
+
+(defgeneric concatenate-to (type &rest sequences)
+  (:documentation
+   "Returns a sequence of type TYPE containing all the elements of
+    each sequence in SEQUENCES, in the order they are supplied."))
