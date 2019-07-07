@@ -617,30 +617,10 @@
 
 ;;; Mapping
 
-(defun map (function sequence &rest sequences)
-  "Creates a new sequence, of the same type as SEQUENCE (by
-   CLEARED), containing the result of applying FUNCTION to each
-   element of SEQUENCE and each element of each SEQUENCE in
-   SEQUENCES."
-
+(defmethod map (function sequence &rest sequences)
   (apply #'map-into (cleared sequence) function sequence sequences))
 
-(defun nmap (result function &rest sequences)
-  "Destructively replaces each element of RESULT with the result of
-   applying FUNCTION to each element of RESULT and each element of
-   each sequence in SEQUENCES.
-
-   The shortest sequence of RESULT and SEQUENCE determines how many
-   times FUNCTION is applied and how many elements are in the
-   resulting sequence. If RESULT is longer than any sequence in
-   SEQUENCE the remaining elements are unmodified.
-
-   Unlike CL:MAP-INTO, if RESULT is a vector then FUNCTION is only
-   applied on the elements up-to the fill-pointer, i.e. the
-   fill-pointer is not ignored.
-
-   Returns RESULT."
-
+(defmethod nmap (result function &rest sequences)
   (loop
      with iters = (make-iters (cons result sequences))
      with res-it = (first iters)
@@ -651,10 +631,7 @@
 
   result)
 
-(defun map-into (result function &rest sequences)
-  "Applies FUNCTION on each element of each sequence in SEQUENCES and
-   stores the result in RESULT, using the collector interface."
-
+(defmethod map-into (result function &rest sequences)
   (let ((collector (make-collector result)))
     (loop
        with iters = (make-iters sequences)
@@ -665,11 +642,7 @@
 
     (collector-sequence collector)))
 
-(defun map-to (type function &rest sequences)
-  "Applies FUNCTION to each element of each sequence in SEQUENCES and
-   stores the result in a new sequence of type TYPE.  Returns the
-   sequence in which the results of applying function are stored."
-
+(defmethod map-to (type function &rest sequences)
   (apply #'map-into (sequence-of-type type) function sequences))
 
 (defun foreach (function &rest sequences)

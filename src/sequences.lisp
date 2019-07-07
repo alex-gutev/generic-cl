@@ -366,3 +366,40 @@
   (:documentation
    "Returns a sequence of type TYPE containing all the elements of
     each sequence in SEQUENCES, in the order they are supplied."))
+
+
+;;; Mapping
+
+(defgeneric map (function sequence &rest sequences)
+  (:documentation
+   "Creates a new sequence, of the same type as SEQUENCE (by CLEARED),
+    containing the result of applying FUNCTION to each element of
+    SEQUENCE and each element of each SEQUENCE in SEQUENCES."))
+
+(defgeneric nmap (result function &rest sequences)
+  (:documentation
+   "Destructively replaces each element of RESULT with the result of
+    applying FUNCTION to each element of RESULT and each element of
+    each sequence in SEQUENCES.
+
+    The shortest sequence of RESULT and SEQUENCE determines how many
+    times FUNCTION is applied and how many elements are in the
+    resulting sequence. If RESULT is longer than any sequence in
+    SEQUENCE the remaining elements are unmodified.
+
+    Unlike CL:MAP-INTO, if RESULT is a vector then FUNCTION is only
+    applied on the elements up-to the fill-pointer, i.e. the
+    fill-pointer is not ignored.
+
+    Returns RESULT."))
+
+(defgeneric map-into (result function &rest sequences)
+  (:documentation
+   "Applies FUNCTION on each element of each sequence in SEQUENCES and
+    stores the result in RESULT, using the collector interface."))
+
+(defgeneric map-to (type function &rest sequences)
+  (:documentation
+   "Applies FUNCTION to each element of each sequence in SEQUENCES and
+    stores the result in a new sequence of type TYPE.  Returns the
+    sequence in which the results of applying function are stored."))
