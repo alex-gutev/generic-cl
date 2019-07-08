@@ -1661,7 +1661,7 @@ Same as `STABLE-SORT` however is permitted to destructively modify
 
 ===== CONCATENATE =====
 
-Function: `CONCATENATE SEQUENCE &REST SEQUENCES`
+Generic Function: `CONCATENATE SEQUENCE &REST SEQUENCES`
 
 Returns a new sequence, of the same type as `SEQUENCE`, containing all
 the elements of `SEQUENCE` and of each sequence in `SEQUENCES`, in the
@@ -1673,15 +1673,22 @@ argument.
 
 ===== NCONCATENATE =====
 
-Function: `NCONCATENATE RESULT &REST SEQUENCES`
+Generic Function: `NCONCATENATE RESULT &REST SEQUENCES`
 
 Destructively concatenates each sequence in `SEQUENCES` to the
 sequence `RESULT`.
 
+Returns the result of the concatenation.
+
+CAUTION: Whilst this function is permitted to destructively modify
+`RESULT` and `SEQUENCES`, it is not required and may return a new
+sequence instead. Thus do not rely on this function for its side
+effects.
+
 
 ===== MAP =====
 
-Function: `MAP FUNCTION SEQUENCE &REST SEQUENCES`
+Generic Function: `MAP FUNCTION SEQUENCE &REST SEQUENCES`
 
 Creates a new sequence, of the same type as `SEQUENCE` (by
 <<CLEARED>>), containing the result of applying `FUNCTION` to each
@@ -1696,29 +1703,41 @@ by a type argument.
 
 ===== NMAP =====
 
-Function: `NMAP RESULT FUNCTION &REST SEQUENCES`
+Generic Function: `NMAP RESULT FUNCTION &REST SEQUENCES`
 
 Destructively replaces each element of `RESULT` with the result of
 applying `FUNCTION` to each element of `RESULT` and each element of
 each sequence in SEQUENCES.
+
+Returns the resulting sequence.
 
 IMPORTANT: This function is similar in behavior to `CL:MAP-INTO` with
 the exception that if `RESULT` is a vector, then `FUNCTION` is only
 applied on the elements up-to the fill pointer i.e. the fill-pointer
 is not ignored.
 
+CAUTION: Whilst this function is permitted to modify `RESULT`, it is
+not required and may return the result in a new sequence instead. Thus
+do not rely on this function for its side effects.
+
 
 ===== MAP-INTO =====
 
-Function: `MAP-INTO RESULT FUNCTION &REST SEQUENCES`
+Generic Function: `MAP-INTO RESULT FUNCTION &REST SEQUENCES`
 
 Applies `FUNCTION` on each element of each sequence in `SEQUENCES` and
 accumulates the result in RESULT, using the <<Collector>> interface.
 
+Returns the resulting sequence.
+
+CAUTION: Whilst this function is permitted to modify `RESULT`, it is
+not required and may return the result in a new sequence instead. Thus
+do not rely on this function for its side effects.
+
 
 ===== MAP-TO =====
 
-Function: `MAP-TO TYPE FUNCTION &REST SEQUENCES`
+Generic Function: `MAP-TO TYPE FUNCTION &REST SEQUENCES`
 
 Applies `FUNCTION` to each element of each sequence in `SEQUENCES` and
 stores the result in a new sequence of type `TYPE` (created using
@@ -1809,7 +1828,7 @@ These methods return a `LAZY-SEQ` with the sequence operation
 NOTE: The destructive versions are identical to the
 non-destructive versions.
 --
-    
+
 
 ==== MAKE-LAZY-SEQ ====
 
@@ -1855,6 +1874,49 @@ Returns a list containing all the elements in the `LAZY-SEQ`.
 WARNING: If the `LAZY-SEQ` is an infinite sequence, this function
 will never terminate.
 --
+
+
+==== CONCATENATE Methods ====
+
+Method: `CONCATENATE LAZY-SEQ &REST SEQUENCES` +
+Method: `NCONCATENATE LAZY-SEQ &REST SEQUENCES` +
+Method: `CONCATENATE-TO (EQL 'LAZY-SEQ) &REST SEQUENCES`
+
+Concatenates sequences to a lazy sequence.
+
+The concatenation is done lazily, that is the elements of the
+sequences, in `SEQUENCES`, are only added to the lazy sequence when
+elements past the end of the `LAZY-SEQ`, passed in the first argument,
+are referenced.
+
+The `CONCATENATE-TO` method returns a lazy sequence containing the
+concatenation of `SEQUENCES`. Like `CONCATENATE` and `NCONCATENATE`
+the concatenation is done lazily.
+
+NOTE: `NCONCATENATE` is identical to `CONCATENATE`, that is the
+`LAZY-SEQ` is not destructively modified.
+
+
+==== MAP Methods ====
+
+Method: `MAP FUNCTION LAZY-SEQ &REST SEQUENCES` +
+Method: `NMAP FUNCTION LAZY-SEQ &REST SEQUENCES` +
+Method: `MAP-INTO LAZY-SEQ FUNCTION &REST SEQUENCES` +
+Method: `MAP-TO (EQL 'LAZY-SEQ) FUNCTION &REST SEQUENCES`
+
+Applies a function on each element of the `LAZY-SEQ` and of each
+sequence in `SEQUENCES`.
+
+The result is a `LAZY-SEQ` with the function applied lazily to each
+element, that is it is only applied when that element is referenced.
+
+The `MAP-TO` method returns the result, of lazily applying the
+function on each element of each sequence in `SEQUENCES`, in a
+`LAZY-SEQ`.
+
+NOTE: `NMAP` and `MAP-INTO` do not destructively modify the `LAZY-SEQ`
+but return a new sequence instead.
+
 
 ==== Utilities ====
 
