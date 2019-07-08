@@ -620,6 +620,8 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#make_lazy_seq">MAKE-LAZY-SEQ</a></li>
 <li><a href="#lazy_seq_macro">LAZY-SEQ Macro</a></li>
 <li><a href="#coerce_methods">COERCE Methods</a></li>
+<li><a href="#concatenate_methods">CONCATENATE Methods</a></li>
+<li><a href="#map_methods">MAP Methods</a></li>
 <li><a href="#utilities">Utilities</a>
 <ul class="sectlevel4">
 <li><a href="#range">RANGE</a></li>
@@ -3230,7 +3232,7 @@ iterator type of <code>SEQUENCE</code>.
 <div class="sect4">
 <h5 id="concatenate">CONCATENATE</h5>
 <div class="paragraph">
-<p>Function: <code>CONCATENATE SEQUENCE &amp;REST SEQUENCES</code></p>
+<p>Generic Function: <code>CONCATENATE SEQUENCE &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
 <p>Returns a new sequence, of the same type as <code>SEQUENCE</code>, containing all
@@ -3254,17 +3256,35 @@ argument.
 <div class="sect4">
 <h5 id="nconcatenate">NCONCATENATE</h5>
 <div class="paragraph">
-<p>Function: <code>NCONCATENATE RESULT &amp;REST SEQUENCES</code></p>
+<p>Generic Function: <code>NCONCATENATE RESULT &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
 <p>Destructively concatenates each sequence in <code>SEQUENCES</code> to the
 sequence <code>RESULT</code>.</p>
 </div>
+<div class="paragraph">
+<p>Returns the result of the concatenation.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+Whilst this function is permitted to destructively modify
+<code>RESULT</code> and <code>SEQUENCES</code>, it is not required and may return a new
+sequence instead. Thus do not rely on this function for its side
+effects.
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect4">
 <h5 id="map">MAP</h5>
 <div class="paragraph">
-<p>Function: <code>MAP FUNCTION SEQUENCE &amp;REST SEQUENCES</code></p>
+<p>Generic Function: <code>MAP FUNCTION SEQUENCE &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
 <p>Creates a new sequence, of the same type as <code>SEQUENCE</code> (by
@@ -3291,12 +3311,15 @@ by a type argument.
 <div class="sect4">
 <h5 id="nmap">NMAP</h5>
 <div class="paragraph">
-<p>Function: <code>NMAP RESULT FUNCTION &amp;REST SEQUENCES</code></p>
+<p>Generic Function: <code>NMAP RESULT FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
 <p>Destructively replaces each element of <code>RESULT</code> with the result of
 applying <code>FUNCTION</code> to each element of <code>RESULT</code> and each element of
 each sequence in SEQUENCES.</p>
+</div>
+<div class="paragraph">
+<p>Returns the resulting sequence.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -3313,21 +3336,52 @@ is not ignored.
 </tr>
 </table>
 </div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+Whilst this function is permitted to modify <code>RESULT</code>, it is
+not required and may return the result in a new sequence instead. Thus
+do not rely on this function for its side effects.
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect4">
 <h5 id="map_into">MAP-INTO</h5>
 <div class="paragraph">
-<p>Function: <code>MAP-INTO RESULT FUNCTION &amp;REST SEQUENCES</code></p>
+<p>Generic Function: <code>MAP-INTO RESULT FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
 <p>Applies <code>FUNCTION</code> on each element of each sequence in <code>SEQUENCES</code> and
 accumulates the result in RESULT, using the <a href="#collector">Collector</a> interface.</p>
 </div>
+<div class="paragraph">
+<p>Returns the resulting sequence.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+Whilst this function is permitted to modify <code>RESULT</code>, it is
+not required and may return the result in a new sequence instead. Thus
+do not rely on this function for its side effects.
+</td>
+</tr>
+</table>
+</div>
 </div>
 <div class="sect4">
 <h5 id="map_to">MAP-TO</h5>
 <div class="paragraph">
-<p>Function: <code>MAP-TO TYPE FUNCTION &amp;REST SEQUENCES</code></p>
+<p>Generic Function: <code>MAP-TO TYPE FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
 <p>Applies <code>FUNCTION</code> to each element of each sequence in <code>SEQUENCES</code> and
@@ -3609,6 +3663,76 @@ will never terminate.
 </div>
 </li>
 </ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="concatenate_methods">CONCATENATE Methods</h4>
+<div class="paragraph">
+<p>Method: <code>CONCATENATE LAZY-SEQ &amp;REST SEQUENCES</code><br>
+Method: <code>NCONCATENATE LAZY-SEQ &amp;REST SEQUENCES</code><br>
+Method: <code>CONCATENATE-TO (EQL 'LAZY-SEQ) &amp;REST SEQUENCES</code></p>
+</div>
+<div class="paragraph">
+<p>Concatenates sequences to a lazy sequence.</p>
+</div>
+<div class="paragraph">
+<p>The concatenation is done lazily, that is the elements of the
+sequences, in <code>SEQUENCES</code>, are only added to the lazy sequence when
+elements past the end of the <code>LAZY-SEQ</code>, passed in the first argument,
+are referenced.</p>
+</div>
+<div class="paragraph">
+<p>The <code>CONCATENATE-TO</code> method returns a lazy sequence containing the
+concatenation of <code>SEQUENCES</code>. Like <code>CONCATENATE</code> and <code>NCONCATENATE</code>
+the concatenation is done lazily.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>NCONCATENATE</code> is identical to <code>CONCATENATE</code>, that is the
+<code>LAZY-SEQ</code> is not destructively modified.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="map_methods">MAP Methods</h4>
+<div class="paragraph">
+<p>Method: <code>MAP FUNCTION LAZY-SEQ &amp;REST SEQUENCES</code><br>
+Method: <code>NMAP FUNCTION LAZY-SEQ &amp;REST SEQUENCES</code><br>
+Method: <code>MAP-INTO LAZY-SEQ FUNCTION &amp;REST SEQUENCES</code><br>
+Method: <code>MAP-TO (EQL 'LAZY-SEQ) FUNCTION &amp;REST SEQUENCES</code></p>
+</div>
+<div class="paragraph">
+<p>Applies a function on each element of the <code>LAZY-SEQ</code> and of each
+sequence in <code>SEQUENCES</code>.</p>
+</div>
+<div class="paragraph">
+<p>The result is a <code>LAZY-SEQ</code> with the function applied lazily to each
+element, that is it is only applied when that element is referenced.</p>
+</div>
+<div class="paragraph">
+<p>The <code>MAP-TO</code> method returns the result, of lazily applying the
+function on each element of each sequence in <code>SEQUENCES</code>, in a
+<code>LAZY-SEQ</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>NMAP</code> and <code>MAP-INTO</code> do not destructively modify the <code>LAZY-SEQ</code>
+but return a new sequence instead.
+</td>
+</tr>
+</table>
 </div>
 </div>
 <div class="sect3">
@@ -4476,7 +4600,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-07-06 08:16:30 +0200
+Last updated 2019-07-08 14:46:23 +0200
 </div>
 </div>
 </body>
