@@ -618,7 +618,7 @@
 ;;; Mapping
 
 (defmethod map (function sequence &rest sequences)
-  (apply #'map-into (cleared sequence) function sequence sequences))
+  (map-into% (cleared sequence) function (cons sequence sequences)))
 
 (defmethod nmap (result function &rest sequences)
   (loop
@@ -632,6 +632,12 @@
   result)
 
 (defmethod map-into (result function &rest sequences)
+  (map-into% result function sequences))
+
+(defmethod map-to (type function &rest sequences)
+  (map-into% (sequence-of-type type) function sequences))
+
+(defun map-into% (result function sequences)
   (let ((collector (make-collector result)))
     (loop
        with iters = (make-iters sequences)
@@ -642,8 +648,27 @@
 
     (collector-sequence collector)))
 
-(defmethod map-to (type function &rest sequences)
-  (apply #'map-into (sequence-of-type type) function sequences))
+
+(defmethod map-extend-into (result function &rest sequences)
+  (map-extend-into% result function sequences))
+
+(defmethod map-extend-to (type function &rest sequences)
+  (map-extend-into% (sequence-of-type type) function sequences))
+
+(defmethod map-extend (function sequence &rest sequences)
+  (map-extend-into% (cleared sequence) function (cons sequence sequences)))
+
+(defun map-extend-into% (result function sequences)
+  (let ((collector (make-collector result)))
+    (loop
+       with iters = (make-iters sequences)
+       until (some-endp iters)
+       do
+	 (extend collector (apply function (get-elements iters)))
+	 (advance-all iters))
+
+    (collector-sequence collector)))
+
 
 (defun foreach (function &rest sequences)
   "Applies FUNCTION on each element of each sequence in SEQUENCES."

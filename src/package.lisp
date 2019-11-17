@@ -182,6 +182,7 @@
    :erase :clear
 
    :map :nmap :map-into :map-to :foreach
+   :map-extend :map-extend-to :map-extend-into
    :fill :replace
 
    :concatenate

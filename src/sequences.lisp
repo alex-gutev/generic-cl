@@ -403,3 +403,22 @@
    "Applies FUNCTION to each element of each sequence in SEQUENCES and
     stores the result in a new sequence of type TYPE.  Returns the
     sequence in which the results of applying function are stored."))
+
+
+(defgeneric map-extend-to (type function &rest sequences)
+  (:documentation
+   "Applies FUNCTION on each respective element of SEQUENCE and
+    SEQUENCES and accumulates the result, which is expected to be a
+    sequence, into a sequence, of type TYPE, using EXTEND."))
+
+(defgeneric map-extend-into (result function &rest sequences)
+  (:documentation
+   "Like MAP-EXTEND-TO except the results are accumulated directly
+    into RESULT. Result may be destructively modified however this is
+    not guaranteed, thus this function should only be used for its
+    return value, not its side effects."))
+
+(defgeneric map-extend (function sequence &rest sequences)
+  (:documentation
+   "Like MAP-EXTEND-TO except the first resulting sequence is of the
+    same type as SEQUENCE."))
