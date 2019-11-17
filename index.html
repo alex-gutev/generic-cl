@@ -609,6 +609,9 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#nmap">NMAP</a></li>
 <li><a href="#map_into">MAP-INTO</a></li>
 <li><a href="#map_to">MAP-TO</a></li>
+<li><a href="#map_extend">MAP-EXTEND</a></li>
+<li><a href="#map_extend_to">MAP-EXTEND-TO</a></li>
+<li><a href="#map_extend_into">MAP-EXTEND-INTO</a></li>
 <li><a href="#foreach">FOREACH</a></li>
 </ul>
 </li>
@@ -3407,6 +3410,59 @@ accumulate the results, use <a href="#foreach">FOREACH</a> for that.
 </div>
 </div>
 <div class="sect4">
+<h5 id="map_extend">MAP-EXTEND</h5>
+<div class="paragraph">
+<p>Generic Function: <code>MAP-EXTEND-TO FUNCTION SEQUENCE &amp;REST SEQUENCES</code></p>
+</div>
+<div class="paragraph">
+<p>Applies <code>FUNCTION</code> to each respective element of <code>SEQUENCE</code>, and of
+each sequence in <code>SEQUENCES</code>, accumulating, using the <a href="#extend">EXTEND</a>
+method of the <a href="#collector">Collector</a> Interface, the elements of the result,
+which is expected to be a sequence, in a sequence of the same type as
+<code>SEQUENCE</code>. The resulting sequence is returned.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="map_extend_to">MAP-EXTEND-TO</h5>
+<div class="paragraph">
+<p>Generic Function: <code>MAP-EXTEND-TO TYPE FUNCTION &amp;REST SEQUENCES</code></p>
+</div>
+<div class="paragraph">
+<p>Applies <code>FUNCTION</code> to each respective element of each sequence in
+<code>SEQUENCES</code>, and accumulates, using the <a href="#extend">EXTEND</a> method of the
+<a href="#collector">Collector</a> Interface, the elements of the result, which is expected
+to be a sequence, in a sequence of type <code>TYPE</code>, created using
+<a href="#sequence_of_type">SEQUENCE-OF-TYPE</a>. The resulting sequence is returned.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="map_extend_into">MAP-EXTEND-INTO</h5>
+<div class="paragraph">
+<p>Generic Function: <code>MAP-EXTEND-INTO RESULT FUNCTION &amp;REST SEQUENCES</code></p>
+</div>
+<div class="paragraph">
+<p>Applies <code>FUNCTION</code> to each respective element of each sequence in
+<code>SEQUENCES</code>, and accumulates, using the <a href="#extend">EXTEND</a> method of the
+<a href="#collector">Collector</a> Interface, the elements of the result, which is expected
+to be a sequence, in the sequence <code>RESULT</code>. The resulting sequence is
+returned.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<code>RESULT</code> may be destructively modified, however that is not
+guaranteed thus this function should only be used for its return
+value, not its side effects.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
 <h5 id="foreach">FOREACH</h5>
 <div class="paragraph">
 <p>Function: <code>FOREACH &amp;REST SEQUENCES</code></p>
@@ -4600,7 +4656,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-07-08 14:46:23 +0200
+Last updated 2019-11-17 15:43:37 +0100
 </div>
 </div>
 </body>
