@@ -485,6 +485,44 @@
     (map-seqs (make-iters sequences))))
 
 
+(defmethod map-extend-to ((type (eql 'lazy-seq)) function &rest sequences)
+  (map-extend-to-lazy-seq function sequences))
+
+(defun map-extend-to-lazy-seq (function sequences)
+  (labels ((map-seqs (iters)
+	     (unless (some-endp iters)
+	       (extend-seq
+		(apply function (get-elements iters))
+		(map-seqs (next-iters iters)))))
+
+	   (extend-seq (seq next)
+	     (append-seq (iterator seq) next))
+
+	   (append-seq (iter next)
+	     (if (endp iter)
+		 next
+
+		 (lazy-seq
+		  (at iter)
+		  (append-seq
+		   (prog1 iter
+		     (advance iter))
+		   next))))
+
+	   (next-iters (iters)
+	     (advance-all iters)
+	     iters))
+
+    (map-seqs (make-iters sequences))))
+
+(defmethod map-extend-into ((result lazy-seq) function &rest sequences)
+  (->> (map-extend-to-lazy-seq function sequences)
+       (concatenate-to 'lazy-seq result)))
+
+(defmethod map-extend (function (sequence lazy-seq) &rest sequences)
+  (map-extend-to-lazy-seq function (cons sequence sequences)))
+
+
 ;;;; Miscellaneous Methods
 
 ;;; Equality

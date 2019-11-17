@@ -222,754 +222,793 @@
 
 	(subtest "SUBSEQ"
 	  (test-seq-fn
-	   (lazy-seq (2 3))
-	   (subseq (lseq 1 2 3 4 5) 1 3))
+	      (lazy-seq (2 3))
+	    (subseq (lseq 1 2 3 4 5) 1 3))
 
 	  (test-seq-fn
-	   (lazy-seq (3 4 5))
-	   (subseq (lseq 1 2 3 4 5) 2)))
+	      (lazy-seq (3 4 5))
+	    (subseq (lseq 1 2 3 4 5) 2)))
 
 	(subtest "SUBSTITUTE Functions"
 	  (subtest "SUBSTITUTE"
 	    (test-seq-fn
-	     (lazy-seq ("a" "b" "new" "c" "new" "d"))
-	     (substitute "new" "old" (lseq "a" "b" "old" "c" "old" "d")))
+		(lazy-seq ("a" "b" "new" "c" "new" "d"))
+	      (substitute "new" "old" (lseq "a" "b" "old" "c" "old" "d")))
 
 	    (subtest "No Keyword Arguments"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 x 4 5 x))
-	       (substitute 'x 1 (lseq 1 2 3 1 4 5 1))))
+		  (lazy-seq (x 2 3 x 4 5 x))
+		(substitute 'x 1 (lseq 1 2 3 1 4 5 1))))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 x 4 5 1))
-	       (substitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2)))
+		  (lazy-seq (x 2 3 x 4 5 1))
+		(substitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 x 4 5 x))
-	       (substitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2 :from-end t)))
+		  (list (1 2 3 x 4 5 x))
+		(substitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2 :from-end t)))
 
 	    (subtest "START = 1, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 4 5 1))
-	       (substitute 'x 1 (lseq 1 2 3 1 4 5 1) :start 1 :count 1)))
+		  (lazy-seq (1 2 3 x 4 5 1))
+		(substitute 'x 1 (lseq 1 2 3 1 4 5 1) :start 1 :count 1)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 x 4 5 1))
-	       (substitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5)))
+		  (lazy-seq (x 2 3 x 4 5 1))
+		(substitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 1 4 5 1))
-	       (substitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5 :count 1)))
+		  (lazy-seq (x 2 3 1 4 5 1))
+		(substitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq (x (b 2) (c 3) x (e 4) (f 5) x))
-	       (substitute 'x 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
-			   :key #'cadr))))
+		  (lazy-seq (x (b 2) (c 3) x (e 4) (f 5) x))
+		(substitute 'x 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
+			    :key #'cadr))))
 
 	  (subtest "NSUBSTITUTE"
 	    (test-seq-fn
-	     (lazy-seq ("a" "b" "new" "c" "new" "d"))
-	     (nsubstitute "new" "old" (lseq "a" "b" "old" "c" "old" "d")))
+		(lazy-seq ("a" "b" "new" "c" "new" "d"))
+	      (nsubstitute "new" "old" (lseq "a" "b" "old" "c" "old" "d")))
 
 	    (subtest "No Keyword Arguments"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 x 4 5 x))
-	       (nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1))))
+		  (lazy-seq (x 2 3 x 4 5 x))
+		(nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1))))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 x 4 5 1))
-	       (nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2)))
+		  (lazy-seq (x 2 3 x 4 5 1))
+		(nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 x 4 5 x))
-	       (nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2 :from-end t)))
+		  (list (1 2 3 x 4 5 x))
+		(nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :count 2 :from-end t)))
 
 	    (subtest "START = 1, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 4 5 1))
-	       (nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :start 1 :count 1)))
+		  (lazy-seq (1 2 3 x 4 5 1))
+		(nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :start 1 :count 1)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 x 4 5 1))
-	       (nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5)))
+		  (lazy-seq (x 2 3 x 4 5 1))
+		(nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 1 4 5 1))
-	       (nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5 :count 1)))
+		  (lazy-seq (x 2 3 1 4 5 1))
+		(nsubstitute 'x 1 (lseq 1 2 3 1 4 5 1) :end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq (x (b 2) (c 3) x (e 4) (f 5) x))
-	       (nsubstitute 'x 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
-			    :key #'cadr))))
+		  (lazy-seq (x (b 2) (c 3) x (e 4) (f 5) x))
+		(nsubstitute 'x 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
+			     :key #'cadr))))
 
 	  (subtest "Test SUBSTITUTE-IF"
 	    (test-seq-fn
-	     (lazy-seq (1 x 3 x 5 x 7 x))
-	     (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
+		(lazy-seq (1 x 3 x 5 x 7 x))
+	      (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 x 3 x 5 6 7 8))
-	       (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :count 2)))
+		  (lazy-seq (1 x 3 x 5 6 7 8))
+		(substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 5 x 7 x))
-	       (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :count 2 :from-end t)))
-
-	    (subtest "START = 2"
-	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 5 x 7 x))
-	       (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :start 2)))
-
-	    (subtest "START = 2, COUNT = 1"
-	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 5 6 7 8))
-	       (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2 :count 1)))
-
-	    (subtest "START = 2, END = 6"
-	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 5 x 7 8))
-	       (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2 :end 6)))
-
-	    (subtest "END = 5"
-	      (test-seq-fn
-	       (lazy-seq (1 x 3 x 5 6 7 8))
-	       (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :end 5)))
-
-	    (subtest "END = 5, COUNT = 1"
-	      (test-seq-fn
-	       (lazy-seq (1 x 3 4 5 6 7 8))
-	       (substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :end 5 :count 1)))
-
-	    (subtest "KEY = #'CADR"
-	      (test-seq-fn
-	       (lazy-seq ((a 1) x (c 3) x (e 5) x (g 7)))
-	       (substitute-if 'x #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
-			      :key #'cadr))))
-
-	  (subtest "Test NSUBSTITUTE-IF"
-	    (test-seq-fn
-	     (lazy-seq (1 x 3 x 5 x 7 x))
-	     (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
-
-	    (subtest "COUNT = 2"
-	      (test-seq-fn
-	       (lazy-seq (1 x 3 x 5 6 7 8))
-	       (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :count 2)))
-
-	    (subtest "COUNT = 2, FROM-END = T"
-	      (test-seq-fn
-	       (list (1 2 3 4 5 x 7 x))
-	       (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (list (1 2 3 4 5 x 7 x))
+		(substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 			       :count 2 :from-end t)))
 
 	    (subtest "START = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 5 x 7 x))
-	       (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :start 2)))
+		  (lazy-seq (1 2 3 x 5 x 7 x))
+		(substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :start 2)))
 
 	    (subtest "START = 2, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 5 6 7 8))
-	       (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (1 2 3 x 5 6 7 8))
+		(substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 			       :start 2 :count 1)))
 
 	    (subtest "START = 2, END = 6"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 x 5 x 7 8))
-	       (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (1 2 3 x 5 x 7 8))
+		(substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 			       :start 2 :end 6)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (1 x 3 x 5 6 7 8))
-	       (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (1 x 3 x 5 6 7 8))
+		(substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 			       :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 x 3 4 5 6 7 8))
-	       (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (1 x 3 4 5 6 7 8))
+		(substitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 			       :end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq ((a 1) x (c 3) x (e 5) x (g 7)))
-	       (nsubstitute-if 'x #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
+		  (lazy-seq ((a 1) x (c 3) x (e 5) x (g 7)))
+		(substitute-if 'x #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
 			       :key #'cadr))))
 
-	  (subtest "Test SUBSTITUTE-IF-NOT"
+	  (subtest "Test NSUBSTITUTE-IF"
 	    (test-seq-fn
-	     (lazy-seq (x 2 x 4 x 6 x 8))
-	     (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
+		(lazy-seq (1 x 3 x 5 x 7 x))
+	      (nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (x 2 x 4 5 6 7 8))
-	       (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-				  :count 2)))
+		  (lazy-seq (1 x 3 x 5 6 7 8))
+		(nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 x 6 x 8))
-	       (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-				  :count 2 :from-end t)))
+		  (list (1 2 3 4 5 x 7 x))
+		(nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				:count 2 :from-end t)))
 
 	    (subtest "START = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 2 x 4 x 6 x 8))
-	       (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-				  :start 2)))
+		  (lazy-seq (1 2 3 x 5 x 7 x))
+		(nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8) :start 2)))
 
 	    (subtest "START = 2, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 x 4 5 6 7 8))
-	       (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-				  :start 2 :count 1)))
+		  (lazy-seq (1 2 3 x 5 6 7 8))
+		(nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				:start 2 :count 1)))
 
-	    (subtest "COUNT = 2, END = 6"
+	    (subtest "START = 2, END = 6"
 	      (test-seq-fn
-	       (lazy-seq (1 2 x 4 x 6 7 8))
-	       (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-				  :start 2 :end 6)))
+		  (lazy-seq (1 2 3 x 5 x 7 8))
+		(nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				:start 2 :end 6)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (x 2 x 4 x 6 7 8))
-	       (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-				  :end 5)))
+		  (lazy-seq (1 x 3 x 5 6 7 8))
+		(nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				:end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 4 5 6 7 8))
-	       (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
-				  :count 1 :end 5)))
+		  (lazy-seq (1 x 3 4 5 6 7 8))
+		(nsubstitute-if 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				:end 5 :count 1)))
 
-	    (subtest "KEY #'CADR"
+	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq (x (b 2) x (d 4) x (f 6) x))
-	       (substitute-if-not 'x #'evenp
-				  (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
-				  :key #'cadr))))
+		  (lazy-seq ((a 1) x (c 3) x (e 5) x (g 7)))
+		(nsubstitute-if 'x #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
+				:key #'cadr))))
 
-	  (subtest "Test NSUBSTITUTE-IF-NOT"
+	  (subtest "Test SUBSTITUTE-IF-NOT"
 	    (test-seq-fn
-	     (lazy-seq (x 2 x 4 x 6 x 8))
-	     (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
+		(lazy-seq (x 2 x 4 x 6 x 8))
+	      (substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (x 2 x 4 5 6 7 8))
-	       (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (x 2 x 4 5 6 7 8))
+		(substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 				   :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 x 6 x 8))
-	       (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (list (1 2 3 4 x 6 x 8))
+		(substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 				   :count 2 :from-end t)))
 
 	    (subtest "START = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 2 x 4 x 6 x 8))
-	       (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (1 2 x 4 x 6 x 8))
+		(substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 				   :start 2)))
 
 	    (subtest "START = 2, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 x 4 5 6 7 8))
-	       (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (1 2 x 4 5 6 7 8))
+		(substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 				   :start 2 :count 1)))
 
 	    (subtest "COUNT = 2, END = 6"
 	      (test-seq-fn
-	       (lazy-seq (1 2 x 4 x 6 7 8))
-	       (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (1 2 x 4 x 6 7 8))
+		(substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 				   :start 2 :end 6)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (x 2 x 4 x 6 7 8))
-	       (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (x 2 x 4 x 6 7 8))
+		(substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 				   :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (x 2 3 4 5 6 7 8))
-	       (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+		  (lazy-seq (x 2 3 4 5 6 7 8))
+		(substitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
 				   :count 1 :end 5)))
 
 	    (subtest "KEY #'CADR"
 	      (test-seq-fn
-	       (lazy-seq (x (b 2) x (d 4) x (f 6) x))
-	       (nsubstitute-if-not 'x #'evenp
+		  (lazy-seq (x (b 2) x (d 4) x (f 6) x))
+		(substitute-if-not 'x #'evenp
 				   (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
-				   :key #'cadr)))))
+				   :key #'cadr))))
+
+	  (subtest "Test NSUBSTITUTE-IF-NOT"
+	    (test-seq-fn
+		(lazy-seq (x 2 x 4 x 6 x 8))
+	      (nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)))
+
+	    (subtest "COUNT = 2"
+	      (test-seq-fn
+		  (lazy-seq (x 2 x 4 5 6 7 8))
+		(nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				    :count 2)))
+
+	    (subtest "COUNT = 2, FROM-END = T"
+	      (test-seq-fn
+		  (list (1 2 3 4 x 6 x 8))
+		(nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				    :count 2 :from-end t)))
+
+	    (subtest "START = 2"
+	      (test-seq-fn
+		  (lazy-seq (1 2 x 4 x 6 x 8))
+		(nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				    :start 2)))
+
+	    (subtest "START = 2, COUNT = 1"
+	      (test-seq-fn
+		  (lazy-seq (1 2 x 4 5 6 7 8))
+		(nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				    :start 2 :count 1)))
+
+	    (subtest "COUNT = 2, END = 6"
+	      (test-seq-fn
+		  (lazy-seq (1 2 x 4 x 6 7 8))
+		(nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				    :start 2 :end 6)))
+
+	    (subtest "END = 5"
+	      (test-seq-fn
+		  (lazy-seq (x 2 x 4 x 6 7 8))
+		(nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				    :end 5)))
+
+	    (subtest "END = 5, COUNT = 1"
+	      (test-seq-fn
+		  (lazy-seq (x 2 3 4 5 6 7 8))
+		(nsubstitute-if-not 'x #'evenp (lseq 1 2 3 4 5 6 7 8)
+				    :count 1 :end 5)))
+
+	    (subtest "KEY #'CADR"
+	      (test-seq-fn
+		  (lazy-seq (x (b 2) x (d 4) x (f 6) x))
+		(nsubstitute-if-not 'x #'evenp
+				    (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
+				    :key #'cadr)))))
 
 	(subtest "REMOVE Functions"
 	  (subtest "REMOVE"
 	    (subtest "String Elements"
 	      (test-seq-fn
-	       (lazy-seq ("a" "b" "c" "d"))
-	       (remove "old" (lseq "a" "b" "old" "c" "old" "d"))))
+		  (lazy-seq ("a" "b" "c" "d"))
+		(remove "old" (lseq "a" "b" "old" "c" "old" "d"))))
 
 	    (subtest "Number Elements"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5))
-	       (remove 1 (lseq 1 2 3 1 4 5 1))))
+		  (lazy-seq (2 3 4 5))
+		(remove 1 (lseq 1 2 3 1 4 5 1))))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5 1))
-	       (remove 1 (lseq 1 2 3 1 4 5 1) :count 2)))
+		  (lazy-seq (2 3 4 5 1))
+		(remove 1 (lseq 1 2 3 1 4 5 1) :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 5))
-	       (remove 1 (lseq 1 2 3 1 4 5 1)
-		       :count 2 :from-end t)))
+		  (list (1 2 3 4 5))
+		(remove 1 (lseq 1 2 3 1 4 5 1)
+			:count 2 :from-end t)))
 
 	    (subtest "START = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 4 5))
-	       (remove 1 (lseq 1 2 3 1 4 5 1) :start 1)))
+		  (lazy-seq (1 2 3 4 5))
+		(remove 1 (lseq 1 2 3 1 4 5 1) :start 1)))
 
 	    (subtest "START = 1, END = 5"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 4 5 1))
-	       (remove 1 (lseq 1 2 3 1 4 5 1)
-		       :start 1 :end 5)))
+		  (lazy-seq (1 2 3 4 5 1))
+		(remove 1 (lseq 1 2 3 1 4 5 1)
+			:start 1 :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (2 3 1 4 5 1))
-	       (remove 1 (lseq 1 2 3 1 4 5 1)
-		       :end 5 :count 1)))
+		  (lazy-seq (2 3 1 4 5 1))
+		(remove 1 (lseq 1 2 3 1 4 5 1)
+			:end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq ((b 2) (c 3) (e 4) (f 5)))
-	       (remove 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
-		       :key #'cadr))))
+		  (lazy-seq ((b 2) (c 3) (e 4) (f 5)))
+		(remove 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
+			:key #'cadr))))
 
 	  (subtest "DELETE"
 	    (subtest "String Elements"
 	      (test-seq-fn
-	       (lazy-seq ("a" "b" "c" "d"))
-	       (delete "old" (lseq "a" "b" "old" "c" "old" "d"))))
+		  (lazy-seq ("a" "b" "c" "d"))
+		(delete "old" (lseq "a" "b" "old" "c" "old" "d"))))
 
 	    (subtest "Number Elements"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5))
-	       (delete 1 (lseq 1 2 3 1 4 5 1))))
+		  (lazy-seq (2 3 4 5))
+		(delete 1 (lseq 1 2 3 1 4 5 1))))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5 1))
-	       (delete 1 (lseq 1 2 3 1 4 5 1) :count 2)))
+		  (lazy-seq (2 3 4 5 1))
+		(delete 1 (lseq 1 2 3 1 4 5 1) :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 5))
-	       (delete 1 (lseq 1 2 3 1 4 5 1)
-		       :count 2 :from-end t)))
+		  (list (1 2 3 4 5))
+		(delete 1 (lseq 1 2 3 1 4 5 1)
+			:count 2 :from-end t)))
 
 	    (subtest "START = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 4 5))
-	       (delete 1 (lseq 1 2 3 1 4 5 1) :start 1)))
+		  (lazy-seq (1 2 3 4 5))
+		(delete 1 (lseq 1 2 3 1 4 5 1) :start 1)))
 
 	    (subtest "START = 1, END = 5"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 4 5 1))
-	       (delete 1 (lseq 1 2 3 1 4 5 1)
-		       :start 1 :end 5)))
+		  (lazy-seq (1 2 3 4 5 1))
+		(delete 1 (lseq 1 2 3 1 4 5 1)
+			:start 1 :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (2 3 1 4 5 1))
-	       (delete 1 (lseq 1 2 3 1 4 5 1)
-		       :end 5 :count 1)))
+		  (lazy-seq (2 3 1 4 5 1))
+		(delete 1 (lseq 1 2 3 1 4 5 1)
+			:end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq ((b 2) (c 3) (e 4) (f 5)))
-	       (delete 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
-		       :key #'cadr))))
+		  (lazy-seq ((b 2) (c 3) (e 4) (f 5)))
+		(delete 1 (lseq '(a 1) '(b 2) '(c 3) '(d 1) '(e 4) '(f 5) '(g 1))
+			:key #'cadr))))
 
 	  (subtest "REMOVE-IF"
 	    (test-seq-fn
-	     (lazy-seq (1 3 5 7))
-	     (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)))
+		(lazy-seq (1 3 5 7))
+	      (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 3 5 6 7 8))
-	       (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :count 2)))
+		  (lazy-seq (1 3 5 6 7 8))
+		(remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 5 7))
-	       (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :count 2 :from-end t)))
+		  (list (1 2 3 4 5 7))
+		(remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :count 2 :from-end t)))
 
 	    (subtest "START = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 5 7))
-	       (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :start 2)))
+		  (lazy-seq (1 2 3 5 7))
+		(remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :start 2)))
 
 	    (subtest "START = 2, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 5 6 7 8))
-	       (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :start 2 :count 1)))
+		  (lazy-seq (1 2 3 5 6 7 8))
+		(remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :start 2 :count 1)))
 
 	    (subtest "START = 2, END = 6"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 5 7 8))
-	       (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :start 2 :end 6)))
+		  (lazy-seq (1 2 3 5 7 8))
+		(remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :start 2 :end 6)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (1 3 5 6 7 8))
-	       (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :end 5)))
+		  (lazy-seq (1 3 5 6 7 8))
+		(remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 3 4 5 6 7 8))
-	       (remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :end 5 :count 1)))
+		  (lazy-seq (1 3 4 5 6 7 8))
+		(remove-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq ((a 1) (c 3) (e 5) (g 7)))
-	       (remove-if #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
-			  :key #'cadr))))
+		  (lazy-seq ((a 1) (c 3) (e 5) (g 7)))
+		(remove-if #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
+			   :key #'cadr))))
 
 	  (subtest "DELETE-IF"
 	    (test-seq-fn
-	     (lazy-seq (1 3 5 7))
-	     (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)))
+		(lazy-seq (1 3 5 7))
+	      (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 3 5 6 7 8))
-	       (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :count 2)))
+		  (lazy-seq (1 3 5 6 7 8))
+		(delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 5 7))
-	       (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :count 2 :from-end t)))
+		  (list (1 2 3 4 5 7))
+		(delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :count 2 :from-end t)))
 
 	    (subtest "START = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 5 7))
-	       (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :start 2)))
+		  (lazy-seq (1 2 3 5 7))
+		(delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :start 2)))
 
 	    (subtest "START = 2, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 5 6 7 8))
-	       (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :start 2 :count 1)))
+		  (lazy-seq (1 2 3 5 6 7 8))
+		(delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :start 2 :count 1)))
 
 	    (subtest "START = 2, END = 6"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 5 7 8))
-	       (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :start 2 :end 6)))
+		  (lazy-seq (1 2 3 5 7 8))
+		(delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :start 2 :end 6)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (1 3 5 6 7 8))
-	       (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :end 5)))
+		  (lazy-seq (1 3 5 6 7 8))
+		(delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 3 4 5 6 7 8))
-	       (delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
-			  :end 5 :count 1)))
+		  (lazy-seq (1 3 4 5 6 7 8))
+		(delete-if #'evenp (lseq 1 2 3 4 5 6 7 8)
+			   :end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq ((a 1) (c 3) (e 5) (g 7)))
-	       (delete-if #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
-			  :key #'cadr))))
+		  (lazy-seq ((a 1) (c 3) (e 5) (g 7)))
+		(delete-if #'evenp (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
+			   :key #'cadr))))
 
 	  (subtest "REMOVE-IF-NOT"
 	    (test-seq-fn
-	     (lazy-seq (2 4 6 8))
-	     (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)))
+		(lazy-seq (2 4 6 8))
+	      (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (2 4 5 6 7 8))
-	       (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :count 2)))
+		  (lazy-seq (2 4 5 6 7 8))
+		(remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 6 8))
-	       (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :count 2 :from-end t)))
+		  (list (1 2 3 4 6 8))
+		(remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :count 2 :from-end t)))
 
 	    (subtest "START = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 2 4 6 8))
-	       (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2)))
+		  (lazy-seq (1 2 4 6 8))
+		(remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :start 2)))
 
 	    (subtest "START = 2, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 4 5 6 7 8))
-	       (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2 :count 1)))
+		  (lazy-seq (1 2 4 5 6 7 8))
+		(remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :start 2 :count 1)))
 
 	    (subtest "START = 2, END = 6"
 	      (test-seq-fn
-	       (lazy-seq (1 2 4 6 7 8))
-	       (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2 :end 6)))
+		  (lazy-seq (1 2 4 6 7 8))
+		(remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :start 2 :end 6)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (2 4 6 7 8))
-	       (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :end 5)))
+		  (lazy-seq (2 4 6 7 8))
+		(remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5 6 7 8))
-	       (remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :end 5 :count 1)))
+		  (lazy-seq (2 3 4 5 6 7 8))
+		(remove-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq ((b 2) (d 4) (f 6)))
-	       (remove-if-not #'evenp
-			      (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
-			      :key #'cadr))))
+		  (lazy-seq ((b 2) (d 4) (f 6)))
+		(remove-if-not #'evenp
+			       (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
+			       :key #'cadr))))
 
 	  (subtest "DELETE-IF-NOT"
 	    (test-seq-fn
-	     (lazy-seq (2 4 6 8))
-	     (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)))
+		(lazy-seq (2 4 6 8))
+	      (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)))
 
 	    (subtest "COUNT = 2"
 	      (test-seq-fn
-	       (lazy-seq (2 4 5 6 7 8))
-	       (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :count 2)))
+		  (lazy-seq (2 4 5 6 7 8))
+		(delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :count 2)))
 
 	    (subtest "COUNT = 2, FROM-END = T"
 	      (test-seq-fn
-	       (list (1 2 3 4 6 8))
-	       (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :count 2 :from-end t)))
+		  (list (1 2 3 4 6 8))
+		(delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :count 2 :from-end t)))
 
 	    (subtest "START = 2"
 	      (test-seq-fn
-	       (lazy-seq (1 2 4 6 8))
-	       (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2)))
+		  (lazy-seq (1 2 4 6 8))
+		(delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :start 2)))
 
 	    (subtest "START = 2, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (1 2 4 5 6 7 8))
-	       (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2 :count 1)))
+		  (lazy-seq (1 2 4 5 6 7 8))
+		(delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :start 2 :count 1)))
 
 	    (subtest "START = 2, END = 6"
 	      (test-seq-fn
-	       (lazy-seq (1 2 4 6 7 8))
-	       (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :start 2 :end 6)))
+		  (lazy-seq (1 2 4 6 7 8))
+		(delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :start 2 :end 6)))
 
 	    (subtest "END = 5"
 	      (test-seq-fn
-	       (lazy-seq (2 4 6 7 8))
-	       (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :end 5)))
+		  (lazy-seq (2 4 6 7 8))
+		(delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :end 5)))
 
 	    (subtest "END = 5, COUNT = 1"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5 6 7 8))
-	       (delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
-			      :end 5 :count 1)))
+		  (lazy-seq (2 3 4 5 6 7 8))
+		(delete-if-not #'evenp (lseq 1 2 3 4 5 6 7 8)
+			       :end 5 :count 1)))
 
 	    (subtest "KEY = #'CADR"
 	      (test-seq-fn
-	       (lazy-seq ((b 2) (d 4) (f 6)))
-	       (delete-if-not #'evenp
-			      (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
-			      :key #'cadr)))))
+		  (lazy-seq ((b 2) (d 4) (f 6)))
+		(delete-if-not #'evenp
+			       (lseq '(a 1) '(b 2) '(c 3) '(d 4) '(e 5) '(f 6) '(g 7))
+			       :key #'cadr)))))
 
 	(subtest "REMOVE-DUPLICATES Functions"
 	  (subtest "REMOVE-DUPLICATES"
 	    (test-seq-fn
-	     (list ("bob" "alex" "jack" "john"))
-	     (remove-duplicates
-	      (lseq "alex" "john" "bob" "alex" "jack" "john")))
+		(list ("bob" "alex" "jack" "john"))
+	      (remove-duplicates
+	       (lseq "alex" "john" "bob" "alex" "jack" "john")))
 
 	    (subtest "FROM-END = t"
 	      (test-seq-fn
-	       (lazy-seq ("alex" "john" "bob" "jack"))
-	       (remove-duplicates
-		(lseq "alex" "john" "bob" "alex" "jack" "john")
-		:from-end t)))
+		  (lazy-seq ("alex" "john" "bob" "jack"))
+		(remove-duplicates
+		 (lseq "alex" "john" "bob" "alex" "jack" "john")
+		 :from-end t)))
 
 	    (subtest "START = 1, END = 4, FROM-END = t"
 	      (test-seq-fn
-	       (lazy-seq ("alex" "john" "bob" "alex" "jack"))
-	       (remove-duplicates
-		(lseq "alex" "john" "bob" "alex" "jack" "john")
-		:from-end t :start 1)))
+		  (lazy-seq ("alex" "john" "bob" "alex" "jack"))
+		(remove-duplicates
+		 (lseq "alex" "john" "bob" "alex" "jack" "john")
+		 :from-end t :start 1)))
 
 	    (subtest "START = 1, END = 4, FROM-END = t"
 	      (test-seq-fn
-	       (lazy-seq ("alex" "john" "bob" "alex" "jack" "john"))
-	       (remove-duplicates
-		(lseq "alex" "john" "bob" "alex" "jack" "john")
-		:from-end t :start 1 :end 4)))
+		  (lazy-seq ("alex" "john" "bob" "alex" "jack" "john"))
+		(remove-duplicates
+		 (lseq "alex" "john" "bob" "alex" "jack" "john")
+		 :from-end t :start 1 :end 4)))
 
 	    (subtest "KEY = #'CADR, FROM-END = T"
 	      (test-seq-fn
-	       (lazy-seq ((a 1) (b 2) (d 3) (f 4)))
-	       (remove-duplicates
-		(lseq '(a 1) '(b 2) '(c 1) '(d 3) '(e 2) '(f 4))
-		:from-end t :key #'cadr)))
+		  (lazy-seq ((a 1) (b 2) (d 3) (f 4)))
+		(remove-duplicates
+		 (lseq '(a 1) '(b 2) '(c 1) '(d 3) '(e 2) '(f 4))
+		 :from-end t :key #'cadr)))
 
 	    (subtest "FROM-END = T, TEST = #'CHAR-EQUAL"
 	      (test-seq-fn
-	       (lazy-seq (#\a #\B #\c #\D))
-	       (remove-duplicates
-	    	(lseq #\a #\B #\c #\D #\A #\b #\C #\d)
-	    	:from-end t :test #'char-equal))))
+		  (lazy-seq (#\a #\B #\c #\D))
+		(remove-duplicates
+	    	 (lseq #\a #\B #\c #\D #\A #\b #\C #\d)
+	    	 :from-end t :test #'char-equal))))
 
 	  (subtest "DELETE-DUPLICATES"
 	    (test-seq-fn
-	     (list ("bob" "alex" "jack" "john"))
-	     (remove-duplicates
-	      (lseq "alex" "john" "bob" "alex" "jack" "john")))
+		(list ("bob" "alex" "jack" "john"))
+	      (remove-duplicates
+	       (lseq "alex" "john" "bob" "alex" "jack" "john")))
 
 	    (subtest "FROM-END = t"
 	      (test-seq-fn
-	       (lazy-seq ("alex" "john" "bob" "jack"))
-	       (remove-duplicates
-		(lseq "alex" "john" "bob" "alex" "jack" "john")
-		:from-end t)))
+		  (lazy-seq ("alex" "john" "bob" "jack"))
+		(remove-duplicates
+		 (lseq "alex" "john" "bob" "alex" "jack" "john")
+		 :from-end t)))
 
 	    (subtest "START = 1, END = 4, FROM-END = t"
 	      (test-seq-fn
-	       (lazy-seq ("alex" "john" "bob" "alex" "jack"))
-	       (remove-duplicates
-		(lseq "alex" "john" "bob" "alex" "jack" "john")
-		:from-end t :start 1)))
+		  (lazy-seq ("alex" "john" "bob" "alex" "jack"))
+		(remove-duplicates
+		 (lseq "alex" "john" "bob" "alex" "jack" "john")
+		 :from-end t :start 1)))
 
 	    (subtest "START = 1, END = 4, FROM-END = t"
 	      (test-seq-fn
-	       (lazy-seq ("alex" "john" "bob" "alex" "jack" "john"))
-	       (remove-duplicates
-		(lseq "alex" "john" "bob" "alex" "jack" "john")
-		:from-end t :start 1 :end 4)))
+		  (lazy-seq ("alex" "john" "bob" "alex" "jack" "john"))
+		(remove-duplicates
+		 (lseq "alex" "john" "bob" "alex" "jack" "john")
+		 :from-end t :start 1 :end 4)))
 
 	    (subtest "KEY = #'CADR, FROM-END = T"
 	      (test-seq-fn
-	       (lazy-seq ((a 1) (b 2) (d 3) (f 4)))
-	       (remove-duplicates
-		(lseq '(a 1) '(b 2) '(c 1) '(d 3) '(e 2) '(f 4))
-		:from-end t :key #'cadr)))
+		  (lazy-seq ((a 1) (b 2) (d 3) (f 4)))
+		(remove-duplicates
+		 (lseq '(a 1) '(b 2) '(c 1) '(d 3) '(e 2) '(f 4))
+		 :from-end t :key #'cadr)))
 
 	    (subtest "FROM-END = T, TEST = #'CHAR-EQUAL"
 	      (test-seq-fn
-	       (lazy-seq (#\a #\B #\c #\D))
-	       (remove-duplicates
-	    	(lseq #\a #\B #\c #\D #\A #\b #\C #\d)
-	    	:from-end t :test #'char-equal)))))
+		  (lazy-seq (#\a #\B #\c #\D))
+		(remove-duplicates
+	    	 (lseq #\a #\B #\c #\D #\A #\b #\C #\d)
+	    	 :from-end t :test #'char-equal)))))
 
 	(subtest "Concatenation Functions"
 	  (subtest "Test CONCATENATE"
 	    (test-seq-fn
-	     (lazy-seq (1 2 3 4 5 6 7 8 9))
-	     (concatenate (lseq 1 2 3) nil '(4 5 6) (lseq 7 8 9) nil)))
+		(lazy-seq (1 2 3 4 5 6 7 8 9))
+	      (concatenate (lseq 1 2 3) nil '(4 5 6) (lseq 7 8 9) nil)))
 
 	  (subtest "Test NCONCATENATE"
 	    (test-seq-fn
-	     (lazy-seq (1 2 3 4 5 6 7 8 9))
-	     (concatenate (lseq 1 2 3) nil '(4 5 6) #(7 8 9) nil)))
+		(lazy-seq (1 2 3 4 5 6 7 8 9))
+	      (concatenate (lseq 1 2 3) nil '(4 5 6) #(7 8 9) nil)))
 
 	  (subtest "Test CONCATENATE-TO"
 	    (test-seq-fn
-	     (lazy-seq (1 2 3 4 5 6 7 8 9))
-	     (concatenate-to 'lazy-seq #(1 2 3) nil '(4 5 6) (lseq 7 8 9) nil))))
+		(lazy-seq (1 2 3 4 5 6 7 8 9))
+	      (concatenate-to 'lazy-seq #(1 2 3) nil '(4 5 6) (lseq 7 8 9) nil))))
 
 	(subtest "Mapping Functions"
 	  (subtest "Test MAP"
 	    (subtest "Single Sequence"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5))
-	       (map #'1+ (lseq 1 2 3 4))))
+		  (lazy-seq (2 3 4 5))
+		(map #'1+ (lseq 1 2 3 4))))
 
 	    (subtest "Multiple Sequences"
 	      (test-seq-fn
-	       (lazy-seq (3 5 7 9))
-	       (map #'+ (lseq 1 2 3 4) #(2 3 4 5)))))
+		  (lazy-seq (3 5 7 9))
+		(map #'+ (lseq 1 2 3 4) #(2 3 4 5)))))
 
 	  (subtest "Test NMAP"
 	    (subtest "Single Sequence"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5))
-	       (nmap #'1+ (lseq 1 2 3 4))))
+		  (lazy-seq (2 3 4 5))
+		(nmap #'1+ (lseq 1 2 3 4))))
 
 	    (subtest "Multiple Sequences"
 	      (test-seq-fn
-	       (lazy-seq (3 5 7 9))
-	       (nmap #'+ (lseq 1 2 3 4) #(2 3 4 5)))))
+		  (lazy-seq (3 5 7 9))
+		(nmap #'+ (lseq 1 2 3 4) #(2 3 4 5)))))
 
 	  (subtest "Test MAP-INTO"
 	    (subtest "Single Sequence"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 4))
-	       (map-into (lseq 1 2) #'1+ '(2 3))))
+		  (lazy-seq (1 2 3 4))
+		(map-into (lseq 1 2) #'1+ '(2 3))))
 
 	    (subtest "Multiple Sequences"
 	      (test-seq-fn
-	       (lazy-seq (1 2 3 4))
-	       (map-into (lseq 1 2) #'+ '(2 3) (lseq 1 1)))))
+		  (lazy-seq (1 2 3 4))
+		(map-into (lseq 1 2) #'+ '(2 3) (lseq 1 1)))))
 
 	  (subtest "Test MAP-TO"
 	    (subtest "Single Sequence"
 	      (test-seq-fn
-	       (lazy-seq (2 3 4 5))
-	       (map-to 'lazy-seq #'1+ '(1 2 3 4))))
+		  (lazy-seq (2 3 4 5))
+		(map-to 'lazy-seq #'1+ '(1 2 3 4))))
 
 	    (subtest "Multiple Sequences"
 	      (test-seq-fn
-	       (lazy-seq (2 4 6 8))
-	       (map-to 'lazy-seq #'+ '(1 2 3 4) #(1 2 3 4))))))))
+		  (lazy-seq (2 4 6 8))
+		(map-to 'lazy-seq #'+ '(1 2 3 4) #(1 2 3 4)))))
+
+	  (subtest "Test MAP-EXTEND"
+	    (subtest "Single Sequence"
+	      (flet ((f (x)
+		       (list x (* 2 x))))
+		(test-seq-fn
+		    (lazy-seq (1 2 2 4 3 6))
+		  (map-extend #'f (lseq 1 2 3)))))
+
+	    (subtest "Multiple Sequences"
+	      (test-seq-fn
+		  (lazy-seq (1 a 2 b 3 c))
+		(map-extend #'vector (lseq 1 2 3) '(a b c)))))
+
+	  (subtest "Test MAP-EXTEND-INTO"
+	    (subtest "Single Sequence"
+	      (flet ((f (x)
+		       (list x (* 2 x))))
+		(test-seq-fn
+		    (lazy-seq (1 2 3 6 4 8))
+		  (map-extend-into (lseq 1 2) #'f '(3 4)))))
+
+	    (subtest "Multiple Sequences"
+	      (test-seq-fn
+		  (lazy-seq (1 2 3 a 4 b 5 c))
+		(map-extend-into (lseq 1 2) #'vector (lseq 3 4 5) '(a b c)))))
+
+	  (subtest "Test MAP-EXTEND-TO"
+	    (subtest "Single Sequence"
+	      (flet ((f (x)
+		       (list x (* 2 x))))
+		(test-seq-fn
+		    (lazy-seq (1 2 2 4 3 6))
+		  (map-extend-to 'lazy-seq #'f '(1 2 3)))))
+
+	    (subtest "Multiple Sequences"
+	      (test-seq-fn
+		  (lazy-seq (1 a 2 b 3 c))
+		(map-extend-to 'lazy-seq #'vector '(1 2 3) #(a b c))))))))
 
     (subtest "COERCE Methods"
       (subtest "Coerce to list"
