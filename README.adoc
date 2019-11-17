@@ -1750,6 +1750,40 @@ equivalent in behavior, to `CL:MAP`. The only difference is that if
 a fill-pointer. A `NIL` type argument is not interpreted as do not
 accumulate the results, use <<FOREACH>> for that.
 
+===== MAP-EXTEND =====
+
+Generic Function: `MAP-EXTEND-TO FUNCTION SEQUENCE &REST SEQUENCES`
+
+Applies `FUNCTION` to each respective element of `SEQUENCE`, and of
+each sequence in `SEQUENCES`, accumulating, using the <<EXTEND>>
+method of the <<Collector>> Interface, the elements of the result,
+which is expected to be a sequence, in a sequence of the same type as
+`SEQUENCE`. The resulting sequence is returned.
+
+
+===== MAP-EXTEND-TO =====
+
+Generic Function: `MAP-EXTEND-TO TYPE FUNCTION &REST SEQUENCES`
+
+Applies `FUNCTION` to each respective element of each sequence in
+`SEQUENCES`, and accumulates, using the <<EXTEND>> method of the
+<<Collector>> Interface, the elements of the result, which is expected
+to be a sequence, in a sequence of type `TYPE`, created using
+<<SEQUENCE-OF-TYPE>>. The resulting sequence is returned.
+
+===== MAP-EXTEND-INTO =====
+
+Generic Function: `MAP-EXTEND-INTO RESULT FUNCTION &REST SEQUENCES`
+
+Applies `FUNCTION` to each respective element of each sequence in
+`SEQUENCES`, and accumulates, using the <<EXTEND>> method of the
+<<Collector>> Interface, the elements of the result, which is expected
+to be a sequence, in the sequence `RESULT`. The resulting sequence is
+returned.
+
+CAUTION: `RESULT` may be destructively modified, however that is not
+guaranteed thus this function should only be used for its return
+value, not its side effects.
 
 ===== FOREACH =====
 
