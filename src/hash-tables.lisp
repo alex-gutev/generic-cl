@@ -175,7 +175,7 @@
 
 ;;; Utility Macros
 
-(defmacro! ensure-get (o!key o!map &body (default))
+(defmacro! ensure-get (o!key o!map &body (&optional default))
   `(multiple-value-bind (,g!value ,g!in-map?) (get ,g!key ,g!map)
      (if ,g!in-map?
 	 (values ,g!value t)
