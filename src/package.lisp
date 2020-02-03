@@ -44,7 +44,7 @@
    :defconstant
 
    ;; Equality
-   :equalp := :/=
+   :equalp :likep := :/=
 
    ;; Arithmetic
    :+ :- :* :/
@@ -223,6 +223,7 @@
    :hash-map-test
 
    :hash
+   :like-hash
    :get
    :ensure-get
 

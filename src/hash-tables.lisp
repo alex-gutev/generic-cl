@@ -1,6 +1,6 @@
 ;;;; hash-tables.lisp
 ;;;;
-;;;; Copyright 2019 Alexander Gutev
+;;;; Copyright 2019-2020 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -33,17 +33,38 @@
 
 (defgeneric hash (object)
   (:documentation
-   "Should return a hash code for the object. For further details on
-    the constraints of the hash code returned, see the documentation
-    for CL:SXHASH.")
+   "HASH function for `HASH-MAPS's with the GENERIC-CL:EQUALP test function.
+
+    This function should return the same hash code for objects which
+    are equal by GENERIC-CL:EQUALP.
+
+    For further details on the constraints on the hash code see the
+    documentation for CL:SXHASH.")
 
   (:method (obj)
     (sxhash obj)))
 
-;; Constructor for hash-table's with generic HASH function.
+(defgeneric like-hash (object)
+  (:documentation
+   "HASH function for `HASH-MAPS's with the LIKEP test function.
+
+    This function should return the same hash code for objects which
+    are equal by GENERIC-CL:LIKEP.
+
+    For further details on the constraints on the hash code see the
+    documentation for CL:SXHASH.")
+
+  (:method (obj)
+    (hash obj)))
+
+
+;; Constructor for hash-table's with generic HASH and LIKE-HASH functions.
 
 (define-custom-hash-table-constructor make-generic-hash-table
     :test equalp :hash-function hash)
+
+(define-custom-hash-table-constructor make-generic-similar-hash-table
+    :test likep :hash-function like-hash)
 
 
 (defstruct (hash-map
@@ -62,11 +83,19 @@
 
 
 (defun make-hash-map (&rest args &key &allow-other-keys)
-  "Creates a hash map. If TEST is GENERIC-CL:EQUALP (the default), a
-   generic hash-table, with GENERIC-CL:HASH as the hash function and
-   GENERIC-CL:EQUALP as the comparison function. If another value for
-   test (the available options are specified in the documentation for
-   CL:MAKE-HASH-TABLE) is given, the native hash function is used.
+  "Creates a hash map.
+
+   If TEST is GENERIC-CL:EQUALP (the default), a generic hash-table,
+   with GENERIC-CL:HASH as the hash function and GENERIC-CL:EQUALP as
+   the comparison function, is created.
+
+   If TEST is GENERIC-CL:LIKEP, a generic hash-table with
+   GENERIC-CL:LIKE-HASH as the hash function and GENERIC-CL:LIKEP as
+   the comparison function, is created.
+
+   If another value for TEST (the available options are specified in
+   the documentation for CL:MAKE-HASH-TABLE) is given, the native hash
+   function is used.
 
    The remaining keyword arguments accepted by CL:MAKE-HASH-TABLE, are
    also accepted by this function.
@@ -81,19 +110,28 @@
    on the TEST."
 
   (apply
-   (if (or (eq test 'equalp) (eq test #'equalp))
-       #'make-generic-hash-table
-       #'make-hash-table)
+   (cond
+     ((member test (list 'equalp #'equalp))
+      #'make-generic-hash-table)
+
+     ((member test (list 'likep #'likep))
+      #'make-generic-hash-table)
+
+     (t #'make-hash-table))
    args))
 
 (defun hash-map-test-p (test)
   "Returns true if TEST is a valid hash-table test function."
 
-  (or (eq test 'eq) (eq test #'eq)
-      (eq test 'eql) (eq test #'eql)
-      (eq test 'equal) (eq test #'equal)
-      (eq test 'cl:equal) (eq test #'cl:equal)
-      (eq test 'equalp) (eq test #'equalp)))
+  (member
+   test
+
+   (list 'eq #'eq
+	 'eql #'eql
+	 'equal #'equal
+	 'cl:equalp #'cl:equalp
+	 'equalp #'equalp
+	 'likep #'likep)))
 
 (defun ensure-hash-map (map)
   "If MAP is a `HASH-MAP' returns it, otherwise if MAP is a
@@ -246,7 +284,7 @@
    in A is equal (by EQUALP) to the value corresponding to the same
    key in B.
 
-   Issue: Hash-table equality is not necessarily symmetric if the test
+   NOTE: Hash-table equality is not necessarily symmetric if the test
    functions of the two hash-tables are different."
 
   (let ((a (hash-map-table a))
@@ -258,6 +296,31 @@
 	  (multiple-value-bind (b-value in-hash?) (gethash key b)
 	    (unless (and in-hash? (equalp a-value b-value))
 	      (return-from equalp nil))))))))
+
+(defmethod likep ((a hash-map) (b hash-map))
+  "Returns true if both hash-tables have the same number of entries,
+   and the value corresponding to each key in A is similar (by LIKEP)
+   to the value corresponding to the same key in B.
+
+   NOTE: This method requires that there is an implementation of LIKEP
+   and LIKE-HASH for each key type in A and B.
+
+   NOTE: Hash-table similarity is not necessarily symmetric if the
+   test functions of the two hash-tables are different."
+
+  (let ((a (hash-map-table a))
+	(b (hash-map-table b)))
+
+    (with-custom-hash-table
+      (when (cl:= (hash-table-count a) (hash-table-count b))
+	(let ((tmp (make-generic-similar-hash-table)))
+	  (do-generic-map (key value a)
+	    (setf (gethash key tmp) a))
+
+	  (do-generic-map (key b-value b t)
+	    (multiple-value-bind (a-value in-hash?) (gethash key tmp)
+	      (unless (and in-hash? (likep a-value b-value))
+		(return-from likep nil)))))))))
 
 
 ;;;; Hash Table Collectors

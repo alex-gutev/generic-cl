@@ -1,6 +1,6 @@
 ;;;; equality.lisp
 ;;;;
-;;;; Copyright 2018 Alexander Gutev
+;;;; Copyright 2018-2020 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -94,6 +94,57 @@
    are the same object, compared using CL:EQ."
 
   (cl:eq a b))
+
+
+;;;; Generic Insensitive Equality Predicate
+
+(defgeneric likep (a b)
+  (:documentation
+   "Generic similarity comparison function for checking whether two
+    objects are similar rather than strictly equal. Similarity ignores
+    certain differences between objects, such as case differences
+    between strings."))
+
+(defmethod likep ((a character) (b character))
+  "Returns true if A and B represent the same character, ignoring
+   case. Compared using CL:CHAR-EQUAL"
+
+  (char-equal a b))
+
+(defmethod likep ((a cons) (b cons))
+  "Returns true if the CAR of A is similar to the CAR of B (by LIKEP)
+   and the CDR of A is similar to the CDR of B (by LIKEP)."
+
+  ;; A recursive solution would have been very elegant however it
+  ;; requires that full TCO is supported by the implementation.
+
+  (do ((a a (cdr a))
+       (b b (cdr b)))
+      ((not (and (consp a) (consp b))) (likep a b))
+    (unless (likep (car a) (car b))
+      (return nil))))
+
+(defmethod likep ((a array) (b array))
+  "Returns true if both arrays have the same dimensions and each
+   element of A is similar (by LIKEP) to the corresponding element of
+   B."
+
+  (and (cl:equal (array-dimensions a) (array-dimensions b))
+       (loop
+	  for i from 0 below (array-total-size a)
+	  always (likep (row-major-aref a i)
+			(row-major-aref b i)))))
+
+(defmethod likep ((a string) (b string))
+  "Returns true if both strings are equal, by CL:STRING-EQUAL,
+   ignoring differences in case."
+
+  (string-equal a b))
+
+(defmethod likep (a b)
+  "Compares A and B using GENERIC-CL:EQUALP"
+
+  (equalp a b))
 
 
 ;;;; N-Argument Functions
