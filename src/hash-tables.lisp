@@ -49,7 +49,7 @@
    "HASH function for `HASH-MAPS's with the LIKEP test function.
 
     This function should return the same hash code for objects which
-    are equal by GENERIC-CL:LIKEP.
+    compare equal by GENERIC-CL:LIKEP.
 
     For further details on the constraints on the hash code see the
     documentation for CL:SXHASH.")
@@ -541,3 +541,35 @@
 	(push value list)
 	(push key list))
       list)))
+
+
+;;;; LIKE-HASH Methods
+
+(defmethod like-hash ((c character))
+  (hash (char-upcase c)))
+
+(defmethod like-hash ((cons cons))
+  (do* ((cons cons (cdr cons))
+	(element (car cons) (car cons))
+	(code (like-hash element)
+	      (cl:+ (cl:* 31 code) (like-hash element))))
+       ((not (consp cons))
+	(hash code))))
+
+(defmethod like-hash ((vec vector))
+  (loop
+     for code = 1 then (cl:+ (cl:* 31 code) elem-hash)
+     for element across vec
+     for elem-hash = (like-hash element)
+     finally (return (hash code))))
+
+(defmethod like-hash ((a array))
+  (loop
+     for code = 1 then (cl:+ (cl:* 31 code) elem-hash)
+     for i from 0 below (array-total-size a)
+     for element = (row-major-aref a i)
+     for elem-hash = (like-hash element)
+     finally (return (hash code))))
+
+(defmethod like-hash ((s string))
+  (hash (string-upcase s)))

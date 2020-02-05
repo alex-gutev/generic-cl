@@ -124,6 +124,13 @@
     (unless (likep (car a) (car b))
       (return nil))))
 
+(defmethod likep ((a vector) (b vector))
+  "Returns true if both vectors are of the same length and each
+   element of A is similar (by LIKEP) to the corresponding element of
+   B."
+
+  (and (cl:= (cl:length a) (cl:length b)) (cl:every #'likep a b)))
+
 (defmethod likep ((a array) (b array))
   "Returns true if both arrays have the same dimensions and each
    element of A is similar (by LIKEP) to the corresponding element of
