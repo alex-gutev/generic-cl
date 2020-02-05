@@ -44,7 +44,7 @@
    :defconstant
 
    ;; Equality
-   :equalp :likep := :/=
+   :equalp := :/=
 
    ;; Arithmetic
    :+ :- :* :/
@@ -121,7 +121,7 @@
    :plist
 
    ;; Equality
-   :equalp := :/=
+   :equalp :likep := :/=
 
    ;; Arithmetic
    :add
