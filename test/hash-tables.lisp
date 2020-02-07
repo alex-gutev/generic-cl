@@ -35,6 +35,13 @@
 (defparameter *equalp-function-called-p* nil
   "Flag for whether the EQUALP function was called.")
 
+(defparameter *like-hash-function-called-p* nil
+  "Flag for whether the LIKE-HASH function was called.")
+
+(defparameter *likep-function-called-p* nil
+  "Flag for whether the LIKEP function was called.")
+
+
 (defstruct custom-key
   "Used as a custom key type in the generic hash-table tests."
 
@@ -60,6 +67,26 @@
 
   (and (equalp (custom-key-slot1 a) (custom-key-slot1 b))
        (equalp (custom-key-slot2 a) (custom-key-slot2 b))))
+
+(defmethod like-hash ((key custom-key))
+  "Like-Hash method for `CUSTOM-KEY'. Sets the
+  *LIKE-HASH-FUNCTION-CALLED-P* flag to true."
+
+  (with-accessors ((slot1 custom-key-slot1)
+		   (slot2 custom-key-slot2)) key
+    (setf *like-hash-function-called-p* t)
+
+    ;; Compute primitive hash
+    (logxor (like-hash slot1) (like-hash slot2))))
+
+(defmethod likep ((a custom-key) (b custom-key))
+  "LIKEP method for `CUSTOM-KEY'. Sets the *LIKEP-FUNCTION-CALLED-P*
+   flag to true."
+
+  (setf *likep-function-called-p* t)
+
+  (and (likep (custom-key-slot1 a) (custom-key-slot1 b))
+       (likep (custom-key-slot2 a) (custom-key-slot2 b))))
 
 
 (subtest "Test Generic Hash-Tables"
@@ -169,7 +196,75 @@
 
       (is (plist-alist (coerce map 'plist))
 	  '((a . 1) (b . 2) (c . 3) (#S(custom-key :slot1 5 :slot2 x) . "hello"))
-	  :test (rcurry #'set-equal :test #'equalp)))))
+	  :test (rcurry #'set-equal :test #'equalp))))
+
+  (subtest "Test LIKEP Hash-Map"
+    (let ((*like-hash-function-called-p* nil)
+	  (*likep-function-called-p* nil))
+
+      (let ((key (make-custom-key :slot1 #\a :slot2 #\b))
+	    (map (make-hash-map :test #'likep)))
+
+	(subtest "Test LIKE-HASH, LIKEP and GET"
+	  (setf (get key map) 'a)
+	  (setf (get (make-custom-key) map) 'b)
+	  (setf (get (make-custom-key :slot1 100 :slot2 "a") map) 'c)
+
+	  (ok *like-hash-function-called-p* "LIKE-HASH called")
+
+	  (is-values (get key map) '(a t))
+	  (is-values (get (make-custom-key :slot1 #\A :slot2 #\b) map) '(a t))
+
+	  (is-values (get (make-custom-key :slot1 2 :slot2 1) map) '(nil nil))
+	  (is-values (get (make-custom-key :slot1 2 :slot2 1) map 'x) '(x nil))
+
+	  (is-values (get (make-custom-key) map) '(b t))
+	  (is-values (get (make-custom-key :slot1 100 :slot2 "A") map) '(c t))
+
+	  (ok *likep-function-called-p* "LIKEP called"))
+
+	(subtest "Test CL Key Types"
+	  (subtest "Characters"
+	    (setf (get #\X map) 1)
+	    (is-values (get #\X map) '(1 t))
+	    (is-values (get #\x map) '(1 t))
+	    (is-values (get #\z map) '(nil nil)))
+
+	  (subtest "Lists"
+	    (setf (get '(1 'a #\b) map) 2)
+	    (is-values (get '(1 'a #\b) map) '(2 t))
+	    (is-values (get '(1 'a #\B) map) '(2 t))
+
+	    (is-values (get '(100 'a #\b) map) '(nil nil))
+	    (is-values (get '(1 'a #\x) map) '(nil nil))
+	    (is-values (get '(1 'a #\b 3) map) '(nil nil)))
+
+	  (subtest "Vectors"
+	    (setf (get #(1 'a #\b) map) 2)
+	    (is-values (get #(1 'a #\b) map) '(2 t))
+	    (is-values (get #(1 'a #\B) map) '(2 t))
+
+	    (is-values (get #(100 'a #\b) map) '(nil nil))
+	    (is-values (get #(1 'a #\x) map) '(nil nil))
+	    (is-values (get #(1 'a #\b 3) map) '(nil nil)))
+
+	  (subtest "Arrays"
+	    (setf (get #2A((1 'a) (#\b 'c)) map) 2)
+	    (is-values (get #2A((1 'a) (#\b 'c)) map) '(2 t))
+	    (is-values (get #2A((1 'a) (#\B 'c)) map) '(2 t))
+
+	    (is-values (get #2A((100 'a) (#\b 'c)) map) '(nil nil))
+	    (is-values (get #((1 'a) (#\x 'c)) map) '(nil nil))
+	    (is-values (get #((1 'a 'b) (#\b 'c 'd)) map) '(nil nil)))
+
+	  (subtest "Strings"
+	    (setf (get "hello" map) 'hello)
+	    (is-values (get "hello" map) '(hello t))
+	    (is-values (get "HELLO" map) '(hello t))
+
+
+	    (is-values (get "hello world" map) '(nil nil))
+	    (is-values (get "hell" map) '(nil nil))))))))
 
 (subtest "Test Non-Generic Hash-Tables"
   (subtest "Hash-Tables with EQUAL test function"
