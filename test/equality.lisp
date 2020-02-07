@@ -45,7 +45,7 @@
 	 ,@tests))))
 
 
-(subtest "Equality Predicates"
+(subtest "Equality Predicates (EQUALP)"
   (subtest "Numeric Equality"
     (is 1 1 :test #'equalp)
     (is 2.0 2 :test #'equalp)
@@ -171,5 +171,117 @@
     (is *standard-output* *standard-output* :test #'equalp)
 
     (isnt 'a 'b :test #'equalp)))
+
+(subtest "Similarity Predicates (LIKEP)"
+  (subtest "Numeric Equality"
+    (is 1 1 :test #'likep)
+    (is 2.0 2 :test #'likep)
+    (is 6/3 2 :test #'likep)
+
+    (isnt 1 0 :test #'likep)
+    (isnt 1 'x :test #'likep)
+    (isnt 1 #\1 :test #'likep))
+
+  (subtest "Character Equality"
+    (is #\a #\a :test #'likep)
+    (is #\0 #\0 :test #'likep)
+    (is #\a #\A :test #'likep)
+
+    (isnt #\a #\b :test #'likep)
+    (isnt #\a 'a :test #'likep)
+    (isnt #\a "a" :test #'likep))
+
+  (subtest "Cons/List Equality"
+    (is '(1 2 3) (list 1.0 2 3.0) :test #'likep)
+    (is '(1 a #\x) (list 2/2 'a #\x) :test #'likep)
+    (is '(((1 2) x y) #\Z) (list (list (list 1 2) 'x 'y) #\z) :test #'likep)
+    (is '(a b . c) (list* 'a 'b 'c) :test #'likep)
+
+    (isnt '(1 2 3) '(1 2 1) :test #'likep)
+    (isnt '(1 2 3) '(1 2) :test #'likep)
+    (isnt '(1 2 3) '(1 2 . 3) :test #'likep)
+    (isnt '(#\a #\b) '(#\x #\y) :test #'likep))
+
+  (subtest "Vector Equality"
+    (is #(1 2 3) (vector 1 2 3) :test #'likep)
+    (is #(1 2 3) (make-array 3 :element-type 'number
+                             :adjustable t
+                             :fill-pointer t
+                             :initial-contents '(1 2 3))
+        :test #'likep)
+    (is #(1 2 #\x) (vector 1.0 2 #\X) :test #'likep)
+    (is #(#(1 #\a) 3) (vector (vector 1.0 #\A) 3) :test #'likep)
+    (is #((1 2) 3) (vector '(1.0 2.0) 3) :test #'likep)
+
+    (isnt #(1 2 3) #(1 1 1) :test #'likep)
+    (isnt #(1 2 3) #(1 2 3 4) :test #'likep)
+    (isnt #(1 2 3) (make-array 0) :test #'likep)
+    (isnt #(1 2 3) (make-array '(2 2) :initial-contents '((1 2) (3 4))) :test #'likep)
+    (isnt #(#(1 2)) #(#(2 1)) :test #'likep)
+    (isnt #(#\a #\b) #(#\x #\y) :test #'likep))
+
+  (subtest "Multi-Dimensional Array Equality"
+    (is #2A((1 2 3) (4 5 6)) (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6)))
+	:test #'likep)
+    (is #2A((1 (3 4)) (5 #\C)) (make-array '(2 2) :initial-contents '((1 (3 4)) (5 #\c)))
+	:test #'likep)
+
+    (isnt #2A((1 2) (3 4)) #2A((1 1) (3 4)) :test #'likep)
+    (isnt #2A((1 2) (3 4)) #(1 2 3 4) :test #'likep))
+
+  (subtest "String Equality"
+    (is "Hello" "Hello" :test #'likep)
+    (is "World" (string '|World|) :test #'likep)
+    (is "AAA" (make-string 3 :initial-element #\A))
+    (is "hello" (vector #\H #\e #\l #\l #\o) :test #'likep)
+    (is "hello" "Hello" :test #'likep)
+
+    (isnt "hello" "hell" :test #'likep)
+    (isnt "hello" '|hello| :test #'likep)
+    (isnt "world" "worlds" :test #'likep))
+
+  (subtest "Pathname Equality"
+    ;; This is quite complicated to test properly as there are a lot
+    ;; of possible cases
+
+    (is (pathname "/usr/local/bin") #p"/usr/local/bin" :test #'likep)
+
+    (isnt #p"/usr/local/bin" "/usr/local/bin" :test #'likep)
+    (isnt #p"/usr/local/bin" #p"/USR/local/bin" :test #'likep))
+
+  (subtest "Hash-Table Equality"
+    (let ((table (make-hash-map)))
+      (setf (get 'x table) 1)
+      (setf (get 'y table) 'z)
+      (setf (get "hello" table) "world")
+      (setf (get '(1 2 3) table) #\z)
+
+      (is table
+          (alist-hash-map
+           '((x . 1) (y . z) ("hello" . "world") ((1 2 3) . #\z)))
+          :test #'likep)
+      (is table
+          (alist-hash-map
+           '((x . 1) (y . z) ("HELLO" . "world") ((1 2 3) . #\Z)))
+          :test #'likep)
+
+      (isnt table
+            (alist-hash-map
+             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z)))
+            :test #'likep)
+      (isnt table
+            (alist-hash-map
+             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z)))
+            :test #'likep)
+      (isnt table
+            (alist-hash-map
+             '((x . 2) (y . z) ("hello" . "world") ((1 2 3) . #\z) ("x" . "z")))
+            :test #'likep)))
+
+  (subtest "Generic Objects Equality"
+    (is 'a 'a :test #'likep)
+    (is *standard-output* *standard-output* :test #'likep)
+
+    (isnt 'a 'b :test #'likep)))
 
 (finalize)
