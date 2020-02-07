@@ -107,6 +107,51 @@ Default method.
 Returns true if `A` and `B` are the same object, by `CL:EQ`.
 
 
+==== LIKEP ====
+
+Generic Function: `LIKEP A B`
+
+Returns true if `A` is similar to `B`, where similarity is defined as
+the same as equality however ignoring differences in certain aspects
+such as case in strings.
+
+* `CHARACTER CHARACTER`
++
+Returns true if `A` and `B` represent the same character ignoring
+differences in case. Compared using `CL:CHAR-EQUAL`.
+
+* `CONS CONS`
++
+Returns true if the `CAR` of `A` is similar (by `LIKEP`) to the
+`CAR` of `B` and if the `CDR` of `A` is similar (by `LIKEP`) to
+the `CDR` of `B`.
+
+* `VECTOR VECTOR`
++
+Returns true if `A` and `B` are vectors of the same length and
+each element of `A` is similar (by `LIKEP`) to the corresponding
+element of `B`.
+
+* `ARRAY ARRAY`
++
+Multi-dimensional arrays.
++
+Returns true if `A` and `B` have the same dimensions and each
+element of `A` is similar (by `LIKEP`) to the corresponding
+element of `B`.
+
+* `STRING STRING`
++
+Returns true if both strings are equal, ignoring differences in
+case. Compared using `CL:STRING-EQUAL`.
+
+* `T T`
++
+Default method.
++
+Returns true if `(EQUALP A B)` returns true.
+
+
 [[equalp-nary, =]]
 ==== = ====
 
@@ -2012,7 +2057,6 @@ hash-table is obtained from an external source, use <<HASH-MAP>> or
 |====
 
 
-
 ==== HASH-MAP ====
 
 Structure: `HASH-MAP` with slots: `TABLE`
@@ -2058,6 +2102,10 @@ WARNING: if the two maps have different test functions, the `EQUALP`
 method is not necessarily symmetric i.e. `(EQUALP A B)` does not imply
 `(EQUALP B A)`.
 
+A <<LIKEP>> method is implemented for ``HASH-MAP``'s, which is
+similar to the `EQUALP` method, however the keys and values are
+compared using `LIKEP`.
+
 A <<COPY>> method is implemented for ``HASH-MAP``'s which by default
 creates a new map with the same entries as the original map. If `:DEEP
 T` is provided the values (but not the keys as they should be
@@ -2071,10 +2119,16 @@ Function: `MAKE-HASH-MAP &KEY TEST &ALLOW-OTHER-KEYS`
 Creates a `HASH-MAP` wrapping a hash table with test function `TEST`,
 which defaults to `#'GENERIC-CL:EQUALP`.
 
-If `TEST` is either the symbol or function `GENERIC-CL:EQUALP`, then a
-generic hash-table with hash function <<HASH>> and comparison function
-<<equalp,GENERIC-CL:EQUALP>> is created. Otherwise `TEST` may be any
-of the standard hash-table test specifiers.
+`TEST` may be one of the following:
+
+`GENERIC-CL:EQUALP`:: A hash table with hash function <<HASH>> and
+comparison function <<equalp,GENERIC-CL:EQUALP>> is created.
+
+`LIKEP`:: A hash table with hash function <<LIKE-HASH>> and comparison
+function <<LIKEP>> is created.
+
+`TEST` may also be a standard hash-table test specifier, in which case
+a native hash table is created, wrapped in a `HASH-MAP`.
 
 The function accepts all additional arguments (including
 implementation specific arguments) accepted by `CL:MAKE-HASH-TABLE`.
@@ -2107,9 +2161,10 @@ Generic Function: `HASH OBJECT`
 Hash function for hash tables with the `GENERIC-CL:EQUALP` test
 specifier.
 
-Returns a hash code for `OBJECT`, which is a non-negative fixnum. If
-two objects are equal (under <<GENERIC-CL:EQUALP>>) then the hash
-codes, for the two objects, returned by `HASH` should be equal.
+Returns a hash code for `OBJECT`, which should be a non-negative
+fixnum. If two objects are equal (under <<equalp, GENERIC-CL:EQUALP>>)
+then the hash codes, for the two objects, returned by `HASH`, should
+also be equal.
 
 The default method calls `CL:SXHASH` which satisfies the constraint
 that `(CL:EQUAL X Y)` implies `(= (CL:SXHASH X) (CL:SXHASH
@@ -2120,6 +2175,22 @@ container/sequence objects such as lists. The default method does not
 violate the constraint for lists (but does violate the constraints for
 non-string vectors) as keys, provided they only contain numbers,
 characters, symbols, strings and other lists as elements.
+
+==== LIKE-HASH ====
+
+Generic Function: `LIKE-HASH OBJECT`
+
+Hash function for hash tables with the `LIKEP` test
+specifier.
+
+Returns a hash code for `OBJECT`, which should be a non-negative
+fixnum. If two objects are equal (under <<LIKEP>>) then the hash
+codes, for the two objects, returned by `LIKE-HASH`, should also be
+equal.
+
+Methods which satisfy these constraints are provided for strings,
+characters, lists, vectors and multi-dimensional arrays. The default
+method calls the `HASH` function.
 
 
 ==== GET ====
