@@ -115,7 +115,7 @@
       #'make-generic-hash-table)
 
      ((member test (list 'likep #'likep))
-      #'make-generic-hash-table)
+      #'make-generic-similar-hash-table)
 
      (t #'make-hash-table))
    args))
