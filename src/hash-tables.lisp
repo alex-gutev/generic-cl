@@ -315,7 +315,7 @@
       (when (cl:= (hash-table-count a) (hash-table-count b))
 	(let ((tmp (make-generic-similar-hash-table)))
 	  (do-generic-map (key value a)
-	    (setf (gethash key tmp) a))
+	    (setf (gethash key tmp) value))
 
 	  (do-generic-map (key b-value b t)
 	    (multiple-value-bind (a-value in-hash?) (gethash key tmp)
