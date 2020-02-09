@@ -180,6 +180,7 @@
    :elt :length :emptyp :subseq
    :first :last :lastcdr
    :erase :clear
+   :adjust-size :nadjust-size
 
    :map :nmap :map-into :map-to :foreach
    :map-extend :map-extend-to :map-extend-into

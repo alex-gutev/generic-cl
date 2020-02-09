@@ -99,6 +99,29 @@
   (endp (iterator sequence)))
 
 
+;;; Adjust-Size
+
+(defmethod adjust-size (seq size &key element)
+  "Method for generic sequences implemented using the Iterator and
+   Collector interfaces."
+
+  (let ((c (make-collector (cleared seq)))
+	(n size))
+
+    (doseq (item seq)
+      (when (cl:zerop n)
+	(return))
+
+      (accumulate c item)
+      (cl:decf n))
+
+    (loop repeat n do (accumulate c element))
+    (collector-sequence c)))
+
+(defmethod nadjust-size (seq size &key element)
+  (adjust-size seq size :element element))
+
+
 ;;; Subsequence
 
 (defmethod subseq (seq start &optional end)

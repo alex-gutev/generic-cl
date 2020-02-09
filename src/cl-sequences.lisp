@@ -138,6 +138,36 @@
       (adjust-array vec 0 :initial-element 0 :fill-pointer t)
       (adjust-array vec 0 :initial-element 0)))
 
+
+;;; Adjust Size
+
+(defmethod adjust-size ((seq list) size &key element)
+  (loop
+     repeat size
+     for cons = seq then (cdr cons)
+     collect (if cons (car cons) element)))
+
+(defmethod nadjust-size ((seq list) size &key element)
+  (loop
+     for n from 0 below size
+     for cons on seq
+     for lastcell = cons
+     finally
+       (if cons
+	   (setf (cdr cons) nil)
+	   (setf (cdr lastcell) (make-list (cl:- size n) :initial-element element))))
+  seq)
+
+
+(defmethod adjust-size ((sequence vector) size &key element)
+  (if (adjustable-array-p sequence)
+      (nadjust-size (copy sequence) size :element element)
+      (nadjust-size sequence size :element element)))
+
+(defmethod nadjust-size ((sequence vector) size &key element)
+  (adjust-array sequence size :initial-element element))
+
+
 ;;; Subsequence
 
 (defmethod subseq ((seq sequence) start &optional end)

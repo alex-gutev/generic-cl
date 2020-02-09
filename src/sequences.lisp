@@ -65,6 +65,23 @@
   (:documentation
    "Destructively removes all elements from SEQUENCE."))
 
+(defgeneric adjust-size (sequence size &key element)
+  (:documentation
+   "Returns a new sequence that is a copy of SEQUENCE with size
+    changed to SIZE.
+
+    If SIZE is less than the current number of elements in SEQUENCE,
+    the remaining elements after the first SIZE elements, are
+    removed. If SIZE is greater than the number of elements in
+    SEQUENCE, elements, with value ELEMENT (default NIL), should be
+    appended to SEQUENCE such that it has SIZE elements."))
+
+(defgeneric nadjust-size (sequence size &key element)
+  (:documentation
+   "Same as ADJUST however is permitted to destructively modify
+    SEQUENCE."))
+
+
 ;;; Subsequence
 
 (defgeneric subseq (sequence start &optional end)
