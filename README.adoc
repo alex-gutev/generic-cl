@@ -1495,6 +1495,46 @@ Destructively removes all elements from the sequence `SEQUENCE`.
 Implemented for vectors and <<HASH-MAP>>'s.
 
 
+===== ADJUST-SIZE =====
+
+Generic Function: `ADJUST-SIZE SEQUENCE N &KEY ELEMENT`
+
+Return a new sequence containing the same elements as `SEQUENCE` however
+with its size changed to `N`.
+
+If `N` is less than the number of elements in `SEQUENCE`, the returned
+sequence contains only the first N elements of `SEQUENCE`.
+
+If `N` is greater than the number of elements in `SEQUENCE`, the
+returned sequence contains all the elements of `SEQUENCE` with an
+additional `(LENGTH SEQUENCE) - N` elements initialized to the value
+of `ELEMENT`.
+
+Methods are provided for lists and vectors. The default `T` method,
+implements this operation using the <<ITERATOR>> and <<COLLECTOR>>
+interfaces.
+
+===== NADJUST-SIZE =====
+
+Generic Function: `NADJUST-SIZE SEQUENCE N &KEY ELEMENT`
+
+Return a new sequence containing the same elements as `SEQUENCE`
+however with its size changed to `N`.
+
+IMPORTANT: `SEQUENCE` may be destructively modified.
+
+If `N` is less than the number of elements in `SEQUENCE`, the returned
+sequence contains only the first N elements of `SEQUENCE`.
+
+If `N` is greater than the number of elements in `SEQUENCE`, the
+returned sequence contains all the elements of `SEQUENCE` with an
+additional `(LENGTH SEQUENCE) - N` elements initialized to the value
+of `ELEMENT`.
+
+Methods are provided for lists and vectors. The default `T` method,
+implements this operation using the <<ITERATOR>> and <<COLLECTOR>>
+interfaces.
+
 ==== Subsequences ====
 
 
