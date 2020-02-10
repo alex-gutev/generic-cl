@@ -173,6 +173,80 @@
 
     (is-error (clear #(1 2 3)) 'type-error))
 
+  (subtest "Test ADJUST-SIZE"
+    (subtest "Lists"
+      (is (adjust-size '(1 2 3 4 5) 2) '(1 2) :test #'equalp)
+      (is (adjust-size (list 1 2 3 4 5) 3) '(1 2 3) :test #'equalp)
+      (is (adjust-size '(1 2 3 4 5) 7) '(1 2 3 4 5 nil nil) :test #'equalp)
+      (is (adjust-size '(a b c d) 6 :element 'x) '(a b c d x x) :test #'equalp)
+      (is (adjust-size '(1 2 3 4) 4) '(1 2 3 4) :test #'equalp)
+      (is (adjust-size '(1 2 3 4) 0) '() :test #'equalp)
+      (is (adjust-size nil 3 :element 4) '(4 4 4) :test #'equalp)
+
+      (is-error (adjust-size '(1 2 3) -1) type-error)
+      (is-error (adjust-size '(1 2 3) 0.5) type-error))
+
+    (subtest "Vectors"
+      (is (adjust-size #(1 2 3 4 5) 2) #(1 2) :test #'equalp)
+      (is (adjust-size (make-array 5 :initial-contents '(1 2 3 4 5)) 3) #(1 2 3) :test #'equalp)
+      (is (adjust-size #(1 2 3 4 5) 7) #(1 2 3 4 5 nil nil) :test #'equalp)
+      (is (adjust-size #(a b c d) 6 :element 'x) #(a b c d x x) :test #'equalp)
+      (is (adjust-size #(1 2 3 4) 4) #(1 2 3 4) :test #'equalp)
+      (is (adjust-size #(1 2 3 4) 0) #() :test #'equalp)
+      (is (adjust-size (vector) 3 :element 4) #(4 4 4) :test #'equalp)
+
+      (is-error (adjust-size #(1 2 3) -1) type-error)
+      (is-error (adjust-size #(1 2 3) 0.5) type-error))
+
+    (subtest "User Defined Sequence"
+      (is (adjust-size (list-wrap 1 2 3 4 5) 2) (list-wrap 1 2) :test #'equalp)
+      (is (adjust-size (list-wrap 1 2 3 4 5) 3) (list-wrap 1 2 3) :test #'equalp)
+      (is (adjust-size (list-wrap 1 2 3 4 5) 7) (list-wrap 1 2 3 4 5 nil nil) :test #'equalp)
+      (is (adjust-size (list-wrap 'a 'b 'c 'd) 6 :element 'x) (list-wrap 'a 'b 'c 'd 'x 'x) :test #'equalp)
+      (is (adjust-size (list-wrap 1 2 3 4) 4) (list-wrap 1 2 3 4) :test #'equalp)
+      (is (adjust-size (list-wrap 1 2 3 4) 0) (list-wrap) :test #'equalp)
+      (is (adjust-size (list-wrap) 3 :element 1) (list-wrap 1 1 1) :test #'equalp)
+
+      (is-error (adjust-size (list-wrap 1 2 3) -1) type-error)
+      (is-error (adjust-size (list-wrap 1 2 3) 0.5) type-error)))
+
+  (subtest "Test NADJUST-SIZE"
+    (subtest "Lists"
+      (is (nadjust-size '(1 2 3 4 5) 2) '(1 2) :test #'equalp)
+      (is (nadjust-size (list 1 2 3 4 5) 3) '(1 2 3) :test #'equalp)
+      (is (nadjust-size '(1 2 3 4 5) 7) '(1 2 3 4 5 nil nil) :test #'equalp)
+      (is (nadjust-size '(a b c d) 6 :element 'x) '(a b c d x x) :test #'equalp)
+      (is (nadjust-size '(1 2 3 4) 4) '(1 2 3 4) :test #'equalp)
+      (is (nadjust-size '(1 2 3 4) 0) '() :test #'equalp)
+      (is (nadjust-size nil 3 :element 4) '(4 4 4) :test #'equalp)
+
+      (is-error (nadjust-size '(1 2 3) -1) type-error)
+      (is-error (nadjust-size '(1 2 3) 0.5) type-error))
+
+    (subtest "Vectors"
+      (is (nadjust-size #(1 2 3 4 5) 2) #(1 2) :test #'equalp)
+      (is (nadjust-size (make-array 5 :initial-contents '(1 2 3 4 5)) 3) #(1 2 3) :test #'equalp)
+      (is (nadjust-size #(1 2 3 4 5) 7) #(1 2 3 4 5 nil nil) :test #'equalp)
+      (is (nadjust-size #(a b c d) 6 :element 'x) #(a b c d x x) :test #'equalp)
+      (is (nadjust-size #(1 2 3 4) 4) #(1 2 3 4) :test #'equalp)
+      (is (nadjust-size #(1 2 3 4) 0) #() :test #'equalp)
+      (is (nadjust-size (vector) 3 :element 4) #(4 4 4) :test #'equalp)
+
+      (is-error (nadjust-size #(1 2 3) -1) type-error)
+      (is-error (nadjust-size #(1 2 3) 0.5) type-error))
+
+    (subtest "User Defined Sequence"
+      (is (nadjust-size (list-wrap 1 2 3 4 5) 2) (list-wrap 1 2) :test #'equalp)
+      (is (nadjust-size (list-wrap 1 2 3 4 5) 3) (list-wrap 1 2 3) :test #'equalp)
+      (is (nadjust-size (list-wrap 1 2 3 4 5) 7) (list-wrap 1 2 3 4 5 nil nil) :test #'equalp)
+      (is (nadjust-size (list-wrap 'a 'b 'c 'd) 6 :element 'x) (list-wrap 'a 'b 'c 'd 'x 'x) :test #'equalp)
+      (is (nadjust-size (list-wrap 1 2 3 4) 4) (list-wrap 1 2 3 4) :test #'equalp)
+      (is (nadjust-size (list-wrap 1 2 3 4) 0) (list-wrap) :test #'equalp)
+      (is (nadjust-size (list-wrap) 3 :element 1) (list-wrap 1 1 1) :test #'equalp)
+
+      (is-error (nadjust-size (list-wrap 1 2 3) -1) type-error)
+      (is-error (nadjust-size (list-wrap 1 2 3) 0.5) type-error)))
+
   (subtest "Test ELT"
     (loop for i below 4
        do
