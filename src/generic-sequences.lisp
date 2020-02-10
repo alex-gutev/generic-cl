@@ -105,6 +105,8 @@
   "Method for generic sequences implemented using the Iterator and
    Collector interfaces."
 
+  (check-type size (integer 0) "an integer greater than or equal to 0")
+
   (let ((c (make-collector (cleared seq)))
 	(n size))
 
@@ -119,6 +121,7 @@
     (collector-sequence c)))
 
 (defmethod nadjust-size (seq size &key element)
+  (check-type size (integer 0) "an integer greater than or equal to 0")
   (adjust-size seq size :element element))
 
 
