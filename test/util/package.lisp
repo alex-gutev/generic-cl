@@ -1,4 +1,4 @@
-;;;; generic-cl.util.asd
+;;;; package.lisp
 ;;;;
 ;;;; Copyright 2020 Alexander Gutev
 ;;;;
@@ -23,41 +23,13 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(asdf:defsystem #:generic-cl.util
-  :description "Utilities implemented on top of GENERIC-CL"
-  :author "Alexander Gutev"
-  :license "MIT"
-  :version "0.1"
-  :serial t
-  :depends-on (:generic-cl)
+(defpackage :generic-cl.util.test
+  (:use :generic-cl
+	:generic-cl.util
+	:prove
+	:alexandria
+	:anaphora
+	:cl-arrows)
 
-  :components ((:module
-		"src/util"
-
-		:components
-		((:file "package")
-		 (:file "lazy-seqs"))))
-
-  :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.util/test))))
-
-(asdf:defsystem #:generic-cl.util/test
-  :description "Tests for generic-cl utilities"
-  :author "Alexander Gutev"
-  :license "MIT"
-  :depends-on (:generic-cl.util
-	       :prove
-	       :prove-asdf
-
-	       :alexandria
-	       :anaphora
-	       :cl-arrows)
-  :defsystem-depends-on (:prove-asdf)
-  :components ((:module
-		"test/util"
-
-		:components
-		((:file "package")
-		 (:test-file "lazy-seqs"))))
-
-  :perform (asdf:test-op :after (op c)
-			 (funcall (intern #.(string :run) :prove) c :reporter :fiveam)))
+  (:shadowing-import-from :generic-cl
+			  :emptyp))

@@ -1,4 +1,4 @@
-;;;; generic-cl.util.asd
+;;;; lazy-seqs.lisp
 ;;;;
 ;;;; Copyright 2020 Alexander Gutev
 ;;;;
@@ -23,41 +23,46 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(asdf:defsystem #:generic-cl.util
-  :description "Utilities implemented on top of GENERIC-CL"
-  :author "Alexander Gutev"
-  :license "MIT"
-  :version "0.1"
-  :serial t
-  :depends-on (:generic-cl)
+;;;; Unit tests for lazy sequence utilities
 
-  :components ((:module
-		"src/util"
+(in-package :generic-cl.util.test)
 
-		:components
-		((:file "package")
-		 (:file "lazy-seqs"))))
+(plan 4)
 
-  :in-order-to ((asdf:test-op (asdf:test-op :generic-cl.util/test))))
+(subtest "Test REPEAT"
+  (is (coerce (repeat 1 5) 'list) '(1 1 1 1 1) :test #'equalp)
+  (is (coerce (subseq (repeat 'x) 0 6) 'list) '(x x x x x x) :test #'equalp))
 
-(asdf:defsystem #:generic-cl.util/test
-  :description "Tests for generic-cl utilities"
-  :author "Alexander Gutev"
-  :license "MIT"
-  :depends-on (:generic-cl.util
-	       :prove
-	       :prove-asdf
+(subtest "Test REPEATEDLY"
+  (let ((n 0))
+    (flet ((f ()
+	     (prog1 n
+	       (incf n))))
 
-	       :alexandria
-	       :anaphora
-	       :cl-arrows)
-  :defsystem-depends-on (:prove-asdf)
-  :components ((:module
-		"test/util"
+      (is (coerce (repeatedly #'f 5) 'list) '(0 1 2 3 4) :test #'equalp)
+      (is (coerce (subseq (repeatedly #'f) 0 10) 'list)
+	  '(5 6 7 8 9 10 11 12 13 14)
+	  :test #'equalp))))
 
-		:components
-		((:file "package")
-		 (:test-file "lazy-seqs"))))
+(subtest "Test FITERATE"
+  (flet ((double (n)
+	   (* n 2)))
 
-  :perform (asdf:test-op :after (op c)
-			 (funcall (intern #.(string :run) :prove) c :reporter :fiveam)))
+    (is (coerce (subseq (fiterate #'double 1) 0 5) 'list)
+	'(2 4 8 16 32)
+	:test #'equalp)
+
+    (is (coerce (subseq (fiterate #'double 10) 0 5) 'list)
+	'(20 40 80 160 320)
+	:test #'equalp)))
+
+(subtest "Test CYCLE"
+  (is (coerce (subseq (cycle '(a b c d)) 0 10) 'list)
+      '(a b c d a b c d a b)
+      :test #'equalp)
+
+  (is (coerce (subseq (cycle #(1 2 3)) 0 10) 'list)
+      '(1 2 3 1 2 3 1 2 3 1)
+      :test #'equalp))
+
+(finalize)
