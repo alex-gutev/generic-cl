@@ -2510,6 +2510,53 @@ reevaluated, no condition will be signalled if its value is equal (by
 NOTE: Implemented using `ALEXANDRIA:DEFINE-CONSTANT`
 
 
+
+== System GENERIC-CL.UTIL ==
+
+The system `GENERIC-CL.UTIL` provides additional utilities implemented
+on top of `GENERIC-CL`. These utilities are contained in the package
+`GENERIC-CL.UTIL`.
+
+=== Lazy Sequence Utilities ===
+
+==== REPEAT ====
+
+Function: `REPEAT X &OPTIONAL N`
+
+Create a lazy sequence containing `N` elements with the value `X`. If
+`N` is `NIL` or is not provided, an infinite sequence is returned.
+
+
+==== REPEATEDLY ====
+
+Function: `REPEATEDLY F &OPTIONAL N`
+
+Create a lazy sequence containing `N` elements, with each element each
+being the result of an application of the function `F` on no
+arguments. If `N` is `NIL` or not provided, an infinite sequence is
+returned.
+
+
+==== FITERATE ====
+
+Function: `FITERATE F X`
+
+Return an infinite lazy sequence where the first element is the result
+of the function `F` applied on `X` and each subsequent element is the
+result of applying `F` on the previous element.
+
+
+==== CYCLE ====
+
+Function: `CYCLE SEQUENCE`
+
+Return a lazy sequence containing an infinite repetition of the
+elements in `SEQUENCE`.
+
+The resulting sequence contains the elements of `SEQUENCE` in order,
+with the last element of `SEQUENCE` followed by the first, and
+remaining, elements.
+
 == Optimization ==
 
 There is an overhead associated with generic functions. Code making
