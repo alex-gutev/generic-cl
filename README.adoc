@@ -1532,7 +1532,7 @@ additional `(LENGTH SEQUENCE) - N` elements initialized to the value
 of `ELEMENT`.
 
 Methods are provided for lists and vectors. The default `T` method,
-implements this operation using the <<ITERATOR>> and <<COLLECTOR>>
+implements this operation using the <<Iterator>> and <<Collector>>
 interfaces.
 
 ==== Subsequences ====
