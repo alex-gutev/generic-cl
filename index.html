@@ -466,6 +466,7 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#equality">Equality</a>
 <ul class="sectlevel3">
 <li><a href="#equalp">EQUALP</a></li>
+<li><a href="#likep">LIKEP</a></li>
 <li><a href="#equalp-nary">=</a></li>
 <li><a href="#not-equalp-nary">/=</a></li>
 </ul>
@@ -587,6 +588,8 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#length">LENGTH</a></li>
 <li><a href="#emptyp">EMPTYP</a></li>
 <li><a href="#clear">CLEAR</a></li>
+<li><a href="#adjust_size">ADJUST-SIZE</a></li>
+<li><a href="#nadjust_size">NADJUST-SIZE</a></li>
 </ul>
 </li>
 <li><a href="#subsequences">Subsequences</a>
@@ -643,6 +646,7 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#ensure_hash_map">ENSURE-HASH-MAP</a></li>
 <li><a href="#hash_map_test">HASH-MAP-TEST</a></li>
 <li><a href="#hash">HASH</a></li>
+<li><a href="#like_hash">LIKE-HASH</a></li>
 <li><a href="#get">GET</a></li>
 <li><a href="#setf_get">(SETF GET)</a></li>
 <li><a href="#ensure_get">ENSURE-GET</a></li>
@@ -670,6 +674,18 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#miscellaneous">Miscellaneous</a>
 <ul class="sectlevel3">
 <li><a href="#defconstant">DEFCONSTANT</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#system_generic_cl_util">System GENERIC-CL.UTIL</a>
+<ul class="sectlevel2">
+<li><a href="#lazy_sequence_utilities">Lazy Sequence Utilities</a>
+<ul class="sectlevel3">
+<li><a href="#repeat">REPEAT</a></li>
+<li><a href="#repeatedly">REPEATEDLY</a></li>
+<li><a href="#fiterate">FITERATE</a></li>
+<li><a href="#cycle">CYCLE</a></li>
 </ul>
 </li>
 </ul>
@@ -798,6 +814,71 @@ by <code>UIOP:PATHNAME-EQUAL</code>.</p>
 </div>
 <div class="paragraph">
 <p>Returns true if <code>A</code> and <code>B</code> are the same object, by <code>CL:EQ</code>.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="likep">LIKEP</h4>
+<div class="paragraph">
+<p>Generic Function: <code>LIKEP A B</code></p>
+</div>
+<div class="paragraph">
+<p>Returns true if <code>A</code> is similar to <code>B</code>, where similarity is defined as
+the same as equality however ignoring differences in certain aspects
+such as case in strings.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>CHARACTER CHARACTER</code></p>
+<div class="paragraph">
+<p>Returns true if <code>A</code> and <code>B</code> represent the same character ignoring
+differences in case. Compared using <code>CL:CHAR-EQUAL</code>.</p>
+</div>
+</li>
+<li>
+<p><code>CONS CONS</code></p>
+<div class="paragraph">
+<p>Returns true if the <code>CAR</code> of <code>A</code> is similar (by <code>LIKEP</code>) to the
+<code>CAR</code> of <code>B</code> and if the <code>CDR</code> of <code>A</code> is similar (by <code>LIKEP</code>) to
+the <code>CDR</code> of <code>B</code>.</p>
+</div>
+</li>
+<li>
+<p><code>VECTOR VECTOR</code></p>
+<div class="paragraph">
+<p>Returns true if <code>A</code> and <code>B</code> are vectors of the same length and
+each element of <code>A</code> is similar (by <code>LIKEP</code>) to the corresponding
+element of <code>B</code>.</p>
+</div>
+</li>
+<li>
+<p><code>ARRAY ARRAY</code></p>
+<div class="paragraph">
+<p>Multi-dimensional arrays.</p>
+</div>
+<div class="paragraph">
+<p>Returns true if <code>A</code> and <code>B</code> have the same dimensions and each
+element of <code>A</code> is similar (by <code>LIKEP</code>) to the corresponding
+element of <code>B</code>.</p>
+</div>
+</li>
+<li>
+<p><code>STRING STRING</code></p>
+<div class="paragraph">
+<p>Returns true if both strings are equal, ignoring differences in
+case. Compared using <code>CL:STRING-EQUAL</code>.</p>
+</div>
+</li>
+<li>
+<p><code>T T</code></p>
+<div class="paragraph">
+<p>Default method.</p>
+</div>
+<div class="paragraph">
+<p>Returns true if <code>(EQUALP A B)</code> returns true.</p>
 </div>
 </li>
 </ul>
@@ -2836,6 +2917,68 @@ iterator for <code>SEQUENCE</code>.</p>
 <p>Implemented for vectors and <a href="#hash_map">HASH-MAP</a>'s.</p>
 </div>
 </div>
+<div class="sect4">
+<h5 id="adjust_size">ADJUST-SIZE</h5>
+<div class="paragraph">
+<p>Generic Function: <code>ADJUST-SIZE SEQUENCE N &amp;KEY ELEMENT</code></p>
+</div>
+<div class="paragraph">
+<p>Return a new sequence containing the same elements as <code>SEQUENCE</code> however
+with its size changed to <code>N</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is less than the number of elements in <code>SEQUENCE</code>, the returned
+sequence contains only the first N elements of <code>SEQUENCE</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is greater than the number of elements in <code>SEQUENCE</code>, the
+returned sequence contains all the elements of <code>SEQUENCE</code> with an
+additional <code>(LENGTH SEQUENCE) - N</code> elements initialized to the value
+of <code>ELEMENT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Methods are provided for lists and vectors. The default <code>T</code> method,
+implements this operation using the <a href="#iterator">Iterator</a> and <a href="#collector">Collector</a>
+interfaces.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="nadjust_size">NADJUST-SIZE</h5>
+<div class="paragraph">
+<p>Generic Function: <code>NADJUST-SIZE SEQUENCE N &amp;KEY ELEMENT</code></p>
+</div>
+<div class="paragraph">
+<p>Return a new sequence containing the same elements as <code>SEQUENCE</code>
+however with its size changed to <code>N</code>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<code>SEQUENCE</code> may be destructively modified.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is less than the number of elements in <code>SEQUENCE</code>, the returned
+sequence contains only the first N elements of <code>SEQUENCE</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is greater than the number of elements in <code>SEQUENCE</code>, the
+returned sequence contains all the elements of <code>SEQUENCE</code> with an
+additional <code>(LENGTH SEQUENCE) - N</code> elements initialized to the value
+of <code>ELEMENT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Methods are provided for lists and vectors. The default <code>T</code> method,
+implements this operation using the <a href="#iterator-struct">ITERATOR</a> and <a href="#COLLECTOR">[COLLECTOR]</a>
+interfaces.</p>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="subsequences">Subsequences</h4>
@@ -3943,6 +4086,11 @@ method is not necessarily symmetric i.e. <code>(EQUALP A B)</code> does not impl
 </table>
 </div>
 <div class="paragraph">
+<p>A <a href="#likep">LIKEP</a> method is implemented for <code>HASH-MAP</code>'s, which is
+similar to the <code>EQUALP</code> method, however the keys and values are
+compared using <code>LIKEP</code>.</p>
+</div>
+<div class="paragraph">
 <p>A <a href="#copy">COPY</a> method is implemented for <code>HASH-MAP</code>'s which by default
 creates a new map with the same entries as the original map. If <code>:DEEP
 T</code> is provided the values (but not the keys as they should be
@@ -3960,10 +4108,25 @@ immutable) are copied by <code>(COPY VALUE :DEEP T)</code>.</p>
 which defaults to <code>#'GENERIC-CL:EQUALP</code>.</p>
 </div>
 <div class="paragraph">
-<p>If <code>TEST</code> is either the symbol or function <code>GENERIC-CL:EQUALP</code>, then a
-generic hash-table with hash function <a href="#hash">HASH</a> and comparison function
-<a href="#equalp">GENERIC-CL:EQUALP</a> is created. Otherwise <code>TEST</code> may be any
-of the standard hash-table test specifiers.</p>
+<p><code>TEST</code> may be one of the following:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>GENERIC-CL:EQUALP</code></dt>
+<dd>
+<p>A hash table with hash function <a href="#hash">HASH</a> and
+comparison function <a href="#equalp">GENERIC-CL:EQUALP</a> is created.</p>
+</dd>
+<dt class="hdlist1"><code>LIKEP</code></dt>
+<dd>
+<p>A hash table with hash function <a href="#like_hash">LIKE-HASH</a> and comparison
+function <a href="#likep">LIKEP</a> is created.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><code>TEST</code> may also be a standard hash-table test specifier, in which case
+a native hash table is created, wrapped in a <code>HASH-MAP</code>.</p>
 </div>
 <div class="paragraph">
 <p>The function accepts all additional arguments (including
@@ -4014,9 +4177,10 @@ On some implementations the return value is not
 specifier.</p>
 </div>
 <div class="paragraph">
-<p>Returns a hash code for <code>OBJECT</code>, which is a non-negative fixnum. If
-two objects are equal (under <a href="#GENERIC-CL:EQUALP">[GENERIC-CL:EQUALP]</a>) then the hash
-codes, for the two objects, returned by <code>HASH</code> should be equal.</p>
+<p>Returns a hash code for <code>OBJECT</code>, which should be a non-negative
+fixnum. If two objects are equal (under <a href="#equalp">GENERIC-CL:EQUALP</a>)
+then the hash codes, for the two objects, returned by <code>HASH</code>, should
+also be equal.</p>
 </div>
 <div class="paragraph">
 <p>The default method calls <code>CL:SXHASH</code> which satisfies the constraint
@@ -4038,6 +4202,27 @@ characters, symbols, strings and other lists as elements.
 </td>
 </tr>
 </table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="like_hash">LIKE-HASH</h4>
+<div class="paragraph">
+<p>Generic Function: <code>LIKE-HASH OBJECT</code></p>
+</div>
+<div class="paragraph">
+<p>Hash function for hash tables with the <code>LIKEP</code> test
+specifier.</p>
+</div>
+<div class="paragraph">
+<p>Returns a hash code for <code>OBJECT</code>, which should be a non-negative
+fixnum. If two objects are equal (under <a href="#likep">LIKEP</a>) then the hash
+codes, for the two objects, returned by <code>LIKE-HASH</code>, should also be
+equal.</p>
+</div>
+<div class="paragraph">
+<p>Methods which satisfy these constraints are provided for strings,
+characters, lists, vectors and multi-dimensional arrays. The default
+method calls the <code>HASH</code> function.</p>
 </div>
 </div>
 <div class="sect3">
@@ -4568,6 +4753,67 @@ Implemented using <code>ALEXANDRIA:DEFINE-CONSTANT</code>
 </div>
 </div>
 <div class="sect1">
+<h2 id="system_generic_cl_util">System GENERIC-CL.UTIL</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The system <code>GENERIC-CL.UTIL</code> provides additional utilities implemented
+on top of <code>GENERIC-CL</code>. These utilities are contained in the package
+<code>GENERIC-CL.UTIL</code>.</p>
+</div>
+<div class="sect2">
+<h3 id="lazy_sequence_utilities">Lazy Sequence Utilities</h3>
+<div class="sect3">
+<h4 id="repeat">REPEAT</h4>
+<div class="paragraph">
+<p>Function: <code>REPEAT X &amp;OPTIONAL N</code></p>
+</div>
+<div class="paragraph">
+<p>Create a lazy sequence containing <code>N</code> elements with the value <code>X</code>. If
+<code>N</code> is <code>NIL</code> or is not provided, an infinite sequence is returned.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="repeatedly">REPEATEDLY</h4>
+<div class="paragraph">
+<p>Function: <code>REPEATEDLY F &amp;OPTIONAL N</code></p>
+</div>
+<div class="paragraph">
+<p>Create a lazy sequence containing <code>N</code> elements, with each element each
+being the result of an application of the function <code>F</code> on no
+arguments. If <code>N</code> is <code>NIL</code> or not provided, an infinite sequence is
+returned.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="fiterate">FITERATE</h4>
+<div class="paragraph">
+<p>Function: <code>FITERATE F X</code></p>
+</div>
+<div class="paragraph">
+<p>Return an infinite lazy sequence where the first element is the result
+of the function <code>F</code> applied on <code>X</code> and each subsequent element is the
+result of applying <code>F</code> on the previous element.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="cycle">CYCLE</h4>
+<div class="paragraph">
+<p>Function: <code>CYCLE SEQUENCE</code></p>
+</div>
+<div class="paragraph">
+<p>Return a lazy sequence containing an infinite repetition of the
+elements in <code>SEQUENCE</code>.</p>
+</div>
+<div class="paragraph">
+<p>The resulting sequence contains the elements of <code>SEQUENCE</code> in order,
+with the last element of <code>SEQUENCE</code> followed by the first, and
+remaining, elements.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="optimization">Optimization</h2>
 <div class="sectionbody">
 <div class="paragraph">
@@ -4656,7 +4902,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-11-17 15:43:37 +0100
+Last updated 2020-02-12 09:18:35 +0100
 </div>
 </div>
 </body>
