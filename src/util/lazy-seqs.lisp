@@ -61,6 +61,23 @@
 	(bounded-seq n)
 	(infinite-seq))))
 
+(defun iterate (f x &key initial)
+  "Return an infinite lazy sequence where each element is the result
+   of applying the function F on the previous element. If INITIAL is
+   true the first element is X otherwise the first element is the
+   result of applying F on X."
+
+  (labels ((make-seq (x)
+	     (lazy-seq x (make-seq (funcall f x)))))
+
+    (make-seq
+     (if initial x (funcall f x)))))
+
+(defun fiterate (f x &key initial)
+  "Deprecated alias for the ITERATE function"
+
+  (iterate f x :initial initial))
+
 (defun cycle (sequence)
   "Return a lazy sequence containing an infinite repetition of the
    elements in SEQUENCE.

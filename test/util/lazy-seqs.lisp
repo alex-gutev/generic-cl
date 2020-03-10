@@ -44,16 +44,24 @@
 	  '(5 6 7 8 9 10 11 12 13 14)
 	  :test #'equalp))))
 
-(subtest "Test FITERATE"
+(subtest "Test ITERATE"
   (flet ((double (n)
 	   (* n 2)))
 
-    (is (coerce (subseq (fiterate #'double 1) 0 5) 'list)
+    (is (coerce (subseq (iterate #'double 1) 0 5) 'list)
 	'(2 4 8 16 32)
 	:test #'equalp)
 
-    (is (coerce (subseq (fiterate #'double 10) 0 5) 'list)
+    (is (coerce (subseq (iterate #'double 1 :initial t) 0 5) 'list)
+	'(1 2 4 8 16)
+	:test #'equalp)
+
+    (is (coerce (subseq (iterate #'double 10) 0 5) 'list)
 	'(20 40 80 160 320)
+	:test #'equalp)
+
+    (is (coerce (subseq (iterate #'double 10 :initial t) 0 5) 'list)
+	'(10 20 40 80 160)
 	:test #'equalp)))
 
 (subtest "Test CYCLE"

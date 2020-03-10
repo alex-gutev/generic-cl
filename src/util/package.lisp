@@ -30,5 +30,6 @@
    ;; Lazy Sequence Utilities
    :repeat
    :repeatedly
+   :iterate
    :fiterate
    :cycle))

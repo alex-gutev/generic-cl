@@ -2537,13 +2537,23 @@ arguments. If `N` is `NIL` or not provided, an infinite sequence is
 returned.
 
 
+==== ITERATE ====
+
+Function: `ITERATE F X &KEY INITIAL`
+
+Return an infinite lazy sequence where each element is the result of
+applying the function `F` on the previous element.
+
+IF the keyword argument `INITIAL` is true, the first element of the
+sequence is `X`, otherwise the first element is the result of applying
+`F` on `X`.
+
+
 ==== FITERATE ====
 
-Function: `FITERATE F X`
+Function: `FITERATE F X &KEY INIITIAL`
 
-Return an infinite lazy sequence where the first element is the result
-of the function `F` applied on `X` and each subsequent element is the
-result of applying `F` on the previous element.
+Deprecated alias for `ITERATE`
 
 
 ==== CYCLE ====
