@@ -34,12 +34,16 @@
   "Create a lazy sequence containing N elements with the value X. If N
    is NIL or not provided, an infinite sequence is returned."
 
-  (labels ((make-seq ()
-	     (lazy-seq x (make-seq))))
+  (labels ((infinite-seq ()
+	     (lazy-seq x (infinite-seq)))
+
+	   (bounded-seq (n)
+	     (when (cl:plusp n)
+	       (lazy-seq x (bounded-seq (cl:1- n))))))
 
     (if n
-	(make-list n :initial-element x)
-	(make-seq))))
+	(bounded-seq n)
+	(infinite-seq))))
 
 (defun repeatedly (f &optional n)
   "Create a lazy sequence containing N elements, with each element
@@ -47,21 +51,15 @@
    arguments. If N is NIL or not provided, an infinite sequence is
    returned."
 
-  (labels ((make-seq ()
-	     (lazy-seq (funcall f) (make-seq))))
+  (labels ((infinite-seq ()
+	     (lazy-seq (funcall f) (infinite-seq)))
+
+	   (bounded-seq (n)
+	     (when (cl:plusp n)
+	       (lazy-seq (funcall f) (bounded-seq (cl:1- n))))))
     (if n
-	(loop repeat n collect (funcall f))
-	(make-seq))))
-
-(defun fiterate (f x)
-  "Return an infinite lazy sequence where the first element is the
-   result of the function F applied on X and each subsequent element
-   is the result of applying F on the previous element."
-
-  (let ((result (funcall f x)))
-    (lazy-seq
-     result
-     (fiterate f result))))
+	(bounded-seq n)
+	(infinite-seq))))
 
 (defun cycle (sequence)
   "Return a lazy sequence containing an infinite repetition of the
