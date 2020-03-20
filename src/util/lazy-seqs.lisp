@@ -30,36 +30,64 @@
 
 ;;; Creating Lazy Sequences
 
-(defun repeat (x &optional n)
+(defun repeat (x &optional n type)
   "Create a lazy sequence containing N elements with the value X. If N
-   is NIL or not provided, an infinite sequence is returned."
+   is NIL or not provided, an infinite sequence is returned.
+
+   If TYPE is non-nil a sequence of type TYPE is returned rather than
+   a `LAZY-SEQ'."
 
   (labels ((infinite-seq ()
 	     (lazy-seq x (infinite-seq)))
 
 	   (bounded-seq (n)
 	     (when (cl:plusp n)
-	       (lazy-seq x (bounded-seq (cl:1- n))))))
+	       (lazy-seq x (bounded-seq (cl:1- n)))))
 
-    (if n
-	(bounded-seq n)
-	(infinite-seq))))
+	   (other-seq ()
+	     (check-type n (integer 0))
 
-(defun repeatedly (f &optional n)
+	     (let ((c (make-collector (sequence-of-type type))))
+	       (loop repeat n
+		  do
+		    (accumulate c x))
+
+	       (collector-sequence c))))
+
+    (cond
+      (type (other-seq))
+      (n (bounded-seq n))
+      (t (infinite-seq)))))
+
+(defun repeatedly (f &optional n type)
   "Create a lazy sequence containing N elements, with each element
    each being the result of an application of the function F on no
    arguments. If N is NIL or not provided, an infinite sequence is
-   returned."
+   returned.
+
+   If TYPE is non-nil a sequence of type TYPE is returned rather than
+   a `LAZY-SEQ'."
 
   (labels ((infinite-seq ()
 	     (lazy-seq (funcall f) (infinite-seq)))
 
 	   (bounded-seq (n)
 	     (when (cl:plusp n)
-	       (lazy-seq (funcall f) (bounded-seq (cl:1- n))))))
-    (if n
-	(bounded-seq n)
-	(infinite-seq))))
+	       (lazy-seq (funcall f) (bounded-seq (cl:1- n)))))
+
+	   (other-seq ()
+	     (check-type n (integer 0))
+
+	     (let ((c (make-collector (sequence-of-type type))))
+	       (loop repeat n
+		  do
+		    (accumulate c (funcall f)))
+
+	       (collector-sequence c))))
+    (cond
+      (type (other-seq))
+      (n (bounded-seq n))
+      (t (infinite-seq)))))
 
 (defun iterate (f x &key initial)
   "Return an infinite lazy sequence where each element is the result

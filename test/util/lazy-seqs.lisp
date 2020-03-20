@@ -31,7 +31,10 @@
 
 (subtest "Test REPEAT"
   (is (coerce (repeat 1 5) 'list) '(1 1 1 1 1) :test #'equalp)
-  (is (coerce (subseq (repeat 'x) 0 6) 'list) '(x x x x x x) :test #'equalp))
+  (is (coerce (subseq (repeat 'x) 0 6) 'list) '(x x x x x x) :test #'equalp)
+
+  (is (repeat 'a 3 'list) '(a a a) :test #'equalp)
+  (is (repeat 'z 5 'vector) #(z z z z z) :test #'equalp))
 
 (subtest "Test REPEATEDLY"
   (let ((n 0))
@@ -42,7 +45,11 @@
       (is (coerce (repeatedly #'f 5) 'list) '(0 1 2 3 4) :test #'equalp)
       (is (coerce (subseq (repeatedly #'f) 0 10) 'list)
 	  '(5 6 7 8 9 10 11 12 13 14)
-	  :test #'equalp))))
+	  :test #'equalp)
+
+      (setf n 0)
+      (is (repeatedly #'f 3 'list) '(0 1 2) :test #'equalp)
+      (is (repeatedly #'f 5 'vector) #(3 4 5 6 7) :test #'equalp))))
 
 (subtest "Test ITERATE"
   (flet ((double (n)
