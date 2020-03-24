@@ -684,6 +684,7 @@ two objects, which is extensible to user-defined types.</p>
 <ul class="sectlevel3">
 <li><a href="#repeat">REPEAT</a></li>
 <li><a href="#repeatedly">REPEATEDLY</a></li>
+<li><a href="#iterate">ITERATE</a></li>
 <li><a href="#fiterate">FITERATE</a></li>
 <li><a href="#cycle">CYCLE</a></li>
 </ul>
@@ -4765,17 +4766,23 @@ on top of <code>GENERIC-CL</code>. These utilities are contained in the package
 <div class="sect3">
 <h4 id="repeat">REPEAT</h4>
 <div class="paragraph">
-<p>Function: <code>REPEAT X &amp;OPTIONAL N</code></p>
+<p>Function: <code>REPEAT X &amp;OPTIONAL N TYPE</code></p>
 </div>
 <div class="paragraph">
 <p>Create a lazy sequence containing <code>N</code> elements with the value <code>X</code>. If
 <code>N</code> is <code>NIL</code> or is not provided, an infinite sequence is returned.</p>
 </div>
+<div class="paragraph">
+<p>If <code>TYPE</code> is non-<code>NIL</code> a sequence of type <code>TYPE</code> is returned. The
+sequence is created using the <a href="#sequence_of_type">SEQUENCE-OF-TYPE</a> function, and the
+elements are accumulated into the sequence using the <a href="#collector">Collector</a>
+interface.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="repeatedly">REPEATEDLY</h4>
 <div class="paragraph">
-<p>Function: <code>REPEATEDLY F &amp;OPTIONAL N</code></p>
+<p>Function: <code>REPEATEDLY F &amp;OPTIONAL N TYPE</code></p>
 </div>
 <div class="paragraph">
 <p>Create a lazy sequence containing <code>N</code> elements, with each element each
@@ -4783,16 +4790,35 @@ being the result of an application of the function <code>F</code> on no
 arguments. If <code>N</code> is <code>NIL</code> or not provided, an infinite sequence is
 returned.</p>
 </div>
+<div class="paragraph">
+<p>If <code>TYPE</code> is non-<code>NIL</code> a sequence of type <code>TYPE</code> is returned. The
+sequence is created using the <a href="#sequence_of_type">SEQUENCE-OF-TYPE</a> function, and the
+elements are accumulated into the sequence using the <a href="#collector">Collector</a>
+interface.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="iterate">ITERATE</h4>
+<div class="paragraph">
+<p>Function: <code>ITERATE F X &amp;KEY INITIAL</code></p>
+</div>
+<div class="paragraph">
+<p>Return an infinite lazy sequence where each element is the result of
+applying the function <code>F</code> on the previous element.</p>
+</div>
+<div class="paragraph">
+<p>IF the keyword argument <code>INITIAL</code> is true, the first element of the
+sequence is <code>X</code>, otherwise the first element is the result of applying
+<code>F</code> on <code>X</code>.</p>
+</div>
 </div>
 <div class="sect3">
 <h4 id="fiterate">FITERATE</h4>
 <div class="paragraph">
-<p>Function: <code>FITERATE F X</code></p>
+<p>Function: <code>FITERATE F X &amp;KEY INIITIAL</code></p>
 </div>
 <div class="paragraph">
-<p>Return an infinite lazy sequence where the first element is the result
-of the function <code>F</code> applied on <code>X</code> and each subsequent element is the
-result of applying <code>F</code> on the previous element.</p>
+<p>Deprecated alias for <code>ITERATE</code></p>
 </div>
 </div>
 <div class="sect3">
@@ -4902,7 +4928,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-02-12 16:09:12 +0100
+Last updated 2020-03-24 09:08:03 +0100
 </div>
 </div>
 </body>
