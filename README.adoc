@@ -2521,21 +2521,29 @@ on top of `GENERIC-CL`. These utilities are contained in the package
 
 ==== REPEAT ====
 
-Function: `REPEAT X &OPTIONAL N`
+Function: `REPEAT X &OPTIONAL N TYPE`
 
 Create a lazy sequence containing `N` elements with the value `X`. If
 `N` is `NIL` or is not provided, an infinite sequence is returned.
 
+If `TYPE` is non-`NIL` a sequence of type `TYPE` is returned. The
+sequence is created using the <<SEQUENCE-OF-TYPE>> function, and the
+elements are accumulated into the sequence using the <<Collector>>
+interface.
 
 ==== REPEATEDLY ====
 
-Function: `REPEATEDLY F &OPTIONAL N`
+Function: `REPEATEDLY F &OPTIONAL N TYPE`
 
 Create a lazy sequence containing `N` elements, with each element each
 being the result of an application of the function `F` on no
 arguments. If `N` is `NIL` or not provided, an infinite sequence is
 returned.
 
+If `TYPE` is non-`NIL` a sequence of type `TYPE` is returned. The
+sequence is created using the <<SEQUENCE-OF-TYPE>> function, and the
+elements are accumulated into the sequence using the <<Collector>>
+interface.
 
 ==== ITERATE ====
 
