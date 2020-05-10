@@ -37,7 +37,6 @@
 (defmethod (setf elt) (value (sequence sequence) index)
   (setf (cl:elt sequence index) value))
 
-
 (defmethod elt ((vec vector) index)
   (cl:elt vec index))
 
@@ -50,6 +49,22 @@
 (defmethod (setf elt) (value (array array) index)
   (setf (row-major-aref array index) value))
 
+;; The specializations for hash maps are duplicated from the "get"
+;; methods in hash-tables.lisp
+(defmethod elt ((map hash-map) key)
+  (with-custom-hash-table
+      (gethash key (hash-map-table map))))
+
+(defmethod elt ((table hash-table) key)
+  (gethash key table))
+
+(defmethod (setf elt) (value (map hash-map) key)
+  (with-custom-hash-table
+    (setf (gethash key (hash-map-table map)) value)
+    value)) ; Return value as CL-CUSTOM-HASH-TABLE:GETHASH doesn't
+
+(defmethod (setf elt) (value (table hash-table) key)
+  (setf (gethash key table) value))
 
 ;; First
 
