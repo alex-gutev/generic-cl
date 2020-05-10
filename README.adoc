@@ -1323,6 +1323,18 @@ Multi-Dimensional Arrays.
 +
 Returns `(ROW-MAJOR-AREF SEQUENCE INDEX)`.
 
+* `HASH-TABLE T`
++
+Hash Tables.
++
+Returns `(CL:GETHASH INDEX SEQUENCE)`.
+
+* `HASH-MAP T`
++
+Hash Maps.
++
+Returns `(GENERIC-CL:GET INDEX SEQUENCE)`.
+
 * `T T`
 +
 Creates an iterator for `SEQUENCE`, with start position `INDEX`,
@@ -1347,6 +1359,18 @@ Returns `(SETF (CL:ELT SEQUENCE INDEX) VALUE)`.
 Multi-Dimensional Arrays.
 +
 Returns `(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)`
+
+* `T HASH-TABLE T`
++
+Hash Tables.
++
+Returns `(SETF (CL:GETHASH SEQUENCE INDEX) VALUE)`.
+
+* `T HASH-MAP T`
++
+Hash Maps.
++
+Returns `(SETF (GENERIC-CL:GET SEQUENCE INDEX) VALUE)`.
 
 * `T T T`
 +
