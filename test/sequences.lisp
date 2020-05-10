@@ -249,12 +249,20 @@
 
   (subtest "Test ELT"
     (loop for i below 4
-       do
-	 (diag (format nil "Index = ~s" i))
-	 (is (elt '(1 2 3 4) i) (cl:elt '(1 2 3 4) i))
-	 (is (elt #(a b c d) i) (cl:elt #(a b c d) i))
-	 (is (elt #2A((1 2) (3 4)) i) (row-major-aref #2A((1 2) (3 4)) i))
-	 (is (elt (list-wrap 'w 'x 'y 'z) i) (nth i '(w x y z)))))
+          do
+	           (diag (format nil "Index = ~s" i))
+	           (is (elt '(1 2 3 4) i) (cl:elt '(1 2 3 4) i))
+	           (is (elt #(a b c d) i) (cl:elt #(a b c d) i))
+	           (is (elt #2A((1 2) (3 4)) i) (row-major-aref #2A((1 2) (3 4)) i))
+	           (is (elt (list-wrap 'w 'x 'y 'z) i) (nth i '(w x y z)))
+             (is (elt (alist-hash-map '((0 . 10) (1 . 20) (2 . 30) (3 . 40))) i)
+                 (cl:elt '(10 20 30 40) i))
+          with vals = '(10 20 30 40)
+          with test-hash-table = (loop with h = (make-hash-table)
+                                       for i from 0
+                                       for e in vals do (setf (gethash i h) e)
+                                       finally (return h))
+          do (is (elt test-hash-table i) (cl:elt '(10 20 30 40) i))))
 
   (subtest "Test (SETF ELT)"
     (alet (list 1 2 3 4)
@@ -272,7 +280,23 @@
 
     (alet (list-wrap 1 2 3 4)
       (is (setf (elt it 2) 'z) 'z)
-      (is it (list-wrap 1 2 'z 4) :test #'equalp)))
+      (is it (list-wrap 1 2 'z 4) :test #'equalp))
+
+    (alet (loop with h = (make-hash-table)
+              for i from 0
+              for e in '(10 20 30 40) do (setf (gethash i h) e)
+                finally (return h))
+      (is (setf (elt it 1) 100) 100)
+      (is (ensure-hash-map it)
+          (ensure-hash-map  (loop with h = (make-hash-table)
+                                  for i from 0
+                                  for e in '(10 100 30 40) do (setf (gethash i h) e)
+                                  finally (return h)))
+          :test #'equalp))
+
+    (alet (alist-hash-map '((0 . 10) (1 . 20) (2 . 30) (3 . 40)))
+      (is (setf (elt it 1) 100) 100)
+      (is it (alist-hash-map '((0 . 10) (1 . 100) (2 . 30) (3 . 40))) :test #'equalp)))
 
   (subtest "Test FIRST"
     (is (first '(1 2 3 4)) 1)
