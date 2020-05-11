@@ -43,17 +43,74 @@
 (defmethod (setf elt) (value (vec vector) index)
   (setf (cl:elt vec index) value))
 
-(defmethod elt ((array array) index)
+(defmethod elt ((array array) (index integer))
   (row-major-aref array index))
 
-(defmethod (setf elt) (value (array array) index)
+(defmethod (setf elt) (value (array array) (index integer))
   (setf (row-major-aref array index) value))
+
+(labels ((rmi (dims indices)
+           "Mirrors cl:array-row-major-index, but functions exclusively on dimensions
+            Length of dims and indices must be equal"
+           ;; I'm going to submit this function to alexandria as row-major-index
+           ;; so if we ever upgrade to alexandria 2 one day, then hopefully
+           ;; we'll just be able to use that
+           (loop with word-idx = 0
+                 with dimprod = 1
+                 for dim-size in (reverse dims)
+                 for dim-idx in (reverse indices)
+                 for dim from 0
+                 do (unless (and (integerp dim-idx) (< -1 dim-idx dim-size))
+                      (error (format nil "Index ~a invalid for axis ~a with size ~a"
+                                     dim-idx dim dim-size)))
+                    (incf word-idx (* dim-idx dimprod))
+                    (setf dimprod (* dimprod dim-size))
+                 finally (return word-idx))))
+
+  (declare (inline rmi))
+
+  (defmethod elt ((arr array) (indices list))
+    (let* ((n-idcs (length indices))
+           (dims (array-dimensions arr))
+           (n-dims (length dims))
+           (unused-dims (nthcdr n-idcs dims))
+           (word-len (reduce #'* unused-dims :initial-value 1)))
+      (cond ((= n-dims n-idcs) (apply #'aref arr indices))
+            ((< n-dims n-idcs) (error (format nil "Numbes of indices exceeds rank of array")))
+            (t (make-array unused-dims
+                           :element-type (array-element-type arr)
+                           :displaced-to arr
+                           :displaced-index-offset (* word-len
+                                                      (rmi (subseq dims 0 n-idcs) indices)))))))
+
+  (defmethod (setf elt) (value (arr array) (indices list))
+    (let* ((n-idcs (length indices))
+           (dims (array-dimensions arr))
+           (n-dims (length dims))
+           (unused-dims (nthcdr n-idcs dims))
+           (word-len (reduce #'* unused-dims :initial-value 1)))
+      (cond ((= n-dims n-idcs) (setf (apply #'aref arr indices) value))
+            ((< n-dims n-idcs) (error (format nil "Numbes of indices exceeds rank of array")))
+            (t (unless (equalp unused-dims (array-dimensions value))
+                 (error (format nil "Cannot set ~a-d slice using ~a-d~% array"
+                                unused-dims (array-dimensions value))))
+               (loop
+                 with slice = (make-array
+                               unused-dims
+                               :element-type (array-element-type arr)
+                               :displaced-to arr
+                               :displaced-index-offset (* word-len
+                                                          (rmi (subseq dims 0 n-idcs) indices)))
+
+                 for i below (array-total-size slice)
+                 do (setf (row-major-aref slice i) (row-major-aref value i))
+                 finally (return slice)))))))
 
 ;; The specializations for hash maps are duplicated from the "get"
 ;; methods in hash-tables.lisp
 (defmethod elt ((map hash-map) key)
   (with-custom-hash-table
-      (gethash key (hash-map-table map))))
+    (gethash key (hash-map-table map))))
 
 (defmethod elt ((table hash-table) key)
   (gethash key table))
