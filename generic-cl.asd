@@ -33,8 +33,8 @@
   :depends-on (:agutil
                :alexandria
                :anaphora
-	             :cl-arrows
-	             :cl-custom-hash-table
+               :cl-arrows
+               :cl-custom-hash-table
                :static-dispatch
                :trivia)
 
@@ -42,21 +42,21 @@
   ((:module "src"
     :components
     ((:file "package")
-		 (:file "util")
-		 (:file "object")
+     (:file "util")
+     (:file "object")
      (:file "equality")
      (:file "comparison")
-		 (:file "arithmetic")
-		 (:file "sequences")
-		 (:file "iterator")
-		 (:file "collector")
-		 (:file "hash-tables")
-		 (:file "cl-sequences" :depends-on ("hash-tables"))
-		 (:file "sets")
-		 (:file "generic-sequences")
-		 (:file "lazy-seq")
-		 (:file "misc")
-		 (:file "math"))))
+     (:file "arithmetic")
+     (:file "sequences")
+     (:file "iterator")
+     (:file "collector")
+     (:file "hash-tables")
+     (:file "cl-sequences" :depends-on ("hash-tables"))
+     (:file "sets")
+     (:file "generic-sequences")
+     (:file "lazy-seq")
+     (:file "misc")
+     (:file "math"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl/test))))
 
@@ -68,19 +68,19 @@
   :defsystem-depends-on (:prove-asdf)
   :components
   ((:module "test"
-		:components
-		((:file "package")
-		 (:test-file "equality")
-		 (:test-file "arithmetic")
-		 (:test-file "comparison")
-		 (:test-file "iterator")
-		 (:test-file "collector")
-		 (:test-file "sequences")
-		 (:test-file "object")
-		 (:test-file "hash-tables")
-		 (:test-file "sets")
-		 (:test-file "lazy-seq")
-		 (:test-file "misc"))))
+            :components
+            ((:file "package")
+             (:test-file "equality")
+             (:test-file "arithmetic")
+             (:test-file "comparison")
+             (:test-file "iterator")
+             (:test-file "collector")
+             (:test-file "sequences")
+             (:test-file "object")
+             (:test-file "hash-tables")
+             (:test-file "sets")
+             (:test-file "lazy-seq")
+             (:test-file "misc"))))
 
   :perform (asdf:test-op :after (op c)
-			 (funcall (intern #.(string :run) :prove) c :reporter :fiveam)))
+                         (funcall (intern #.(string :run) :prove) c :reporter :fiveam)))
