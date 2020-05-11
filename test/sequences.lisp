@@ -298,8 +298,19 @@
       (is (setf (elt it 1) 100) 100)
       (is it (alist-hash-map '((0 . 10) (1 . 100) (2 . 30) (3 . 40))) :test #'equalp)))
 
+  (subtest "Test ELT and (SETF ELT) on multidimensional arrays"
+           (alet #3A(((1 0) (0 1)) ((2 3) (4 5)) ((5 6) (7 8)))
+             (is (elt it 0) 1)
+             (is (elt it '(1)) #2A((2 3) (4 5)) :test #'equalp)
+             (setf (elt it '(1 0)) #(200 300))
+             (is (elt it '(1)) #2A((200 300) (4 5)) :test #'equalp)
+             (setf (elt it '(1)) #2A((2000 3000) (4000 5000)))
+             (is (elt it '(1)) #2A((2000 3000) (4000 5000)) :test #'equalp)
+             (setf (elt it nil) #3A(((0 0) (0 0)) ((0 0) (0 0)) ((0 0) (0 0))))
+             (is it #3A(((0 0) (0 0)) ((0 0) (0 0)) ((0 0) (0 0))) :test #'equalp)))
+
   (subtest "Test FIRST"
-    (is (first '(1 2 3 4)) 1)
+           (is (first '(1 2 3 4)) 1)
     (is (first #(a b c d)) 'a)
     (is (first #2A((1 2) (3 4))) 1)
     (is (first (list-wrap 'x 'y 'z)) 'x))
