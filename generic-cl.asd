@@ -30,30 +30,28 @@
   :license "MIT"
   :version "0.6.1"
   :serial t
-  :depends-on (:alexandria
-	       :anaphora
-	       :cl-arrows
-               :trivia
-	       :cl-custom-hash-table
+  :depends-on (:agutil
+               :alexandria
+               :anaphora
+	             :cl-arrows
+	             :cl-custom-hash-table
+               :static-dispatch
+               :trivia)
 
-               :agutil
-               :static-dispatch)
-
-  :components ((:module
-                "src"
-
-                :components
-                ((:file "package")
+  :components
+  ((:module "src"
+    :components
+    ((:file "package")
 		 (:file "util")
 		 (:file "object")
-                 (:file "equality")
-                 (:file "comparison")
+     (:file "equality")
+     (:file "comparison")
 		 (:file "arithmetic")
 		 (:file "sequences")
 		 (:file "iterator")
 		 (:file "collector")
-		 (:file "cl-sequences")
 		 (:file "hash-tables")
+		 (:file "cl-sequences" :depends-on ("hash-tables"))
 		 (:file "sets")
 		 (:file "generic-sequences")
 		 (:file "lazy-seq")
@@ -68,9 +66,8 @@
   :license "MIT"
   :depends-on (:generic-cl :prove :prove-asdf)
   :defsystem-depends-on (:prove-asdf)
-  :components ((:module
-		"test"
-
+  :components
+  ((:module "test"
 		:components
 		((:file "package")
 		 (:test-file "equality")
