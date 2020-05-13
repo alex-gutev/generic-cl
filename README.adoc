@@ -1317,11 +1317,23 @@ Methods:
 +
 Returns `(CL:ELT SEQUENCE INDEX)`.
 
-* `ARRAY T`
+* `ARRAY INTEGER`
 +
 Multi-Dimensional Arrays.
 +
 Returns `(ROW-MAJOR-AREF SEQUENCE INDEX)`.
+
+* `ARRAY LIST`
++
+Multi-Dimensional Arrays.
++
+If length of `index` matches array's rank, returns `(apply #'aref sequence
+index)`.
+
+If `index`'s length is less than the array's rank, then returns a displaced
+array whose dimensions are `sequence`'s "unused" dimensions (ie `(nthcdr
+(array-dimensions sequence) (length index))`) and which shares storage with the
+"subarray" of `sequence` specificied by `index`
 
 * `HASH-TABLE T`
 +
@@ -1354,11 +1366,24 @@ Methods:
 +
 Returns `(SETF (CL:ELT SEQUENCE INDEX) VALUE)`.
 
-* `T ARRAY T`
+* `T ARRAY INTEGER`
 +
 Multi-Dimensional Arrays.
 +
 Returns `(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)`
+
+* `ARRAY LIST`
++
+Multi-Dimensional Arrays.
++
+If length of `index` matches array's rank, returns `(setf (apply #'aref sequence
+index) value)`.
+
+If `index`'s length is less than the array's rank, then copies the contents of
+`value` to the "subarray" (see `generic-cl:elt`) specified by `index` and then
+returns `(elt sequence index)`. `value`'s dimensions must equal the "unused"
+dimensions of `sequence` (ie `(nthcdr (array-dimensions sequence) (length
+index))`).
 
 * `T HASH-TABLE T`
 +
