@@ -200,4 +200,4 @@
 	   ;; environment parameter
 	   (subtypep (get-value-type thing env) 'number #-cmucl env)))
 
-    (every #'number? args)))
+    (cl:every #'number? args)))
