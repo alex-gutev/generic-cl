@@ -2647,12 +2647,50 @@ the first argument and <code>NIL</code> is passed as the second argument.</p>
 </div>
 </li>
 <li>
-<p><code>ARRAY T</code></p>
+<p><code>ARRAY INTEGER</code></p>
 <div class="paragraph">
 <p>Multi-Dimensional Arrays.</p>
 </div>
 <div class="paragraph">
 <p>Returns <code>(ROW-MAJOR-AREF SEQUENCE INDEX)</code>.</p>
+</div>
+</li>
+<li>
+<p><code>ARRAY LIST</code></p>
+<div class="paragraph">
+<p>Multi-Dimensional Arrays.</p>
+</div>
+<div class="paragraph">
+<p>If length of <code>index</code> matches array&#8217;s rank, returns <code>(apply #'aref sequence
+index)</code>.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>index&#8217;s length is less than the array&#8217;s rank, then returns a displaced
+array whose dimensions are `sequence&#8217;s "unused" dimensions (ie `(nthcdr
+(array-dimensions sequence) (length index))</code>) and which shares storage with the
+"subarray" of <code>sequence</code> specificied by <code>index</code></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>HASH-TABLE T</code></p>
+<div class="paragraph">
+<p>Hash Tables.</p>
+</div>
+<div class="paragraph">
+<p>Returns <code>(CL:GETHASH INDEX SEQUENCE)</code>.</p>
+</div>
+</li>
+<li>
+<p><code>HASH-MAP T</code></p>
+<div class="paragraph">
+<p>Hash Maps.</p>
+</div>
+<div class="paragraph">
+<p>Returns <code>(GENERIC-CL:GET INDEX SEQUENCE)</code>.</p>
 </div>
 </li>
 <li>
@@ -2686,12 +2724,51 @@ and returns the first element returned by the iterator.</p>
 </div>
 </li>
 <li>
-<p><code>T ARRAY T</code></p>
+<p><code>T ARRAY INTEGER</code></p>
 <div class="paragraph">
 <p>Multi-Dimensional Arrays.</p>
 </div>
 <div class="paragraph">
 <p>Returns <code>(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)</code></p>
+</div>
+</li>
+<li>
+<p><code>ARRAY LIST</code></p>
+<div class="paragraph">
+<p>Multi-Dimensional Arrays.</p>
+</div>
+<div class="paragraph">
+<p>If length of <code>index</code> matches array&#8217;s rank, returns <code>(setf (apply #'aref sequence
+index) value)</code>.</p>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>If <code>index&#8217;s length is less than the array&#8217;s rank, then copies the contents of
+`value</code> to the "subarray" (see <code>generic-cl:elt</code>) specified by <code>index</code> and then
+returns <code>(elt sequence index)</code>. <code>value&#8217;s dimensions must equal the "unused"
+dimensions of `sequence</code> (ie <code>(nthcdr (array-dimensions sequence) (length
+index))</code>).</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>T HASH-TABLE T</code></p>
+<div class="paragraph">
+<p>Hash Tables.</p>
+</div>
+<div class="paragraph">
+<p>Returns <code>(SETF (CL:GETHASH SEQUENCE INDEX) VALUE)</code>.</p>
+</div>
+</li>
+<li>
+<p><code>T HASH-MAP T</code></p>
+<div class="paragraph">
+<p>Hash Maps.</p>
+</div>
+<div class="paragraph">
+<p>Returns <code>(SETF (GENERIC-CL:GET SEQUENCE INDEX) VALUE)</code>.</p>
 </div>
 </li>
 <li>
@@ -4928,7 +5005,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-03-24 09:08:03 +0100
+Last updated 2020-05-13 07:21:17 +0200
 </div>
 </div>
 </body>
