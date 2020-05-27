@@ -134,6 +134,19 @@
 (defmethod first ((array array))
   (row-major-aref array 0))
 
+(defmethod first ((map hash-map))
+  (with-custom-hash-table
+    (with-hash-table-iterator (next (hash-map-table map))
+      (multiple-value-bind (more key value) (next)
+	(when more
+	  (cons key value))))))
+
+(defmethod first ((table hash-table))
+  (with-hash-table-iterator (next table)
+    (multiple-value-bind (more key value) (next)
+      (when more
+	(cons key value)))))
+
 
 ;; Last
 
