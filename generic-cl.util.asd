@@ -50,7 +50,7 @@
 
 	       :alexandria
 	       :anaphora
-	       :cl-arrows)
+	       :arrows)
   :defsystem-depends-on (:prove-asdf)
   :components ((:module
 		"test/util"

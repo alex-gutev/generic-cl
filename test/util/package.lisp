@@ -29,7 +29,7 @@
 	:prove
 	:alexandria
 	:anaphora
-	:cl-arrows)
+	:arrows)
 
   (:shadowing-import-from :generic-cl
 			  :emptyp))

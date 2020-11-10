@@ -30,7 +30,7 @@
 
 	:alexandria
 	:anaphora
-	:cl-arrows
+	:arrows
         :trivia
 	:cl-custom-hash-table)
 

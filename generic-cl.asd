@@ -33,7 +33,7 @@
   :depends-on (:agutil
                :alexandria
                :anaphora
-               :cl-arrows
+               :arrows
                :cl-custom-hash-table
                :static-dispatch
                :trivia)
