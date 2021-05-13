@@ -1,6 +1,6 @@
 ;;;; comparison.lisp
 ;;;;
-;;;; Copyright 2018 Alexander Gutev
+;;;; Copyright 2018-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -25,198 +25,207 @@
 
 ;;;; Unit tests for arithmetic functions
 
-(in-package :generic-cl.test)
+(in-package :generic-cl/test)
 
-(plan nil)
+
+;;; Test Suite Definition
 
+(def-suite comparison
+    :description "Test comparison functions"
+    :in generic-cl)
 
-(subtest "Test Comparison Functions"
-  (macrolet ((test (form)
-	       "Tests that FORM evaluates to T, using OK, and passes
-                the form itself as the test description."
+(in-suite comparison)
 
-	       `(ok ,form ,(format nil "~s" form)))
+
+;;; Number Tests
 
-	     (is-lessp (a b)
-	       `(test (lessp ,a ,b)))
+(test number-lessp
+  "Test LESSP on numbers"
 
-	     (is-greaterp (a b)
-	       `(test (greaterp ,a ,b)))
+  (is-true (lessp 1 2))
+  (is-true (lessp 3.11 10))
+  (is-true (lessp -1 0.5))
 
-	     (is-less-equal-p (a b)
-	       `(test (less-equal-p ,a ,b)))
+  (is-false (lessp 5 2))
+  (is-false (lessp 10 2.4))
+  (is-false (lessp 0.3 -3)))
 
-	     (is-greater-equal-p (a b)
-	       `(test (greater-equal-p ,a ,b)))
+(test number-greaterp
+  "Test GREATERP on numbers"
 
-	     (isnt-lessp (a b)
-	       `(test (not (lessp ,a ,b))))
+  (is-true (greaterp 9 3))
+  (is-true (greaterp 12 5.3))
+  (is-true (greaterp 1/3 -4))
 
-	     (isnt-greaterp (a b)
-	       `(test (not (greaterp ,a ,b))))
+  (is-false (greaterp 3 7))
+  (is-false (greaterp 2.6 10))
+  (is-false (greaterp -8 1/6)))
 
-	     (isnt-less-equal-p (a b)
-	       `(test (not (less-equal-p ,a ,b))))
+(test number-less-equal-p
+  "Test LESS-EQUAL-P on numbers"
 
-	     (isnt-greater-equal-p (a b)
-	       `(test (not (greater-equal-p ,a ,b)))))
+  (is-true (less-equal-p 2 7))
+  (is-true (less-equal-p 7 7))
+  (is-false (less-equal-p 9 8)))
 
-    (subtest "Test Numbers"
-      (subtest "Test LESSP Method"
-	(is-lessp 1 2)
-	(is-lessp 3.11 10)
-	(is-lessp -1 0.5)
+(test number-greater-equal-p
+  "Test GREATER-EQUAL-P on numbers"
 
-	(isnt-lessp 5 2)
-	(isnt-lessp 10 2.4)
-	(isnt-lessp 0.3 -3))
+  (is-true (greater-equal-p 10 5))
+  (is-true (greater-equal-p 10 10))
+  (is-false (greater-equal-p 0 90)))
 
-      (subtest "Test GREATERP Method"
-	(is-greaterp 9 3)
-	(is-greaterp 12 5.3)
-	(is-greaterp 1/3 -4)
+(test number-compare
+  "Test COMPARE on numbers"
 
-	(isnt-greaterp 3 7)
-	(isnt-greaterp 2.6 10)
-	(isnt-greaterp -8 1/6))
+  (is (= :less (compare 1 2)))
+  (is (= :equal (compare 3 3)))
+  (is (= :greater (compare 9 1))))
 
-      (subtest "Test Or Equal Methods"
-	(is-less-equal-p 2 7)
-	(is-less-equal-p 7 7)
-	(isnt-less-equal-p 9 8)
+
+;;; Character Tests
 
-	(is-greater-equal-p 10 5)
-	(is-greater-equal-p 10 10)
-	(isnt-greater-equal-p 0 90))
+(test character-lessp
+  "Test LESSP on characters"
 
-      (subtest "Test COMPARE Method"
-	(is (compare 1 2) :less)
-	(is (compare 3 3) :equal)
-	(is (compare 9 1) :greater)))
+  (is-true (lessp #\a #\b))
+  (is-true (lessp #\1 #\7))
 
-    (subtest "Test Characters"
-      (subtest "Test LESSP Method"
-	(is-lessp #\a #\b)
-	(is-lessp #\1 #\7)
+  (is-false (lessp #\Z #\T))
+  (is-false (lessp #\6 #\5)))
 
-	(isnt-lessp #\Z #\T)
-	(isnt-lessp #\6 #\5))
+(test character-greaterp
+  "Test GREATERP on characters"
 
-      (subtest "Test GREATERP Method"
-	(is-greaterp #\x #\d)
-	(is-greaterp #\4 #\1)
+  (is-true (greaterp #\x #\d))
+  (is-true (greaterp #\4 #\1))
 
-	(isnt-greaterp #\A #\F)
-	(isnt-greaterp #\0 #\5))
+  (is-false (greaterp #\A #\F))
+  (is-false (greaterp #\0 #\5)))
 
-      (subtest "Test Or Equal Methods"
-	(is-less-equal-p #\a #\z)
-	(is-less-equal-p #\c #\c)
-	(isnt-less-equal-p #\x #\f)
+(test character-less-equal-p
+  "Test LESS-EQUAL-P on characters"
 
-	(is-greater-equal-p #\x #\f)
-	(is-greater-equal-p #\r #\r)
-	(isnt-greater-equal-p #\b #\f))
+  (is-true (less-equal-p #\a #\z))
+  (is-true (less-equal-p #\c #\c))
+  (is-false (less-equal-p #\x #\f)))
 
-      (subtest "Test COMPARE Method"
-	;; This also tests the generic COMPARE method since there is
-	;; no COMPARE method specialized on characters.
-	(is (compare #\a #\f) :less)
-	(is (compare #\e #\e) :equal)
-	(is (compare #\x #\t) :greater)))
+(test character-greater-equal-p
+  "Test GREATER-EQUAL-P on characters"
 
-    (subtest "Test Strings"
-      (subtest "Test LESSP Method"
-	(is-lessp "aaa" "aab")
-	(is-lessp "hello" "hello world")
-	(is-lessp "hello1" "hello2")
+  (is-true (greater-equal-p #\x #\f))
+  (is-true (greater-equal-p #\r #\r))
+  (is-false (greater-equal-p #\b #\f)))
 
-	(isnt-lessp "aax" "aaa")
-	(isnt-lessp "hello world" "hello")
-	(isnt-lessp "hello2" "hello1"))
+(test character-compare
+  "Test COMPARE on characters"
 
-      (subtest "Test GREATERP Method"
-	(is-greaterp "aax" "aaa")
-	(is-greaterp "hello world" "hello")
-	(is-greaterp "hello3" "hello1")
+  ;; This also tests the generic COMPARE method since there is
+  ;; no COMPARE method specialized on characters.
 
-	(isnt-greaterp "aaa" "aab")
-	(isnt-greaterp "hello" "hello world")
-	(isnt-greaterp "hello1" "hello2"))
+  (is (= :less (compare #\a #\f)))
+  (is (= :equal (compare #\e #\e)))
+  (is (= :greater (compare #\x #\t))))
 
-      (subtest "Test Or Equal Methods"
-	(is-less-equal-p "aaa" "aab")
-	(is-less-equal-p "aaa" "aaa")
-	(isnt-less-equal-p "aab" "aaa")
+
+;;; String Tests
 
-	(is-greater-equal-p "aab" "aaa")
-	(is-greater-equal-p "aaa" "aaa")
-	(isnt-greater-equal-p "aaa" "aab"))
+(test string-lessp
+  "Test LESSP on strings"
 
-      (subtest "Test COMPARE"
-	(is (compare "hello1" "hello2") :less)
-	(is (compare "hello" "hello") :equal)
-	(is (compare "hello2" "hello1") :greater)))
+  (is-true (lessp "aaa" "aab"))
+  (is-true (lessp "hello" "hello world"))
+  (is-true (lessp "hello1" "hello2"))
 
-    (subtest "Test N-Argument Functions"
-      (subtest "Test <"
-	(test-nary <
-	  (test (< 1))
-	  (test (< -1))
-	  (test (< #\a #\b))
-	  (test (< 3 4))
-	  (test (< 3 4 5))
-	  (test (< 2 3 4 5 6))
-	  (test (not (< 2 3 5 4 6)))))
+  (is-false (lessp "aax" "aaa"))
+  (is-false (lessp "hello world" "hello"))
+  (is-false (lessp "hello2" "hello1")))
 
-      (subtest "Test >"
-	(test-nary >
-	  (test (> 2))
-	  (test (> -3))
-	  (test (> #\3 #\1))
-	  (test (> 5 3))
-	  (test (> 5 4 3))
-	  (test (> 5 4 3 2 1))
-	  (test (not (> 5 4 1 2 3)))))
+(test string-greaterp
+  "Test GREATERP on strings"
 
-      (subtest "Test <="
-	(test-nary <=
-	  (test (<= 1))
-	  (test (<= -1))
-	  (test (<= #\a #\a))
-	  (test (<= 1 1))
-	  (test (<= 1 2))
-	  (test (<= 1 2 3))
-	  (test (<= 1 2 3 4))
-	  (test (not (<= 1 2 4 3)))))
+  (is-true (greaterp "aax" "aaa"))
+  (is-true (greaterp "hello world" "hello"))
+  (is-true (greaterp "hello3" "hello1"))
 
-      (subtest "Test >="
-	(test-nary >=
-	  (test (>= 4))
-	  (test (>= -4))
-	  (test (>= #\1 #\1))
-	  (test (>= 2 2))
-	  (test (>= 3 2))
-	  (test (>= 3 2 1))
-	  (test (>= 3 3 2 1))
-	  (test (not (>= 3 4 2 1)))))
+  (is-false (greaterp "aaa" "aab"))
+  (is-false (greaterp "hello" "hello world"))
+  (is-false (greaterp "hello1" "hello2")))
 
-      (subtest "Test MAX"
-	(test-nary max
-	  (is (max 1 3 5 0 2) 5)
-	  (is (max #\a #\b #\z #\d) #\z)
-	  (is (max "abc" "def" "xyz") "xyz")
+(test string-less-equal-p
+  "Test LESS-EQUAL-P on strings"
 
-	  (is (max 1) 1)
-	  (is (max #\a) #\a)))
+  (is-true (less-equal-p "aaa" "aab"))
+  (is-true (less-equal-p "aaa" "aaa"))
+  (is-false (less-equal-p "aab" "aaa")))
 
-      (subtest "Test MIN"
-	(test-nary min
-	  (is (min 1 3 5 0 2) 0)
-	  (is (min #\a #\b #\z #\d) #\a)
-	  (is (min "def" "abc" "xyz") "abc")
+(test string-greater-equal-p
+  "Test GREATER-EQUAL-P on strings"
 
-	  (is (min 1) 1)
-	  (is (min #\a) #\a))))))
+  (is-true (greater-equal-p "aab" "aaa"))
+  (is-true (greater-equal-p "aaa" "aaa"))
+  (is-false (greater-equal-p "aaa" "aab")))
 
-(finalize)
+(test string-compare
+  "Test COMPARE on strings"
+
+  (is (= :less (compare "hello1" "hello2")))
+  (is (= :equal (compare "hello" "hello")))
+  (is (= :greater (compare "hello2" "hello1"))))
+
+
+;;; N-Argument Functions
+
+(test-nary compare <
+  (is-true (< 1))
+  (is-true (< -1))
+  (is-true (< #\a #\b))
+  (is-true (< 3 4))
+  (is-true (< 3 4 5))
+  (is-true (< 2 3 4 5 6))
+  (is-false (< 2 3 5 4 6)))
+
+(test-nary compare >
+  (is-true (> 2))
+  (is-true (> -3))
+  (is-true (> #\3 #\1))
+  (is-true (> 5 3))
+  (is-true (> 5 4 3))
+  (is-true (> 5 4 3 2 1))
+  (is-false (> 5 4 1 2 3)))
+
+(test-nary compare <=
+  (is-true (<= 1))
+  (is-true (<= -1))
+  (is-true (<= #\a #\a))
+  (is-true (<= 1 1))
+  (is-true (<= 1 2))
+  (is-true (<= 1 2 3))
+  (is-true (<= 1 2 3 4))
+  (is-false (<= 1 2 4 3)))
+
+(test-nary compare >=
+  (is-true (>= 4))
+  (is-true (>= -4))
+  (is-true (>= #\1 #\1))
+  (is-true (>= 2 2))
+  (is-true (>= 3 2))
+  (is-true (>= 3 2 1))
+  (is-true (>= 3 3 2 1))
+  (is-false (>= 3 4 2 1)))
+
+(test-nary compare max
+  (is (= 5 (max 1 3 5 0 2)))
+  (is (= #\z (max #\a #\b #\z #\d)))
+  (is (= "xyz" (max "abc" "def" "xyz")))
+
+  (is (= 1 (max 1)))
+  (is (= #\a (max #\a))))
+
+(test-nary compare min
+  (is (= 0 (min 1 3 5 0 2)))
+  (is (= #\a (min #\a #\b #\z #\d)))
+  (is (= "abc" (min "def" "abc" "xyz")))
+
+  (is (= 1 (min 1)))
+  (is (= #\a (min #\a))))
