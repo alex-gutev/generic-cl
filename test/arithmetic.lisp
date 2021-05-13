@@ -1,6 +1,6 @@
 ;;;; arithmetic.lisp
 ;;;;
-;;;; Copyright 2018 Alexander Gutev
+;;;; Copyright 2018-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -25,155 +25,198 @@
 
 ;;;; Unit tests for arithmetic functions
 
-(in-package :generic-cl.test)
+(in-package :generic-cl/test)
 
-(plan nil)
+
+;;; Test Suite Definition
 
-(subtest "Test Arithmetic Functions"
-  (subtest "Test ADD"
-    (is (add 1 2) 3)
-    (is-error (add 1 'x) 'error)
+(def-suite arithmetic
+    :description "Test arithmetic functions"
+    :in generic-cl)
 
-    (test-nary +
-      (is (+) 0)
-      (is (+ 2) 2)
-      (is (+ 1 2 3 4) 10)))
+(in-suite arithmetic)
 
-  (subtest "Test SUBTRACT"
-    (is (subtract 3 4) -1)
-    (is-error (subtract 3 "z") 'error)
+
+;;; Tests
 
-    (test-nary -
-      (is (- 3) -3)
-      (is (- 5 4 3) -2)))
+(test number-add
+  "Test ADD on numbers"
 
-  (subtest "Test MULTIPLY"
-    (is (multiply 2 4) 8)
-    (is-error (multiply 4 #\a) 'error)
+  (is (= 3 (add 1 2)))
+  (signals error (add 1 'x)))
 
-    (test-nary *
-      (is (*) 1)
-      (is (* 3) 3)
-      (is (* 2 3 4 5) 120)))
+(test-nary number +
+  (is (= 0 (+)))
+  (is (= 2 (+ 2)))
+  (is (= 10 (+ 1 2 3 4))))
 
-  (subtest "Test DIVIDE"
-    (is (divide 6 3) 2)
-    (is-error (divide 'a 'b) 'error)
+(test number-subtract
+  "Test SUBTRACT on numbers"
 
-    (test-nary /
-      (is (/ 5) 1/5)
-      (is (/ 6 3 2) 1)))
+  (is (= -1 (subtract 3 4)))
+  (signals error (subtract 3 "z")))
 
-  (subtest "Test NEGATE"
-    (is (negate 4) -4)
-    (is-error (negate 'x) 'error))
+(test-nary number -
+  (is (= -3 (- 3)))
+  (is (= -2 (- 5 4 3))))
 
-  (subtest "Test 1+, 1-, INCF and DECF"
-    (is (1+ 4) 5)
-    (is (1- 8) 7)
+(test number-multiply
+  "Test MULTIPLY on numbers"
 
-    (let ((x 2))
-      (is (incf x) 3)
-      (is x 3))
+  (is (= 8 (multiply 2 4)))
+  (signals error (multiply 4 #\a)))
 
-    (let ((x 6))
-      (is (decf x) 5)
-      (is x 5)))
+(test-nary number *
+  (is (= 1 (*)))
+  (is (= 3 (* 3)))
+  (is (= 120 (* 2 3 4 5))))
 
-  (subtest "Test MINUSP"
-    (ok (minusp -5))
-    (ok (minusp -1))
+(test number-divide
+  "Test DIVIDE on numbers"
 
-    (ok (not (minusp 0)))
-    (ok (not (minusp 3))))
+  (is (= 2 (divide 6 3)))
+  (signals error (divide 'a 'b)))
 
-  (subtest "Test PLUSP"
-    (ok (plusp 5))
-    (ok (plusp 1))
+(test-nary number /
+  (is (= 1/5 (/ 5)))
+  (is (= 1 (/ 6 3 2))))
 
-    (ok (not (plusp 0)))
-    (ok (not (plusp -3))))
+(test number-negate
+  "Test NEGATE on numbers"
 
-  (subtest "Test ZEROP"
-    (ok (zerop 0))
+  (is (= -4 (negate 4)))
+  (signals error (negate 'x)))
 
-    (ok (not (zerop -1)))
-    (ok (not (zerop 5))))
+(test number-increments
+  "Test 1+, 1-, INCF and DECF on numbers"
 
-  (subtest "Test SIGNUM"
-    (is (signum 3) 1)
-    (is (signum -1) -1)
-    (is (signum 0) 0))
+  (is (= 5 (1+ 4)))
+  (is (= 7 (1- 8)))
 
-  (subtest "Test ABS"
-    (is (abs 10) 10)
-    (is (abs 0) 0)
-    (is (abs -3) 3))
+  (let ((x 2))
+    (is (= 3 (incf x)))
+    (is (= 3 x)))
 
-  (subtest "Test EVENP"
-    (ok (evenp 2))
-    (ok (evenp 10))
-    (ok (evenp 0))
-    (ok (evenp -4))
-    (ok (not (evenp 5)))
-    (ok (not (evenp -3))))
+  (let ((x 6))
+    (is (= 5 (decf x)))
+    (is (= 5 x))))
 
-  (subtest "Test ODDP"
-    (ok (oddp 3))
-    (ok (oddp 7))
-    (ok (oddp -5))
-    (ok (not (oddp 0)))
-    (ok (not (oddp 4)))
-    (ok (not (oddp -6))))
+(test number-minusp
+  "Test MINUSP on numbers"
 
-  (subtest "Test Rounding"
-    (subtest "Test FLOOR"
-      (is (floor 3.0222) 3)
-      (is (floor -3.0222) -4)
+  (is-true (minusp -5))
+  (is-true (minusp -1))
 
-      (is-values (floor 10 3) '(3 1))
-      (is-values (floor -10 3) '(-4 2)))
+  (is-false (minusp 0))
+  (is-false (minusp 3)))
 
-    (subtest "Test CEILING"
-      (is (ceiling 3.0222) 4)
-      (is (ceiling -3.0222) -3)
+(test number-plusp
+  "Test PLUSP on numbers"
 
-      (is-values (ceiling 10 3) '(4 -2))
-      (is-values (ceiling -10 3) '(-3 -1)))
+  (is-true (plusp 5))
+  (is-true (plusp 1))
 
-    (subtest "Test TRUNCATE"
-      (is (truncate 3.0222) 3)
-      (is (truncate -3.0222) -3)
+  (is-false (plusp 0))
+  (is-false (plusp -3)))
 
-      (is-values (truncate 10 3) '(3 1))
-      (is-values (truncate -10 3) '(-3 -1)))
+(test number-zerop
+  "Test ZEROP on numbers"
 
-    (subtest "Test ROUND"
-      (is (round 3.0222) 3)
-      (is (round -3.0222) -3)
+  (is-true (zerop 0))
 
-      (is (round 3.7222) 4)
-      (is (round -3.7222) -4)
+  (is-false (zerop -1))
+  (is-false (zerop 5)))
 
-      (is (round 4.5) 4)
-      (is (round -4.5) -4)
+(test number-signum
+  "Test SIGNUM on numbers"
 
-      (is (round 1.5) 2)
-      (is (round -1.5) -2)
+  (is (= 1 (signum 3)))
+  (is (= -1 (signum -1)))
+  (is (= 0 (signum 0))))
 
-      (is-values (round 10 3) '(3 1))
-      (is-values (round -10 3) '(-3 -1))
+(test number-abs
+  "Test ABS on numbers"
 
-      (is-values (round 5 2) '(2 1))
-      (is-values (round -5 2) '(-2 -1))))
+  (is (= 10 (abs 10)))
+  (is (= 0 (abs 0)))
+  (is (= 3 (abs -3))))
 
-  (subtest "Test Modulus Operations"
-    (subtest "MOD"
-      (is (mod 5 3) 2)
-      (is (mod -5 3) 1))
+(test number-evenp
+  "Test EVENP on numbers"
 
-    (subtest "REM"
-      (is (rem 5 3) 2)
-      (is (rem -5 3) -2))))
+  (is-true (evenp 2))
+  (is-true (evenp 10))
+  (is-true (evenp 0))
+  (is-true (evenp -4))
+  (is-false (evenp 5))
+  (is-false (evenp -3)))
 
-(finalize)
+(test number-oddp
+  "Test ODDP on numbers"
+
+  (is-true (oddp 3))
+  (is-true (oddp 7))
+  (is-true (oddp -5))
+  (is-false (oddp 0))
+  (is-false (oddp 4))
+  (is-false (oddp -6)))
+
+(test number-floor
+  "Test FLOOR on numbers"
+
+  (is (= 3 (floor 3.0222)))
+  (is (= -4 (floor -3.0222)))
+
+  (is (= '(3 1) (multiple-value-list (floor 10 3))))
+  (is (= '(-4 2) (multiple-value-list (floor -10 3)))))
+
+(test number-ceiling
+  "Test CEILING on numbers"
+
+  (is (= 4 (ceiling 3.0222)))
+  (is (= -3 (ceiling -3.0222)))
+
+  (is (= '(4 -2) (multiple-value-list (ceiling 10 3))))
+  (is (= '(-3 -1) (multiple-value-list (ceiling -10 3)))))
+
+(test number-truncate
+  "Test TRUNCATE on numbers"
+
+  (is (= 3 (truncate 3.0222)))
+  (is (= -3 (truncate -3.0222)))
+
+  (is (= '(3 1) (multiple-value-list (truncate 10 3))))
+  (is (= '(-3 -1) (multiple-value-list (truncate -10 3)))))
+
+(test number-round
+  "Test ROUND on numbers"
+
+  (is (= 3 (round 3.0222)))
+  (is (= -3 (round -3.0222)))
+
+  (is (= 4 (round 3.7222)))
+  (is (= -4 (round -3.7222)))
+
+  (is (= 4 (round 4.5)))
+  (is (= -4 (round -4.5)))
+
+  (is (= 2 (round 1.5)))
+  (is (= -2 (round -1.5)))
+
+  (is (= '(3 1) (multiple-value-list (round 10 3))))
+  (is (= '(-3 -1) (multiple-value-list (round -10 3))))
+
+  (is (= '(2 1) (multiple-value-list (round 5 2))))
+  (is (= '(-2 -1) (multiple-value-list (round -5 2)))))
+
+(test number-mod
+  "Test MOD on numbers"
+
+  (is (= 2 (mod 5 3)))
+  (is (= 1 (mod -5 3))))
+
+(test number-rem
+  "Test REM on numbers"
+
+  (is (= 2 (rem 5 3)))
+  (is (= -2 (rem -5 3))))
