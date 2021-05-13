@@ -23,12 +23,12 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(defpackage :generic-cl.test
+(defpackage :generic-cl/test
   (:use :generic-cl
-        :prove
         :alexandria
 	:anaphora
-	:arrows)
+	:arrows
+	:fiveam)
 
   (:shadowing-import-from :generic-cl
 			  :emptyp))

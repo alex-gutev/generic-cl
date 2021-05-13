@@ -65,10 +65,11 @@
   :description "Tests for generic-cl."
   :author "Alexander Gutev"
   :license "MIT"
-  :depends-on (:generic-cl :prove :prove-asdf)
-  :defsystem-depends-on (:prove-asdf)
+  :depends-on (:generic-cl :fiveam)
+  :serial t
   :components
   ((:module "test"
+	    :serial t
             :components
             ((:file "package")
              (:test-file "equality")
@@ -82,6 +83,7 @@
              (:test-file "sets")
              (:test-file "lazy-seq")
              (:test-file "misc"))))
+	     (:file "test")
 
   :perform (asdf:test-op :after (op c)
-                         (funcall (intern #.(string :run) :prove) c :reporter :fiveam)))
+                         (uiop:symbol-call :generic-cl/test :test-generic-cl)))
