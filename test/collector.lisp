@@ -1,6 +1,6 @@
 ;;;; collector.lisp
 ;;;;
-;;;; Copyright 2019 Alexander Gutev
+;;;; Copyright 2019-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -25,75 +25,104 @@
 
 ;;;; Unit tests for the collector interface
 
-(in-package :generic-cl.test)
+(in-package :generic-cl/test)
 
-(plan nil)
+
+;;; Test Suite Definition
 
-(subtest "Test Collector Interface"
-  (subtest "List Collector"
-    (diag "Test CLEARED")
-    (is (cleared '(1 2 3 4)) nil)
-    (is (cleared (cons 'a 'b)) nil)
-    (is (cleared nil) nil)
+(def-suite collector
+    :description "Test collector interface"
+    :in generic-cl)
 
-    (diag "Back Collector")
-    (let ((collector (make-collector (list 1 2 3))))
-      (accumulate collector 4)
-      (accumulate collector 5)
-      (accumulate collector 6)
-      (extend collector '(7 8))
-      (extend collector #(9 10))
-      (is (collector-sequence collector) '(1 2 3 4 5 6 7 8 9 10)))
+(in-suite collector)
 
-    (diag "Front Collector")
-    (let ((collector (make-collector (list 3 2 1) :front t)))
-      (accumulate collector 4)
-      (accumulate collector 5)
-      (accumulate collector 6)
-      (extend collector '(7 8))
-      (extend collector #(9 10))
-      (is (collector-sequence collector) '(10 9 8 7 6 5 4 3 2 1))))
+
+;;; Test List Collector
 
-  (subtest "Vector Collector"
-    (diag "Test CLEARED")
-    (let ((clone (cleared #(1 2 3 4))))
-      (is-type clone 'array)
-      (is (array-dimension clone 0) 4 "Same Length")
-      (ok (adjustable-array-p clone) "Adjustable")
-      (is (fill-pointer clone) 0 "Fill-Pointer"))
+(test list-cleared
+  "Test CLEARED on lists"
 
-    (diag "Back Collector")
-    (let ((collector (make-collector (make-array '3 :adjustable t :fill-pointer t :initial-contents '(1 2 3)))))
-      (accumulate collector 4)
-      (accumulate collector 5)
-      (accumulate collector 6)
-      (extend collector '(7 8))
-      (extend collector #(9 10))
-      (is (collector-sequence collector) #(1 2 3 4 5 6 7 8 9 10) :test #'equalp))
+  (is (= nil (cleared '(1 2 3 4))))
+  (is (= nil (cleared (cons 'a 'b))))
+  (is (= nil (cleared nil))))
 
-    (diag "Front Collector")
-    (let ((collector (make-collector (make-array '3 :adjustable t :fill-pointer t :initial-contents '(3 2 1)) :front t)))
-      (accumulate collector 4)
-      (accumulate collector 5)
-      (accumulate collector 6)
-      (extend collector '(7 8))
-      (extend collector #(9 10))
-      (is (collector-sequence collector) #(10 9 8 7 6 5 4 3 2 1) :test #'equalp)))
+(test list-back-collector
+  "Test collecting to the end of a list"
 
-  (subtest "Hash-Map Collector"
-    (diag "Test CLEARED")
-    (let ((clone (cleared (alist-hash-map '((a . 1) (b . 2) (c . 3))))))
-      (is-type clone 'hash-map)
-      (is (length clone) 0 "Empty"))
+   (let ((collector (make-collector (list 1 2 3))))
+     (accumulate collector 4)
+     (accumulate collector 5)
+     (accumulate collector 6)
+     (extend collector '(7 8))
+     (extend collector #(9 10))
 
-    (diag "Collector")
-    (let ((collector (make-collector (make-hash-map))))
-      (accumulate collector '(a . 1))
-      (accumulate collector '(b . 2))
-      (accumulate collector '(c . 3))
-      (extend collector '((d . 4) ("e" . 5)))
-      (is (collector-sequence collector)
-	  (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4) ("e" . 5)))
-	  :test #'equalp))))
+     (is (= '(1 2 3 4 5 6 7 8 9 10) (collector-sequence collector)))))
 
-(finalize)
+(test list-front-collector
+  "Test collecting to the front of a list"
+
+  (let ((collector (make-collector (list 3 2 1) :front t)))
+    (accumulate collector 4)
+    (accumulate collector 5)
+    (accumulate collector 6)
+    (extend collector '(7 8))
+    (extend collector #(9 10))
+
+    (is (= '(10 9 8 7 6 5 4 3 2 1) (collector-sequence collector)))))
+
+
+;;; Test Vector Collector
+
+(test vector-cleared
+  "Test CLEARED on vectors"
+
+  (let ((clone (cleared #(1 2 3 4))))
+    (is (typep clone 'array))
+    (is (= 4 (array-dimension clone 0)))
+    (is-true (adjustable-array-p clone))
+    (is (= 0 (fill-pointer clone)))))
+
+(test vector-back-collector
+  "Test collecting to the end of a vector"
+
+  (let ((collector (make-collector (make-array '3 :adjustable t :fill-pointer t :initial-contents '(1 2 3)))))
+    (accumulate collector 4)
+    (accumulate collector 5)
+    (accumulate collector 6)
+    (extend collector '(7 8))
+    (extend collector #(9 10))
+
+    (is (= #(1 2 3 4 5 6 7 8 9 10) (collector-sequence collector)))))
+
+(test vector-front-collector
+  "Test collecting to the front of a vector"
+
+  (let ((collector (make-collector (make-array '3 :adjustable t :fill-pointer t :initial-contents '(3 2 1)) :front t)))
+    (accumulate collector 4)
+    (accumulate collector 5)
+    (accumulate collector 6)
+    (extend collector '(7 8))
+    (extend collector #(9 10))
+    (is (= #(10 9 8 7 6 5 4 3 2 1) (collector-sequence collector)))))
+
+
+;;; Test Hash Map/Table Collector
+
+(test cleared-hashmap
+  "Test CLEARED on Hash-Maps"
+
+  (let ((clone (cleared (alist-hash-map '((a . 1) (b . 2) (c . 3))))))
+    (is (typep clone 'hash-map))
+    (is (= 0 (length clone)))))
+
+(test hashmap-collector
+  "Test collecting to a hash-map"
+
+  (let ((collector (make-collector (make-hash-map))))
+    (accumulate collector '(a . 1))
+    (accumulate collector '(b . 2))
+    (accumulate collector '(c . 3))
+    (extend collector '((d . 4) ("e" . 5)))
+
+    (is (= (alist-hash-map '((a . 1) (b . 2) (c . 3) (d . 4) ("e" . 5)))
+	   (collector-sequence collector)))))
