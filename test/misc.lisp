@@ -1,6 +1,6 @@
 ;;;; misc.lisp
 ;;;;
-;;;; Copyright 2019 Alexander Gutev
+;;;; Copyright 2019-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -25,21 +25,33 @@
 
 ;;;; Unit tests for the miscellaneous utilities
 
-(in-package :generic-cl.test)
+(in-package :generic-cl/test)
 
-(plan nil)
+
+;;; Test Suite Definition
 
-(subtest "Test Miscellaneous Utilities"
-  (subtest "DEFCONSTANT"
-    (is-expand
-     (defconstant +some-constant+ 12)
+(def-suite misc-util
+    :description "Test miscellaneous utilities"
+    :in generic-cl)
 
-     (alexandria:define-constant +some-constant+ 12 :test #'equalp))
+(in-suite misc-util)
 
-    (is-expand
-     (defconstant +other-constant+ 'x
-       "A constant defined with the value 'X.")
+
+;;; Tests
 
-     (alexandria:define-constant +other-constant+ 'x :test #'equalp))))
+(test defconstant
+  "Test DEFCONSTANT with EQUALP test function"
 
-(finalize)
+  (is
+   (= '(alexandria:define-constant +some-constant+ 12 :test #'equalp)
+      (macroexpand-1 '(defconstant +some-constant+ 12))))
+
+  (is (= '(alexandria:define-constant
+	   +other-constant+ 'x
+	   :test #'equalp
+	   :documentation
+	   "A constant defined with the value 'X.")
+
+	 (macroexpand-1
+	  '(defconstant +other-constant+ 'x
+	    "A constant defined with the value 'X.")))))
