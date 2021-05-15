@@ -352,7 +352,7 @@
 (test multi-dimensional-array-elt
   "Test ELT and (SETF ELT) on multi-dimensional arrays"
 
-  (alet #3A(((1 0) (0 1)) ((2 3) (4 5)) ((5 6) (7 8)))
+  (alet (make-array '(3 2 2) :initial-contents '(((1 0) (0 1)) ((2 3) (4 5)) ((5 6) (7 8))))
     (is (= 1 (elt it 0)))
     (is (= #2A((2 3) (4 5)) (elt it '(1))))
     (setf (elt it '(1 0)) #(200 300))
