@@ -1,6 +1,6 @@
 ;;;; object.lisp
 ;;;;
-;;;; Copyright 2019 Alexander Gutev
+;;;; Copyright 2019-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -25,148 +25,194 @@
 
 ;;;; Unit tests for the miscellaneous generic object functions.
 
-(in-package :generic-cl.test)
+(in-package :generic-cl/test)
 
-(plan nil)
+
+;;; Test Suite Definition
 
-(defstruct custom-object
-  slot1
-  slot2)
+(def-suite copy-coerce
+    :description "Test COPY and COERCE functions"
+    :in generic-cl)
 
-(defmethod equalp ((a custom-object) (b custom-object))
-  (and (equalp (custom-object-slot1 a) (custom-object-slot1 b))
-       (equalp (custom-object-slot2 a) (custom-object-slot2 b))))
+(in-suite copy-coerce)
 
+
+;;; Custom Object Type
 
-(subtest "Test COPY Function"
-  (subtest "Test List Copying"
-    (let* ((list '("a" "b" ("c" "d")))
-	   (shallow-copy (copy list))
-	   (deep-copy (copy list :deep t)))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ (defstruct custom-object
+   slot1
+   slot2)
 
-      (isnt shallow-copy list "Shallow copied" :test #'eq)
-      (isnt deep-copy list "Deep copied" :test #'eq)
-      (is shallow-copy list :test #'equalp "Shallow copied correctly")
-      (is deep-copy list :test #'equalp "Deep copied correctly")
+ (defmethod equalp ((a custom-object) (b custom-object))
+   (and (equalp (custom-object-slot1 a) (custom-object-slot1 b))
+	(equalp (custom-object-slot2 a) (custom-object-slot2 b))))
 
-      (ok (cl:every #'eq list shallow-copy) "Shallow copy is shallow")
-      (ok (cl:notevery #'eq list deep-copy) "Deep copy is deep")))
+ (defmethod make-load-form ((object custom-object) &optional env)
+   (make-load-form-saving-slots object :environment env)))
 
-  (flet ((test-attributes (orig)
-	   (let ((copy (copy orig)))
-	     (is copy orig :test #'equalp "Copied correctly")
-	     (isnt copy orig :test #'eq "Copied")
+
+;;; Test COPY Function
 
-	     (is (array-element-type copy) (array-element-type orig) "Element type")
-	     (is (adjustable-array-p copy) (adjustable-array-p orig) "Adjustable")
-	     (is (array-has-fill-pointer-p copy) (array-has-fill-pointer-p orig) "Fill pointer presence")
-	     (when (array-has-fill-pointer-p orig)
-	       (is (fill-pointer copy) (fill-pointer orig) "Fill pointers equal")))))
+(test list-copy
+  "Test COPY on a list"
 
-    (subtest "Test Vector Copying"
-      (let* ((vector #("a" "b" #("c" "d")))
-	     (shallow-copy (copy vector))
-	     (deep-copy (copy vector :deep t)))
+  (let* ((list '("a" "b" ("c" "d")))
+	 (shallow-copy (copy list))
+	 (deep-copy (copy list :deep t)))
 
-	(isnt shallow-copy vector "Shallow copied" :test #'eq)
-	(isnt deep-copy vector "Deep copied" :test #'eq)
-	(is shallow-copy vector :test #'equalp "Shallow copied correctly")
-	(is deep-copy vector :test #'equalp "Deep copied correctly")
+    (is (not (eq list shallow-copy))
+	"Shallow copy not a copy. EQ to original.")
 
-	(ok (cl:every #'eq vector shallow-copy) "Shallow copy is shallow")
-	(ok (cl:notevery #'eq vector deep-copy) "Deep copy is deep"))
+    (is (not (eq list deep-copy))
+	"Deep copy not a copy. EQ to original")
 
-      (subtest "Test Copying of Attributes"
-	(test-attributes "Hello World")
-	(test-attributes (make-array 3 :initial-contents '(1 2 3)))
-	(test-attributes (make-array 3 :element-type 'integer :initial-contents '(1 2 3)))
-	(test-attributes (make-array 3 :element-type 'number :adjustable t :initial-contents '(1 2 3)))
-	(test-attributes (make-array 3 :element-type 'integer :adjustable t :fill-pointer t :initial-contents '(1 2 3)))))
+    (is (equal '("a" "b" ("c" "d")) shallow-copy))
+    (is (equal '("a" "b" ("c" "d")) deep-copy))
 
-    (subtest "Test Multi-Dimensional Array Copying"
-      (let* ((array #2A(("a" "b" "c") ("d" "e" "f")))
-      	     (shallow-copy (copy array))
-      	     (deep-copy (copy array :deep t)))
+    (is-true (cl:every #'eq list shallow-copy))
+    (is-true (cl:notany #'eq list deep-copy))))
 
-      	(isnt shallow-copy array "Shallow copied" :test #'eq)
-      	(isnt deep-copy array "Deep copied" :test #'eq)
+(test vector-copy
+  "Test COPY on vectors"
 
-      	(is shallow-copy array :test #'equalp "Shallow copied correctly")
-      	(is deep-copy array :test #'equalp "Deep copied correctly")
+  (let* ((vector #("a" "b" #("c" "d")))
+	 (shallow-copy (copy vector))
+	 (deep-copy (copy vector :deep t)))
 
-      	(ok (every #'eq array shallow-copy) "Shallow copy is shallow")
-      	(ok (notevery #'eq array deep-copy) "Deep copy is deep"))
+    (is (not (eq shallow-copy vector))
+	"Shallow copy not a copy. EQ to original.")
 
-      (subtest "Test Copying of Attributes"
-	(test-attributes (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))
-	(test-attributes (make-array '(2 3) :element-type 'integer :initial-contents '((1 2 3) (4 5 6))))
-	(test-attributes (make-array '(2 3) :element-type 'number :adjustable t :initial-contents '((1 2 3) (4 5 6)))))))
+    (is (not (eq deep-copy vector))
+	"Deep copy not a copy. EQ to original.")
 
-  (subtest "Test Hash-Table Copying"
-    (let* ((map (alist-hash-map '((a . "a") (b . "b") (c . "c"))))
-	   (shallow-copy (copy map))
-	   (deep-copy (copy map :deep t)))
+    (is (= #("a" "b" #("c" "d")) shallow-copy))
+    (is (= #("a" "b" #("c" "d")) deep-copy))
 
-      (isnt shallow-copy map "Shallow copied" :test #'eq)
-      (isnt deep-copy map "Deep copied" :test #'eq)
-      (is shallow-copy map :test #'equalp "Shallow copied correctly")
-      (is deep-copy map :test #'equalp "Deep copied correctly")
+    (is-true (cl:every #'eq vector shallow-copy))
+    (is-true (cl:notany #'eq vector deep-copy))))
 
-      (flet ((test-eq (pair)
-	       (destructuring-bind (key . value) pair
-		 (eq (get key map) value))))
+(test string-copy
+  "Test COPY on strings"
 
-	(ok (every #'test-eq shallow-copy) "Shallow copy is shallow")
-	(ok (notevery #'test-eq deep-copy) "Deep copy is deep"))))
+  (let* ((str "Hello World")
+	 (shallow-copy (copy str))
+	 (deep-copy (copy str :deep t)))
 
-  (subtest "Test Custom Object Copying"
-    (let* ((orig (make-custom-object :slot1 1 :slot2 2))
-	   (copy (copy orig)))
-      (isnt orig copy :test #'eq "Copied")
-      (is orig copy :test #'equalp "Copied correctly")))
+    (is (not (eq shallow-copy str))
+	"Shallow copy not a copy. EQ to original.")
 
-  (subtest "Test Copying Other Objects"
-    (is (copy 1) 1)
-    (is (copy 'x) 'x)
-    (is (copy #\a) #\a))
+    (is (not (eq deep-copy str))
+	"Deep copy not a copy. EQ to original.")
 
-  (subtest "Test DEFSTRUCT Macro COPY Method Generation"
-    (is-expand
-     (defstruct custom-object slot1 slot2)
-     (progn
-       (cl:defstruct custom-object slot1 slot2)
-       (defmethod copy (($arg custom-object) &key)
-	 (copy-custom-object $arg))
-       'custom-object))
+    (is (equal "Hello World" shallow-copy))
+    (is (equal "Hello World" deep-copy))
 
-    (is-expand
-     (defstruct (custom-object (:copier)) slot1 slot2)
-     (progn
-       (cl:defstruct (custom-object (:copier)) slot1 slot2)
-       (defmethod copy (($arg custom-object) &key)
-	 (copy-custom-object $arg))
-       'custom-object))
+    (is (eq 'character (array-element-type shallow-copy)))
+    (is (eq 'character (array-element-type deep-copy)))
 
-    (is-expand
-     (defstruct (custom-object (:copier custom-object-copy)) slot1 slot2)
-     (progn
-       (cl:defstruct (custom-object (:copier custom-object-copy)) slot1 slot2)
-       (defmethod copy (($arg custom-object) &key)
-	 (custom-object-copy))
-       'custom-object))
+    (is-false (adjustable-array-p shallow-copy))
+    (is-false (adjustable-array-p deep-copy))
 
-    (is-expand
-     (defstruct (custom-object (:copier nil)) slot1 slot2)
-     (progn
-       (cl:defstruct (custom-object (:copier nil)) slot1 slot2)
-       nil
-       'custom-object))))
+    (is-false (array-has-fill-pointer-p shallow-copy))
+    (is-false (array-has-fill-pointer-p deep-copy))))
 
-(subtest "Test COERCE Function"
+(test array-copy
+  "Test COPY on adjustable array with fill pointer"
+
+  (let* ((array (make-array 3 :adjustable t :fill-pointer t :initial-contents '("1" "2" "3")))
+	 (shallow (copy array))
+	 (deep (copy array :deep t)))
+
+    (is (not (eq shallow array))
+	"Shallow copy not a copy. EQ to original.")
+
+    (is (not (eq deep array))
+	"Deep copy not a copy. EQ to original.")
+
+    (is (= #("1" "2" "3") shallow))
+    (is (= #("1" "2" "3") deep))
+
+    (is-true (adjustable-array-p shallow))
+    (is-true (adjustable-array-p deep))
+
+    (is-true (array-has-fill-pointer-p shallow))
+    (is-true (array-has-fill-pointer-p deep))
+
+    (is-true (cl:every #'eq array shallow))
+    (is-true (cl:notany #'eq array deep))))
+
+(test nd-array-copy
+  "Test COPY on multi-dimensional arrays"
+
+  (let* ((array (make-array '(2 3) :adjustable t :initial-contents '(("a" "b" "c") ("d" "e" "f"))))
+      	 (shallow (copy array))
+      	 (deep (copy array :deep t)))
+
+    (is (not (eq shallow array))
+	"Shallow copy not a copy. EQ to original.")
+
+    (is (not (eq deep array))
+	"Deep copy not a copy. EQ to original.")
+
+    (is (= #2A(("a" "b" "c") ("d" "e" "f")) shallow))
+    (is (= #2A(("a" "b" "c") ("d" "e" "f")) deep))
+
+    (is-true (adjustable-array-p shallow))
+    (is-true (adjustable-array-p deep))
+
+    (is-true (every #'eq array shallow))
+    (is-true (notany #'eq array deep))))
+
+(test hash-map-copy
+  "Test COPY on hash-maps"
+
+  (let* ((map (alist-hash-map '((a . "a") (b . "b") (c . "c"))))
+	 (shallow (copy map))
+	 (deep (copy map :deep t)))
+
+    (is (not (eq shallow map))
+	"Shallow copy not a copy. EQ to original.")
+
+    (is (not (eq deep map))
+	"Deep copy not a copy. EQ to original.")
+
+    (is (= (alist-hash-map '((a . "a") (b . "b") (c . "c"))) shallow))
+    (is (= (alist-hash-map '((a . "a") (b . "b") (c . "c"))) deep))
+
+    (flet ((test-eq (pair)
+	     (destructuring-bind (key . value) pair
+	       (eq (get key map) value))))
+
+      (is-true (every #'test-eq shallow))
+      (is-true (notany #'test-eq deep)))))
+
+(test object-copy
+  "Test COPY on user-defined object"
+
+  (let* ((orig (make-custom-object :slot1 1 :slot2 2))
+	 (copy (copy orig)))
+
+    (is (not (eq orig copy))
+	"Copy not a copy. EQ to original.")
+
+    (is (= #S(custom-object :slot1 1 :slot2 2) copy))))
+
+(test atom-copy
+  "Test COPY on atom objects"
+
+  (is (= 1 (copy 1)))
+  (is (= 'x (copy 'x)))
+  (is (= #\a (copy #\a))))
+
+
+;;; Test COERCE function
+
+(test coerce-standard
+  "Test COERCE on standard types."
+
   ;; For now simply test built-in type coercions to make sure that the
   ;; default method calls CL:COERCE
 
   (is (coerce '(1 2 3 4) 'vector) #(1 2 3 4) :test #'equalp)
   (is (coerce #(a b c d) 'list) '(a b c d)))
-
-(finalize)
