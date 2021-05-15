@@ -45,19 +45,19 @@
   :author "Alexander Gutev"
   :license "MIT"
   :depends-on (:generic-cl.util
-	       :prove
-	       :prove-asdf
+	       :fiveam
 
 	       :alexandria
 	       :anaphora
 	       :arrows)
-  :defsystem-depends-on (:prove-asdf)
+  :serial t
   :components ((:module
 		"test/util"
 
 		:components
 		((:file "package")
-		 (:test-file "lazy-seqs"))))
+		 (:file "test")
+		 (:file "lazy-seqs"))))
 
   :perform (asdf:test-op :after (op c)
-			 (funcall (intern #.(string :run) :prove) c :reporter :fiveam)))
+			 (uiop:symbol-call :generic-cl.util/test :test-generic-cl.util)))

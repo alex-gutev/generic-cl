@@ -1,6 +1,6 @@
 ;;;; package.lisp
 ;;;;
-;;;; Copyright 2020 Alexander Gutev
+;;;; Copyright 2020-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -23,13 +23,13 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(defpackage :generic-cl.util.test
+(defpackage :generic-cl.util/test
   (:use :generic-cl
 	:generic-cl.util
-	:prove
 	:alexandria
 	:anaphora
-	:arrows)
+	:arrows
+	:fiveam)
 
   (:shadowing-import-from :generic-cl
 			  :emptyp))

@@ -1,6 +1,6 @@
 ;;;; lazy-seqs.lisp
 ;;;;
-;;;; Copyright 2020 Alexander Gutev
+;;;; Copyright 2020-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -25,59 +25,70 @@
 
 ;;;; Unit tests for lazy sequence utilities
 
-(in-package :generic-cl.util.test)
+(in-package :generic-cl.util/test)
 
-(plan 4)
+
+;;; Test Suite Definition
 
-(subtest "Test REPEAT"
-  (is (coerce (repeat 1 5) 'list) '(1 1 1 1 1) :test #'equalp)
-  (is (coerce (subseq (repeat 'x) 0 6) 'list) '(x x x x x x) :test #'equalp)
+(def-suite lazy-seq
+    :description "Test lazy sequence utilities"
+    :in generic-cl.util)
 
-  (is (repeat 'a 3 'list) '(a a a) :test #'equalp)
-  (is (repeat 'z 5 'vector) #(z z z z z) :test #'equalp))
+(in-suite lazy-seq)
 
-(subtest "Test REPEATEDLY"
+
+;;; Tests
+
+(test REPEAT
+  "Test REPEAT function"
+
+  (is (= '(1 1 1 1 1) (coerce (repeat 1 5) 'list)))
+  (is (= '(x x x x x x) (coerce (subseq (repeat 'x) 0 6) 'list)))
+
+  (is (= '(a a a) (repeat 'a 3 'list)))
+  (is (= #(z z z z z) (repeat 'z 5 'vector))))
+
+(test repeatedly
+  "Test REPEATEDLY function"
+
   (let ((n 0))
     (flet ((f ()
 	     (prog1 n
 	       (incf n))))
 
-      (is (coerce (repeatedly #'f 5) 'list) '(0 1 2 3 4) :test #'equalp)
-      (is (coerce (subseq (repeatedly #'f) 0 10) 'list)
-	  '(5 6 7 8 9 10 11 12 13 14)
-	  :test #'equalp)
+      (is (= '(0 1 2 3 4) (coerce (repeatedly #'f 5) 'list)))
+
+      (is (= '(5 6 7 8 9 10 11 12 13 14)
+	     (coerce (subseq (repeatedly #'f) 0 10) 'list)))
 
       (setf n 0)
-      (is (repeatedly #'f 3 'list) '(0 1 2) :test #'equalp)
-      (is (repeatedly #'f 5 'vector) #(3 4 5 6 7) :test #'equalp))))
 
-(subtest "Test ITERATE"
+      (is (= '(0 1 2) (repeatedly #'f 3 'list)))
+      (is (= #(3 4 5 6 7) (repeatedly #'f 5 'vector))))))
+
+(test iterate
+  "Test ITERATE function"
+
   (flet ((double (n)
 	   (* n 2)))
 
-    (is (coerce (subseq (iterate #'double 1) 0 5) 'list)
-	'(2 4 8 16 32)
-	:test #'equalp)
+    (is (= '(2 4 8 16 32)
+	   (coerce (subseq (iterate #'double 1) 0 5) 'list)))
 
-    (is (coerce (subseq (iterate #'double 1 :initial t) 0 5) 'list)
-	'(1 2 4 8 16)
-	:test #'equalp)
+    (is (= '(1 2 4 8 16)
+	   (coerce (subseq (iterate #'double 1 :initial t) 0 5) 'list)))
 
-    (is (coerce (subseq (iterate #'double 10) 0 5) 'list)
-	'(20 40 80 160 320)
-	:test #'equalp)
+    (is (= '(20 40 80 160 320)
+	   (coerce (subseq (iterate #'double 10) 0 5) 'list)))
 
-    (is (coerce (subseq (iterate #'double 10 :initial t) 0 5) 'list)
-	'(10 20 40 80 160)
-	:test #'equalp)))
+    (is (= '(10 20 40 80 160)
+	   (coerce (subseq (iterate #'double 10 :initial t) 0 5) 'list)))))
 
-(subtest "Test CYCLE"
-  (is (coerce (subseq (cycle '(a b c d)) 0 10) 'list)
-      '(a b c d a b c d a b)
-      :test #'equalp)
+(test cycle
+  "Test CYCLE function"
 
-  (is (coerce (subseq (cycle #(1 2 3)) 0 10) 'list)
-      '(1 2 3 1 2 3 1 2 3 1)
-      :test #'equalp))
+  (is (= '(a b c d a b c d a b)
+	 (coerce (subseq (cycle '(a b c d)) 0 10) 'list)))
 
-(finalize)
+  (is (= '(1 2 3 1 2 3 1 2 3 1)
+	 (coerce (subseq (cycle #(1 2 3)) 0 10) 'list))))
