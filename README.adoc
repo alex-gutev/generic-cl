@@ -874,6 +874,11 @@ contains all the elements in `OBJECT`. If `:DEEP` is provided and
 is true, the array returned contains a copy of the elements,
 copied using `(COPY ELEM :DEEP T)`.
 
+* `STRUCTURE-OBJECT`
++
+Returns a shallow copy of the structure object, using
+`COPY-STRUCTURE`.
+
 * `T`
 +
 Simply returns `OBJECT`.
@@ -886,16 +891,6 @@ user-defined type.
 However this means that if the object, for which there is no
 specialized copy method, can be mutated, the constraints of the
 `COPY` function are violated.
-
-
-==== DEFSTRUCT ====
-
-Macro: `DEFSTRUCT OPTIONS &REST SLOTS`
-
-This is the same as `CL:DEFSTRUCT` however a <<COPY>> method for the
-structure type is automatically generated, which simply calls the
-structure's copier function. If the `(:COPIER NIL)` option is
-provided, the `COPY` method is not generated.
 
 
 ==== COERCE ====
