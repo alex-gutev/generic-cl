@@ -1697,7 +1697,7 @@ Implements the sequence operation for generic sequences using the
 iterator interface.
 +
 The non-destructive functions only require that the
-<<mandatory-functions, Mandatory Iterator Functions>>, the
+<<mandatory_functions, Mandatory Iterator Functions>>, the
 <<Collector>> interface and <<CLEARED>> method are
 implemented for the sequence's type.
 +
@@ -1949,18 +1949,18 @@ more elements the function returns `NIL`. _Can be accessed with the
 `LAZY-SEQ-TAIL` accessor function_.
 
 .*Implemented Interfaces:*
-* <<_equalp,`EQUALP`>> function.
+* <<equalp,`EQUALP`>> function.
 
-* <<_copy,`COPY`>> function. Accepts the `:DEEP` keyword parameter
+* <<copy,`COPY`>> function. Accepts the `:DEEP` keyword parameter
       which indicates whether the elements should also be copied.
 
-* <<_coerce,`COERCE`>> function.
+* <<coerce,`COERCE`>> function.
 
-* <<_mandatory_functions,Mandatory Functions>>, of the
-<<_iterator,Iterator>> interface.
+* <<mandatory_functions,Mandatory Functions>>, of the
+<<iterator,Iterator>> interface.
 
-* <<_make_collector,`MAKE-COLLECTOR`>> function of the
-<<_collector,Collector>> interface.
+* <<make_collector,`MAKE-COLLECTOR`>> function of the
+<<collector,Collector>> interface.
 +
 --
 NOTE: The method specialized on ``LAZY-SEQ``'s returns a collector
@@ -1968,11 +1968,11 @@ for a `LIST` since it does not make sense to be collecting items,
 which have already been evaluated, into a `LAZY-SEQ`.
 --
 
-* <<_subseq,SUBSEQ>> function which returns the subsequence as a
+* <<subseq,SUBSEQ>> function which returns the subsequence as a
 `LAZY-SEQ`.
 
 * Methods, specialized on `LAZY-SEQ`, are implemented for the
-following <<_sequence_operations,Sequence Operations>> and their
+following <<sequence_operations,Sequence Operations>> and their
 destructive counterparts:
 +
 --
@@ -2008,7 +2008,7 @@ NOTE: For efficiency the function in `TAIL` should only compute the
 remainder of the sequence the first time it is called. Remaining calls
 to the function should simply return the previously computed result.
 
-TIP: The <<_lazy_seq_macro,`LAZY-SEQ`>> macro automatically wraps the
+TIP: The <<lazy_seq_macro,`LAZY-SEQ`>> macro automatically wraps the
 form, which returns the remainder of the sequence, in a function.
 
 ==== LAZY-SEQ Macro ====
@@ -2431,7 +2431,7 @@ being a <<HASH-MAP>> however is note required to be `EQ` and is not
 `EQ` if `SET` is a list. Thus this function should not be relied upon
 for its side effects.
 
-NOTE: Implemented for both lists and  <<hash-map,HASH-MAP>>'s.
+NOTE: Implemented for both lists and  <<HASH-MAP>>'s.
 
 
 ==== MEMBERP ====
