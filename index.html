@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.10">
+<meta name="generator" content="Asciidoctor 2.0.9">
 <meta name="author" content="Alexander Gutev">
 <title>GENERIC-CL</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
@@ -241,7 +241,7 @@ table.linenotable td.linenos{border-right:1px solid currentColor;opacity:.35;pad
 pre.pygments .lineno{border-right:1px solid currentColor;opacity:.35;display:inline-block;margin-right:.75em}
 pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock{margin:0 1em 1.25em 1.5em;display:table}
-.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
 .quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
 .quoteblock blockquote{margin:0;padding:0;border:0}
 .quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
@@ -258,8 +258,7 @@ pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
 .quoteblock.abstract{margin:0 1em 1.25em;display:block}
 .quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
-.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
-.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
 .quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
 .quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
 table.tableblock{max-width:100%;border-collapse:separate}
@@ -519,7 +518,6 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#objects">Objects</a>
 <ul class="sectlevel3">
 <li><a href="#copy">COPY</a></li>
-<li><a href="#defstruct">DEFSTRUCT</a></li>
 <li><a href="#coerce">COERCE</a></li>
 </ul>
 </li>
@@ -1961,6 +1959,13 @@ copied using <code>(COPY ELEM :DEEP T)</code>.</p>
 </div>
 </li>
 <li>
+<p><code>STRUCTURE-OBJECT</code></p>
+<div class="paragraph">
+<p>Returns a shallow copy of the structure object, using
+<code>COPY-STRUCTURE</code>.</p>
+</div>
+</li>
+<li>
 <p><code>T</code></p>
 <div class="paragraph">
 <p>Simply returns <code>OBJECT</code>.</p>
@@ -1978,18 +1983,6 @@ specialized copy method, can be mutated, the constraints of the
 </div>
 </li>
 </ul>
-</div>
-</div>
-<div class="sect3">
-<h4 id="defstruct">DEFSTRUCT</h4>
-<div class="paragraph">
-<p>Macro: <code>DEFSTRUCT OPTIONS &amp;REST SLOTS</code></p>
-</div>
-<div class="paragraph">
-<p>This is the same as <code>CL:DEFSTRUCT</code> however a <a href="#copy">COPY</a> method for the
-structure type is automatically generated, which simply calls the
-structure&#8217;s copier function. If the <code>(:COPIER NIL)</code> option is
-provided, the <code>COPY</code> method is not generated.</p>
 </div>
 </div>
 <div class="sect3">
@@ -3274,7 +3267,7 @@ iterator interface.</p>
 </div>
 <div class="paragraph">
 <p>The non-destructive functions only require that the
-<a href="#mandatory-functions">Mandatory Iterator Functions</a>, the
+<a href="#mandatory_functions">Mandatory Iterator Functions</a>, the
 <a href="#collector">Collector</a> interface and <a href="#cleared">CLEARED</a> method are
 implemented for the sequence&#8217;s type.</p>
 </div>
@@ -3739,22 +3732,22 @@ more elements the function returns <code>NIL</code>. <em>Can be accessed with th
 <div class="title"><strong>Implemented Interfaces:</strong></div>
 <ul>
 <li>
-<p><a href="#_equalp"><code>EQUALP</code></a> function.</p>
+<p><a href="#equalp"><code>EQUALP</code></a> function.</p>
 </li>
 <li>
-<p><a href="#_copy"><code>COPY</code></a> function. Accepts the <code>:DEEP</code> keyword parameter
+<p><a href="#copy"><code>COPY</code></a> function. Accepts the <code>:DEEP</code> keyword parameter
 which indicates whether the elements should also be copied.</p>
 </li>
 <li>
-<p><a href="#_coerce"><code>COERCE</code></a> function.</p>
+<p><a href="#coerce"><code>COERCE</code></a> function.</p>
 </li>
 <li>
-<p><a href="#_mandatory_functions">Mandatory Functions</a>, of the
-<a href="#_iterator">Iterator</a> interface.</p>
+<p><a href="#mandatory_functions">Mandatory Functions</a>, of the
+<a href="#iterator">Iterator</a> interface.</p>
 </li>
 <li>
-<p><a href="#_make_collector"><code>MAKE-COLLECTOR</code></a> function of the
-<a href="#_collector">Collector</a> interface.</p>
+<p><a href="#make_collector"><code>MAKE-COLLECTOR</code></a> function of the
+<a href="#collector">Collector</a> interface.</p>
 <div class="openblock">
 <div class="content">
 <div class="admonitionblock note">
@@ -3775,12 +3768,12 @@ which have already been evaluated, into a <code>LAZY-SEQ</code>.
 </div>
 </li>
 <li>
-<p><a href="#_subseq">SUBSEQ</a> function which returns the subsequence as a
+<p><a href="#subseq">SUBSEQ</a> function which returns the subsequence as a
 <code>LAZY-SEQ</code>.</p>
 </li>
 <li>
 <p>Methods, specialized on <code>LAZY-SEQ</code>, are implemented for the
-following <a href="#_sequence_operations">Sequence Operations</a> and their
+following <a href="#sequence_operations">Sequence Operations</a> and their
 destructive counterparts:</p>
 <div class="openblock">
 <div class="content">
@@ -3876,7 +3869,7 @@ to the function should simply return the previously computed result.
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-The <a href="#_lazy_seq_macro"><code>LAZY-SEQ</code></a> macro automatically wraps the
+The <a href="#lazy_seq_macro"><code>LAZY-SEQ</code></a> macro automatically wraps the
 form, which returns the remainder of the sequence, in a function.
 </td>
 </tr>
@@ -4592,7 +4585,7 @@ for its side effects.
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-Implemented for both lists and  <a href="#hash-map">HASH-MAP</a>'s.
+Implemented for both lists and  <a href="#hash_map">HASH-MAP</a>'s.
 </td>
 </tr>
 </table>
@@ -5005,7 +4998,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-13 07:21:17 +0200
+Last updated 2021-05-27 19:26:18 +0200
 </div>
 </div>
 </body>
