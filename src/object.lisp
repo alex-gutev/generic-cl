@@ -40,24 +40,6 @@
     well otherwise (if not provided or is NIL) only the
     sequence/collection itself should be copied."))
 
-(defmacro defstruct (options &rest slots)
-  "Sames as CL:DEFSTRUCT except that a COPY method, for the struct, is
-   automatically generated which invokes the structure's copier
-   function. If a NIL :COPIER option is provided, the COPY method is
-   not automatically generated."
-
-  (let* ((name (ensure-car options))
-	 (copier-opt (cdr (cl:find :copier (ensure-list options) :key #'ensure-car)))
-	 (copier-name (if copier-opt (car copier-opt) (symb 'copy- name))))
-
-    (with-gensyms (arg)
-     `(progn
-	(cl:defstruct ,options ,@slots)
-	,(when copier-name
-	  `(defmethod copy ((,arg ,name) &key)
-	    (,copier-name ,arg)))
-	',name))))
-
 (defgeneric coerce (object result-type)
   (:documentation
    "Coerces the OBJECT to the type RESULT-TYPE.")
@@ -137,6 +119,11 @@
 	       (copy (row-major-aref array i) :deep t)))
     new))
 
+
+;;; Structures
+
+(defmethod copy ((object structure-object) &key)
+  (copy-structure object))
 
 ;;; Other Objects
 

@@ -40,7 +40,6 @@
 
   (:shadow
    ;; Macros
-   :defstruct
    :defconstant
 
    ;; Equality
@@ -113,7 +112,6 @@
   (:export
    ;; Objects
    :copy
-   :defstruct
 
    ;; Types
    :coerce
