@@ -1723,6 +1723,101 @@ arguments.
 The following functions either have no `CL` counterparts or differ
 slightly in behavior from their `CL` counterparts:
 
+===== FIND-IT =====
+
+Generic Function: `FIND-IT ITEM SEQUENCE &KEY FROM-END START END TEST KEY`
+
+Find an element in a sequence and return an iterator to the position
+at which it was found.
+
+NOTE: This is the same as `FIND` except it returns an iterator to the
+position at which an element is found rather than the element itself.
+
+`ITEM`:: The item to find in the sequence.
+`SEQUENCE`:: The sequence to search.
+`FROM-END`:: If true the sequence is searched starting from the end.
+`START`:: Index of the starting position from which to search the
+sequence. By default searches from the start of the sequence.
+`END`:: Index of the position till which the sequence is searched. If
+`NIL` (the default) the entire sequence is searched.
+`TEST`:: Test function to use when comparing `ITEM` to elements of
+`SEQUENCE`. By default <<equalp>>.
+`KEY`:: Function which is applied on each element of `SEQUENCE`. The
+result returned is then compared to `ITEM` using `TEST`.
+
+If the item was found in the sequence, returns the iterator to the
+first position, or last if `FROM-END` is true, at which it was
+found. If no such item was found, `NIL` is returned.
+
+IMPORTANT: The iterator returned should point to the same sequence
+object that is passed to this function. This is to allow iterating
+over the remaining elements of the sequence and to allow for modifying
+the sequence.
+
+===== FIND-IT-IF =====
+
+Generic Function: `FIND-IT-IF PREDICATE SEQUENCE &KEY FROM-END START END KEY`
+
+Find an element, which satisfies a predicate, in a sequence and return
+an iterator to the position at which it was found.
+
+NOTE: This is the same as `FIND-IF` except it returns an iterator to the
+position at which an element is found rather than the element itself.
+
+`PREDICATE`:: A predicate function, of one argument, applied on each
+element of sequence. The element for which this function returns true,
+is returned.
+`SEQUENCE`:: The sequence to search.
+`FROM-END`:: If true the sequence is searched starting from the end.
+`START`:: Index of the starting position from which to search the
+sequence. By default searches from the start of the sequence.
+`END`:: Index of the position till which the sequence is searched. If
+`NIL` (the default) the entire sequence is searched.
+`SEQUENCE`.
+`KEY`:: Function which is applied on each element of `SEQUENCE`. The
+result returned is then passed to the predicate function.
+
+Returns an iterator to the first item, or last if `FROM-END` is true,
+for which the predicate returns true. If no element is found, `NIL` is
+returned.
+
+IMPORTANT: The iterator returned should point to the same sequence
+object that is passed to this function. This is to allow iterating
+over the remaining elements of the sequence and to allow for modifying
+the sequence.
+
+===== FIND-IT-IF-NOT =====
+
+Generic Function: `FIND-IT-IF PREDICATE SEQUENCE &KEY FROM-END START END KEY`
+
+Find an element, which does not satisfy a predicate, in a sequence and
+return an iterator to the position at which it was found.
+
+NOTE: This is the same as `FIND-IF-NOT` except it returns an iterator to the
+position at which an element is found rather than the element itself.
+
+`PREDICATE`:: A predicate function, of one argument, applied on each
+element of sequence. The element for which this function returns false (`NIL`),
+is returned.
+`SEQUENCE`:: The sequence to search.
+`FROM-END`:: If true the sequence is searched starting from the end.
+`START`:: Index of the starting position from which to search the
+sequence. By default searches from the start of the sequence.
+`END`:: Index of the position till which the sequence is searched. If
+`NIL` (the default) the entire sequence is searched.
+`SEQUENCE`.
+`KEY`:: Function which is applied on each element of `SEQUENCE`. The
+result returned is then passed to the predicate function.
+
+Returns an iterator to the first item, or last if `FROM-END` is true,
+for which the predicate returns false. If no element is found, `NIL`
+is returned.
+
+IMPORTANT: The iterator returned should point to the same sequence
+object that is passed to this function. This is to allow iterating
+over the remaining elements of the sequence and to allow for modifying
+the sequence.
+
 
 ===== MERGE =====
 
