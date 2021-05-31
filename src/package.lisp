@@ -195,6 +195,7 @@
    :count :count-if :count-if-not
    :position :position-if :position-if-not
    :find :find-if :find-if-not
+   :find-it :find-it-if :find-it-if-not
 
    :search
    :mismatch

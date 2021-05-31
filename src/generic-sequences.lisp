@@ -218,6 +218,21 @@
   (find-if (test-not test) sequence :from-end from-end :start start :end end :key key))
 
 
+;; Find Iterator
+
+(defmethod find-it (item sequence &key from-end (start 0) end (test #'equalp) key)
+  (find-it-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
+
+(defmethod find-it-if (test sequence &key from-end (start 0) end key)
+  (let ((key (or key #'identity)))
+    (doiter (it sequence :start start :end end :from-end from-end)
+      (when (funcall test (funcall key (at it)))
+        (return it)))))
+
+(defmethod find-it-if-not (test sequence &key from-end (start 0) end key)
+  (find-it-if (test-not test) sequence :from-end from-end :start start :end end :key key))
+
+
 ;; Position
 
 (defmethod position (item sequence &key from-end (start 0) end (test #'equalp) key)

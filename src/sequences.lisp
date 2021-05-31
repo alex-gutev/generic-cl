@@ -161,6 +161,24 @@
    "Same as CL:FIND-IF-NOT however is extensible to other sequence
     types besides CL:SEQUENCE."))
 
+
+;; Find Iterator
+
+(defgeneric find-it (item sequence &key from-end start end test key)
+  (:documentation
+   "Same as FIND but returns an iterator to the found item rather than
+    the item itself."))
+
+(defgeneric find-it-if (predicate sequence &key from-end start end key)
+  (:documentation
+   "Same as FIND-IF but returns an iterator to the found item rather than
+    the item itself."))
+
+(defgeneric find-it-if-not (predicate sequence &key from-end start end key)
+  (:documentation
+   "Same as FIND-IF-NOT but returns an iterator to the found item
+    rather than the item itself."))
+
 ;; Position
 
 (defgeneric position (item sequence &key from-end start end test key)
