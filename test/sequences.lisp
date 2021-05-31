@@ -675,6 +675,16 @@
     ("a" (at (find-it "a" seq :start 2)))
     (nil (find-it "a" seq :start 2 :end 3))))
 
+(test find-it-vector
+  "Test FIND-IT on vectors."
+
+  (let ((seq #("b" "a" "c" "d" "a")))
+    (is-every =
+      ("a" (at (find-it "a" seq)))
+      ("a" (at (find-it "a" seq :from-end t)))
+      ("a" (at (find-it "a" seq :start 2)))
+      (nil (find-it "a" seq :start 2 :end 3)))))
+
 (test-seq-fn find-it-integer
     ((seq '(1 3 5 6)))
 
@@ -683,7 +693,8 @@
 (test-seq-fn find-it-empty
     ((seq nil))
 
-  (is (= nil (find-it 'x seq))))
+  (is (= nil (find-it 'x seq)))
+  (is (= nil (find-it 'x #()))))
 
 (test-seq-fn find-it-if
     ((seq '(1 3 4 5 6 7))
@@ -697,6 +708,20 @@
     (1 (at (find-it-if #'evenp seq :key #'1+)))
     (nil (find-it-if #'evenp empty))))
 
+(test find-it-if-vector
+  "Test FIND-IT-IF on vectors"
+
+  (let ((seq #(1 3 4 5 6 7))
+        (empty nil))
+
+    (is-every =
+      (4 (at (find-it-if #'evenp seq)))
+      (6 (at (find-it-if #'evenp seq :from-end t)))
+      (6 (at (find-it-if #'evenp seq :start 3)))
+      (nil (find-it-if #'evenp seq :start 3 :end 4))
+      (1 (at (find-it-if #'evenp seq :key #'1+)))
+      (nil (find-it-if #'evenp empty)))))
+
 (test-seq-fn find-it-if-not
     ((seq '(1 3 4 5 6 7))
      (empty nil))
@@ -709,6 +734,21 @@
     (4 (at (find-it-if-not #'evenp seq :key #'1+)))
 
     (nil (find-it-if-not #'evenp empty))))
+
+(test find-it-if-not-vector
+  "Test FIND-IT-IF-NOT on vectors"
+
+  (let ((seq #(1 3 4 5 6 7))
+        (empty nil))
+
+    (is-every =
+      (1 (at (find-it-if-not #'evenp seq)))
+      (7 (at (find-it-if-not #'evenp seq :from-end t)))
+      (5 (at (find-it-if-not #'evenp seq :start 3)))
+      (nil (find-it-if-not #'evenp seq :start 2 :end 3))
+      (4 (at (find-it-if-not #'evenp seq :key #'1+)))
+
+      (nil (find-it-if-not #'evenp empty)))))
 
 
 ;;; Test POSITION Functions
