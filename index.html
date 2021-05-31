@@ -598,6 +598,9 @@ two objects, which is extensible to user-defined types.</p>
 </li>
 <li><a href="#sequence_operations">Sequence Operations</a>
 <ul class="sectlevel4">
+<li><a href="#find_it">FIND-IT</a></li>
+<li><a href="#find_it_if">FIND-IT-IF</a></li>
+<li><a href="#find_it_if_not">FIND-IT-IF-NOT</a></li>
 <li><a href="#merge">MERGE</a></li>
 <li><a href="#nmerge">NMERGE</a></li>
 <li><a href="#sort">SORT</a></li>
@@ -3321,6 +3324,239 @@ arguments.</p>
 slightly in behavior from their <code>CL</code> counterparts:</p>
 </div>
 <div class="sect4">
+<h5 id="find_it">FIND-IT</h5>
+<div class="paragraph">
+<p>Generic Function: <code>FIND-IT ITEM SEQUENCE &amp;KEY FROM-END START END TEST KEY</code></p>
+</div>
+<div class="paragraph">
+<p>Find an element in a sequence and return an iterator to the position
+at which it was found.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This is the same as <code>FIND</code> except it returns an iterator to the
+position at which an element is found rather than the element itself.
+</td>
+</tr>
+</table>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>ITEM</code></dt>
+<dd>
+<p>The item to find in the sequence.</p>
+</dd>
+<dt class="hdlist1"><code>SEQUENCE</code></dt>
+<dd>
+<p>The sequence to search.</p>
+</dd>
+<dt class="hdlist1"><code>FROM-END</code></dt>
+<dd>
+<p>If true the sequence is searched starting from the end.</p>
+</dd>
+<dt class="hdlist1"><code>START</code></dt>
+<dd>
+<p>Index of the starting position from which to search the
+sequence. By default searches from the start of the sequence.</p>
+</dd>
+<dt class="hdlist1"><code>END</code></dt>
+<dd>
+<p>Index of the position till which the sequence is searched. If
+<code>NIL</code> (the default) the entire sequence is searched.</p>
+</dd>
+<dt class="hdlist1"><code>TEST</code></dt>
+<dd>
+<p>Test function to use when comparing <code>ITEM</code> to elements of
+<code>SEQUENCE</code>. By default <a href="#equalp">EQUALP</a>.</p>
+</dd>
+<dt class="hdlist1"><code>KEY</code></dt>
+<dd>
+<p>Function which is applied on each element of <code>SEQUENCE</code>. The
+result returned is then compared to <code>ITEM</code> using <code>TEST</code>.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>If the item was found in the sequence, returns the iterator to the
+first position, or last if <code>FROM-END</code> is true, at which it was
+found. If no such item was found, <code>NIL</code> is returned.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The iterator returned should point to the same sequence
+object that is passed to this function. This is to allow iterating
+over the remaining elements of the sequence and to allow for modifying
+the sequence.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="find_it_if">FIND-IT-IF</h5>
+<div class="paragraph">
+<p>Generic Function: <code>FIND-IT-IF PREDICATE SEQUENCE &amp;KEY FROM-END START END KEY</code></p>
+</div>
+<div class="paragraph">
+<p>Find an element, which satisfies a predicate, in a sequence and return
+an iterator to the position at which it was found.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This is the same as <code>FIND-IF</code> except it returns an iterator to the
+position at which an element is found rather than the element itself.
+</td>
+</tr>
+</table>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>PREDICATE</code></dt>
+<dd>
+<p>A predicate function, of one argument, applied on each
+element of sequence. The element for which this function returns true,
+is returned.</p>
+</dd>
+<dt class="hdlist1"><code>SEQUENCE</code></dt>
+<dd>
+<p>The sequence to search.</p>
+</dd>
+<dt class="hdlist1"><code>FROM-END</code></dt>
+<dd>
+<p>If true the sequence is searched starting from the end.</p>
+</dd>
+<dt class="hdlist1"><code>START</code></dt>
+<dd>
+<p>Index of the starting position from which to search the
+sequence. By default searches from the start of the sequence.</p>
+</dd>
+<dt class="hdlist1"><code>END</code></dt>
+<dd>
+<p>Index of the position till which the sequence is searched. If
+<code>NIL</code> (the default) the entire sequence is searched.
+<code>SEQUENCE</code>.</p>
+</dd>
+<dt class="hdlist1"><code>KEY</code></dt>
+<dd>
+<p>Function which is applied on each element of <code>SEQUENCE</code>. The
+result returned is then passed to the predicate function.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Returns an iterator to the first item, or last if <code>FROM-END</code> is true,
+for which the predicate returns true. If no element is found, <code>NIL</code> is
+returned.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The iterator returned should point to the same sequence
+object that is passed to this function. This is to allow iterating
+over the remaining elements of the sequence and to allow for modifying
+the sequence.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="find_it_if_not">FIND-IT-IF-NOT</h5>
+<div class="paragraph">
+<p>Generic Function: <code>FIND-IT-IF PREDICATE SEQUENCE &amp;KEY FROM-END START END KEY</code></p>
+</div>
+<div class="paragraph">
+<p>Find an element, which does not satisfy a predicate, in a sequence and
+return an iterator to the position at which it was found.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This is the same as <code>FIND-IF-NOT</code> except it returns an iterator to the
+position at which an element is found rather than the element itself.
+</td>
+</tr>
+</table>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>PREDICATE</code></dt>
+<dd>
+<p>A predicate function, of one argument, applied on each
+element of sequence. The element for which this function returns false (<code>NIL</code>),
+is returned.</p>
+</dd>
+<dt class="hdlist1"><code>SEQUENCE</code></dt>
+<dd>
+<p>The sequence to search.</p>
+</dd>
+<dt class="hdlist1"><code>FROM-END</code></dt>
+<dd>
+<p>If true the sequence is searched starting from the end.</p>
+</dd>
+<dt class="hdlist1"><code>START</code></dt>
+<dd>
+<p>Index of the starting position from which to search the
+sequence. By default searches from the start of the sequence.</p>
+</dd>
+<dt class="hdlist1"><code>END</code></dt>
+<dd>
+<p>Index of the position till which the sequence is searched. If
+<code>NIL</code> (the default) the entire sequence is searched.
+<code>SEQUENCE</code>.</p>
+</dd>
+<dt class="hdlist1"><code>KEY</code></dt>
+<dd>
+<p>Function which is applied on each element of <code>SEQUENCE</code>. The
+result returned is then passed to the predicate function.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Returns an iterator to the first item, or last if <code>FROM-END</code> is true,
+for which the predicate returns false. If no element is found, <code>NIL</code>
+is returned.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+The iterator returned should point to the same sequence
+object that is passed to this function. This is to allow iterating
+over the remaining elements of the sequence and to allow for modifying
+the sequence.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
 <h5 id="merge">MERGE</h5>
 <div class="paragraph">
 <p>Generic Function: <code>MERGE SEQUENCE1 SEQUENCE2 PREDICATE &amp;KEY</code></p>
@@ -4998,7 +5234,7 @@ limitations.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-27 19:26:18 +0200
+Last updated 2021-05-31 20:04:31 +0200
 </div>
 </div>
 </body>
