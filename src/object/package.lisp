@@ -1,6 +1,6 @@
-;;;; misc.lisp
+;;;; package.lisp
 ;;;;
-;;;; Copyright 2019 Alexander Gutev
+;;;; Copyright 2018 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -23,17 +23,38 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-;;;; Miscellaneous Utilities
+(uiop:define-package :generic-cl.object
+    (:mix :generic-cl.comparison
+          :static-dispatch-cl)
 
-(in-package :generic-cl.impl)
+  (:use	:cl-environments.tools
+	:agutil
 
-(defmacro defconstant (symbol value &optional documentation)
-  "Ensures that SYMBOL is a constant with a value that is equal by
-   GENERIC-CL:EQUALP to VALUE. Implemented using
-   ALEXANDRIA:DEFINE-CONSTANT.
+	:alexandria
+	:anaphora
+	:arrows
+        :trivia)
 
-   DOCUMENTATION is an optional documentation string."
+  (:import-from :agutil
+		:defmacro!
+		:symb)
 
-  `(alexandria:define-constant ,symbol ,value
-     :test #'equalp
-     ,@(when documentation `(:documentation ,documentation))))
+  (:shadow
+   ;; Macros
+   :defconstant
+
+   ;; Misc
+   :coerce)
+
+  (:export
+   ;; Objects
+   :copy
+
+   ;; Types
+   :coerce
+
+   ;; Miscellaneous
+   :defconstant)
+
+  (:documentation
+   "Generic object copying and type conversion interface"))

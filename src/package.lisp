@@ -25,6 +25,7 @@
 
 (uiop:define-package :generic-cl.impl
     (:mix :generic-cl.comparison
+          :generic-cl.object
           :static-dispatch-cl)
 
   (:use :cl-environments.tools
@@ -44,9 +45,6 @@
                 :numbers?)
 
   (:shadow
-   ;; Macros
-   :defconstant
-
    ;; Arithmetic
    :+ :- :* :/
    :1+ :1-
@@ -58,9 +56,6 @@
 
    :floor :ceiling :round :truncate
    :mod :rem
-
-   ;; Misc
-   :coerce
 
    ;; Sequences
    :elt
@@ -107,14 +102,10 @@
    :set-exclusive-or :nset-exclusive-or
    :union :nunion)
 
-  (:reexport :generic-cl.comparison)
+  (:reexport :generic-cl.comparison
+             :generic-cl.object)
 
   (:export
-   ;; Objects
-   :copy
-
-   ;; Types
-   :coerce
    :alist
    :plist
 
@@ -245,10 +236,7 @@
    :lazy-seq-head
    :lazy-seq-tail
 
-   :range
-
-   ;; Miscellaneous
-   :defconstant))
+   :range))
 
 (agutil:define-merged-package :generic-cl
     :static-dispatch-cl

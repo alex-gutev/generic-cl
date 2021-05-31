@@ -38,7 +38,8 @@
                :static-dispatch
                :trivia
 
-               #:generic-cl.comparison)
+               #:generic-cl.comparison
+               #:generic-cl.object)
 
   :components
   ((:module "src"
@@ -46,7 +47,6 @@
     :components
     ((:file "package")
      (:file "util")
-     (:file "object")
      (:file "arithmetic")
      (:file "sequences")
      (:file "iterator")
@@ -56,7 +56,6 @@
      (:file "sets")
      (:file "generic-sequences")
      (:file "lazy-seq")
-     (:file "misc")
      (:file "math"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl/test))))
