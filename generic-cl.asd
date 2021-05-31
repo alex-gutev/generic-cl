@@ -36,7 +36,9 @@
                :arrows
                :cl-custom-hash-table
                :static-dispatch
-               :trivia)
+               :trivia
+
+               #:generic-cl.comparison)
 
   :components
   ((:module "src"
@@ -45,8 +47,6 @@
     ((:file "package")
      (:file "util")
      (:file "object")
-     (:file "equality")
-     (:file "comparison")
      (:file "arithmetic")
      (:file "sequences")
      (:file "iterator")

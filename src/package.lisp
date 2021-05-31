@@ -23,9 +23,11 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(defpackage :generic-cl.impl
-  (:use :static-dispatch-cl
-	:cl-environments.tools
+(uiop:define-package :generic-cl.impl
+    (:mix :generic-cl.comparison
+          :static-dispatch-cl)
+
+  (:use :cl-environments.tools
 	:agutil
 
 	:alexandria
@@ -38,12 +40,12 @@
 		:defmacro!
 		:symb)
 
+  (:import-from :generic-cl.comparison
+                :numbers?)
+
   (:shadow
    ;; Macros
    :defconstant
-
-   ;; Equality
-   :equalp := :/=
 
    ;; Arithmetic
    :+ :- :* :/
@@ -56,10 +58,6 @@
 
    :floor :ceiling :round :truncate
    :mod :rem
-
-   ;; Comparison
-   :< :<= :> :>=
-   :min :max
 
    ;; Misc
    :coerce
@@ -109,6 +107,8 @@
    :set-exclusive-or :nset-exclusive-or
    :union :nunion)
 
+  (:reexport :generic-cl.comparison)
+
   (:export
    ;; Objects
    :copy
@@ -117,9 +117,6 @@
    :coerce
    :alist
    :plist
-
-   ;; Equality
-   :equalp :likep := :/=
 
    ;; Arithmetic
    :add
@@ -138,15 +135,6 @@
 
    :floor :ceiling :round :truncate
    :mod :rem
-
-   ;; Comparison
-   :compare
-   :lessp
-   :greaterp
-   :less-equal-p
-   :greater-equal-p
-   :< :<= :> :>=
-   :min :max
 
    ;; Iterator Interface
    :iterator
