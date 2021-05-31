@@ -95,11 +95,17 @@
 
   (let ((x 2))
     (is (= 3 (incf x)))
-    (is (= 3 x)))
+    (is (= 3 x))
+
+    (is (= 7 (incf x 4)))
+    (is (= 7 x)))
 
   (let ((x 6))
     (is (= 5 (decf x)))
-    (is (= 5 x))))
+    (is (= 5 x))
+
+    (is (= 2 (decf x 3)))
+    (is (= 2 x))))
 
 (test number-minusp
   "Test MINUSP on numbers"
