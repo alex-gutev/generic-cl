@@ -131,7 +131,7 @@
     (is (typep map 'hash-map))
     (is (eq table (hash-map-table map))))
 
-  (let* ((table (generic-cl.impl::make-generic-hash-table))
+  (let* ((table (generic-cl.map::make-generic-hash-table))
 	 (map (ensure-hash-map table)))
 
     (is (typep map 'hash-map))

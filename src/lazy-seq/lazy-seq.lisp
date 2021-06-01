@@ -25,7 +25,7 @@
 
 ;;;; Lazy Sequences
 
-(in-package :generic-cl.impl)
+(in-package :generic-cl.lazy-seq)
 
 ;;;; Lazy Sequence
 
