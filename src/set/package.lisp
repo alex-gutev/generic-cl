@@ -31,21 +31,10 @@
           :generic-cl.collector
           :generic-cl.sequence
           :generic-cl.map
-
-          :alexandria
           :static-dispatch-cl)
 
-  (:use :cl-environments.tools
-        :agutil
-
-        :anaphora
-        :arrows
-        :trivia
-	:cl-custom-hash-table)
-
-  (:import-from :agutil
-                :defmacro!
-                :symb)
+  (:use :anaphora
+        :cl-custom-hash-table)
 
   (:import-from :generic-cl.iterator
                 :list-iterator
