@@ -44,7 +44,8 @@
                #:generic-cl.container
                #:generic-cl.iterator
                #:generic-cl.collector
-               #:generic-cl.sequence)
+               #:generic-cl.sequence
+               #:generic-cl.map)
 
   :components
   ((:module "src"
@@ -52,7 +53,6 @@
     :components
     ((:file "package")
      (:file "util")
-     (:file "hash-tables")
      (:file "sets")
      (:file "generic-sequences")
      (:file "lazy-seq")

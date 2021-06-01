@@ -23,11 +23,9 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(in-package :generic-cl.impl)
+;;;; Generic hash-table interface
 
-;;;; Generic hash-table interface, and implementation of collector and
-;;;; interator interfaces for hash-tables.
-
+(in-package :generic-cl.map)
 
 ;;; Generic Hash Function
 

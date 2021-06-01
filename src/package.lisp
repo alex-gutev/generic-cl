@@ -31,6 +31,7 @@
           :generic-cl.iterator
           :generic-cl.collector
           :generic-cl.sequence
+          :generic-cl.map
 
           :alexandria
           :static-dispatch-cl)
@@ -51,10 +52,15 @@
                 :list-iterator
                 :make-list-iterator)
 
-  (:shadow
-   ;; Hash-Tables
-   :get
+  (:import-from :generic-cl.map
+                :make-hash-map-table
+                :make-generic-hash-table
+                :copy-generic-hash-table
+                :do-generic-map
+                :hash-map-test-p
+                :make-empty-hash-table)
 
+  (:shadow
    ;; Sets
    :subsetp
    :intersection :nintersection
@@ -69,34 +75,10 @@
              :generic-cl.container
              :generic-cl.iterator
              :generic-cl.collector
-             :generic-cl.sequence)
+             :generic-cl.sequence
+             :generic-cl.map)
 
   (:export
-   :alist
-   :plist
-
-   ;; Hash-Tables
-   :hash-map
-   :hash-map-table
-   :hash-map-p
-   :make-hash-map
-   :ensure-hash-map
-   :hash-map-test
-
-   :hash
-   :like-hash
-   :get
-   :ensure-get
-
-   :hash-map-alist
-   :alist-hash-map
-
-   :map-keys
-   :map-values
-
-   :alist
-   :plist
-
    ;; Sets
    :memberp :subsetp
    :intersection :nintersection
