@@ -26,20 +26,9 @@
 (uiop:define-package :generic-cl.sequence
     (:mix :generic-cl.comparison
           :generic-cl.object
-
-          :alexandria
           :static-dispatch-cl)
 
-  (:use :cl-environments.tools
-        :agutil
-
-        :anaphora
-        :arrows
-        :trivia)
-
-  (:import-from :agutil
-                :defmacro!
-                :symb)
+  (:use :arrows)
 
   (:shadow
    :map :map-into
