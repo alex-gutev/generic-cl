@@ -460,6 +460,37 @@
 (defmethod clear ((map hash-table))
   (clrhash map))
 
+;; The specializations for hash maps are duplicated from the "get"
+;; methods in hash-tables.lisp
+(defmethod elt ((map hash-map) key)
+  (with-custom-hash-table
+    (gethash key (hash-map-table map))))
+
+(defmethod elt ((table hash-table) key)
+  (gethash key table))
+
+(defmethod (setf elt) (value (map hash-map) key)
+  (with-custom-hash-table
+    (setf (gethash key (hash-map-table map)) value)
+    value)) ; Return value as CL-CUSTOM-HASH-TABLE:GETHASH doesn't
+
+(defmethod (setf elt) (value (table hash-table) key)
+  (setf (gethash key table) value))
+
+(defmethod first ((map hash-map))
+  (with-custom-hash-table
+    (with-hash-table-iterator (next (hash-map-table map))
+      (multiple-value-bind (more key value) (next)
+	(when more
+	  (cons key value))))))
+
+(defmethod first ((table hash-table))
+  (with-hash-table-iterator (next table)
+    (multiple-value-bind (more key value) (next)
+      (when more
+	(cons key value)))))
+
+
 ;;;; Hash-Table Utilities
 
 (defun alist-hash-map (alist &rest args)

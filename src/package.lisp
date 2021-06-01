@@ -30,6 +30,7 @@
           :generic-cl.container
           :generic-cl.iterator
           :generic-cl.collector
+          :generic-cl.sequence
 
           :alexandria
           :static-dispatch-cl)
@@ -51,32 +52,6 @@
                 :make-list-iterator)
 
   (:shadow
-   ;; Sequences
-   :map :map-into
-   :fill :replace
-   :concatenate
-   :merge
-
-   :reduce
-
-   :count :count-if :count-if-not
-   :find :find-if :find-if-not
-   :position :position-if :position-if-not
-
-   :search
-   :mismatch
-
-   :every :some :notevery :notany
-
-   :reverse :nreverse
-   :sort :stable-sort
-
-   :substitute :substitute-if :substitute-if-not
-   :nsubstitute :nsubstitute-if :nsubstitute-if-not
-   :remove :remove-if :remove-if-not
-   :delete :delete-if :delete-if-not
-   :remove-duplicates :delete-duplicates
-
    ;; Hash-Tables
    :get
 
@@ -93,47 +68,12 @@
              :generic-cl.arithmetic
              :generic-cl.container
              :generic-cl.iterator
-             :generic-cl.collector)
+             :generic-cl.collector
+             :generic-cl.sequence)
 
   (:export
    :alist
    :plist
-
-
-   ;; Sequences
-   :map :nmap :map-into :map-to :foreach
-   :map-extend :map-extend-to :map-extend-into
-   :fill :replace
-
-   :concatenate
-   :nconcatenate
-   :concatenate-to
-   :merge
-   :nmerge
-
-   :reduce
-
-   :count :count-if :count-if-not
-   :position :position-if :position-if-not
-   :find :find-if :find-if-not
-   :find-it :find-it-if :find-it-if-not
-
-   :search
-   :mismatch
-
-   :every :some :notevery :notany
-
-   :reverse :nreverse
-
-   :sort :nsort :stable-sort :stable-nsort
-
-   :substitute :substitute-if :substitute-if-not
-   :nsubstitute :nsubstitute-if :nsubstitute-if-not
-
-   :remove :remove-if :remove-if-not
-   :delete :delete-if :delete-if-not
-
-   :remove-duplicates :delete-duplicates
 
    ;; Hash-Tables
    :hash-map

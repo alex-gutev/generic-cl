@@ -23,44 +23,9 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(in-package :generic-cl.impl)
+(in-package :generic-cl.sequence)
 
-;;;; Common Lisp Sequence Methods
-
-;; The specializations for hash maps are duplicated from the "get"
-;; methods in hash-tables.lisp
-(defmethod elt ((map hash-map) key)
-  (with-custom-hash-table
-    (gethash key (hash-map-table map))))
-
-(defmethod elt ((table hash-table) key)
-  (gethash key table))
-
-(defmethod (setf elt) (value (map hash-map) key)
-  (with-custom-hash-table
-    (setf (gethash key (hash-map-table map)) value)
-    value)) ; Return value as CL-CUSTOM-HASH-TABLE:GETHASH doesn't
-
-(defmethod (setf elt) (value (table hash-table) key)
-  (setf (gethash key table) value))
-
-(defmethod first ((map hash-map))
-  (with-custom-hash-table
-    (with-hash-table-iterator (next (hash-map-table map))
-      (multiple-value-bind (more key value) (next)
-	(when more
-	  (cons key value))))))
-
-(defmethod first ((table hash-table))
-  (with-hash-table-iterator (next table)
-    (multiple-value-bind (more key value) (next)
-      (when more
-	(cons key value)))))
-
-
-;;; Sequence Operations
-
-;; Replacing elements of a sequence
+;;; Replacing elements of a sequence
 
 (defmethod fill ((seq sequence) item &key (start 0) end)
   (cl:fill seq item :start start :end end))
@@ -69,7 +34,7 @@
   (cl:replace seq1 seq2 :start1 start1 :start2 start2 :end1 end1 :end2 end2))
 
 
-;; Reduction
+;;; Reduction
 
 (defmethod reduce (function (sequence sequence) &rest args &key key from-end (start 0) end initial-value)
   (declare (ignore key from-end start end initial-value))
@@ -77,7 +42,7 @@
   (apply #'cl:reduce function sequence args))
 
 
-;; Count
+;;; Count
 
 (defmethod count (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
   (cl:count item sequence
@@ -94,7 +59,7 @@
   (cl:count-if-not predicate sequence :from-end from-end :start start :end end :key key))
 
 
-;; Find
+;;; Find
 
 (defmethod find (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
   (cl:find item sequence
@@ -111,7 +76,7 @@
   (cl:find-if-not predicate sequence :from-end from-end :start start :end end :key key))
 
 
-;; Position
+;;; Position
 
 (defmethod position (item (sequence sequence) &key from-end (start 0) end (test #'equalp) key)
   (cl:position item sequence
@@ -128,7 +93,7 @@
   (cl:position-if-not predicate sequence :from-end from-end :start start :end end :key key))
 
 
-;; Search for/Comparing subsequences
+;;; Search for/Comparing subsequences
 
 (defmethod search ((seq1 sequence) (seq2 sequence) &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
   (cl:search seq1 seq2
@@ -151,7 +116,7 @@
 	       :end2 end2))
 
 
-;; Reversing
+;;; Reversing
 
 (defmethod reverse ((seq sequence))
   (cl:reverse seq))
@@ -160,7 +125,7 @@
   (cl:nreverse seq))
 
 
-;; Sorting
+;;; Sorting
 
 (defmethod merge ((seq1 sequence) (seq2 sequence) predicate &key key)
   (nmerge (copy-seq seq1) (copy-seq seq2) predicate :key key))
@@ -185,7 +150,7 @@
   (cl:stable-sort seq test :key key))
 
 
-;; Substitute
+;;; Substitute
 
 (defmethod substitute (new old (seq sequence) &key from-end (test #'equalp) (start 0) end count key)
   (cl:substitute new old seq
@@ -237,7 +202,7 @@
 			:count count
 			:key (or key #'identity)))
 
-;; Removing Items
+;;; Removing Items
 
 (defmethod remove (item (sequence sequence) &key from-end (test #'equalp) end (start 0) count key)
   (cl:remove item sequence
@@ -289,7 +254,8 @@
 		    :count count
 		    :key key))
 
-;; Removing Duplicates
+
+;;; Removing Duplicates
 
 (defmethod remove-duplicates ((seq sequence) &key from-end (test #'equalp) (start 0) end key)
   (cl:remove-duplicates seq
