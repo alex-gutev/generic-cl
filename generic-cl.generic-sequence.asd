@@ -1,6 +1,6 @@
-;;;; util.lisp
+;;;; generic-cl.generic-sequence.asd
 ;;;;
-;;;; Copyright 2018 Alexander Gutev
+;;;; Copyright 2018-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -23,23 +23,32 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-;;;; Utility functions and macros used in the implementation of
-;;;; GENERIC-CL.
 
-(in-package :generic-cl.impl)
+(asdf:defsystem #:generic-cl.generic-sequence
+  :description "Implementation of generic sequence operations using iterators"
+  :author "Alexander Gutev"
+  :license "MIT"
+  :version "0.9"
+  :serial t
+  :depends-on (#:agutil
+               #:alexandria
+               #:anaphora
+               #:arrows
+               #:static-dispatch
+               #:trivia
+               #:cl-custom-hash-table
 
+               #:generic-cl.comparison
+               #:generic-cl.object
+               #:generic-cl.container
+               #:generic-cl.iterator
+               #:generic-cl.collector
+               #:generic-cl.sequence
+               #:generic-cl.map)
 
-;;;; Test Function Utilities
-
-(defun test-not (fn)
-  "Returns a function of one argument which returns the complement of
-   applying FN on the argument."
-
-  (lambda (x) (not (funcall fn x))))
-
-(defun test-eq (fn x)
-  "Returns a function of one argument Y which returns true if (FN X Y)
-   returns true."
-
-  (lambda (y)
-    (funcall fn x y)))
+  :components
+  ((:module "src/generic-sequence"
+    :serial t
+    :components
+    ((:file "package")
+     (:file "generic-sequences")))))

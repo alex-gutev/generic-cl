@@ -23,31 +23,29 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(uiop:define-package :generic-cl.impl
+(uiop:define-package :generic-cl.generic-sequence
     (:mix :generic-cl.comparison
           :generic-cl.object
-          :generic-cl.arithmetic
           :generic-cl.container
           :generic-cl.iterator
           :generic-cl.collector
           :generic-cl.sequence
           :generic-cl.map
-          :generic-cl.set
 
           :alexandria
           :static-dispatch-cl)
 
   (:use :cl-environments.tools
-	:agutil
+        :agutil
 
-	:anaphora
-	:arrows
+        :anaphora
+        :arrows
         :trivia
 	:cl-custom-hash-table)
 
   (:import-from :agutil
-		:defmacro!
-		:symb)
+                :defmacro!
+                :symb)
 
   (:import-from :generic-cl.map
                 :make-hash-map-table
@@ -57,59 +55,5 @@
                 :hash-map-test-p
                 :make-empty-hash-table)
 
-  (:import-from :generic-cl.generic-sequence
-                :advance-all
-                :some-endp
-                :get-elements
-                :make-iters)
-
-  (:reexport :generic-cl.comparison
-             :generic-cl.object
-             :generic-cl.arithmetic
-             :generic-cl.container
-             :generic-cl.iterator
-             :generic-cl.collector
-             :generic-cl.sequence
-             :generic-cl.map
-             :generic-cl.set)
-
-  (:export
-   ;; Lazy Sequences
-   :make-lazy-seq
-   :lazy-seq
-   :lazy-seq-p
-   :lazy-seq-head
-   :lazy-seq-tail
-
-   :range))
-
-(agutil:define-merged-package :generic-cl
-    :static-dispatch-cl
-  :generic-cl.impl)
-
-(defpackage :generic-cl.math
-  (:use :generic-cl)
-
-  (:shadow
-   :sin :cos :tan :asin :acos :atan
-   :sinh :cosh :tanh :asinh :acosh :atanh
-   :exp :expt :log
-   :sqrt :isqrt
-   :cis :conjugate :phase :realpart :imagpart
-   :numerator :denominator :rational :rationalize)
-
-  (:export
-   :sin :cos :tan :asin :acos :atan
-   :sinh :cosh :tanh :asinh :acosh :atanh
-   :exp :expt :log
-   :sqrt :isqrt
-   :cis :conjugate :phase :realpart :imagpart
-   :numerator :denominator :rational :rationalize))
-
-(agutil:define-merged-package :generic-math-cl
-    :generic-cl
-  :generic-cl.math)
-
-(agutil:define-merged-package :generic-cl-user
-    (:internal :cl-user)
-  :generic-cl)
+  (:documentation
+   "Implementation of sequence operations using iterators"))

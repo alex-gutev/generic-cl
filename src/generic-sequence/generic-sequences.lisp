@@ -23,14 +23,14 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(in-package :generic-cl.impl)
+;;; Generic implementation of sequence and container interfaces based
+;;; on iterators
 
-;;; Generic methods based on iterators
-
+(in-package :generic-cl.generic-sequence)
 
 ;;; Element Access
 
-;; ELT
+;;;; ELT
 
 (defmethod elt (sequence index)
   "Returns the element at index INDEX of the generic sequence SEQUENCE.
@@ -52,7 +52,7 @@
   (setf (at (iterator sequence :start index)) value))
 
 
-;; FIRST
+;;;; FIRST
 
 (defmethod first (sequence)
   "Returns the first element of the generic sequence. Implemented
@@ -61,7 +61,7 @@
   (elt sequence 0))
 
 
-;; LAST
+;;;; LAST
 
 (defmethod last (sequence &optional (n 0))
   "Returns the nth element from the last element of the generic
@@ -141,7 +141,7 @@
 
 ;;; Sequence Operations
 
-;; Replacing elements of a sequence
+;;;; Replacing elements of a sequence
 
 (defmethod fill (seq item &key (start 0) end)
   (doiter (it seq :start start :end end)
@@ -155,7 +155,7 @@
   seq1)
 
 
-;; Reduction
+;;;; Reduction
 
 (defmethod reduce (fn sequence &key key from-end (start 0) end (initial-value nil init-sp))
   (let ((key (or key #'identity))
@@ -182,7 +182,7 @@
 	    (reduce-seq (if init-sp (funcall f initial-value elem) elem)))))))
 
 
-;; Count
+;;;; Count
 
 (defmethod count (item sequence &key from-end (start 0) end key (test #'equalp))
   (count-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
@@ -203,7 +203,7 @@
 	    :key key))
 
 
-;; Find
+;;;; Find
 
 (defmethod find (item sequence &key from-end (start 0) end (test #'equalp) key)
   (find-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
@@ -218,7 +218,7 @@
   (find-if (test-not test) sequence :from-end from-end :start start :end end :key key))
 
 
-;; Find Iterator
+;;;; Find Iterator
 
 (defmethod find-it (item sequence &key from-end (start 0) end (test #'equalp) key)
   (find-it-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
@@ -233,7 +233,7 @@
   (find-it-if (test-not test) sequence :from-end from-end :start start :end end :key key))
 
 
-;; Position
+;;;; Position
 
 (defmethod position (item sequence &key from-end (start 0) end (test #'equalp) key)
   (position-if (test-eq test item) sequence :from-end from-end :start start :end end :key key))
@@ -254,7 +254,7 @@
   (position-if (test-not test) sequence :from-end from-end :start start :end end :key key))
 
 
-;; Searching for/Comparing subsequences
+;;;; Searching for/Comparing subsequences
 
 (defmethod search (seq1 seq2 &key from-end (test #'equalp) key (start1 0) (start2 0) end1 end2)
   (let* ((key (or key #'identity))
@@ -317,7 +317,7 @@
 	     (return (compute-pos pos)))))))
 
 
-;; Reversing
+;;;; Reversing
 
 (defmethod reverse (seq)
   (let* ((collector (make-collector (cleared seq))))
@@ -328,7 +328,7 @@
   (reverse seq))
 
 
-;; Sorting
+;;;; Sorting
 
 (defmethod merge (seq1 seq2 test &key key)
   (let ((key (or key #'identity))
@@ -409,7 +409,7 @@
   (stable-sort seq :test test :key key))
 
 
-;; Substitute
+;;;; Substitute
 
 (defmethod nsubstitute (new old sequence &key from-end (test #'equalp) (start 0) end count key)
   (nsubstitute-if new (test-eq test old) sequence
@@ -483,7 +483,7 @@
 		 :key key))
 
 
-;; Removing Items
+;;;; Removing Items
 
 (defmethod remove (item sequence &key from-end (test #'equalp) (start 0) end count key)
   (remove-if (test-eq test item) sequence
@@ -547,7 +547,7 @@
 		 :key key))
 
 
-;; Removing Duplicates
+;;;; Removing Duplicates
 
 (defmethod remove-duplicates (sequence &key from-end (test #'equalp) (start 0) end key)
   (let* ((key (or key #'identity))
@@ -586,7 +586,7 @@
 		     :key key))
 
 
-;; Logical Sequence Operations
+;;;; Sequence Predicates
 
 (defun every (test &rest seqs)
   "Same as CL:EVERY except it can be applied to any sequence for which
@@ -641,7 +641,7 @@
   t)
 
 
-;;; Concatenation
+;;;; Concatenation
 
 (defmethod concatenate (sequence &rest sequences)
   (apply #'nconcatenate (cleared sequence) sequence sequences))
@@ -656,7 +656,7 @@
   (apply #'nconcatenate (sequence-of-type type) sequences))
 
 
-;;; Mapping
+;;;; Mapping
 
 (defmethod map (function sequence &rest sequences)
   (map-into% (cleared sequence) function (cons sequence sequences)))
@@ -747,7 +747,7 @@
   (mapc #'advance iters))
 
 
-;;;; Utility Functions
+;;; Utility Functions
 
 (defun collect-perform-op (collector sequence op &key start end from-end)
   "Collects the elements of SEQUENCE in the range [0, START), and from
@@ -773,3 +773,19 @@
        (copy-till-start)
        (funcall op)
        (copy-till-end)))))
+
+
+;;; Test Function Utilities
+
+(defun test-not (fn)
+  "Returns a function of one argument which returns the complement of
+   applying FN on the argument."
+
+  (lambda (x) (not (funcall fn x))))
+
+(defun test-eq (fn x)
+  "Returns a function of one argument Y which returns true if (FN X Y)
+   returns true."
+
+  (lambda (y)
+    (funcall fn x y)))

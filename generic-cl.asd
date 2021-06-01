@@ -46,15 +46,14 @@
                #:generic-cl.collector
                #:generic-cl.sequence
                #:generic-cl.map
-               #:generic-cl.set)
+               #:generic-cl.set
+               #:generic-cl.generic-sequence)
 
   :components
   ((:module "src"
     :serial t
     :components
     ((:file "package")
-     (:file "util")
-     (:file "generic-sequences")
      (:file "lazy-seq")
      (:file "math"))))
 
