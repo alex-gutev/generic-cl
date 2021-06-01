@@ -131,7 +131,7 @@
 ;;;; Hash-Sets
 
 (defstruct (hash-set (:include hash-map)
-		     (:constructor hash-table-set (table))
+		     (:constructor hash-table-set (generic-cl.map::table))
 		     (:copier nil))
 
   "Set data structure implemented using hash tables.

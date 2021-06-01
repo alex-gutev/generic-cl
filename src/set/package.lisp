@@ -25,6 +25,7 @@
 
 (uiop:define-package :generic-cl.set
     (:mix :generic-cl.comparison
+          :generic-cl.arithmetic
           :generic-cl.object
           :generic-cl.container
           :generic-cl.iterator
