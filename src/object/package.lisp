@@ -27,17 +27,8 @@
     (:mix :generic-cl.comparison
           :static-dispatch-cl)
 
-  (:use	:cl-environments.tools
-	:agutil
-
-	:alexandria
-	:anaphora
-	:arrows
-        :trivia)
-
-  (:import-from :agutil
-		:defmacro!
-		:symb)
+  (:use :alexandria
+        :arrows)
 
   (:shadow
    ;; Macros
