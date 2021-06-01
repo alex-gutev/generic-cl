@@ -31,13 +31,6 @@
   :version "0.7.1"
   :serial t
   :depends-on (:agutil
-               :alexandria
-               :anaphora
-               :arrows
-               :cl-custom-hash-table
-               :static-dispatch
-               :trivia
-
                #:generic-cl.comparison
                #:generic-cl.object
                #:generic-cl.arithmetic
@@ -48,14 +41,14 @@
                #:generic-cl.map
                #:generic-cl.set
                #:generic-cl.generic-sequence
-               #:generic-cl.lazy-seq)
+               #:generic-cl.lazy-seq
+               #:generic-cl.math)
 
   :components
   ((:module "src"
     :serial t
     :components
-    ((:file "package")
-     (:file "math"))))
+    ((:file "package"))))
 
   :in-order-to ((asdf:test-op (asdf:test-op :generic-cl/test))))
 

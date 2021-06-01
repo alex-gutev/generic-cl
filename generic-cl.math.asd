@@ -1,6 +1,6 @@
-;;;; package.lisp
+;;;; generic-cl.math.asd
 ;;;;
-;;;; Copyright 2018 Alexander Gutev
+;;;; Copyright 2018-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -23,43 +23,25 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(uiop:define-package :generic-cl
-    (:use)
 
-  (:mix :generic-cl.comparison
-        :generic-cl.object
-        :generic-cl.arithmetic
-        :generic-cl.container
-        :generic-cl.iterator
-        :generic-cl.collector
-        :generic-cl.sequence
-        :generic-cl.map
-        :generic-cl.set
-        :generic-cl.lazy-seq
-        :static-dispatch-cl)
+(asdf:defsystem #:generic-cl.math
+  :description "Generic math function interface"
+  :author "Alexander Gutev"
+  :license "MIT"
+  :version "0.9"
+  :serial t
+  :depends-on (#:agutil
+               #:alexandria
+               #:anaphora
+               #:arrows
+               #:static-dispatch
+               #:trivia
 
-  (:reexport :generic-cl.comparison
-             :generic-cl.object
-             :generic-cl.arithmetic
-             :generic-cl.container
-             :generic-cl.iterator
-             :generic-cl.collector
-             :generic-cl.sequence
-             :generic-cl.map
-             :generic-cl.set
-             :generic-cl.lazy-seq
-             :static-dispatch-cl)
+               #:generic-cl.arithmetic)
 
-  (:documentation "Full generic-cl interface"))
-
-(uiop:define-package :generic-math-cl
-    (:use)
-
-  (:mix :generic-cl.math
-        :generic-cl)
-
-  (:documentation "generic-cl and generic-cl.math interface"))
-
-(agutil:define-merged-package :generic-cl-user
-    (:internal :cl-user)
-  :generic-cl)
+  :components
+  ((:module "src/math"
+    :serial t
+    :components
+    ((:file "package")
+     (:file "math")))))

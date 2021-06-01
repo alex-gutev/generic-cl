@@ -23,43 +23,27 @@
 ;;;; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
-(uiop:define-package :generic-cl
-    (:use)
+(uiop:define-package :generic-cl.math
+    (:mix :generic-cl.arithmetic
+          :static-dispatch-cl)
 
-  (:mix :generic-cl.comparison
-        :generic-cl.object
-        :generic-cl.arithmetic
-        :generic-cl.container
-        :generic-cl.iterator
-        :generic-cl.collector
-        :generic-cl.sequence
-        :generic-cl.map
-        :generic-cl.set
-        :generic-cl.lazy-seq
-        :static-dispatch-cl)
+  (:use)
 
-  (:reexport :generic-cl.comparison
-             :generic-cl.object
-             :generic-cl.arithmetic
-             :generic-cl.container
-             :generic-cl.iterator
-             :generic-cl.collector
-             :generic-cl.sequence
-             :generic-cl.map
-             :generic-cl.set
-             :generic-cl.lazy-seq
-             :static-dispatch-cl)
+  (:shadow
+   :sin :cos :tan :asin :acos :atan
+   :sinh :cosh :tanh :asinh :acosh :atanh
+   :exp :expt :log
+   :sqrt :isqrt
+   :cis :conjugate :phase :realpart :imagpart
+   :numerator :denominator :rational :rationalize)
 
-  (:documentation "Full generic-cl interface"))
+  (:export
+   :sin :cos :tan :asin :acos :atan
+   :sinh :cosh :tanh :asinh :acosh :atanh
+   :exp :expt :log
+   :sqrt :isqrt
+   :cis :conjugate :phase :realpart :imagpart
+   :numerator :denominator :rational :rationalize)
 
-(uiop:define-package :generic-math-cl
-    (:use)
-
-  (:mix :generic-cl.math
-        :generic-cl)
-
-  (:documentation "generic-cl and generic-cl.math interface"))
-
-(agutil:define-merged-package :generic-cl-user
-    (:internal :cl-user)
-  :generic-cl)
+  (:documentation
+   "Generic math function interface"))
