@@ -40,8 +40,7 @@
                #:generic-cl.object
                #:generic-cl.container
                #:generic-cl.iterator
-               #:generic-cl.collector
-               #:generic-cl.sequence)
+               #:generic-cl.collector)
 
   :components
   ((:module "src/map"

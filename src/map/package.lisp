@@ -29,7 +29,6 @@
           :generic-cl.container
           :generic-cl.iterator
           :generic-cl.collector
-          :generic-cl.sequence
           :static-dispatch-cl)
 
   (:use :anaphora
