@@ -27,20 +27,8 @@
     (:mix :generic-cl.comparison
           :static-dispatch-cl)
 
-  (:use :cl-environments.tools
-        :agutil
-
-        :alexandria
-        :anaphora
-        :arrows
+  (:use :generic-cl.internal
         :trivia)
-
-  (:import-from :agutil
-                :defmacro!
-                :symb)
-
-  (:import-from :generic-cl.comparison
-                :numbers?)
 
   (:shadow
    :+ :- :* :/
