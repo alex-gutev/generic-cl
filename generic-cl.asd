@@ -42,7 +42,8 @@
                #:generic-cl.object
                #:generic-cl.arithmetic
                #:generic-cl.container
-               #:generic-cl.iterator)
+               #:generic-cl.iterator
+               #:generic-cl.collector)
 
   :components
   ((:module "src"
@@ -51,7 +52,6 @@
     ((:file "package")
      (:file "util")
      (:file "sequences")
-     (:file "collector")
      (:file "hash-tables")
      (:file "cl-sequences" :depends-on ("hash-tables"))
      (:file "sets")

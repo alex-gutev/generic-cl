@@ -29,6 +29,7 @@
           :generic-cl.arithmetic
           :generic-cl.container
           :generic-cl.iterator
+          :generic-cl.collector
 
           :alexandria
           :static-dispatch-cl)
@@ -91,21 +92,12 @@
              :generic-cl.object
              :generic-cl.arithmetic
              :generic-cl.container
-             :generic-cl.iterator)
+             :generic-cl.iterator
+             :generic-cl.collector)
 
   (:export
    :alist
    :plist
-
-   ;; Collector Interface
-   :cleared
-   :sequence-of-type
-   :make-sequence-of-type
-
-   :make-collector
-   :accumulate
-   :extend
-   :collector-sequence
 
 
    ;; Sequences
