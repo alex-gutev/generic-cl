@@ -30,14 +30,11 @@
   :license "MIT"
   :version "0.9"
   :serial t
-  :depends-on (#:agutil
-               #:alexandria
+  :depends-on (#:alexandria
                #:anaphora
                #:arrows
                #:static-dispatch
-               #:trivia
 
-               #:generic-cl.comparison
                #:generic-cl.object
                #:generic-cl.iterator)
 

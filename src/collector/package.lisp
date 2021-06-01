@@ -24,22 +24,13 @@
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
 (uiop:define-package :generic-cl.collector
-    (:mix :generic-cl.comparison
-          :generic-cl.object
+    (:mix :generic-cl.object
           :generic-cl.iterator
           :static-dispatch-cl)
 
-  (:use :cl-environments.tools
-        :agutil
-
-        :alexandria
+  (:use :alexandria
         :anaphora
-        :arrows
-        :trivia)
-
-  (:import-from :agutil
-                :defmacro!
-                :symb)
+        :arrows)
 
   (:export
    :cleared
