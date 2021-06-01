@@ -30,12 +30,9 @@
   :license "MIT"
   :version "0.9"
   :serial t
-  :depends-on (#:agutil
-               #:alexandria
-               #:anaphora
-               #:arrows
+  :depends-on (#:alexandria
                #:static-dispatch
-               #:trivia)
+               #:generic-cl.internal)
 
   :components
   ((:module "src/comparison"

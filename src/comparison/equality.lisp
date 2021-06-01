@@ -190,14 +190,3 @@
 
 	(or (null rest)
 	    `(or ,@(mapcar #'make-equalp rest))))))
-
-(defun numbers? (args env)
-  "Returns true if each form in ARGS evaluates (within the lexical
-   environment ENV) to a type that is a subtype of NUMBER."
-
-  (flet ((number? (thing)
-	   ;; For some reason SUBTYPEP on CMUCL does not take a third
-	   ;; environment parameter
-	   (subtypep (get-value-type thing env) 'number #-cmucl env)))
-
-    (cl:every #'number? args)))

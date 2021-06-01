@@ -25,17 +25,10 @@
 
 (defpackage :generic-cl.comparison
   (:use :static-dispatch-cl
-	:cl-environments.tools
-	:agutil
+        :cl-environments.tools
+        :generic-cl.internal
 
-	:alexandria
-	:anaphora
-	:arrows
-        :trivia)
-
-  (:import-from :agutil
-		:defmacro!
-		:symb)
+        :alexandria)
 
   (:shadow
    ;; Equality
