@@ -1,4 +1,4 @@
-;;;; generic-cl.comparison.asd
+;;;; generic-cl.object.asd
 ;;;;
 ;;;; Copyright 2018-2021 Alexander Gutev
 ;;;;
