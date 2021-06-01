@@ -36,6 +36,7 @@
                #:arrows
                #:static-dispatch
                #:trivia
+               #:cl-custom-hash-table
 
                #:generic-cl.comparison
                #:generic-cl.object
