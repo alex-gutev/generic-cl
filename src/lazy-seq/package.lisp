@@ -32,26 +32,16 @@
           :generic-cl.sequence
           :generic-cl.map
           :generic-cl.generic-sequence
+          :static-dispatch-cl)
 
-          :alexandria
-          :static-dispatch-cl
-          :cl-custom-hash-table)
-
-  (:use :cl-environments.tools
-        :agutil
-
-        :anaphora
+  (:use :agutil
         :arrows
         :trivia
-	:cl-custom-hash-table)
+        :cl-custom-hash-table)
 
   (:import-from :agutil
                 :defmacro!
                 :symb)
-
-  (:import-from :generic-cl.iterator
-                :list-iterator
-                :make-list-iterator)
 
   (:import-from :generic-cl.map
                 :make-hash-map-table
