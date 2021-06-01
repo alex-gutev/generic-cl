@@ -28,6 +28,7 @@
           :generic-cl.object
           :generic-cl.arithmetic
           :generic-cl.container
+          :generic-cl.iterator
 
           :alexandria
           :static-dispatch-cl)
@@ -44,9 +45,12 @@
 		:defmacro!
 		:symb)
 
+  (:import-from :generic-cl.iterator
+                :list-iterator
+                :make-list-iterator)
+
   (:shadow
    ;; Sequences
-   :endp
    :map :map-into
    :fill :replace
    :concatenate
@@ -86,26 +90,12 @@
   (:reexport :generic-cl.comparison
              :generic-cl.object
              :generic-cl.arithmetic
-             :generic-cl.container)
+             :generic-cl.container
+             :generic-cl.iterator)
 
   (:export
    :alist
    :plist
-
-   ;; Iterator Interface
-   :iterator
-   :make-iterator
-   :make-reverse-iterator
-
-   :at
-   :start
-   :advance
-   :advance-n
-   :endp
-
-   :doseq
-   :doiter
-   :doiters
 
    ;; Collector Interface
    :cleared
