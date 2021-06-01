@@ -30,17 +30,11 @@
           :generic-cl.iterator
           :generic-cl.collector
           :generic-cl.sequence
-
-          :alexandria
           :static-dispatch-cl)
 
-  (:use :cl-environments.tools
-        :agutil
-
-        :anaphora
-        :arrows
+  (:use :anaphora
         :trivia
-	:cl-custom-hash-table)
+        :cl-custom-hash-table)
 
   (:import-from :agutil
                 :defmacro!

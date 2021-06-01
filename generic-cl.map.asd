@@ -31,11 +31,9 @@
   :version "0.9"
   :serial t
   :depends-on (#:agutil
-               #:alexandria
                #:anaphora
-               #:arrows
-               #:static-dispatch
                #:trivia
+               #:static-dispatch
                #:cl-custom-hash-table
 
                #:generic-cl.comparison
