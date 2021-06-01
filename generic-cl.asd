@@ -40,7 +40,8 @@
 
                #:generic-cl.comparison
                #:generic-cl.object
-               #:generic-cl.arithmetic)
+               #:generic-cl.arithmetic
+               #:generic-cl.container)
 
   :components
   ((:module "src"

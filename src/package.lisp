@@ -27,12 +27,14 @@
     (:mix :generic-cl.comparison
           :generic-cl.object
           :generic-cl.arithmetic
+          :generic-cl.container
+
+          :alexandria
           :static-dispatch-cl)
 
   (:use :cl-environments.tools
 	:agutil
 
-	:alexandria
 	:anaphora
 	:arrows
         :trivia
@@ -44,14 +46,7 @@
 
   (:shadow
    ;; Sequences
-   :elt
-   :length
-   :emptyp
-   :subseq
    :endp
-   :first
-   :last
-
    :map :map-into
    :fill :replace
    :concatenate
@@ -90,7 +85,8 @@
 
   (:reexport :generic-cl.comparison
              :generic-cl.object
-             :generic-cl.arithmetic)
+             :generic-cl.arithmetic
+             :generic-cl.container)
 
   (:export
    :alist
@@ -123,11 +119,6 @@
 
 
    ;; Sequences
-   :elt :length :emptyp :subseq
-   :first :last :lastcdr
-   :erase :clear
-   :adjust-size :nadjust-size
-
    :map :nmap :map-into :map-to :foreach
    :map-extend :map-extend-to :map-extend-into
    :fill :replace
