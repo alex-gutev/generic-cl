@@ -31,14 +31,13 @@
   :version "0.9"
   :serial t
   :depends-on (#:agutil
-               #:alexandria
                #:anaphora
                #:arrows
-               #:static-dispatch
                #:trivia
+               #:static-dispatch
 
-               #:generic-cl.comparison
-               #:generic-cl.object)
+               #:generic-cl.object
+               #:generic-cl.container)
 
   :components
   ((:module "src/iterator"
