@@ -33,10 +33,6 @@
         :arrows)
 
   (:export
-   :cleared
-   :sequence-of-type
-   :make-sequence-of-type
-
    :make-collector
    :accumulate
    :extend

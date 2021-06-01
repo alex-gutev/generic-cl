@@ -243,3 +243,40 @@
 
 (defmethod (setf subseq) (value (seq sequence) start &optional end)
   (setf (cl:subseq seq start end) value))
+
+
+;;; Creation
+
+(defun sequence-of-type (type)
+  "Creates a sequence of the type TYPE by calling
+   MAKE-SEQUENCE-OF-TYPE.
+
+   If TYPE is a list, MAKE-SEQUENCE-OF-TYPE is called with the CAR of
+   the list as the first argument, and the CDR of the list as the
+   second argument. Otherwise MAKE-SEQUENCE-OF-TYPE is called with
+   TYPE as the first argument and NIL as the second argument."
+
+  (destructuring-bind (type . args) (ensure-list type)
+    (make-sequence-of-type type args)))
+
+(defmethod make-sequence-of-type (type args)
+  (let ((type (if args (cons type args) type)))
+    (cleared (make-sequence type 0) :keep-element-type t)))
+
+
+;;;; Lists
+
+(defmethod cleared ((sequence list) &key)
+  "Returns NIL the empty list."
+  nil)
+
+
+;;;; Vectors
+
+(defmethod cleared ((vec vector) &key keep-element-type)
+  (make-array (cl:length vec)
+	      :element-type (if keep-element-type
+				(array-element-type vec)
+				t)
+	      :adjustable t
+	      :fill-pointer 0))

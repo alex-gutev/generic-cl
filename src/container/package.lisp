@@ -27,7 +27,7 @@
     (:mix :generic-cl.object
           :static-dispatch-cl)
 
-  (:use)
+  (:use :alexandria)
 
   (:shadow
    :elt
@@ -38,11 +38,14 @@
    :last)
 
   (:export
-   ;; Container Functions
    :elt :length :emptyp :subseq
    :first :last :lastcdr
    :erase :clear
-   :adjust-size :nadjust-size)
+   :adjust-size :nadjust-size
+
+   :cleared
+   :sequence-of-type
+   :make-sequence-of-type)
 
   (:documentation
    "Generic container interface"))

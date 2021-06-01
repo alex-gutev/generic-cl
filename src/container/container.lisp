@@ -92,3 +92,18 @@
     elements of NEW-SEQUENCE. The shorter of the length of
     NEW-SEQUENCE and the number of elements between START and END
     determines how many elements of SEQUENCE are actually modified."))
+
+
+;;; Creation
+
+(defgeneric cleared (sequence &key &allow-other-keys)
+  (:documentation
+   "Creates a new sequence of the same type and with the same
+    properties as SEQUENCE however without any elements."))
+
+(defgeneric make-sequence-of-type (type args)
+  (:documentation
+   "Creates a sequence of the type TYPE. If the type was a list TYPE
+    is the first element of the list and ARGS are the remaining
+    elements. If the type was a symbol TYPE is the symbol and ARGS is
+    NIL."))
