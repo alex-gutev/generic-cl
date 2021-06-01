@@ -1,6 +1,6 @@
-;;;; generic-cl.asd
+;;;; generic-cl.set.asd
 ;;;;
-;;;; Copyright 2018 Alexander Gutev
+;;;; Copyright 2018-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
@@ -24,65 +24,30 @@
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
 
-(asdf:defsystem #:generic-cl
-  :description "Standard Common Lisp functions implemented using generic functions."
+(asdf:defsystem #:generic-cl.set
+  :description "Generic set interface"
   :author "Alexander Gutev"
   :license "MIT"
-  :version "0.7.1"
+  :version "0.9"
   :serial t
-  :depends-on (:agutil
-               :alexandria
-               :anaphora
-               :arrows
-               :cl-custom-hash-table
-               :static-dispatch
-               :trivia
+  :depends-on (#:agutil
+               #:alexandria
+               #:anaphora
+               #:arrows
+               #:static-dispatch
+               #:trivia
 
                #:generic-cl.comparison
                #:generic-cl.object
-               #:generic-cl.arithmetic
                #:generic-cl.container
                #:generic-cl.iterator
                #:generic-cl.collector
                #:generic-cl.sequence
-               #:generic-cl.map
-               #:generic-cl.set)
+               #:generic-cl.map)
 
   :components
-  ((:module "src"
+  ((:module "src/set"
     :serial t
     :components
     ((:file "package")
-     (:file "util")
-     (:file "generic-sequences")
-     (:file "lazy-seq")
-     (:file "math"))))
-
-  :in-order-to ((asdf:test-op (asdf:test-op :generic-cl/test))))
-
-(asdf:defsystem #:generic-cl/test
-  :description "Tests for generic-cl."
-  :author "Alexander Gutev"
-  :license "MIT"
-  :depends-on (:generic-cl :fiveam)
-  :serial t
-  :components
-  ((:module "test"
-	    :serial t
-            :components
-            ((:file "package")
-	     (:file "test")
-             (:file "equality")
-             (:file "arithmetic")
-             (:file "comparison")
-             (:file "iterator")
-             (:file "collector")
-             (:file "sequences")
-             (:file "object")
-             (:file "hash-tables")
-             (:file "sets")
-             (:file "lazy-seq")
-             (:file "misc"))))
-
-  :perform (asdf:test-op :after (op c)
-                         (uiop:symbol-call :generic-cl/test :test-generic-cl)))
+     (:file "sets")))))
