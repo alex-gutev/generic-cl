@@ -39,7 +39,8 @@
                :trivia
 
                #:generic-cl.comparison
-               #:generic-cl.object)
+               #:generic-cl.object
+               #:generic-cl.arithmetic)
 
   :components
   ((:module "src"
@@ -47,7 +48,6 @@
     :components
     ((:file "package")
      (:file "util")
-     (:file "arithmetic")
      (:file "sequences")
      (:file "iterator")
      (:file "collector")

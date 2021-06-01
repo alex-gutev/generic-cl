@@ -26,6 +26,7 @@
 (uiop:define-package :generic-cl.impl
     (:mix :generic-cl.comparison
           :generic-cl.object
+          :generic-cl.arithmetic
           :static-dispatch-cl)
 
   (:use :cl-environments.tools
@@ -41,22 +42,7 @@
 		:defmacro!
 		:symb)
 
-  (:import-from :generic-cl.comparison
-                :numbers?)
-
   (:shadow
-   ;; Arithmetic
-   :+ :- :* :/
-   :1+ :1-
-   :incf :decf
-
-   :minusp :plusp :zerop :signum
-   :abs
-   :evenp :oddp
-
-   :floor :ceiling :round :truncate
-   :mod :rem
-
    ;; Sequences
    :elt
    :length
@@ -103,29 +89,12 @@
    :union :nunion)
 
   (:reexport :generic-cl.comparison
-             :generic-cl.object)
+             :generic-cl.object
+             :generic-cl.arithmetic)
 
   (:export
    :alist
    :plist
-
-   ;; Arithmetic
-   :add
-   :subtract
-   :multiply
-   :divide
-   :negate
-
-   :+ :- :* :/
-   :1+ :1-
-   :incf :decf
-
-   :minusp :plusp :zerop :signum
-   :abs
-   :evenp :oddp
-
-   :floor :ceiling :round :truncate
-   :mod :rem
 
    ;; Iterator Interface
    :iterator
