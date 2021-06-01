@@ -24,31 +24,16 @@
 ;;;; OTHER DEALINGS IN THE SOFTWARE.
 
 (uiop:define-package :generic-cl.container
-    (:mix :generic-cl.comparison
-          :generic-cl.object
+    (:mix :generic-cl.object
           :static-dispatch-cl)
 
-  (:use :cl-environments.tools
-        :agutil
-
-        :alexandria
-        :anaphora
-        :arrows
-        :trivia)
-
-  (:import-from :agutil
-                :defmacro!
-                :symb)
-
-  (:import-from :generic-cl.comparison
-                :numbers?)
+  (:use)
 
   (:shadow
    :elt
    :length
    :emptyp
    :subseq
-   :endp
    :first
    :last)
 
