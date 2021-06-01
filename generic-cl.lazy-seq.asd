@@ -42,8 +42,7 @@
                #:generic-cl.iterator
                #:generic-cl.collector
                #:generic-cl.sequence
-               #:generic-cl.map
-               #:generic-cl.generic-sequence)
+               #:generic-cl.map)
 
   :components
   ((:module "src/lazy-seq"

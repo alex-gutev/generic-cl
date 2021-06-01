@@ -40,7 +40,6 @@
                #:generic-cl.sequence
                #:generic-cl.map
                #:generic-cl.set
-               #:generic-cl.generic-sequence
                #:generic-cl.lazy-seq
                #:generic-cl.math)
 

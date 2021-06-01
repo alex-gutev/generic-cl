@@ -26,9 +26,24 @@
 (uiop:define-package :generic-cl.sequence
     (:mix :generic-cl.comparison
           :generic-cl.object
+          :generic-cl.container
+          :generic-cl.iterator
+          :generic-cl.collector
+          :generic-cl.sequence
+          :generic-cl.map
           :static-dispatch-cl)
 
-  (:use :arrows)
+  (:use :anaphora
+        :arrows
+        :cl-custom-hash-table)
+
+  (:import-from :generic-cl.map
+                :make-hash-map-table
+                :make-generic-hash-table
+                :copy-generic-hash-table
+                :do-generic-map
+                :hash-map-test-p
+                :make-empty-hash-table)
 
   (:shadow
    :map :map-into

@@ -30,11 +30,17 @@
   :license "MIT"
   :version "0.9"
   :serial t
-  :depends-on (#:arrows
+  :depends-on (#:anaphora
+               #:arrows
+               #:cl-custom-hash-table
                #:static-dispatch
 
                #:generic-cl.comparison
-               #:generic-cl.object)
+               #:generic-cl.object
+               #:generic-cl.container
+               #:generic-cl.iterator
+               #:generic-cl.collector
+               #:generic-cl.map)
 
   :components
   ((:module "src/sequence"
@@ -42,4 +48,5 @@
     :components
     ((:file "package")
      (:file "sequences")
-     (:file "cl-sequences")))))
+     (:file "cl-sequences")
+     (:file "generic-sequences")))))

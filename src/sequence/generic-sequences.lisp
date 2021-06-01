@@ -26,7 +26,7 @@
 ;;; Generic implementation of sequence and container interfaces based
 ;;; on iterators
 
-(in-package :generic-cl.generic-sequence)
+(in-package :generic-cl.sequence)
 
 ;;; Element Access
 

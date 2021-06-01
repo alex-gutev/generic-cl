@@ -31,7 +31,6 @@
           :generic-cl.collector
           :generic-cl.sequence
           :generic-cl.map
-          :generic-cl.generic-sequence
           :static-dispatch-cl)
 
   (:use :agutil
@@ -51,7 +50,7 @@
                 :hash-map-test-p
                 :make-empty-hash-table)
 
-  (:import-from :generic-cl.generic-sequence
+  (:import-from :generic-cl.sequence
                 :advance-all
                 :some-endp
                 :get-elements
