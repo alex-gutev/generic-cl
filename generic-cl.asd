@@ -28,7 +28,7 @@
   :description "Standard Common Lisp functions implemented using generic functions."
   :author "Alexander Gutev"
   :license "MIT"
-  :version "0.7.1"
+  :version "0.9"
   :serial t
   :depends-on (:agutil
                #:generic-cl.comparison
