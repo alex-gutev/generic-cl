@@ -25,7 +25,6 @@
 
 (defpackage :generic-cl.comparison
   (:use :static-dispatch-cl
-        :cl-environments.tools
         :generic-cl.internal
 
         :alexandria)
