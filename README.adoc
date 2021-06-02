@@ -24,33 +24,87 @@ two objects, which is extensible to user-defined types.
 
 == Usage ==
 
-The generic function interface is contained in the `GENERIC-CL`
-package. This package should be used rather than `COMMON-LISP`, as it
-shadows the symbols, in the `COMMON-LISP` package, which name a
-function for which there is a generic function wrapper. `GENERIC-CL`
-additionally reexports the remaining non-shadowed symbols in
-`COMMON-LISP`.
+This library is divided into multiple system each encapsulating a
+specific generic interface. The simplest way to use this library is to
+load the system `GENERIC-CL`, which loads all the interface
+subsystems, and use the `GENERIC-CL` package which exports all symbols
+in the `COMMON-LISP` package, and all generic interface
+functions. This package should be used instead of `COMMON-LISP`.
 
-TIP: The `GENERIC-CL-USER` package is also provided, which contains
-all the symbols in the `CL-USER` package and `GENERIC-CL`. This
-package is intended to be used only at the REPL.
+TIP: The `GENERIC-CL-USER` exports all symbols in the `CL-USER` and
+`GENERIC-CL` packages. This package is intended to be used only at the
+REPL.
 
+=== Using Specific Interface ===
+
+If you don't want to load all the generic interfaces, but only require
+a specific interface, such as the generic comparability interface,
+then load only the system which contains that interface and import its
+package.
+
+The packages generally contain symbols which shadow those in the
+`COMMON-LISP` package, thus they cannot simply be used alongside
+`COMMON-LISP`. You'll either have to manually import the shadowing
+symbols, with `:SHADOWING-IMPORT` or use the `:MIX` option to
+https://common-lisp.net/project/asdf/uiop.html#UIOP_002fPACKAGE[UIOP:DEFINE-PACKAGE].
+
+NOTE: The `STATIC-DISPATCH-CL` package should be used instead of `CL`
+in order to be able to optimize generic function calls. _See
+https://github.com/alex-gutev/static-dispatch for more information._
+
+.Example: Using SHADOWING-IMPORT
+--------------------------------------------------
+;; Using comparison interface GENERIC-CL.COMPARISON
+
+(defpackage my-pkg
+  (:use :static-dispatch-cl)
+  (:shadowing-import-from
+    :generic-cl.comparison
+    :equalp
+    :=
+    :/=))
+--------------------------------------------------
+
+.Example: Using UIOP:DEFINE-PACKAGE
+--------------------------------------------------
+(uiop:define-package my-pkg
+    (:use) ;; Necessary otherwise CL package is used
+
+  ;; Packages listed earlier on shadow the packages listed after them
+
+  (:mix :generic-cl.comparison
+        :static-dispatch-cl)
+
+  ...)
+--------------------------------------------------
 
 == Generic Interfaces ==
 
-The generic function interface is divided into the following
-categories:
+The following interfaces are provided:
 
 
-=== Equality ===
+=== Comparison ===
 
-The equality interface provides functions for testing for equality of
-objects.
+System and package name: `GENERIC-CL.COMPARISON`.
+
+The comparison interface provides functions for comparing objects in
+terms of _equality_, _greater than_, _less than_, _greater than or
+equal to_ and _less than or equal to_ relations.
 
 <<EQUALP>> is the generic binary equality predicate function to
 implement for user-defined types. <<equalp-nary>> and
 <<not-equalp-nary>> are the n-ary equality predicates similar to the
 functions with the same names in the `COMMON-LISP` package.
+
+<<LESSP>>, <<LESS-EQUAL-P>>, <<GREATERP>>, <<GREATER-EQUAL-P>> are the
+generic binary comparison functions to implement for user-defined
+types. It is sufficient to just implement `LESSP` as the remaining
+functions have default methods that are implemented in terms of
+`LESSP`.
+
+<<lessp-nary>>, <<less-equal-p-nary>>, <<greaterp-nary>>,
+<<greater-equal-p-nary>> are the n-ary comparison functions similar to
+the functions with the same names in the `COMMON-LISP` package.
 
 
 ==== EQUALP ====
@@ -59,8 +113,7 @@ Generic Function: `EQUALP A B`
 
 Returns true if object `A` is equal to object `B`.
 
-Methods:
-
+.Methods
 * `NUMBER NUMBER`
 +
 Returns true if `A` and `B` represent the same numeric value, by
@@ -115,6 +168,7 @@ Returns true if `A` is similar to `B`, where similarity is defined as
 the same as equality however ignoring differences in certain aspects
 such as case in strings.
 
+.Methods
 * `CHARACTER CHARACTER`
 +
 Returns true if `A` and `B` represent the same character ignoring
@@ -169,23 +223,6 @@ Returns true if at least one object in `XS` is not equal (by `EQUALP`)
 to `X`.
 
 
-=== Comparison ===
-
-The comparison interface provides functions for comparing objects in
-terms of greater than, less than, greater than or equal to and less
-than or equal to relations.
-
-<<LESSP>>, <<LESS-EQUAL-P>>, <<GREATERP>>, <<GREATER-EQUAL-P>> are the
-generic binary comparison functions to implement for user-defined
-types. It is sufficient to just implement `LESSP` as the remaining
-functions have default methods that are implemented in terms of
-`LESSP`.
-
-<<lessp-nary>>, <<less-equal-p-nary>>, <<greaterp-nary>>,
-<<greater-equal-p-nary>> are the n-ary comparison functions similar to
-the functions with the same names in the `COMMON-LISP` package.
-
-
 ==== LESSP ====
 
 Generic Function: `LESSP A B`
@@ -196,7 +233,7 @@ TIP: It is sufficient to just implement this function, for
 user-defined types, as the rest of the comparison functions have
 default (`T T`) methods which are implemented in terms of `LESSP`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -220,7 +257,7 @@ Generic Function: `LESS-EQUAL-P A B`
 
 Returns true if object `A` is less than or equal to object `B`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -254,7 +291,7 @@ Generic Function: `GREATERP A B`
 
 Returns true if object `A` is greater than object `B`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -287,7 +324,7 @@ Generic Function: `GREATER-EQUAL-P A B`
 
 Returns true if object `A` is greater than or equal to object `B`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -389,6 +426,8 @@ which is greater than or equal to the other arguments may be returned.
 
 === Arithmetic ===
 
+System and package name: `GENERIC-CL.ARITHMETIC`.
+
 The arithmetic interface provides generic functions for arithmetic
 operations.
 
@@ -407,7 +446,7 @@ Generic Function: `ADD A B`
 
 Returns the sum of `A` and `B`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -420,7 +459,7 @@ Generic Function: `SUBTRACT A B`
 
 Returns the difference of `A` and `B`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -433,7 +472,7 @@ Generic Function: `MULTIPLY A B`
 
 Returns the product of `A` and `B`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -447,7 +486,7 @@ Generic Function: `DIVIDE A B`
 Returns the quotient of `A` and `B`. If `A` is the constant `1`, the
 result should be the reciprocal of `B`.
 
-Methods:
+.Methods
 
 * `NUMBER NUMBER`
 +
@@ -460,7 +499,7 @@ Generic Function: `NEGATE A`
 
 Returns the negation of `A`.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -521,7 +560,7 @@ Generic Function: `1+ A`
 
 Returns `A + 1`.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -538,7 +577,7 @@ Generic Function: `1- A`
 
 Returns `A - 1`.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -585,7 +624,7 @@ Generic Function: `MINUSP A`
 
 Returns true if `A` is less than zero.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -607,7 +646,7 @@ Generic Function: `PLUSP A`
 
 Returns true if `A` is greater than zero.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -629,7 +668,7 @@ Generic Function: `ZEROP A`
 
 Returns true if `A` is equal to zero.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -652,7 +691,7 @@ Generic Function: `SIGNUM A`
 Returns `-1`, `0` or `1` depending on whether `A` is negative, is
 equal to zero or is positive.
 
-Methods:
+.Methods
 
 * `SIGNUM`
 +
@@ -670,7 +709,7 @@ Generic Function: `ABS A`
 
 Returns the absolute value of `A`.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -695,7 +734,7 @@ Generic Function: `EVENP A`
 
 Returns true if `A` is even.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -712,7 +751,7 @@ Generic Function: `ODDP A`
 
 Returns true if `A` is odd.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -732,7 +771,7 @@ to `N/1`, and returns the result rounded towards negative infinity as
 the first value, and the remainder `N - result * D` as the second return
 value.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -748,7 +787,7 @@ Performs the division `N/D` if `D` is provided, otherwise equivalent
 to `N/1`, and returns the result rounded towards positive infinity as
 the first value, and the `N - result * D` as the second return value.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -764,7 +803,7 @@ Performs the division `N/D` if `D` is provided, otherwise equivalent
 to `N/1`, and returns the result rounded towards zero as the first
 value, and the remainder `N - result * D` as the second return value.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -784,7 +823,7 @@ return value.
 If the result lies exactly halfway between two integers, it is rounded
 to the nearest even integer.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -798,7 +837,7 @@ Generic Function: `MOD N D`
 
 Returns the remainder of the <<FLOOR>> operation on `N` and `D`.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -815,7 +854,7 @@ Generic Function: `REM N D`
 
 Returns the remainder of the <<TRUNCATE>> operation on `N` and `D`.
 
-Methods:
+.Methods
 
 * `NUMBER`
 +
@@ -826,10 +865,12 @@ Returns `(CL:REM N D)`.
 Returns the second return value of `(TRUNCATE N D)`.
 
 
-=== Objects ===
+=== Object ===
+
+System and package name: `GENERIC-CL.OBJECT`.
 
 The object interface provides miscellaneous functions for manipulating
-objects.
+objects, such as copying and type conversions.
 
 
 ==== COPY ====
@@ -849,7 +890,7 @@ is returned. If a user-defined type acts as a container or sequence
 then the `COPY` method for that type should also accept the `DEEP`
 keyword parameter.
 
-Methods:
+.Methods
 
 * `CONS`
 +
@@ -902,13 +943,379 @@ Coerces `OBJECT` to the type `TYPE`.
 The default (`T T`) method simply calls `CL:COERCE`.
 
 
+==== DEFCONSTANT ====
+
+Macro: `DEFCONSTANT SYMBOL VALUE &OPTIONAL DOCUMENTATION`
+
+Ensures that `SYMBOL` is a constant with a value that is equal, by
+`GENERIC-CL:EQUALP` to `VALUE`. This means that if `SYMBOL` already
+names a constant, at the time of evaluating the `DEFCONSTANT` form, no
+condition will be signalled if its value is equal (by
+`GENERIC-CL:EQUALP`) to `VALUE`.
+
+NOTE: Implemented using `ALEXANDRIA:DEFINE-CONSTANT`
+
+
+=== Container ===
+
+System and package name: `GENERIC-CL.CONTAINER`.
+
+The container interface provides generic functions for retrieving
+elements from containers, such as lists, arrays and hash-tables, and
+for querying various properties of containers, such as the container's
+size.
+
+All the following functions are applicable to both ordered containers,
+_sequences_, and unordered containers, such as hash-maps, however some
+only make sense when applied on sequences.
+
+==== Creation ====
+
+The following functions are for creating an empty container suitable
+for accumulating items using the collector interface.
+
+
+===== CLEARED =====
+
+Generic Function: `CLEARED CONTAINER &KEY &ALLOW-OTHER-KEYS`
+
+Returns a new empty container, of the same type and with the same
+properties as `CONTAINER`, suitable for accumulating items into it
+using the collector interface.
+
+NOTE: Individual methods may accept keyword parameters which specify
+certain options of the container which is to be created.
+
+.Methods
+
+* `LIST`
++
+Returns `NIL`.
+
+* `VECTOR`
++
+Returns an adjustable vector of the same length as `CONTAINER`,
+with the fill-pointer set to `0`.
++
+If the `:KEEP-ELEMENT-TYPE` argument is provided and is true, the
+element type of the new vector is the same as the element type of
+`CONTAINER`.
+
+
+===== MAKE-SEQUENCE-OF-TYPE =====
+
+Generic Function: `MAKE-SEQUENCE-OF-TYPE TYPE ARGS`
+
+Returns a new empty sequence / container of type `TYPE`. `ARGS` are
+the type arguments, if any.
+
+The default method creates a built-in sequence of the same type as
+that returned by:
+
+[source,lisp]
+----
+(make-sequence (cons type args) 0)
+----
+
+
+===== SEQUENCE-OF-TYPE =====
+
+Function: `SEQUENCE-OF-TYPE TYPE`
+
+Creates a new sequence / container of type `TYPE`, using
+<<MAKE-SEQUENCE-OF-TYPE>>.
+
+If `TYPE` is a list the `CAR` of the list is passed as the first
+argument, to `MAKE-SEQUENCE-OF-TYPE`, and the `CDR` is passed as the
+second argument. Otherwise, if `TYPE` is not a list, it is passed as
+the first argument and `NIL` is passed as the second argument.
+
+
+====  Elements ====
+
+===== ELT =====
+
+Generic Function: `ELT SEQUENCE INDEX`
+
+Return the element at position `INDEX` in the sequence `SEQUENCE`.
+
+.Methods
+
+* `SEQUENCE T` and `VECTOR T`
++
+Returns `(CL:ELT SEQUENCE INDEX)`.
+
+* `ARRAY INTEGER`
++
+Multi-Dimensional Arrays.
++
+Returns `(ROW-MAJOR-AREF SEQUENCE INDEX)`.
+
+* `ARRAY LIST`
++
+Multi-Dimensional Arrays.
++
+If length of `index` matches array's rank, returns `(apply #'aref sequence
+index)`.
++
+--
+If ``INDEX``'s length is less than the array's rank, then returns a
+displaced array whose dimensions are ``SEQUENCE``'s _unused_
+dimensions (ie `(nthcdr (array-dimensions sequence) (length index))`)
+and which shares storage with the _subarray_ of `SEQUENCE` specificied
+by `INDEX`.
+--
+
+[[setf-elt]]
+===== (SETF ELT) =====
+
+Generic Function: `(SETF ELT) VALUE SEQUENCE INDEX`
+
+Set the value of the element at position `INDEX` in the sequence
+`SEQUENCE`.
+
+.Methods
+
+* `T SEQUENCE T` and `T VECTOR T`
++
+Returns `(SETF (CL:ELT SEQUENCE INDEX) VALUE)`.
+
+* `T ARRAY INTEGER`
++
+Multi-Dimensional Arrays.
++
+Returns `(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)`
+
+* `ARRAY LIST`
++
+Multi-Dimensional Arrays.
++
+If length of `index` matches array's rank, returns `(setf (apply #'aref sequence
+index) value)`.
++
+--
+If ``INDEX``'s length is less than the array's rank, then copies the
+contents of `VALUE` to the _subarray_ (see <<ELT>>) specified by
+`INDEX` and then returns `(elt sequence index)`. ``VALUE``'s
+dimensions must equal the _unused_ dimensions of `SEQUENCE` (ie
+`(nthcdr (array-dimensions sequence) (length index))`).
+--
+
+
+===== FIRST =====
+
+Generic Function: `FIRST SEQUENCE`
+
+Returns the first element in the sequence `SEQUENCE`.
+
+Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the first element is obtained by
+`ROW-MAJOR-AREF`.
+
+The default method is implemented using <<elt,GENERIC-CL:ELT>>, i.e. is
+equivalent to:
+
+[source,lisp]
+----
+(elt sequence index)
+----
+
+
+===== LAST =====
+
+Generic Function: `LAST SEQUENCE &OPTIONAL (N 0)`
+
+Returns the ``N``'th element from the last element of the sequence
+`SEQUENCE`. `N` defaults to `0` which indicates the last element. `1`
+indicates the second to last element, `2` the third to last and so on.
+
+Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the last element is obtained by:
+
+[source,lisp]
+----
+(row-major-aref sequence (- (array-total-size array) 1 n))
+----
+
+The default method is implemented using <<elt,GENERIC-CL:ELT>>, i.e. is
+equivalent to:
+
+[source,lisp]
+----
+(elt sequence (- (length sequence) 1 n))
+----
+
+CAUTION: The behaviour of this function differs from `CL:LAST` when
+called on lists, it returns the last element rather than the last
+`CONS` cell. The <<LASTCDR>> function performs the same function as
+`CL:LAST`.
+
+
+===== LASTCDR =====
+
+Function: `LASTCDR LIST &OPTIONAL (N 1)`
+
+This function is equivalent to `CL:LAST` list function.
+
+Returns the `CDR` of the ``N``'th `CONS` cell from the end of the list.
+
+
+===== ERASE =====
+
+Generic Function: `ERASE SEQUENCE INDEX`
+
+Removes the element at index `INDEX` from the sequence `SEQUENCE`.
+
+Destructively modifies `SEQUENCE`.
+
+Methods:
+
+* `VECTOR T`
++
+Shifts the elements following `INDEX` one element towards the
+front of the vector and shrinks the vector by one element.
++
+CAUTION: Signals a `TYPE-ERROR` if the vector is not adjustable.
+
+NOTE: This method is not implemented for lists as removing the first
+element of a list cannot be implemented (efficiently) as a side effect
+alone.
+
+
+==== Container Size ====
+
+===== LENGTH =====
+
+Generic Function: `LENGTH CONTAINER`
+
+Returns the number of elements in the container `CONTAINER`. If
+`CONTAINER` is an iterator, returns the number of remaining elements
+to be iterated over.
+
+This function is implemented for all Common Lisp sequences, returning
+the length of the sequence (by `CL:LENGTH`), and multi-dimensional
+arrays, returning the total number of elements in the array by
+`ARRAY-TOTAL-SIZE`.
+
+
+===== EMPTYP =====
+
+Generic Function: `EMPTYP CONTAINER`
+
+Returns true if the container `CONTAINER` is empty.
+
+Implemented for lists, vectors and multi-dimensional arrays (always
+returns `NIL`).
+
+
+===== CLEAR =====
+
+Generic Function: `CLEAR CONTAINER`
+
+Destructively remove all elements from the container `CONTAINER`.
+
+Implemented for vectors.
+
+
+===== ADJUST-SIZE =====
+
+Generic Function: `ADJUST-SIZE CONTAINER N &KEY ELEMENT`
+
+Return a new container with the same elements as `CONTAINER` however
+with its size changed to `N`.
+
+If `N` is less than the number of elements in `CONTAINER`, the
+returned container contains only the first `N` elements of
+`CONTAINER`.
+
+If `N` is greater than the number of elements in `CONTAINER`, the
+returned sequence contains all the elements of `CONTAINER` with an
+additional `(LENGTH CONTAINER) - N` elements initialized to the value
+of `ELEMENT`.
+
+Methods are provided for lists and vectors. The default `T` method,
+implements this operation using the <<Iterator>> and <<Collector>>
+interfaces.
+
+===== NADJUST-SIZE =====
+
+Generic Function: `NADJUST-SIZE CONTAINER N &KEY ELEMENT`
+
+Return a new sequence containing the same elements as `CONTAINER`
+however with its size changed to `N`.
+
+IMPORTANT: `CONTAINER` may be destructively modified.
+
+If `N` is less than the number of elements in `CONTAINER`, the
+returned container contains only the first `N` elements of
+`CONTAINER`.
+
+If `N` is greater than the number of elements in `CONTAINER`, the
+returned sequence contains all the elements of `CONTAINER` with an
+additional `(LENGTH CONTAINER) - N` elements initialized to the value
+of `ELEMENT`.
+
+Methods are provided for lists and vectors. The default `T` method,
+implements this operation using the <<Iterator>> and <<Collector>>
+interfaces.
+
+==== Subsequences ====
+
+
+===== SUBSEQ =====
+
+Generic Function: `SUBSEQ SEQUENCE START &OPTIONAL END`
+
+Returns a new sequence that contains the elements of `SEQUENCE` at the
+positions in the range `[START, END)`. If `SEQUENCE` is an iterator,
+an iterator for the sub-sequence relative to the current position of
+the iterator is returned.
+
+`START` is the index of the first element of the subsequence, with `0`
+indicating the start of the sequence. if `SEQUENCE` is an iterator,
+`START` is the number of times the iterator should be <<ADVANCE>>'d to
+reach the first element of the subsequence.
+
+`END` is the index of the element following the last element of the
+subsequence. `NIL` (the default) indicates the end of the sequence. If
+`SEQUENCE` is an iterator, `END` is the number of times the iterator
+should be <<ADVANCE>>'d till the end position is reached.
+
+Methods:
+
+* `SEQUENCE T`
++
+Returns the subsequence using `CL:SUBSEQ`.
+
+
+===== (SETF SUBSEQ) =====
+
+Generic Function: `(SETF SUBSEQ) NEW-SEQUENCE SEQUENCE START &OPTIONAL END`
+
+Replaces the elements of `SEQUENCE` at the positions in the range
+`[START, END)`, with the elements of `NEW-SEQUENCE`. The shorter
+length of `NEW-SEQUENCE` and the number of elements between `START`
+and `END` determines how many elements of `SEQUENCE` are actually
+modified.
+
+See <<subseq,SUBSEQ>> for more details of how the `START` and `END` arguments are
+interpreted.
+
+Methods:
+
+* `SEQEUNCE SEQUENCE T`
++
+Sets the elements of the subsequence using `(SETF CL:SUBSEQ)`.
+
+
 === Iterator ===
+
+System and package name `GENERIC-CL.ITERATOR`.
 
 The iterator interface is a generic interface for iterating over the
 elements of sequences and containers.
 
-Implemented for lists, vectors, multi-dimensional arrays and
-<<HASH-MAP>>'s.
+Implemented for lists, vectors and multi-dimensional arrays.
 
 .Basic Usage
 [source,lisp]
@@ -917,7 +1324,7 @@ Implemented for lists, vectors, multi-dimensional arrays and
    with it = (iterator sequence) ; Create iterator for SEQUENCE
    until (endp it) ; Loop until the iterator's end position is reach
    do
-     (pprint (at it)) ; Print element at iterator's position
+     (something (at it)) ; Do something with the current element
      (advance it)) ; Advance iterator to next position
 ----
 
@@ -992,7 +1399,7 @@ indices of the sub-sequence to iterate over (see <<MAKE-ITERATOR>> and
 <<MAKE-REVERSE-ITERATOR>> for more a detailed description).
 
 If `FROM-END` is true a reverse iterator is created (by
-<<MAKE-REVERSE-ITERATOR>>) otherwise a normal iterator is created (by
+<<MAKE-REVERSE-ITERATOR>>) otherwise a forward iterator is created (by
 <<MAKE-ITERATOR>>).
 
 
@@ -1005,7 +1412,7 @@ These functions have to be implemented for all user-defined iterators.
 
 Generic Function: `AT ITERATOR`
 
-Returns the value of the element at the current position of the
+Return the value of the element at the current position of the
 iterator `ITERATOR`.
 
 WARNING: The effects of calling this method, after the iterator has
@@ -1016,7 +1423,7 @@ reached the end of the subsequence are unspecified.
 
 Generic Function: `ENDP ITERATOR`
 
-Returns true if the iterator is at the end of the subsequence, false
+Return true if the iterator is at the end of the subsequence, false
 otherwise.
 
 The end of the subsequence is defined as the position past the last
@@ -1033,7 +1440,7 @@ shadows the `CL:ENDP` function.
 
 Generic Function: `ADVANCE ITERATOR`
 
-Advances the iterator to the next element in the subsequence. After
+Advance the iterator to the next element in the subsequence. After
 this method is called, subsequent calls to <<AT>> should return the
 next element in the sequence or if the last element has already been
 iterated over, <<ENDP>> should return true.
@@ -1051,8 +1458,8 @@ used by a select few sequence operations.
 
 Generic Function: `START ITERATOR`
 
-Returns the element at the current position of the iterator, if the
-iterator is not at the end of the sequence, otherwise returns `NIL`.
+Return the element at the current position of the iterator, if the
+iterator is not at the end of the sequence, otherwise return `NIL`.
 
 The default method first checks whether the end of the iterator has
 been reached, using `ENDP`, and if not returns the current element
@@ -1071,7 +1478,7 @@ The default method is equivalent to the following:
 
 Generic Function: `(SETF AT) VALUE ITERATOR`
 
-Sets the value of the element at the position, in the sequence,
+Set the value of the element at the position, in the sequence,
 specified by the iterator.
 
 WARNING: The effects of calling this function when, the iterator is
@@ -1085,10 +1492,10 @@ sequence operations will be used.
 
 Generic Function: `ADVANCE-N ITERATOR N`
 
-Advances the iterator by `N` elements.
+Advance the iterator by `N` elements.
 
 IMPORTANT: The position of the iterator, after calling this function,
-should be equivalent to the positioned obtained by calling <<ADVANCE>>
+should be equivalent to the positione obtained by calling <<ADVANCE>>
 `N` times.
 
 The default method simply calls <<ADVANCE>>, on `ITERATOR`, `N` times.
@@ -1104,7 +1511,7 @@ Macros for iteratoring over a generic sequence. Analogous to
 
 Macro: `DOITERS (&REST ITERS) &BODY BODY`
 
-Iterates over one or more sequences with the sequence iterators bound
+Iterate over one or more sequences with the sequence iterators bound
 to variables.
 
 Each element of `ITERS` is a list of the form `(IT-VAR
@@ -1113,7 +1520,7 @@ iterator is bound, `SEQUENCE` is the sequence which will be iterated
 over and `ARGS` are the remaining arguments passed to the
 <<iterator-func>> function.
 
-The bindings to the `IT-VAR`'s are visible to the forms in `BODY`,
+The bindings to the ``IT-VAR``'s are visible to the forms in `BODY`,
 which are executed once for each element in the sequence. After each
 iteration the sequence iterators are <<ADVANCE>>'d. The loop
 terminates when the end of a sequence is reached.
@@ -1131,7 +1538,7 @@ iterated over.
 
 Macro: `DOSEQ (ELEMENT SEQUENCE &REST ARGS) &BODY BODY`
 
-Iterates over the elements of `SEQUENCE`. `ARGS` are the remaining
+Iterate over the elements of `SEQUENCE`. `ARGS` are the remaining
 arguments passed to the <<iterator-func>> function.
 
 The forms in `BODY` are executed once for each element, with the value
@@ -1139,13 +1546,45 @@ of the element bound to `ELEMENT`. If `ELEMENT` is a list, the
 sequence element is destructured, as if by `DESTRUCTURING-BIND`
 according to the pattern specified by `ELEMENT`.
 
+==== Implemented Interfaces ====
+
+This interface adds methods, when the system implementing the
+interface is loaded, specialized on ``ITERATOR``'s to the following
+functions:
+
+[[iterator-length]]
+===== LENGTH =====
+
+Method: `LENGTH (ITERATOR ITERATOR)`
+
+Returns the number of elements between the iterator's current
+position (inclusive) and the end of the iterator's subsequence.
+
+This is implemented by advancing the iterator (by <<ADVANCE>>) till
+<<ENDP>> returns true, thus is a linear `O(n)` time operation.
+
+More efficient specialized methods are provided for iterators to
+sequences for which the size is known.
+
+[[iterator-subseq]]
+===== SUBSEQ =====
+
+Method: `SUBSEQ (ITERATOR ITERATOR) START &OPTIONAL END`
+
+Returns a subsequence iterator which wraps a copy of the original
+iterator.
 
 === Collector ===
 
-The collector interface is a generic interface for accumulating items
-in a sequence/container.
+System and package name `GENERIC-CL.COLLECTOR`.
 
-Implemented for lists, vectors and <<HASH-MAP>>'s.
+The collector interface is a generic interface for accumulating items
+into a sequence/container.
+
+Implemented for lists and vectors.
+
+NOTE: While this interface is specified for sequences, it may also be
+implemented for unordered containers.
 
 .Basic Usage
 [source,lisp]
@@ -1163,7 +1602,7 @@ Implemented for lists, vectors and <<HASH-MAP>>'s.
 
 Generic Function: `MAKE-COLLECTOR SEQUENCE &KEY FRONT`
 
-Returns a collector for accumulating items to the end of the sequence
+Return a collector for accumulating items to the end of the sequence
 `SEQUENCE`. If `:FRONT` is provided and is true, the items are
 accumulated to the front of the sequence rather than end.
 
@@ -1176,7 +1615,7 @@ instead.
 
 Generic Function: `ACCUMULATE COLLECTOR ITEM`
 
-Accumulates `ITEM` into the sequence associated with the collector
+Accumulate `ITEM` into the sequence associated with the collector
 `COLLECTOR`.
 
 
@@ -1184,7 +1623,7 @@ Accumulates `ITEM` into the sequence associated with the collector
 
 Generic Function: `COLLECTOR-SEQUENCE COLLECTOR`
 
-Returns the underlying sequence associated with the collector
+Return the underlying sequence associated with the collector
 `COLLECTOR`. The sequence should contain all items accumulated up to
 the call to this function.
 
@@ -1200,7 +1639,7 @@ CAUTION: The sequence returned might not be the same object passed to
 
 Generic Function: `EXTEND COLLECTOR SEQUENCE`
 
-Accumulates all elements of the sequence `SEQUENCE` into the sequence
+Accumulate all elements of the sequence `SEQUENCE` into the sequence
 associated with the collector `COLLECTOR`.
 
 If `SEQUENCE` is an iterator all elements up-to the end of the
@@ -1210,7 +1649,7 @@ NOTE: Implementing this method is optional as default methods are
 provided for iterators and sequences, which simply accumulate each
 element one by one using <<ACCUMULATE>>.
 
-Methods:
+.Methods
 
 * `T ITERATOR`
 +
@@ -1231,422 +1670,11 @@ by one using <<ACCUMULATE>>.
 NOTE: The sequence iteration is done using the <<iterator>> interface.
 
 
-=== Sequences ===
+=== Sequence ===
 
-Generic sequence functions.
+System and package name `GENERIC-CL.SEQUENCE`
 
-
-==== Creation ====
-
-The following functions are for creating a sequence into which items
-will be accumulated using the collector interface.
-
-
-===== CLEARED =====
-
-Generic Function: `CLEARED SEQUENCE &KEY &ALLOW-OTHER-KEYS`
-
-Returns a new empty sequence, of the same type and with the same
-properties as `SEQUENCE`, suitable for accumulating items into it
-using the collector interface.
-
-NOTE: Individual methods may accept keyword parameters which specify
-certain options of the sequence which is to be created.
-
-Methods:
-
-* `LIST`
-+
-Returns `NIL`.
-
-* `VECTOR`
-+
-Returns an adjustable vector of the same length as `SEQUENCE`,
-with the fill-pointer set to `0`.
-+
-If the `:KEEP-ELEMENT-TYPE` argument is provided and is true, the
-element type of the new vector is the same as the element type of
-`SEQUENCE`.
-
-
-===== MAKE-SEQUENCE-OF-TYPE =====
-
-Generic Function: `MAKE-SEQUENCE-OF-TYPE TYPE ARGS`
-
-Returns a new empty sequence of type `TYPE`. `ARGS` are the type
-arguments, if any.
-
-The default method creates a built-in sequence of the same type as
-that returned by:
-
-[source,lisp]
-----
-(make-sequence (cons type args) 0)
-----
-
-
-===== SEQUENCE-OF-TYPE =====
-
-Function: `SEQUENCE-OF-TYPE TYPE`
-
-Creates a new sequence of type `TYPE`, using
-<<MAKE-SEQUENCE-OF-TYPE>>.
-
-If `TYPE` is a list the `CAR` of the list is passed as the first
-argument, to `MAKE-SEQUENCE-OF-TYPE`, and the `CDR` is passed as the
-second argument. Otherwise, if `TYPE` is not a list, it is passed as
-the first argument and `NIL` is passed as the second argument.
-
-
-==== Sequence Elements ====
-
-===== ELT =====
-
-Generic Function: `ELT SEQUENCE INDEX`
-
-Returns the element at position `INDEX` in the sequence `SEQUENCE`.
-
-Methods:
-
-* `SEQUENCE T` and `VECTOR T`
-+
-Returns `(CL:ELT SEQUENCE INDEX)`.
-
-* `ARRAY INTEGER`
-+
-Multi-Dimensional Arrays.
-+
-Returns `(ROW-MAJOR-AREF SEQUENCE INDEX)`.
-
-* `ARRAY LIST`
-+
-Multi-Dimensional Arrays.
-+
-If length of `index` matches array's rank, returns `(apply #'aref sequence
-index)`.
-
-If `index`'s length is less than the array's rank, then returns a displaced
-array whose dimensions are `sequence`'s "unused" dimensions (ie `(nthcdr
-(array-dimensions sequence) (length index))`) and which shares storage with the
-"subarray" of `sequence` specificied by `index`
-
-* `HASH-TABLE T`
-+
-Hash Tables.
-+
-Returns `(CL:GETHASH INDEX SEQUENCE)`.
-
-* `HASH-MAP T`
-+
-Hash Maps.
-+
-Returns `(GENERIC-CL:GET INDEX SEQUENCE)`.
-
-* `T T`
-+
-Creates an iterator for `SEQUENCE`, with start position `INDEX`,
-and returns the first element returned by the iterator.
-
-
-===== (SETF ELT) =====
-
-Generic Function: `(SETF ELT) VALUE SEQUENCE INDEX`
-
-Sets the value of the element at position `INDEX` in the sequence
-`SEQUENCE`.
-
-Methods:
-
-* `T SEQUENCE T` and `T VECTOR T`
-+
-Returns `(SETF (CL:ELT SEQUENCE INDEX) VALUE)`.
-
-* `T ARRAY INTEGER`
-+
-Multi-Dimensional Arrays.
-+
-Returns `(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)`
-
-* `ARRAY LIST`
-+
-Multi-Dimensional Arrays.
-+
-If length of `index` matches array's rank, returns `(setf (apply #'aref sequence
-index) value)`.
-
-If `index`'s length is less than the array's rank, then copies the contents of
-`value` to the "subarray" (see `generic-cl:elt`) specified by `index` and then
-returns `(elt sequence index)`. `value`'s dimensions must equal the "unused"
-dimensions of `sequence` (ie `(nthcdr (array-dimensions sequence) (length
-index))`).
-
-* `T HASH-TABLE T`
-+
-Hash Tables.
-+
-Returns `(SETF (CL:GETHASH SEQUENCE INDEX) VALUE)`.
-
-* `T HASH-MAP T`
-+
-Hash Maps.
-+
-Returns `(SETF (GENERIC-CL:GET SEQUENCE INDEX) VALUE)`.
-
-* `T T T`
-+
-Creates an iterator for `SEQUENCE`, with start position `INDEX`,
-and sets the value of the element at the starting position of the
-iterator.
-
-
-===== FIRST =====
-
-Generic Function: `FIRST SEQUENCE`
-
-Returns the first element in the sequence `SEQUENCE`.
-
-Implemented for lists, vectors and multi-dimensional arrays. For
-multi-dimensional arrays, the first element is obtained by
-`ROW-MAJOR-AREF`.
-
-The default method is implemented using <<elt,GENERIC-CL:ELT>>, i.e. is
-equivalent to:
-
-[source,lisp]
-----
-(elt sequence index)
-----
-
-
-===== LAST =====
-
-Generic Function: `LAST SEQUENCE &OPTIONAL (N 0)`
-
-Returns the `N`'th element from the last element of the sequence
-`SEQUENCE`. `N` defaults to `0` which indicates the last element. `1`
-indicates the second to last element, `2` the third to last and so on.
-
-Implemented for lists, vectors and multi-dimensional arrays. For
-multi-dimensional arrays, the last element is obtained by:
-
-[source,lisp]
-----
-(row-major-aref sequence (- (array-total-size array) 1 n))
-----
-
-The default method is implemented using <<elt,GENERIC-CL:ELT>>, i.e. is
-equivalent to:
-
-[source,lisp]
-----
-(elt sequence (- (length sequence) 1 n))
-----
-
-CAUTION: The behaviour of this function differs from `CL:LAST` when
-called on lists, it returns the last element rather than the last
-`CONS` cell. The <<LASTCDR>> function performs the same function as
-`CL:LAST`.
-
-
-===== LASTCDR =====
-
-Function: `LASTCDR LIST &OPTIONAL (N 1)`
-
-This function is equivalent to `CL:LAST` list function.
-
-Returns the `CDR` of the `N`'th `CONS` cell from the end of the list.
-
-
-===== ERASE =====
-
-Generic Function: `ERASE SEQUENCE INDEX`
-
-Removes the element at index `INDEX` from the sequence `SEQUENCE`.
-
-Destructively modifies `SEQUENCE`.
-
-Methods:
-
-* `VECTOR T`
-+
-Shifts the elements following `INDEX` one element towards the
-front of the vector and shrinks the vector by one element.
-+
-CAUTION: Signals a `TYPE-ERROR` if the vector is not adjustable.
-
-NOTE: This method is not implemented for lists as removing the first
-element of a list cannot be implemented (efficiently) as a side effect
-alone.
-
-
-==== Sequence Length ====
-
-===== LENGTH =====
-
-Generic Function: `LENGTH SEQUENCE`
-
-Returns the number of elements in the sequence `SEQUENCE`. If
-`SEQUENCE` is an iterator, returns the number of remaining elements to
-be iterated over.
-
-This function is implemented for all Common Lisp sequences, returning
-the length of the sequence (by `CL:LENGTH`), multi-dimensional arrays,
-returning the total number of elements in the array (by
-`ARRAY-TOTAL-SIZE`), and <<HASH-MAP>>'s / hash tables, returning the
-total number of elements in the map/table.
-
-The following default methods are implemented:
-
-* `ITERATOR`
-+
-Returns the number of elements between the iterator's current
-position (inclusive) and the end of the iterator's subsequence.
-+
-This is implemented by advancing the iterator (by <<ADVANCE>>) till
-<<ENDP>> returns true, thus is a linear `O(n)` time operation.
-+
-More efficient specialized methods are provided for iterators to
-sequences for which the size is known.
-
-* `T`
-+
-Returns the length of the generic sequence by creating an iterator to
-the sequence and calling the <<iterator-struct>> specialized
-method. Thus this is a linear `O(n)`, in time, operation unless a more
-efficient method, which is specialized on the sequence's iterator
-type, is implemented.
-
-
-===== EMPTYP =====
-
-Generic Function: `EMPTYP SEQUENCE`
-
-Returns true if the sequence `SEQUENCE` is empty.
-
-Implemented for lists, vectors, multi-dimensional arrays (always
-returns `NIL`) and <<HASH-MAP>>'s.
-
-The default returns true if <<ENDP>> returns true for a newly created
-iterator for `SEQUENCE`.
-
-
-===== CLEAR =====
-
-Generic Function: `CLEAR SEQUENCE`
-
-Destructively removes all elements from the sequence `SEQUENCE`.
-
-Implemented for vectors and <<HASH-MAP>>'s.
-
-
-===== ADJUST-SIZE =====
-
-Generic Function: `ADJUST-SIZE SEQUENCE N &KEY ELEMENT`
-
-Return a new sequence containing the same elements as `SEQUENCE` however
-with its size changed to `N`.
-
-If `N` is less than the number of elements in `SEQUENCE`, the returned
-sequence contains only the first N elements of `SEQUENCE`.
-
-If `N` is greater than the number of elements in `SEQUENCE`, the
-returned sequence contains all the elements of `SEQUENCE` with an
-additional `(LENGTH SEQUENCE) - N` elements initialized to the value
-of `ELEMENT`.
-
-Methods are provided for lists and vectors. The default `T` method,
-implements this operation using the <<Iterator>> and <<Collector>>
-interfaces.
-
-===== NADJUST-SIZE =====
-
-Generic Function: `NADJUST-SIZE SEQUENCE N &KEY ELEMENT`
-
-Return a new sequence containing the same elements as `SEQUENCE`
-however with its size changed to `N`.
-
-IMPORTANT: `SEQUENCE` may be destructively modified.
-
-If `N` is less than the number of elements in `SEQUENCE`, the returned
-sequence contains only the first N elements of `SEQUENCE`.
-
-If `N` is greater than the number of elements in `SEQUENCE`, the
-returned sequence contains all the elements of `SEQUENCE` with an
-additional `(LENGTH SEQUENCE) - N` elements initialized to the value
-of `ELEMENT`.
-
-Methods are provided for lists and vectors. The default `T` method,
-implements this operation using the <<Iterator>> and <<Collector>>
-interfaces.
-
-==== Subsequences ====
-
-
-===== SUBSEQ =====
-
-Generic Function: `SUBSEQ SEQUENCE START &OPTIONAL END`
-
-Returns a new sequence that contains the elements of `SEQUENCE` at the
-positions in the range `[START, END)`. If `SEQUENCE` is an iterator,
-an iterator for the sub-sequence relative to the current position of
-the iterator is returned.
-
-`START` is the index of the first element of the subsequence, with `0`
-indicating the start of the sequence. if `SEQUENCE` is an iterator,
-`START` is the number of times the iterator should be <<ADVANCE>>'d to
-reach the first element of the subsequence.
-
-`END` is the index of the element following the last element of the
-subsequence. `NIL` (the default) indicates the end of the sequence. If
-`SEQUENCE` is an iterator, `END` is the number of times the iterator
-should be <<ADVANCE>>'d till the end position is reached.
-
-Methods:
-
-* `SEQUENCE T`
-+
-Returns the subsequence using `CL:SUBSEQ`.
-
-* `ITERATOR T`
-+
-Returns a subsequence iterator which wraps a copy of the original
-iterator.
-
-* `T T`
-+
-Returns the subsequence of the generic sequence. This requires that
-the <<CLEARED>> method, the <<iterator>> interface and <<Collector>>
-interface are implemented for the generic sequence type.
-
-
-===== (SETF SUBSEQ) =====
-
-Generic Function: `(SETF SUBSEQ) NEW-SEQUENCE SEQUENCE START &OPTIONAL END`
-
-Replaces the elements of `SEQUENCE` at the positions in the range
-`[START, END)`, with the elements of `NEW-SEQUENCE`. The shorter
-length of `NEW-SEQUENCE` and the number of elements between `START`
-and `END` determines how many elements of `SEQUENCE` are actually
-modified.
-
-See <<subseq,SUBSEQ>> for more details of how the `START` and `END` arguments are
-interpreted.
-
-Methods:
-
-* `SEQEUNCE SEQUENCE T`
-+
-Sets the elements of the subsequence using `(SETF CL:SUBSEQ)`.
-
-* `T T T`
-+
-Sets the elements of the generic sequence using the <<iterator>>
-interface, which should be implemented for both the types of
-`SEQUENCE` and `NEW-SEQUENCE`. This method requires that the
-<<setf-at>> method is implemented for the iterator type of `SEQUENCE`.
-
-
-==== Sequence Operations ====
+Generic sequence operations.
 
 Generic function wrappers, which are identical in behavior to their
 counterparts in the `COMMON-LISP` package, are provided for the
@@ -1704,7 +1732,7 @@ implemented for the sequence's type.
 The destructive versions may additionally require that the optional
 <<setf-at>> method is implemented as well.
 
-IMPORTANT: The default value of the `:TEST` keyword arguments is
+IMPORTANT: The default value of the `:TEST` keyword argument is
 <<equalp,GENERIC-CL:EQUALP>>. This should be the default value when
 implementing methods for user-defined sequence types. The `:TEST-NOT`
 keyword arguments have been removed.
@@ -1723,7 +1751,7 @@ arguments.
 The following functions either have no `CL` counterparts or differ
 slightly in behavior from their `CL` counterparts:
 
-===== FIND-IT =====
+==== FIND-IT ====
 
 Generic Function: `FIND-IT ITEM SEQUENCE &KEY FROM-END START END TEST KEY`
 
@@ -1732,6 +1760,8 @@ at which it was found.
 
 NOTE: This is the same as `FIND` except it returns an iterator to the
 position at which an element is found rather than the element itself.
+
+.Parameters
 
 `ITEM`:: The item to find in the sequence.
 `SEQUENCE`:: The sequence to search.
@@ -1754,7 +1784,7 @@ object that is passed to this function. This is to allow iterating
 over the remaining elements of the sequence and to allow for modifying
 the sequence.
 
-===== FIND-IT-IF =====
+==== FIND-IT-IF ====
 
 Generic Function: `FIND-IT-IF PREDICATE SEQUENCE &KEY FROM-END START END KEY`
 
@@ -1763,6 +1793,8 @@ an iterator to the position at which it was found.
 
 NOTE: This is the same as `FIND-IF` except it returns an iterator to the
 position at which an element is found rather than the element itself.
+
+.Parameters
 
 `PREDICATE`:: A predicate function, of one argument, applied on each
 element of sequence. The element for which this function returns true,
@@ -1786,7 +1818,7 @@ object that is passed to this function. This is to allow iterating
 over the remaining elements of the sequence and to allow for modifying
 the sequence.
 
-===== FIND-IT-IF-NOT =====
+==== FIND-IT-IF-NOT ====
 
 Generic Function: `FIND-IT-IF PREDICATE SEQUENCE &KEY FROM-END START END KEY`
 
@@ -1795,6 +1827,8 @@ return an iterator to the position at which it was found.
 
 NOTE: This is the same as `FIND-IF-NOT` except it returns an iterator to the
 position at which an element is found rather than the element itself.
+
+.Parameters
 
 `PREDICATE`:: A predicate function, of one argument, applied on each
 element of sequence. The element for which this function returns false (`NIL`),
@@ -1819,30 +1853,30 @@ over the remaining elements of the sequence and to allow for modifying
 the sequence.
 
 
-===== MERGE =====
+==== MERGE ====
 
 Generic Function: `MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY`
 
-Returns a new sequence, of the same type as `SEQUENCE1`, containing
-the elements of `SEQUENCE1` and `SEQUENCE2`. The elements are ordered
+Return a new sequence, of the same type as `SEQUENCE1`, containing the
+elements of `SEQUENCE1` and `SEQUENCE2`. The elements are ordered
 according to the function `PREDICATE`.
 
 IMPORTANT: Unlike `CL:MERGE` this function is non-destructive.
 
 
-===== NMERGE =====
+==== NMERGE ====
 
 Generic Function: `MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY`
 
-Same as `MERGE` however is permitted to destructively modify either
+Same as <<MERGE>> however is permitted to destructively modify either
 `SEQUENCE1` or `SEQUENCE2`.
 
 
-===== SORT =====
+==== SORT ====
 
 Generic Function: `SORT SEQUENCE &KEY TEST KEY`
 
-Returns a new sequence of the same type as `SEQUENCE`, with the same
+Return a new sequence of the same type as `SEQUENCE`, with the same
 elements sorted according to the order determined by the function
 `TEST`. `TEST` is <<lessp,GENERIC-CL:LESSP>> by default.
 
@@ -1853,11 +1887,11 @@ TIP: For the default method to be efficient, efficient <<ADVANCE-N,>>
 iterator type of `SEQUENCE`.
 
 
-===== STABLE-SORT =====
+==== STABLE-SORT ====
 
 Generic Function: `STABLE-SORT SEQUENCE &KEY TEST KEY`
 
-Same as `SORT` however the sort operation is guaranteed to be
+Same as <<SORT>> however the sort operation is guaranteed to be
 stable. `TEST` is <<lessp,GENERIC-CL:LESSP>> by default.
 
 IMPORTANT: Unlike `CL:STABLE-SORT` this function is non-destructive.
@@ -1867,27 +1901,27 @@ TIP: For the default method to be efficient, efficient <<ADVANCE-N,>>
 iterator type of `SEQUENCE`.
 
 
-===== NSORT =====
+==== NSORT ====
 
 Generic Function: `NSORT SEQUENCE &KEY TEST KEY`
 
-Same as `SORT` however is permitted to destructively modify
+Same as <<SORT>> however is permitted to destructively modify
 `SEQUENCE`.
 
 
-===== STABLE-NSORT =====
+==== STABLE-NSORT ====
 
 Generic Function: `STABLE-NSORT SEQUENCE &KEY TEST KEY`
 
-Same as `STABLE-SORT` however is permitted to destructively modify
+Same as <<STABLE-SORT>> however is permitted to destructively modify
 `SEQUENCE`.
 
 
-===== CONCATENATE =====
+==== CONCATENATE ====
 
 Generic Function: `CONCATENATE SEQUENCE &REST SEQUENCES`
 
-Returns a new sequence, of the same type as `SEQUENCE`, containing all
+Return a new sequence, of the same type as `SEQUENCE`, containing all
 the elements of `SEQUENCE` and of each sequence in `SEQUENCES`, in the
 order they are supplied.
 
@@ -1895,12 +1929,12 @@ IMPORTANT: Unlike `CL:CONCATENATE` does not take a result type
 argument.
 
 
-===== NCONCATENATE =====
+==== NCONCATENATE ====
 
 Generic Function: `NCONCATENATE RESULT &REST SEQUENCES`
 
-Destructively concatenates each sequence in `SEQUENCES` to the
-sequence `RESULT`.
+Destructively concatenate each sequence in `SEQUENCES` to the sequence
+`RESULT`.
 
 Returns the result of the concatenation.
 
@@ -1910,11 +1944,11 @@ sequence instead. Thus do not rely on this function for its side
 effects.
 
 
-===== MAP =====
+==== MAP ====
 
 Generic Function: `MAP FUNCTION SEQUENCE &REST SEQUENCES`
 
-Creates a new sequence, of the same type as `SEQUENCE` (by
+Create a new sequence, of the same type as `SEQUENCE` (by
 <<CLEARED>>), containing the result of applying `FUNCTION` to each
 element of SEQUENCE and each element of each `SEQUENCE` in
 `SEQUENCES`.
@@ -1925,11 +1959,11 @@ the first sequence passed as an argument, rather than being determined
 by a type argument.
 
 
-===== NMAP =====
+==== NMAP ====
 
 Generic Function: `NMAP RESULT FUNCTION &REST SEQUENCES`
 
-Destructively replaces each element of `RESULT` with the result of
+Destructively replace each element of `RESULT` with the result of
 applying `FUNCTION` to each element of `RESULT` and each element of
 each sequence in SEQUENCES.
 
@@ -1945,12 +1979,12 @@ not required and may return the result in a new sequence instead. Thus
 do not rely on this function for its side effects.
 
 
-===== MAP-INTO =====
+==== MAP-INTO ====
 
 Generic Function: `MAP-INTO RESULT FUNCTION &REST SEQUENCES`
 
-Applies `FUNCTION` on each element of each sequence in `SEQUENCES` and
-accumulates the result in RESULT, using the <<Collector>> interface.
+Apply `FUNCTION` on each element of each sequence in `SEQUENCES` and
+accumulate the result in RESULT, using the <<Collector>> interface.
 
 Returns the resulting sequence.
 
@@ -1959,12 +1993,12 @@ not required and may return the result in a new sequence instead. Thus
 do not rely on this function for its side effects.
 
 
-===== MAP-TO =====
+==== MAP-TO ====
 
 Generic Function: `MAP-TO TYPE FUNCTION &REST SEQUENCES`
 
-Applies `FUNCTION` to each element of each sequence in `SEQUENCES` and
-stores the result in a new sequence of type `TYPE` (created using
+Apply `FUNCTION` on each element of each sequence in `SEQUENCES` and
+store the result in a new sequence of type `TYPE` (created using
 <<SEQUENCE-OF-TYPE>>).  Returns the sequence in which the results of
 applying the function are stored.
 
@@ -1974,33 +2008,33 @@ equivalent in behavior, to `CL:MAP`. The only difference is that if
 a fill-pointer. A `NIL` type argument is not interpreted as do not
 accumulate the results, use <<FOREACH>> for that.
 
-===== MAP-EXTEND =====
+==== MAP-EXTEND ====
 
 Generic Function: `MAP-EXTEND-TO FUNCTION SEQUENCE &REST SEQUENCES`
 
-Applies `FUNCTION` to each respective element of `SEQUENCE`, and of
-each sequence in `SEQUENCES`, accumulating, using the <<EXTEND>>
-method of the <<Collector>> Interface, the elements of the result,
-which is expected to be a sequence, in a sequence of the same type as
+Apply `FUNCTION` on each respective element of `SEQUENCE`, and of each
+sequence in `SEQUENCES`, accumulating, using the <<EXTEND>> method of
+the <<Collector>> Interface, the elements of the result, which is
+expected to be a sequence, in a sequence of the same type as
 `SEQUENCE`. The resulting sequence is returned.
 
 
-===== MAP-EXTEND-TO =====
+==== MAP-EXTEND-TO ====
 
 Generic Function: `MAP-EXTEND-TO TYPE FUNCTION &REST SEQUENCES`
 
-Applies `FUNCTION` to each respective element of each sequence in
-`SEQUENCES`, and accumulates, using the <<EXTEND>> method of the
+Apply `FUNCTION` on each respective element of each sequence in
+`SEQUENCES`, and accumulate, using the <<EXTEND>> method of the
 <<Collector>> Interface, the elements of the result, which is expected
 to be a sequence, in a sequence of type `TYPE`, created using
 <<SEQUENCE-OF-TYPE>>. The resulting sequence is returned.
 
-===== MAP-EXTEND-INTO =====
+==== MAP-EXTEND-INTO ====
 
 Generic Function: `MAP-EXTEND-INTO RESULT FUNCTION &REST SEQUENCES`
 
-Applies `FUNCTION` to each respective element of each sequence in
-`SEQUENCES`, and accumulates, using the <<EXTEND>> method of the
+Apply `FUNCTION` on each respective element of each sequence in
+`SEQUENCES`, and accumulate, using the <<EXTEND>> method of the
 <<Collector>> Interface, the elements of the result, which is expected
 to be a sequence, in the sequence `RESULT`. The resulting sequence is
 returned.
@@ -2009,21 +2043,101 @@ CAUTION: `RESULT` may be destructively modified, however that is not
 guaranteed thus this function should only be used for its return
 value, not its side effects.
 
-===== FOREACH =====
+==== FOREACH ====
 
 Function: `FOREACH &REST SEQUENCES`
 
-Applies `FUNCTION` on each element of each sequence in `SEQUENCES`.
+Apply `FUNCTION` on each element of each sequence in `SEQUENCES`.
 
 Returns `NIL`.
 
+==== Implemented Methods ====
+
+This interface's system also defines the following methods of the
+<<Container>> interface, implemented using the <<Iterator>> and
+<<Collector>> interfaces.
+
+===== ELT =====
+
+Method: `ELT (SEQUENCE T) (INDEX T)`
+
+Creates an iterator for `SEQUENCE`, with start position `INDEX`,
+and returns the first element returned by the iterator.
+
+
+===== (SETF ELT) =====
+
+Method: `(SETF ELT) (VALUE T) (SEQUENCE T) (INDEX T)`
+
+Creates an iterator for `SEQUENCE`, with start position `INDEX`, and
+sets the value of the element at the starting position of the
+iterator.
+
+
+===== LENGTH =====
+
+Method: `LENGTH (CONTAINER T)`
+
+Returns the size of the container by creating an iterator and calling
+the `LENGTH` method specialized on the <<iterator-struct>> structure.
+
+This is a linear `O(n)`, in time, operation unless a more efficient
+method, which is specialized on the containers's iterator type, is
+implemented.
+
+
+===== EMPTYP =====
+
+Method: `EMPTYP (CONTAINER T)`
+
+Returns true if <<ENDP>> returns true for a newly created
+iterator for `CONTAINER`.
+
+
+===== ADJUST-SIZE =====
+
+Method: `ADJUST-SIZE (CONTAINER T) (N T) &KEY ELEMENT`
+
+Requires the <<Iterator>> and <<Collector>> interfaces to be
+implemented for the container type.
+
+
+===== NADJUST-SIZE =====
+
+Method: `NADJUST-SIZE (CONTAINER T) (N T) &KEY ELEMENT`
+
+Requires the <<Iterator>> and <<Collector>> interfaces to be
+implemented for the container type.
+
+
+===== SUBSEQ =====
+
+Method: `SUBSEQ (SEQUENCE T) (START T) &OPTIONAL END`
+
+Requires the <<CLEARED>> method, the <<Iterator>> interface and
+<<Collector>> interface to be implemented for the sequence type.
+
+
+===== (SETF SUBSEQ) =====
+
+Method: `(SETF SUBSEQ) (NEW-SEQUENCE T) (SEQUENCE T) (START T) &OPTIONAL END`
+
+Requires the <<iterator>> interface to be implemented for both the
+types of `SEQUENCE` and `NEW-SEQUENCE`.
+
+Requires the <<setf-at>> method to be implemented for the iterator
+type of `SEQUENCE`.
+
+
 === Lazy Sequences ===
+
+System and package name: `GENERIC-CL.LAZY-SEQ`
 
 Lazy sequences are sequences in which the elements are only computed
 when they are actually referenced, rather than being computed
 immediately.
 
-Lazy sequences are implemented with `LAZY-SEQ` structure which is
+Lazy sequences are implemented with the `LAZY-SEQ` structure which is
 similar to a `CONS` cell, however the `CDR`, the `TAIL` slot of the
 `LAZY-SEQ` structure, stores a function which computes and returns the
 remainder of the sequence, rather than storing the sequence directly.
@@ -2032,9 +2146,9 @@ remainder of the sequence, rather than storing the sequence directly.
 
 Structure: `LAZY-SEQ`
 
-Lazy sequence analogous to a `CONS`.
+Lazy sequence cell analogous to a `CONS`.
 
-.*Slots:*
+.Slots
 `HEAD`:: The first element of the sequence. _Can be accessed with
 the `LAZY-SEQ-HEAD` accessor function._
 
@@ -2067,7 +2181,7 @@ which have already been evaluated, into a `LAZY-SEQ`.
 `LAZY-SEQ`.
 
 * Methods, specialized on `LAZY-SEQ`, are implemented for the
-following <<sequence_operations,Sequence Operations>> and their
+following <<sequence,Sequence Operations>> and their
 destructive counterparts:
 +
 --
@@ -2194,6 +2308,8 @@ to obtain the next successive number in the sequence.
 
 === Generic Hash-Tables ===
 
+System and package name: `GENERIC-CL.MAP`
+
 This interface provides a hash-table data structure with the generic
 function <<HASH>> as the hash function and the generic function
 <<equalp,GENERIC-CL:EQUALP>> as the key comparison function. This
@@ -2210,20 +2326,15 @@ and comparison functions, a fallback solution is used, which is a
 custom hash-table implementation on top of standard hash-tables. The
 <<HASH-MAP>> structure wraps the custom hash-table which allows
 methods methods to be specialized on a single type `HASH-MAP`
-regardless of whether standard or custom hash-tables are used. If the
-`HASH-MAP` wrapper were not used, two identical methods would have to
-be implemented, one specializing on standard hash-tables and one
-specializing on custom hash-tables. More identical methods would have
-to be implemented if the method has hash-table specializers for more
-than one arguments, leading to a combinatorial explosion.
+regardless of whether standard or custom hash-tables are used.
 
 The functions in this interface are specialized on the `HASH-MAP`
-type, due to the issue described above, thus use this type, created
-with <<MAKE-HASH-MAP>>, rather than built-in hash-tables. If a
-hash-table is obtained from an external source, use <<HASH-MAP>> or
-<<ENSURE-HASH-MAP>> to convert it to a `HASH-MAP`.
+type, thus this type, created with <<MAKE-HASH-MAP>>, should be used
+rather than built-in hash-tables. If a hash-table is obtained from an
+external source, use <<HASH-MAP>> or <<ENSURE-HASH-MAP>> to convert it
+to a `HASH-MAP`.
 
-*Standard Hash-Table Analogues:*
+.*Standard Hash-Table Counterparts*
 
 [width="80%",options="header"]
 |====
@@ -2238,21 +2349,28 @@ hash-table is obtained from an external source, use <<HASH-MAP>> or
 
 ==== HASH-MAP ====
 
-Structure: `HASH-MAP` with slots: `TABLE`
+Structure: `HASH-MAP`
+
+.Slots
+* `TABLE`
 
 Function: `HASH-MAP TABLE`
 
-The `HASH-MAP` structure wraps a standard `HASH-TABLE` or
-`CUSTOM-HASH-TABLE`. The `TABLE` slot, accessed with `HASH-MAP-TABLE`,
-stores the underlying hash-table.
+The `HASH-MAP` structure wraps a standard `HASH-TABLE`, or
+`CUSTOM-HASH-TABLE`, contained in the `TABLE` slot, which can be
+accessed accessed with `HASH-MAP-TABLE`.
 
-The `HASH-MAP` function creates a hash-map wrapping a hash table
-passed as its only argument.
+The `HASH-MAP` function takes a single argument, a hash-table, and
+creates a `HASH-MAP` wrapping it.
 
 
 ===== Implemented Interfaces =====
 
-The iterator interface is implemented for ``HASH-MAP``'s. Each element
+The <<CLEARED>>, <<MAKE-SEQUENCE-OF-TYPE>>, <<LENGTH>>, <<EMPTYP>>,
+<<CLEAR>>, <<ELT>>, <<setf-elt>> and <<ERASE>> methods of the
+<<Container>> interface are implemented.
+
+The <<Iterator>> interface is implemented for ``HASH-MAP``'s. Each element
 returned by the iterator is a `CONS` with the key in the `CAR` and the
 corresponding value in the `CDR`. The order in which the entries are
 iterated over is unspecified. Likewise it is unspecified which entries
@@ -2281,9 +2399,8 @@ WARNING: if the two maps have different test functions, the `EQUALP`
 method is not necessarily symmetric i.e. `(EQUALP A B)` does not imply
 `(EQUALP B A)`.
 
-A <<LIKEP>> method is implemented for ``HASH-MAP``'s, which is
-similar to the `EQUALP` method, however the keys and values are
-compared using `LIKEP`.
+A <<LIKEP>> method is implemented for ``HASH-MAP``'s, which is similar
+to the `EQUALP` method, however the values are compared using `LIKEP`.
 
 A <<COPY>> method is implemented for ``HASH-MAP``'s which by default
 creates a new map with the same entries as the original map. If `:DEEP
@@ -2340,7 +2457,7 @@ Generic Function: `HASH OBJECT`
 Hash function for hash tables with the `GENERIC-CL:EQUALP` test
 specifier.
 
-Returns a hash code for `OBJECT`, which should be a non-negative
+Return a hash code for `OBJECT`, which should be a non-negative
 fixnum. If two objects are equal (under <<equalp, GENERIC-CL:EQUALP>>)
 then the hash codes, for the two objects, returned by `HASH`, should
 also be equal.
@@ -2362,7 +2479,7 @@ Generic Function: `LIKE-HASH OBJECT`
 Hash function for hash tables with the `LIKEP` test
 specifier.
 
-Returns a hash code for `OBJECT`, which should be a non-negative
+Return a hash code for `OBJECT`, which should be a non-negative
 fixnum. If two objects are equal (under <<LIKEP>>) then the hash
 codes, for the two objects, returned by `LIKE-HASH`, should also be
 equal.
@@ -2376,7 +2493,7 @@ method calls the `HASH` function.
 
 Generic Function: `GET KEY MAP &OPTIONAL DEFAULT`
 
-Returns the value of the entry corresponding to the key `KEY` in the
+Return the value of the entry corresponding to the key `KEY` in the
 map `MAP`. If the `MAP` does not contain any entry with that key,
 `DEFAULT` is returned. The second return value is true if an entry
 with key `KEY` was found in the map, false otherwise.
@@ -2391,7 +2508,7 @@ the `EQ` key comparison function is used.
 
 Generic Function: `(SETF GET) VALUE KEY MAP &OPTIONAL DEFAULT`
 
-Sets the value of the entry corresponding to the key `KEY` in the map
+Set the value of the entry corresponding to the key `KEY` in the map
 `MAP`. `DEFAULT` is ignored.
 
 IMPORTANT: Only a method for `HASH-MAPS` and `HASH-TABLES` is
@@ -2410,11 +2527,37 @@ The first return value is the value corresponding to the key `KEY`, or
 true if `KEY` was found in `MAP`, false otherwise.
 
 
+==== ELT Methods ====
+
+The following `ELT` methods are provided:
+
+* `(MAP HASH-MAP) (KEY T)`
++
+Returns `(GENERIC-CL:GET KEY MAP)`.
+
+* `(MAP HASH-TABLE) (KEY T)`
++
+Returns `(GETHASH KEY MAP)`
+
+
+==== (SETF ELT) Methods ====
+
+The following `(SETF ELT)` methods are provided:
+
+* `(VALUE T) (MAP HASH-MAP) (KEY T)`
++
+Calls `(SETF (GENERIC-CL:GET KEY MAP) VALUE)`
+
+* `(VALUE T) (MAP HASH-TABLE) (KEY T)`
++
+Calls `(SETF (GETHASH KEY MAP) VALUE)`
+
+
 ==== ERASE Method ====
 
-Method: `ERASE (MAP HASH-MAP) KEY`
+Method: `ERASE (MAP HASH-MAP) (KEY T)`
 
-Removes the entry with key `KEY` from `MAP`.
+Remove the entry with key `KEY` from `MAP`.
 
 Returns true if the map contained an entry with key `KEY`.
 
@@ -2432,15 +2575,16 @@ the map `MAP`.
 Function: `ALIST-HASH-MAP ALIST &REST ARGS`
 
 Returns a <<HASH-MAP>> containing all entries in the association list
-`ALIST`. `ARGS` are the additional arguments passed to
-<<MAKE-HASH-MAP>>.
+`ALIST`.
+
+`ARGS` are the additional arguments passed to <<MAKE-HASH-MAP>>.
 
 
 ==== MAP-KEYS ====
 
 Generic Function: `MAP-KEYS MAP`
 
-Returns a sequence containing all the keys in the map `MAP`.
+Return a sequence containing all the keys in the map `MAP`.
 
 NOTE: Specialized only on ``HASH-MAP``'s and ``CL:HASH-TABLE``'s.
 
@@ -2449,7 +2593,7 @@ NOTE: Specialized only on ``HASH-MAP``'s and ``CL:HASH-TABLE``'s.
 
 Generic Function: `MAP-VALUES MAP`
 
-Returns a sequence containing all the values in the map `MAP`.
+Return a sequence containing all the values in the map `MAP`.
 
 NOTE: Specialized only on ``HASH-MAP``'s and ``CL:HASH-TABLE``'s.
 
@@ -2468,8 +2612,15 @@ the map. Equivalent to <<HASH-MAP-ALIST>>.
 Returns a property list (`PLIST`) containing all the entries in
 the map.
 
+==== MAKE-SEQUENCE-OF-TYPE Method ====
 
-=== Set Operations ===
+Method: `MAKE-SEQUENCE-OF-TYPE (TYPE (EQL 'HASH-MAP)) (ARGS NULL)`
+
+Return a new empty `HASH-MAP` with test function `GENERIC-CL:EQUALP`.
+
+=== Sets ===
+
+System and package name `GENERIC-CL.SET`.
 
 The set interface provides generic functions for performing set
 operations and implementations of those operations for a hash-set data
@@ -2505,8 +2656,8 @@ returned, by the set operation functions, are unspecified.
 
 Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
 
-Returns a new set, of the same type as `SET`, which contains `ITEM`
-and all elements in `SET`.
+Return a new set containing the elements of `SET`, and of the same
+type, with `ITEM` added to it.
 
 IMPORTANT: This function is non-destructive. A new set is always returned even if
 `SET` is a <<HASH-MAP>> / <<HASH-SET>>.
@@ -2522,9 +2673,9 @@ Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
 Same as <<adjoin,ADJOIN>> however is permitted to destructively modify `SET`.
 
 IMPORTANT: The set returned is `EQ` to `SET` in the case of `SET`
-being a <<HASH-MAP>> however is note required to be `EQ` and is not
-`EQ` if `SET` is a list. Thus this function should not be relied upon
-for its side effects.
+being a <<HASH-MAP>> however this is not a requirement and is not `EQ`
+if `SET` is a list. Thus this function should not be relied upon for
+its side effects.
 
 NOTE: Implemented for both lists and  <<HASH-MAP>>'s.
 
@@ -2544,8 +2695,8 @@ accepted by `CL:MEMBER` are accepted, however are ignored by the
 
 Structure: `HASH-SET`
 
-A hash-set is a <<HASH-MAP>> however it is used to indicate that only
-the keys are important. This allows the <<EQUALP>> and <<COPY>>
+A `HASH-SET` is a <<HASH-MAP>> however it is used to indicate that
+only the keys are important. This allows the <<EQUALP>> and <<COPY>>
 methods, specialized on `HASH-SET`'s to be implemented more
 efficiently, than the methods specialized on ``HASH-MAP``'s, as the
 map values are not compared/copied.
@@ -2593,16 +2744,21 @@ The following `COERCE` Methods are provided:
 Returns a `HASH-SET` containing the elements in the list.
 
 
-=== Math Functions ===
+=== Math ===
 
-Generic function wrappers are provided over a number of math
-functions. Methods specialized on `NUMBER` are provided, which simply
-call the corresponding functions in the `CL` package. The idea of this
-interface is to allow the mathematical functions to be extended to
-vectors and matrices. This interface might not used as often as the
-previous interfaces, thus is contained in a separate package
-`GENERIC-MATH-CL` which exports all symbols exported by `GENERIC-CL`
-and shadows the math functions.
+System and package name `GENERIC-CL.MATH`.
+
+This interface provides generic function wrappers are provided over a
+number of math functions. Methods specialized on `NUMBER` are
+provided, which simply call the corresponding functions in the `CL`
+package. The purpose of this interface is to allow the mathematical
+functions to be extended to vectors and matrices.
+
+This interface is not exported by the `GENERIC-CL` package, as it's
+not as frequently used as the previous interfaces. The
+`GENERIC-MATH-CL` package exports all symbols exports by the
+`GENERIC-CL` package and the shadowed math functions in
+`GENERIC-CL.MATH`.
 
 Generic function wrappers are provided for the following functions:
 
@@ -2634,22 +2790,6 @@ Generic function wrappers are provided for the following functions:
 * `RATIONALIZE`
 
 
-=== Miscellaneous ===
-
-==== DEFCONSTANT ====
-
-Macro: `DEFCONSTANT SYMBOL VALUE &OPTIONAL DOCUMENTATION`
-
-Ensures that `SYMBOL` is a constant with a value that is equal, by
-`GENERIC-CL:EQUALP` to `VALUE`. This means that if `SYMBOL` already
-names a constant, which occurs when the `DEFCONSTANT` form is
-reevaluated, no condition will be signalled if its value is equal (by
-`GENERIC-CL:EQUALP`) to `VALUE`.
-
-NOTE: Implemented using `ALEXANDRIA:DEFINE-CONSTANT`
-
-
-
 == System GENERIC-CL.UTIL ==
 
 The system `GENERIC-CL.UTIL` provides additional utilities implemented
@@ -2674,7 +2814,7 @@ interface.
 
 Function: `REPEATEDLY F &OPTIONAL N TYPE`
 
-Create a lazy sequence containing `N` elements, with each element each
+Create a lazy sequence containing `N` elements, with each element
 being the result of an application of the function `F` on no
 arguments. If `N` is `NIL` or not provided, an infinite sequence is
 returned.
@@ -2732,15 +2872,21 @@ body of the appropriate method, which is selected based on the type
 declarations of its arguments.
 
 For a generic function call to be inlined, the generic function has to
-be declared inline (either locally or globally), and the arguments
-must either have type declarations (if they are variables), or be
-surrounded in a `THE` form.
+be declared inline (either locally or globally), with the `OPTIMIZE`
+`SPEED` level greater than the `SAFETY` level. Additionally, it must
+also be possible to determine the types of the arguments at
+compile-time. _See
+https://github.com/alex-gutev/static-dispatch[STATIC-DISPATCH] and
+https://github.com/alex-gutev/cl-form-types[CL-FORM-TYPES] for
+information on how the types of the arguments are determined and how
+to make the type information available_.
 
 .Example
 [source,lisp]
 ----
 (let ((x 1))
   (declare (inline equalp)
+           (optimize (speed 3) (safety 2))
 	   (type number x))
 
   (equalp x (the number (+ 3 4))))
@@ -2769,13 +2915,9 @@ being statically dispatched, though this has not yet been tested:
 IMPORTANT: STATIC-DISPATCH requires the ability to extract `TYPE` and
  `INLINE` declarations from implementation specific environment
  objects. This is provided by the
- https://github.com/alex-gutev/cl-environments[CL-ENVIRONMENTS]
- library however in order for it to work on all supported
- implementations, the `ENABLE-HOOK` function (exported by
- `GENERIC-CL`) has to be called at some point before the generic
- function call is compiled.
+ https://alex-gutev.github.io/cl-environments/[CL-ENVIRONMENTS]
+ library, which works in the general case however some
+ https://alex-gutev.github.io/cl-environments/#ensuring_code_walking[workarounds]
+ are necessary in order for it to work on all implementations in all
+ cases.
 
-See https://github.com/alex-gutev/static-dispatch[STATIC-DISPATCH] and
-https://github.com/alex-gutev/cl-environments[CL-ENVIRONMENTS] for
-more information about these optimizations and the current
-limitations.
