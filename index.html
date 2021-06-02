@@ -449,6 +449,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
+<p>Source Code: <a href="https://github.com/alex-gutev/generic-cl" class="bare">https://github.com/alex-gutev/generic-cl</a></p>
+</div>
+<div class="paragraph">
 <p>GENERIC-CL provides a generic function wrapper over various functions
 in the Common Lisp standard, such as equality predicates and sequence
 operations. The goal of this wrapper is to provide a standard
@@ -459,19 +462,19 @@ two objects, which is extensible to user-defined types.</p>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#usage">Usage</a></li>
+<li><a href="#usage">Usage</a>
+<ul class="sectlevel2">
+<li><a href="#using_specific_interface">Using Specific Interface</a></li>
+</ul>
+</li>
 <li><a href="#generic_interfaces">Generic Interfaces</a>
 <ul class="sectlevel2">
-<li><a href="#equality">Equality</a>
+<li><a href="#comparison">Comparison</a>
 <ul class="sectlevel3">
 <li><a href="#equalp">EQUALP</a></li>
 <li><a href="#likep">LIKEP</a></li>
 <li><a href="#equalp-nary">=</a></li>
 <li><a href="#not-equalp-nary">/=</a></li>
-</ul>
-</li>
-<li><a href="#comparison">Comparison</a>
-<ul class="sectlevel3">
 <li><a href="#lessp">LESSP</a></li>
 <li><a href="#less_equal_p">LESS-EQUAL-P</a></li>
 <li><a href="#greaterp">GREATERP</a></li>
@@ -515,10 +518,47 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#rem">REM</a></li>
 </ul>
 </li>
-<li><a href="#objects">Objects</a>
+<li><a href="#object">Object</a>
 <ul class="sectlevel3">
 <li><a href="#copy">COPY</a></li>
 <li><a href="#coerce">COERCE</a></li>
+<li><a href="#defconstant">DEFCONSTANT</a></li>
+</ul>
+</li>
+<li><a href="#container">Container</a>
+<ul class="sectlevel3">
+<li><a href="#creation">Creation</a>
+<ul class="sectlevel4">
+<li><a href="#cleared">CLEARED</a></li>
+<li><a href="#make_sequence_of_type">MAKE-SEQUENCE-OF-TYPE</a></li>
+<li><a href="#sequence_of_type">SEQUENCE-OF-TYPE</a></li>
+</ul>
+</li>
+<li><a href="#elements">Elements</a>
+<ul class="sectlevel4">
+<li><a href="#elt">ELT</a></li>
+<li><a href="#setf-elt">(SETF ELT)</a></li>
+<li><a href="#first">FIRST</a></li>
+<li><a href="#last">LAST</a></li>
+<li><a href="#lastcdr">LASTCDR</a></li>
+<li><a href="#erase">ERASE</a></li>
+</ul>
+</li>
+<li><a href="#container_size">Container Size</a>
+<ul class="sectlevel4">
+<li><a href="#length">LENGTH</a></li>
+<li><a href="#emptyp">EMPTYP</a></li>
+<li><a href="#clear">CLEAR</a></li>
+<li><a href="#adjust_size">ADJUST-SIZE</a></li>
+<li><a href="#nadjust_size">NADJUST-SIZE</a></li>
+</ul>
+</li>
+<li><a href="#subsequences">Subsequences</a>
+<ul class="sectlevel4">
+<li><a href="#subseq">SUBSEQ</a></li>
+<li><a href="#setf_subseq">(SETF SUBSEQ)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#iterator">Iterator</a>
@@ -552,6 +592,12 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#doseq">DOSEQ</a></li>
 </ul>
 </li>
+<li><a href="#implemented_interfaces">Implemented Interfaces</a>
+<ul class="sectlevel4">
+<li><a href="#iterator-length">LENGTH</a></li>
+<li><a href="#iterator-subseq">SUBSEQ</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#collector">Collector</a>
@@ -562,42 +608,8 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#extend">EXTEND</a></li>
 </ul>
 </li>
-<li><a href="#sequences">Sequences</a>
+<li><a href="#sequence">Sequence</a>
 <ul class="sectlevel3">
-<li><a href="#creation">Creation</a>
-<ul class="sectlevel4">
-<li><a href="#cleared">CLEARED</a></li>
-<li><a href="#make_sequence_of_type">MAKE-SEQUENCE-OF-TYPE</a></li>
-<li><a href="#sequence_of_type">SEQUENCE-OF-TYPE</a></li>
-</ul>
-</li>
-<li><a href="#sequence_elements">Sequence Elements</a>
-<ul class="sectlevel4">
-<li><a href="#elt">ELT</a></li>
-<li><a href="#setf_elt">(SETF ELT)</a></li>
-<li><a href="#first">FIRST</a></li>
-<li><a href="#last">LAST</a></li>
-<li><a href="#lastcdr">LASTCDR</a></li>
-<li><a href="#erase">ERASE</a></li>
-</ul>
-</li>
-<li><a href="#sequence_length">Sequence Length</a>
-<ul class="sectlevel4">
-<li><a href="#length">LENGTH</a></li>
-<li><a href="#emptyp">EMPTYP</a></li>
-<li><a href="#clear">CLEAR</a></li>
-<li><a href="#adjust_size">ADJUST-SIZE</a></li>
-<li><a href="#nadjust_size">NADJUST-SIZE</a></li>
-</ul>
-</li>
-<li><a href="#subsequences">Subsequences</a>
-<ul class="sectlevel4">
-<li><a href="#subseq">SUBSEQ</a></li>
-<li><a href="#setf_subseq">(SETF SUBSEQ)</a></li>
-</ul>
-</li>
-<li><a href="#sequence_operations">Sequence Operations</a>
-<ul class="sectlevel4">
 <li><a href="#find_it">FIND-IT</a></li>
 <li><a href="#find_it_if">FIND-IT-IF</a></li>
 <li><a href="#find_it_if_not">FIND-IT-IF-NOT</a></li>
@@ -617,6 +629,16 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#map_extend_to">MAP-EXTEND-TO</a></li>
 <li><a href="#map_extend_into">MAP-EXTEND-INTO</a></li>
 <li><a href="#foreach">FOREACH</a></li>
+<li><a href="#implemented_methods">Implemented Methods</a>
+<ul class="sectlevel4">
+<li><a href="#elt_2">ELT</a></li>
+<li><a href="#setf_elt">(SETF ELT)</a></li>
+<li><a href="#length_2">LENGTH</a></li>
+<li><a href="#emptyp_2">EMPTYP</a></li>
+<li><a href="#adjust_size_2">ADJUST-SIZE</a></li>
+<li><a href="#nadjust_size_2">NADJUST-SIZE</a></li>
+<li><a href="#subseq_2">SUBSEQ</a></li>
+<li><a href="#setf_subseq_2">(SETF SUBSEQ)</a></li>
 </ul>
 </li>
 </ul>
@@ -640,7 +662,7 @@ two objects, which is extensible to user-defined types.</p>
 <ul class="sectlevel3">
 <li><a href="#hash_map">HASH-MAP</a>
 <ul class="sectlevel4">
-<li><a href="#implemented_interfaces">Implemented Interfaces</a></li>
+<li><a href="#implemented_interfaces_2">Implemented Interfaces</a></li>
 </ul>
 </li>
 <li><a href="#make_hash_map">MAKE-HASH-MAP</a></li>
@@ -651,15 +673,18 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#get">GET</a></li>
 <li><a href="#setf_get">(SETF GET)</a></li>
 <li><a href="#ensure_get">ENSURE-GET</a></li>
+<li><a href="#elt_methods">ELT Methods</a></li>
+<li><a href="#setf_elt_methods">(SETF ELT) Methods</a></li>
 <li><a href="#erase_method">ERASE Method</a></li>
 <li><a href="#hash_map_alist">HASH-MAP-ALIST</a></li>
 <li><a href="#alist_hash_map">ALIST-HASH-MAP</a></li>
 <li><a href="#map_keys">MAP-KEYS</a></li>
 <li><a href="#map_values">MAP-VALUES</a></li>
 <li><a href="#coerce_methods_2">COERCE Methods</a></li>
+<li><a href="#make_sequence_of_type_method">MAKE-SEQUENCE-OF-TYPE Method</a></li>
 </ul>
 </li>
-<li><a href="#set_operations">Set Operations</a>
+<li><a href="#sets">Sets</a>
 <ul class="sectlevel3">
 <li><a href="#adjoin">ADJOIN</a></li>
 <li><a href="#nadjoin">NADJOIN</a></li>
@@ -671,12 +696,7 @@ two objects, which is extensible to user-defined types.</p>
 <li><a href="#coerce_methods_3">COERCE Methods</a></li>
 </ul>
 </li>
-<li><a href="#math_functions">Math Functions</a></li>
-<li><a href="#miscellaneous">Miscellaneous</a>
-<ul class="sectlevel3">
-<li><a href="#defconstant">DEFCONSTANT</a></li>
-</ul>
-</li>
+<li><a href="#math">Math</a></li>
 </ul>
 </li>
 <li><a href="#system_generic_cl_util">System GENERIC-CL.UTIL</a>
@@ -700,12 +720,12 @@ two objects, which is extensible to user-defined types.</p>
 <h2 id="usage">Usage</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The generic function interface is contained in the <code>GENERIC-CL</code>
-package. This package should be used rather than <code>COMMON-LISP</code>, as it
-shadows the symbols, in the <code>COMMON-LISP</code> package, which name a
-function for which there is a generic function wrapper. <code>GENERIC-CL</code>
-additionally reexports the remaining non-shadowed symbols in
-<code>COMMON-LISP</code>.</p>
+<p>This library is divided into multiple system each encapsulating a
+specific generic interface. The simplest way to use this library is to
+load the system <code>GENERIC-CL</code>, which loads all the interface
+subsystems, and use the <code>GENERIC-CL</code> package which exports all symbols
+in the <code>COMMON-LISP</code> package, and all generic interface
+functions. This package should be used instead of <code>COMMON-LISP</code>.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -714,12 +734,70 @@ additionally reexports the remaining non-shadowed symbols in
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-The <code>GENERIC-CL-USER</code> package is also provided, which contains
-all the symbols in the <code>CL-USER</code> package and <code>GENERIC-CL</code>. This
-package is intended to be used only at the REPL.
+The <code>GENERIC-CL-USER</code> exports all symbols in the <code>CL-USER</code> and
+<code>GENERIC-CL</code> packages. This package is intended to be used only at the
+REPL.
 </td>
 </tr>
 </table>
+</div>
+<div class="sect2">
+<h3 id="using_specific_interface">Using Specific Interface</h3>
+<div class="paragraph">
+<p>If you don&#8217;t want to load all the generic interfaces, but only require
+a specific interface, such as the generic comparability interface,
+then load only the system which contains that interface and import its
+package.</p>
+</div>
+<div class="paragraph">
+<p>The packages generally contain symbols which shadow those in the
+<code>COMMON-LISP</code> package, thus they cannot simply be used alongside
+<code>COMMON-LISP</code>. You&#8217;ll either have to manually import the shadowing
+symbols, with <code>:SHADOWING-IMPORT</code> or use the <code>:MIX</code> option to
+<a href="https://common-lisp.net/project/asdf/uiop.html#UIOP_002fPACKAGE">UIOP:DEFINE-PACKAGE</a>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The <code>STATIC-DISPATCH-CL</code> package should be used instead of <code>CL</code>
+in order to be able to optimize generic function calls. <em>See
+<a href="https://github.com/alex-gutev/static-dispatch" class="bare">https://github.com/alex-gutev/static-dispatch</a> for more information.</em>
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">Example: Using SHADOWING-IMPORT</div>
+<div class="content">
+<pre>;; Using comparison interface GENERIC-CL.COMPARISON
+
+(defpackage my-pkg
+  (:use :static-dispatch-cl)
+  (:shadowing-import-from
+    :generic-cl.comparison
+    :equalp
+    :=
+    :/=))</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Example: Using UIOP:DEFINE-PACKAGE</div>
+<div class="content">
+<pre>(uiop:define-package my-pkg
+    (:use) ;; Necessary otherwise CL package is used
+
+  ;; Packages listed earlier on shadow the packages listed after them
+
+  (:mix :generic-cl.comparison
+        :static-dispatch-cl)
+
+  ...)</pre>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -727,20 +805,35 @@ package is intended to be used only at the REPL.
 <h2 id="generic_interfaces">Generic Interfaces</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The generic function interface is divided into the following
-categories:</p>
+<p>The following interfaces are provided:</p>
 </div>
 <div class="sect2">
-<h3 id="equality">Equality</h3>
+<h3 id="comparison">Comparison</h3>
 <div class="paragraph">
-<p>The equality interface provides functions for testing for equality of
-objects.</p>
+<p>System and package name: <code>GENERIC-CL.COMPARISON</code>.</p>
+</div>
+<div class="paragraph">
+<p>The comparison interface provides functions for comparing objects in
+terms of <em>equality</em>, <em>greater than</em>, <em>less than</em>, <em>greater than or
+equal to</em> and <em>less than or equal to</em> relations.</p>
 </div>
 <div class="paragraph">
 <p><a href="#equalp">EQUALP</a> is the generic binary equality predicate function to
 implement for user-defined types. <a href="#equalp-nary">=</a> and
 <a href="#not-equalp-nary">/=</a> are the n-ary equality predicates similar to the
 functions with the same names in the <code>COMMON-LISP</code> package.</p>
+</div>
+<div class="paragraph">
+<p><a href="#lessp">LESSP</a>, <a href="#less_equal_p">LESS-EQUAL-P</a>, <a href="#greaterp">GREATERP</a>, <a href="#greater_equal_p">GREATER-EQUAL-P</a> are the
+generic binary comparison functions to implement for user-defined
+types. It is sufficient to just implement <code>LESSP</code> as the remaining
+functions have default methods that are implemented in terms of
+<code>LESSP</code>.</p>
+</div>
+<div class="paragraph">
+<p><a href="#lessp-nary">&lt;</a>, <a href="#less-equal-p-nary">&lt;=</a>, <a href="#greaterp-nary">&gt;</a>,
+<a href="#greater-equal-p-nary">&gt;=</a> are the n-ary comparison functions similar to
+the functions with the same names in the <code>COMMON-LISP</code> package.</p>
 </div>
 <div class="sect3">
 <h4 id="equalp">EQUALP</h4>
@@ -750,10 +843,8 @@ functions with the same names in the <code>COMMON-LISP</code> package.</p>
 <div class="paragraph">
 <p>Returns true if object <code>A</code> is equal to object <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -832,6 +923,7 @@ the same as equality however ignoring differences in certain aspects
 such as case in strings.</p>
 </div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>CHARACTER CHARACTER</code></p>
@@ -905,26 +997,6 @@ case. Compared using <code>CL:STRING-EQUAL</code>.</p>
 to <code>X</code>.</p>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="comparison">Comparison</h3>
-<div class="paragraph">
-<p>The comparison interface provides functions for comparing objects in
-terms of greater than, less than, greater than or equal to and less
-than or equal to relations.</p>
-</div>
-<div class="paragraph">
-<p><a href="#lessp">LESSP</a>, <a href="#less_equal_p">LESS-EQUAL-P</a>, <a href="#greaterp">GREATERP</a>, <a href="#greater_equal_p">GREATER-EQUAL-P</a> are the
-generic binary comparison functions to implement for user-defined
-types. It is sufficient to just implement <code>LESSP</code> as the remaining
-functions have default methods that are implemented in terms of
-<code>LESSP</code>.</p>
-</div>
-<div class="paragraph">
-<p><a href="#lessp-nary">&lt;</a>, <a href="#less-equal-p-nary">&lt;=</a>, <a href="#greaterp-nary">&gt;</a>,
-<a href="#greater-equal-p-nary">&gt;=</a> are the n-ary comparison functions similar to
-the functions with the same names in the <code>COMMON-LISP</code> package.</p>
-</div>
 <div class="sect3">
 <h4 id="lessp">LESSP</h4>
 <div class="paragraph">
@@ -947,10 +1019,8 @@ default (<code>T T</code>) methods which are implemented in terms of <code>LESSP
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -984,10 +1054,8 @@ character code of <code>B</code>, by <code>CL:CHAR&lt;</code>.</p>
 <div class="paragraph">
 <p>Returns true if object <code>A</code> is less than or equal to object <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -1033,10 +1101,8 @@ is equal to <code>B</code> (by <a href="#equalp">EQUALP</a>).</p>
 <div class="paragraph">
 <p>Returns true if object <code>A</code> is greater than object <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -1081,10 +1147,8 @@ character code of <code>B</code>, by <code>CL:CHAR&gt;</code>.</p>
 <div class="paragraph">
 <p>Returns true if object <code>A</code> is greater than or equal to object <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -1235,6 +1299,9 @@ which is greater than or equal to the other arguments may be returned.</p>
 <div class="sect2">
 <h3 id="arithmetic">Arithmetic</h3>
 <div class="paragraph">
+<p>System and package name: <code>GENERIC-CL.ARITHMETIC</code>.</p>
+</div>
+<div class="paragraph">
 <p>The arithmetic interface provides generic functions for arithmetic
 operations.</p>
 </div>
@@ -1256,10 +1323,8 @@ same names in the <code>COMMON-LISP</code> package.</p>
 <div class="paragraph">
 <p>Returns the sum of <code>A</code> and <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -1278,10 +1343,8 @@ same names in the <code>COMMON-LISP</code> package.</p>
 <div class="paragraph">
 <p>Returns the difference of <code>A</code> and <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -1300,10 +1363,8 @@ same names in the <code>COMMON-LISP</code> package.</p>
 <div class="paragraph">
 <p>Returns the product of <code>A</code> and <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -1323,10 +1384,8 @@ same names in the <code>COMMON-LISP</code> package.</p>
 <p>Returns the quotient of <code>A</code> and <code>B</code>. If <code>A</code> is the constant <code>1</code>, the
 result should be the reciprocal of <code>B</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER NUMBER</code></p>
@@ -1345,10 +1404,8 @@ result should be the reciprocal of <code>B</code>.</p>
 <div class="paragraph">
 <p>Returns the negation of <code>A</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1423,10 +1480,8 @@ the argument list with the <a href="#divide">DIVIDE</a> function.</p>
 <div class="paragraph">
 <p>Returns <code>A + 1</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1451,10 +1506,8 @@ the argument list with the <a href="#divide">DIVIDE</a> function.</p>
 <div class="paragraph">
 <p>Returns <code>A - 1</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1515,10 +1568,8 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 <div class="paragraph">
 <p>Returns true if <code>A</code> is less than zero.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1548,10 +1599,8 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 <div class="paragraph">
 <p>Returns true if <code>A</code> is greater than zero.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1581,10 +1630,8 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 <div class="paragraph">
 <p>Returns true if <code>A</code> is equal to zero.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1615,10 +1662,8 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 <p>Returns <code>-1</code>, <code>0</code> or <code>1</code> depending on whether <code>A</code> is negative, is
 equal to zero or is positive.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>SIGNUM</code></p>
@@ -1644,10 +1689,8 @@ equal to zero or is positive.</p>
 <div class="paragraph">
 <p>Returns the absolute value of <code>A</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1680,10 +1723,8 @@ equal to zero or is positive.</p>
 <div class="paragraph">
 <p>Returns true if <code>A</code> is even.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1708,10 +1749,8 @@ equal to zero or is positive.</p>
 <div class="paragraph">
 <p>Returns true if <code>A</code> is odd.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1739,10 +1778,8 @@ to <code>N/1</code>, and returns the result rounded towards negative infinity as
 the first value, and the remainder <code>N - result * D</code> as the second return
 value.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1764,10 +1801,8 @@ value.</p>
 to <code>N/1</code>, and returns the result rounded towards positive infinity as
 the first value, and the <code>N - result * D</code> as the second return value.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1789,10 +1824,8 @@ the first value, and the <code>N - result * D</code> as the second return value.
 to <code>N/1</code>, and returns the result rounded towards zero as the first
 value, and the remainder <code>N - result * D</code> as the second return value.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1819,10 +1852,8 @@ return value.</p>
 <p>If the result lies exactly halfway between two integers, it is rounded
 to the nearest even integer.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1842,10 +1873,8 @@ to the nearest even integer.</p>
 <div class="paragraph">
 <p>Returns the remainder of the <a href="#floor">FLOOR</a> operation on <code>N</code> and <code>D</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1870,10 +1899,8 @@ to the nearest even integer.</p>
 <div class="paragraph">
 <p>Returns the remainder of the <a href="#truncate">TRUNCATE</a> operation on <code>N</code> and <code>D</code>.</p>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>NUMBER</code></p>
@@ -1892,10 +1919,13 @@ to the nearest even integer.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="objects">Objects</h3>
+<h3 id="object">Object</h3>
+<div class="paragraph">
+<p>System and package name: <code>GENERIC-CL.OBJECT</code>.</p>
+</div>
 <div class="paragraph">
 <p>The object interface provides miscellaneous functions for manipulating
-objects.</p>
+objects, such as copying and type conversions.</p>
 </div>
 <div class="sect3">
 <h4 id="copy">COPY</h4>
@@ -1926,10 +1956,8 @@ keyword parameter.
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>CONS</code></p>
@@ -2000,16 +2028,563 @@ specialized copy method, can be mutated, the constraints of the
 <p>The default (<code>T T</code>) method simply calls <code>CL:COERCE</code>.</p>
 </div>
 </div>
+<div class="sect3">
+<h4 id="defconstant">DEFCONSTANT</h4>
+<div class="paragraph">
+<p>Macro: <code>DEFCONSTANT SYMBOL VALUE &amp;OPTIONAL DOCUMENTATION</code></p>
+</div>
+<div class="paragraph">
+<p>Ensures that <code>SYMBOL</code> is a constant with a value that is equal, by
+<code>GENERIC-CL:EQUALP</code> to <code>VALUE</code>. This means that if <code>SYMBOL</code> already
+names a constant, at the time of evaluating the <code>DEFCONSTANT</code> form, no
+condition will be signalled if its value is equal (by
+<code>GENERIC-CL:EQUALP</code>) to <code>VALUE</code>.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Implemented using <code>ALEXANDRIA:DEFINE-CONSTANT</code>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="container">Container</h3>
+<div class="paragraph">
+<p>System and package name: <code>GENERIC-CL.CONTAINER</code>.</p>
+</div>
+<div class="paragraph">
+<p>The container interface provides generic functions for retrieving
+elements from containers, such as lists, arrays and hash-tables, and
+for querying various properties of containers, such as the container&#8217;s
+size.</p>
+</div>
+<div class="paragraph">
+<p>All the following functions are applicable to both ordered containers,
+<em>sequences</em>, and unordered containers, such as hash-maps, however some
+only make sense when applied on sequences.</p>
+</div>
+<div class="sect3">
+<h4 id="creation">Creation</h4>
+<div class="paragraph">
+<p>The following functions are for creating an empty container suitable
+for accumulating items using the collector interface.</p>
+</div>
+<div class="sect4">
+<h5 id="cleared">CLEARED</h5>
+<div class="paragraph">
+<p>Generic Function: <code>CLEARED CONTAINER &amp;KEY &amp;ALLOW-OTHER-KEYS</code></p>
+</div>
+<div class="paragraph">
+<p>Returns a new empty container, of the same type and with the same
+properties as <code>CONTAINER</code>, suitable for accumulating items into it
+using the collector interface.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Individual methods may accept keyword parameters which specify
+certain options of the container which is to be created.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<div class="title">Methods</div>
+<ul>
+<li>
+<p><code>LIST</code></p>
+<div class="paragraph">
+<p>Returns <code>NIL</code>.</p>
+</div>
+</li>
+<li>
+<p><code>VECTOR</code></p>
+<div class="paragraph">
+<p>Returns an adjustable vector of the same length as <code>CONTAINER</code>,
+with the fill-pointer set to <code>0</code>.</p>
+</div>
+<div class="paragraph">
+<p>If the <code>:KEEP-ELEMENT-TYPE</code> argument is provided and is true, the
+element type of the new vector is the same as the element type of
+<code>CONTAINER</code>.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="make_sequence_of_type">MAKE-SEQUENCE-OF-TYPE</h5>
+<div class="paragraph">
+<p>Generic Function: <code>MAKE-SEQUENCE-OF-TYPE TYPE ARGS</code></p>
+</div>
+<div class="paragraph">
+<p>Returns a new empty sequence / container of type <code>TYPE</code>. <code>ARGS</code> are
+the type arguments, if any.</p>
+</div>
+<div class="paragraph">
+<p>The default method creates a built-in sequence of the same type as
+that returned by:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(make-sequence (cons type args) 0)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="sequence_of_type">SEQUENCE-OF-TYPE</h5>
+<div class="paragraph">
+<p>Function: <code>SEQUENCE-OF-TYPE TYPE</code></p>
+</div>
+<div class="paragraph">
+<p>Creates a new sequence / container of type <code>TYPE</code>, using
+<a href="#make_sequence_of_type">MAKE-SEQUENCE-OF-TYPE</a>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>TYPE</code> is a list the <code>CAR</code> of the list is passed as the first
+argument, to <code>MAKE-SEQUENCE-OF-TYPE</code>, and the <code>CDR</code> is passed as the
+second argument. Otherwise, if <code>TYPE</code> is not a list, it is passed as
+the first argument and <code>NIL</code> is passed as the second argument.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="elements">Elements</h4>
+<div class="sect4">
+<h5 id="elt">ELT</h5>
+<div class="paragraph">
+<p>Generic Function: <code>ELT SEQUENCE INDEX</code></p>
+</div>
+<div class="paragraph">
+<p>Return the element at position <code>INDEX</code> in the sequence <code>SEQUENCE</code>.</p>
+</div>
+<div class="ulist">
+<div class="title">Methods</div>
+<ul>
+<li>
+<p><code>SEQUENCE T</code> and <code>VECTOR T</code></p>
+<div class="paragraph">
+<p>Returns <code>(CL:ELT SEQUENCE INDEX)</code>.</p>
+</div>
+</li>
+<li>
+<p><code>ARRAY INTEGER</code></p>
+<div class="paragraph">
+<p>Multi-Dimensional Arrays.</p>
+</div>
+<div class="paragraph">
+<p>Returns <code>(ROW-MAJOR-AREF SEQUENCE INDEX)</code>.</p>
+</div>
+</li>
+<li>
+<p><code>ARRAY LIST</code></p>
+<div class="paragraph">
+<p>Multi-Dimensional Arrays.</p>
+</div>
+<div class="paragraph">
+<p>If length of <code>index</code> matches array&#8217;s rank, returns <code>(apply #'aref sequence
+index)</code>.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>If <code>INDEX</code>'s length is less than the array&#8217;s rank, then returns a
+displaced array whose dimensions are <code>SEQUENCE</code>'s <em>unused</em>
+dimensions (ie <code>(nthcdr (array-dimensions sequence) (length index))</code>)
+and which shares storage with the <em>subarray</em> of <code>SEQUENCE</code> specificied
+by <code>INDEX</code>.</p>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="setf-elt">(SETF ELT)</h5>
+<div class="paragraph">
+<p>Generic Function: <code>(SETF ELT) VALUE SEQUENCE INDEX</code></p>
+</div>
+<div class="paragraph">
+<p>Set the value of the element at position <code>INDEX</code> in the sequence
+<code>SEQUENCE</code>.</p>
+</div>
+<div class="ulist">
+<div class="title">Methods</div>
+<ul>
+<li>
+<p><code>T SEQUENCE T</code> and <code>T VECTOR T</code></p>
+<div class="paragraph">
+<p>Returns <code>(SETF (CL:ELT SEQUENCE INDEX) VALUE)</code>.</p>
+</div>
+</li>
+<li>
+<p><code>T ARRAY INTEGER</code></p>
+<div class="paragraph">
+<p>Multi-Dimensional Arrays.</p>
+</div>
+<div class="paragraph">
+<p>Returns <code>(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)</code></p>
+</div>
+</li>
+<li>
+<p><code>ARRAY LIST</code></p>
+<div class="paragraph">
+<p>Multi-Dimensional Arrays.</p>
+</div>
+<div class="paragraph">
+<p>If length of <code>index</code> matches array&#8217;s rank, returns <code>(setf (apply #'aref sequence
+index) value)</code>.</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>If <code>INDEX</code>'s length is less than the array&#8217;s rank, then copies the
+contents of <code>VALUE</code> to the <em>subarray</em> (see <a href="#elt">ELT</a>) specified by
+<code>INDEX</code> and then returns <code>(elt sequence index)</code>. <code>VALUE</code>'s
+dimensions must equal the <em>unused</em> dimensions of <code>SEQUENCE</code> (ie
+<code>(nthcdr (array-dimensions sequence) (length index))</code>).</p>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="first">FIRST</h5>
+<div class="paragraph">
+<p>Generic Function: <code>FIRST SEQUENCE</code></p>
+</div>
+<div class="paragraph">
+<p>Returns the first element in the sequence <code>SEQUENCE</code>.</p>
+</div>
+<div class="paragraph">
+<p>Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the first element is obtained by
+<code>ROW-MAJOR-AREF</code>.</p>
+</div>
+<div class="paragraph">
+<p>The default method is implemented using <a href="#elt">GENERIC-CL:ELT</a>, i.e. is
+equivalent to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(elt sequence index)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="last">LAST</h5>
+<div class="paragraph">
+<p>Generic Function: <code>LAST SEQUENCE &amp;OPTIONAL (N 0)</code></p>
+</div>
+<div class="paragraph">
+<p>Returns the <code>N</code>'th element from the last element of the sequence
+<code>SEQUENCE</code>. <code>N</code> defaults to <code>0</code> which indicates the last element. <code>1</code>
+indicates the second to last element, <code>2</code> the third to last and so on.</p>
+</div>
+<div class="paragraph">
+<p>Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the last element is obtained by:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(row-major-aref sequence (- (array-total-size array) 1 n))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The default method is implemented using <a href="#elt">GENERIC-CL:ELT</a>, i.e. is
+equivalent to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-lisp" data-lang="lisp">(elt sequence (- (length sequence) 1 n))</code></pre>
+</div>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+The behaviour of this function differs from <code>CL:LAST</code> when
+called on lists, it returns the last element rather than the last
+<code>CONS</code> cell. The <a href="#lastcdr">LASTCDR</a> function performs the same function as
+<code>CL:LAST</code>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect4">
+<h5 id="lastcdr">LASTCDR</h5>
+<div class="paragraph">
+<p>Function: <code>LASTCDR LIST &amp;OPTIONAL (N 1)</code></p>
+</div>
+<div class="paragraph">
+<p>This function is equivalent to <code>CL:LAST</code> list function.</p>
+</div>
+<div class="paragraph">
+<p>Returns the <code>CDR</code> of the <code>N</code>'th <code>CONS</code> cell from the end of the list.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="erase">ERASE</h5>
+<div class="paragraph">
+<p>Generic Function: <code>ERASE SEQUENCE INDEX</code></p>
+</div>
+<div class="paragraph">
+<p>Removes the element at index <code>INDEX</code> from the sequence <code>SEQUENCE</code>.</p>
+</div>
+<div class="paragraph">
+<p>Destructively modifies <code>SEQUENCE</code>.</p>
+</div>
+<div class="paragraph">
+<p>Methods:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>VECTOR T</code></p>
+<div class="paragraph">
+<p>Shifts the elements following <code>INDEX</code> one element towards the
+front of the vector and shrinks the vector by one element.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+Signals a <code>TYPE-ERROR</code> if the vector is not adjustable.
+</td>
+</tr>
+</table>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This method is not implemented for lists as removing the first
+element of a list cannot be implemented (efficiently) as a side effect
+alone.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="container_size">Container Size</h4>
+<div class="sect4">
+<h5 id="length">LENGTH</h5>
+<div class="paragraph">
+<p>Generic Function: <code>LENGTH CONTAINER</code></p>
+</div>
+<div class="paragraph">
+<p>Returns the number of elements in the container <code>CONTAINER</code>. If
+<code>CONTAINER</code> is an iterator, returns the number of remaining elements
+to be iterated over.</p>
+</div>
+<div class="paragraph">
+<p>This function is implemented for all Common Lisp sequences, returning
+the length of the sequence (by <code>CL:LENGTH</code>), and multi-dimensional
+arrays, returning the total number of elements in the array by
+<code>ARRAY-TOTAL-SIZE</code>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="emptyp">EMPTYP</h5>
+<div class="paragraph">
+<p>Generic Function: <code>EMPTYP CONTAINER</code></p>
+</div>
+<div class="paragraph">
+<p>Returns true if the container <code>CONTAINER</code> is empty.</p>
+</div>
+<div class="paragraph">
+<p>Implemented for lists, vectors and multi-dimensional arrays (always
+returns <code>NIL</code>).</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="clear">CLEAR</h5>
+<div class="paragraph">
+<p>Generic Function: <code>CLEAR CONTAINER</code></p>
+</div>
+<div class="paragraph">
+<p>Destructively remove all elements from the container <code>CONTAINER</code>.</p>
+</div>
+<div class="paragraph">
+<p>Implemented for vectors.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="adjust_size">ADJUST-SIZE</h5>
+<div class="paragraph">
+<p>Generic Function: <code>ADJUST-SIZE CONTAINER N &amp;KEY ELEMENT</code></p>
+</div>
+<div class="paragraph">
+<p>Return a new container with the same elements as <code>CONTAINER</code> however
+with its size changed to <code>N</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is less than the number of elements in <code>CONTAINER</code>, the
+returned container contains only the first <code>N</code> elements of
+<code>CONTAINER</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is greater than the number of elements in <code>CONTAINER</code>, the
+returned sequence contains all the elements of <code>CONTAINER</code> with an
+additional <code>(LENGTH CONTAINER) - N</code> elements initialized to the value
+of <code>ELEMENT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Methods are provided for lists and vectors. The default <code>T</code> method,
+implements this operation using the <a href="#iterator">Iterator</a> and <a href="#collector">Collector</a>
+interfaces.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="nadjust_size">NADJUST-SIZE</h5>
+<div class="paragraph">
+<p>Generic Function: <code>NADJUST-SIZE CONTAINER N &amp;KEY ELEMENT</code></p>
+</div>
+<div class="paragraph">
+<p>Return a new sequence containing the same elements as <code>CONTAINER</code>
+however with its size changed to <code>N</code>.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<code>CONTAINER</code> may be destructively modified.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is less than the number of elements in <code>CONTAINER</code>, the
+returned container contains only the first <code>N</code> elements of
+<code>CONTAINER</code>.</p>
+</div>
+<div class="paragraph">
+<p>If <code>N</code> is greater than the number of elements in <code>CONTAINER</code>, the
+returned sequence contains all the elements of <code>CONTAINER</code> with an
+additional <code>(LENGTH CONTAINER) - N</code> elements initialized to the value
+of <code>ELEMENT</code>.</p>
+</div>
+<div class="paragraph">
+<p>Methods are provided for lists and vectors. The default <code>T</code> method,
+implements this operation using the <a href="#iterator">Iterator</a> and <a href="#collector">Collector</a>
+interfaces.</p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="subsequences">Subsequences</h4>
+<div class="sect4">
+<h5 id="subseq">SUBSEQ</h5>
+<div class="paragraph">
+<p>Generic Function: <code>SUBSEQ SEQUENCE START &amp;OPTIONAL END</code></p>
+</div>
+<div class="paragraph">
+<p>Returns a new sequence that contains the elements of <code>SEQUENCE</code> at the
+positions in the range <code>[START, END)</code>. If <code>SEQUENCE</code> is an iterator,
+an iterator for the sub-sequence relative to the current position of
+the iterator is returned.</p>
+</div>
+<div class="paragraph">
+<p><code>START</code> is the index of the first element of the subsequence, with <code>0</code>
+indicating the start of the sequence. if <code>SEQUENCE</code> is an iterator,
+<code>START</code> is the number of times the iterator should be <a href="#advance">ADVANCE</a>'d to
+reach the first element of the subsequence.</p>
+</div>
+<div class="paragraph">
+<p><code>END</code> is the index of the element following the last element of the
+subsequence. <code>NIL</code> (the default) indicates the end of the sequence. If
+<code>SEQUENCE</code> is an iterator, <code>END</code> is the number of times the iterator
+should be <a href="#advance">ADVANCE</a>'d till the end position is reached.</p>
+</div>
+<div class="paragraph">
+<p>Methods:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>SEQUENCE T</code></p>
+<div class="paragraph">
+<p>Returns the subsequence using <code>CL:SUBSEQ</code>.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="setf_subseq">(SETF SUBSEQ)</h5>
+<div class="paragraph">
+<p>Generic Function: <code>(SETF SUBSEQ) NEW-SEQUENCE SEQUENCE START &amp;OPTIONAL END</code></p>
+</div>
+<div class="paragraph">
+<p>Replaces the elements of <code>SEQUENCE</code> at the positions in the range
+<code>[START, END)</code>, with the elements of <code>NEW-SEQUENCE</code>. The shorter
+length of <code>NEW-SEQUENCE</code> and the number of elements between <code>START</code>
+and <code>END</code> determines how many elements of <code>SEQUENCE</code> are actually
+modified.</p>
+</div>
+<div class="paragraph">
+<p>See <a href="#subseq">SUBSEQ</a> for more details of how the <code>START</code> and <code>END</code> arguments are
+interpreted.</p>
+</div>
+<div class="paragraph">
+<p>Methods:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>SEQEUNCE SEQUENCE T</code></p>
+<div class="paragraph">
+<p>Sets the elements of the subsequence using <code>(SETF CL:SUBSEQ)</code>.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="iterator">Iterator</h3>
+<div class="paragraph">
+<p>System and package name <code>GENERIC-CL.ITERATOR</code>.</p>
+</div>
 <div class="paragraph">
 <p>The iterator interface is a generic interface for iterating over the
 elements of sequences and containers.</p>
 </div>
 <div class="paragraph">
-<p>Implemented for lists, vectors, multi-dimensional arrays and
-<a href="#hash_map">HASH-MAP</a>'s.</p>
+<p>Implemented for lists, vectors and multi-dimensional arrays.</p>
 </div>
 <div class="listingblock">
 <div class="title">Basic Usage</div>
@@ -2018,7 +2593,7 @@ elements of sequences and containers.</p>
    with it = (iterator sequence) ; Create iterator for SEQUENCE
    until (endp it) ; Loop until the iterator's end position is reach
    do
-     (pprint (at it)) ; Print element at iterator's position
+     (something (at it)) ; Do something with the current element
      (advance it)) ; Advance iterator to next position</code></pre>
 </div>
 </div>
@@ -2125,7 +2700,7 @@ indices of the sub-sequence to iterate over (see <a href="#make_iterator">MAKE-I
 </div>
 <div class="paragraph">
 <p>If <code>FROM-END</code> is true a reverse iterator is created (by
-<a href="#make_reverse_iterator">MAKE-REVERSE-ITERATOR</a>) otherwise a normal iterator is created (by
+<a href="#make_reverse_iterator">MAKE-REVERSE-ITERATOR</a>) otherwise a forward iterator is created (by
 <a href="#make_iterator">MAKE-ITERATOR</a>).</p>
 </div>
 </div>
@@ -2141,7 +2716,7 @@ indices of the sub-sequence to iterate over (see <a href="#make_iterator">MAKE-I
 <p>Generic Function: <code>AT ITERATOR</code></p>
 </div>
 <div class="paragraph">
-<p>Returns the value of the element at the current position of the
+<p>Return the value of the element at the current position of the
 iterator <code>ITERATOR</code>.</p>
 </div>
 <div class="admonitionblock warning">
@@ -2164,7 +2739,7 @@ reached the end of the subsequence are unspecified.
 <p>Generic Function: <code>ENDP ITERATOR</code></p>
 </div>
 <div class="paragraph">
-<p>Returns true if the iterator is at the end of the subsequence, false
+<p>Return true if the iterator is at the end of the subsequence, false
 otherwise.</p>
 </div>
 <div class="paragraph">
@@ -2195,7 +2770,7 @@ shadows the <code>CL:ENDP</code> function.
 <p>Generic Function: <code>ADVANCE ITERATOR</code></p>
 </div>
 <div class="paragraph">
-<p>Advances the iterator to the next element in the subsequence. After
+<p>Advance the iterator to the next element in the subsequence. After
 this method is called, subsequent calls to <a href="#at">AT</a> should return the
 next element in the sequence or if the last element has already been
 iterated over, <a href="#endp">ENDP</a> should return true.</p>
@@ -2216,8 +2791,8 @@ used by a select few sequence operations.</p>
 <p>Generic Function: <code>START ITERATOR</code></p>
 </div>
 <div class="paragraph">
-<p>Returns the element at the current position of the iterator, if the
-iterator is not at the end of the sequence, otherwise returns <code>NIL</code>.</p>
+<p>Return the element at the current position of the iterator, if the
+iterator is not at the end of the sequence, otherwise return <code>NIL</code>.</p>
 </div>
 <div class="paragraph">
 <p>The default method first checks whether the end of the iterator has
@@ -2240,7 +2815,7 @@ using <code>AT</code>.</p>
 <p>Generic Function: <code>(SETF AT) VALUE ITERATOR</code></p>
 </div>
 <div class="paragraph">
-<p>Sets the value of the element at the position, in the sequence,
+<p>Set the value of the element at the position, in the sequence,
 specified by the iterator.</p>
 </div>
 <div class="admonitionblock warning">
@@ -2276,7 +2851,7 @@ sequence operations will be used.
 <p>Generic Function: <code>ADVANCE-N ITERATOR N</code></p>
 </div>
 <div class="paragraph">
-<p>Advances the iterator by <code>N</code> elements.</p>
+<p>Advance the iterator by <code>N</code> elements.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -2286,7 +2861,7 @@ sequence operations will be used.
 </td>
 <td class="content">
 The position of the iterator, after calling this function,
-should be equivalent to the positioned obtained by calling <a href="#advance">ADVANCE</a>
+should be equivalent to the positione obtained by calling <a href="#advance">ADVANCE</a>
 <code>N</code> times.
 </td>
 </tr>
@@ -2309,7 +2884,7 @@ should be equivalent to the positioned obtained by calling <a href="#advance">AD
 <p>Macro: <code>DOITERS (&amp;REST ITERS) &amp;BODY BODY</code></p>
 </div>
 <div class="paragraph">
-<p>Iterates over one or more sequences with the sequence iterators bound
+<p>Iterate over one or more sequences with the sequence iterators bound
 to variables.</p>
 </div>
 <div class="paragraph">
@@ -2320,7 +2895,7 @@ over and <code>ARGS</code> are the remaining arguments passed to the
 <a href="#iterator-func">ITERATOR</a> function.</p>
 </div>
 <div class="paragraph">
-<p>The bindings to the <code>IT-VAR&#8217;s are visible to the forms in `BODY</code>,
+<p>The bindings to the <code>IT-VAR</code>'s are visible to the forms in <code>BODY</code>,
 which are executed once for each element in the sequence. After each
 iteration the sequence iterators are <a href="#advance">ADVANCE</a>'d. The loop
 terminates when the end of a sequence is reached.</p>
@@ -2342,7 +2917,7 @@ iterated over.</p>
 <p>Macro: <code>DOSEQ (ELEMENT SEQUENCE &amp;REST ARGS) &amp;BODY BODY</code></p>
 </div>
 <div class="paragraph">
-<p>Iterates over the elements of <code>SEQUENCE</code>. <code>ARGS</code> are the remaining
+<p>Iterate over the elements of <code>SEQUENCE</code>. <code>ARGS</code> are the remaining
 arguments passed to the <a href="#iterator-func">ITERATOR</a> function.</p>
 </div>
 <div class="paragraph">
@@ -2353,15 +2928,67 @@ according to the pattern specified by <code>ELEMENT</code>.</p>
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="implemented_interfaces">Implemented Interfaces</h4>
+<div class="paragraph">
+<p>This interface adds methods, when the system implementing the
+interface is loaded, specialized on <code>ITERATOR</code>'s to the following
+functions:</p>
+</div>
+<div class="sect4">
+<h5 id="iterator-length">LENGTH</h5>
+<div class="paragraph">
+<p>Method: <code>LENGTH (ITERATOR ITERATOR)</code></p>
+</div>
+<div class="paragraph">
+<p>Returns the number of elements between the iterator&#8217;s current
+position (inclusive) and the end of the iterator&#8217;s subsequence.</p>
+</div>
+<div class="paragraph">
+<p>This is implemented by advancing the iterator (by <a href="#advance">ADVANCE</a>) till
+<a href="#endp">ENDP</a> returns true, thus is a linear <code>O(n)</code> time operation.</p>
+</div>
+<div class="paragraph">
+<p>More efficient specialized methods are provided for iterators to
+sequences for which the size is known.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="iterator-subseq">SUBSEQ</h5>
+<div class="paragraph">
+<p>Method: <code>SUBSEQ (ITERATOR ITERATOR) START &amp;OPTIONAL END</code></p>
+</div>
+<div class="paragraph">
+<p>Returns a subsequence iterator which wraps a copy of the original
+iterator.</p>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="collector">Collector</h3>
 <div class="paragraph">
-<p>The collector interface is a generic interface for accumulating items
-in a sequence/container.</p>
+<p>System and package name <code>GENERIC-CL.COLLECTOR</code>.</p>
 </div>
 <div class="paragraph">
-<p>Implemented for lists, vectors and <a href="#hash_map">HASH-MAP</a>'s.</p>
+<p>The collector interface is a generic interface for accumulating items
+into a sequence/container.</p>
+</div>
+<div class="paragraph">
+<p>Implemented for lists and vectors.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+While this interface is specified for sequences, it may also be
+implemented for unordered containers.
+</td>
+</tr>
+</table>
 </div>
 <div class="listingblock">
 <div class="title">Basic Usage</div>
@@ -2380,7 +3007,7 @@ in a sequence/container.</p>
 <p>Generic Function: <code>MAKE-COLLECTOR SEQUENCE &amp;KEY FRONT</code></p>
 </div>
 <div class="paragraph">
-<p>Returns a collector for accumulating items to the end of the sequence
+<p>Return a collector for accumulating items to the end of the sequence
 <code>SEQUENCE</code>. If <code>:FRONT</code> is provided and is true, the items are
 accumulated to the front of the sequence rather than end.</p>
 </div>
@@ -2405,7 +3032,7 @@ instead.
 <p>Generic Function: <code>ACCUMULATE COLLECTOR ITEM</code></p>
 </div>
 <div class="paragraph">
-<p>Accumulates <code>ITEM</code> into the sequence associated with the collector
+<p>Accumulate <code>ITEM</code> into the sequence associated with the collector
 <code>COLLECTOR</code>.</p>
 </div>
 </div>
@@ -2415,7 +3042,7 @@ instead.
 <p>Generic Function: <code>COLLECTOR-SEQUENCE COLLECTOR</code></p>
 </div>
 <div class="paragraph">
-<p>Returns the underlying sequence associated with the collector
+<p>Return the underlying sequence associated with the collector
 <code>COLLECTOR</code>. The sequence should contain all items accumulated up to
 the call to this function.</p>
 </div>
@@ -2453,7 +3080,7 @@ The sequence returned might not be the same object passed to
 <p>Generic Function: <code>EXTEND COLLECTOR SEQUENCE</code></p>
 </div>
 <div class="paragraph">
-<p>Accumulates all elements of the sequence <code>SEQUENCE</code> into the sequence
+<p>Accumulate all elements of the sequence <code>SEQUENCE</code> into the sequence
 associated with the collector <code>COLLECTOR</code>.</p>
 </div>
 <div class="paragraph">
@@ -2474,10 +3101,8 @@ element one by one using <a href="#accumulate">ACCUMULATE</a>.
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
 <div class="ulist">
+<div class="title">Methods</div>
 <ul>
 <li>
 <p><code>T ITERATOR</code></p>
@@ -2526,630 +3151,13 @@ The sequence iteration is done using the <a href="#iterator">Iterator</a> interf
 </div>
 </div>
 <div class="sect2">
-<h3 id="sequences">Sequences</h3>
+<h3 id="sequence">Sequence</h3>
 <div class="paragraph">
-<p>Generic sequence functions.</p>
+<p>System and package name <code>GENERIC-CL.SEQUENCE</code></p>
 </div>
-<div class="sect3">
-<h4 id="creation">Creation</h4>
 <div class="paragraph">
-<p>The following functions are for creating a sequence into which items
-will be accumulated using the collector interface.</p>
+<p>Generic sequence operations.</p>
 </div>
-<div class="sect4">
-<h5 id="cleared">CLEARED</h5>
-<div class="paragraph">
-<p>Generic Function: <code>CLEARED SEQUENCE &amp;KEY &amp;ALLOW-OTHER-KEYS</code></p>
-</div>
-<div class="paragraph">
-<p>Returns a new empty sequence, of the same type and with the same
-properties as <code>SEQUENCE</code>, suitable for accumulating items into it
-using the collector interface.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Individual methods may accept keyword parameters which specify
-certain options of the sequence which is to be created.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>LIST</code></p>
-<div class="paragraph">
-<p>Returns <code>NIL</code>.</p>
-</div>
-</li>
-<li>
-<p><code>VECTOR</code></p>
-<div class="paragraph">
-<p>Returns an adjustable vector of the same length as <code>SEQUENCE</code>,
-with the fill-pointer set to <code>0</code>.</p>
-</div>
-<div class="paragraph">
-<p>If the <code>:KEEP-ELEMENT-TYPE</code> argument is provided and is true, the
-element type of the new vector is the same as the element type of
-<code>SEQUENCE</code>.</p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="make_sequence_of_type">MAKE-SEQUENCE-OF-TYPE</h5>
-<div class="paragraph">
-<p>Generic Function: <code>MAKE-SEQUENCE-OF-TYPE TYPE ARGS</code></p>
-</div>
-<div class="paragraph">
-<p>Returns a new empty sequence of type <code>TYPE</code>. <code>ARGS</code> are the type
-arguments, if any.</p>
-</div>
-<div class="paragraph">
-<p>The default method creates a built-in sequence of the same type as
-that returned by:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-lisp" data-lang="lisp">(make-sequence (cons type args) 0)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="sequence_of_type">SEQUENCE-OF-TYPE</h5>
-<div class="paragraph">
-<p>Function: <code>SEQUENCE-OF-TYPE TYPE</code></p>
-</div>
-<div class="paragraph">
-<p>Creates a new sequence of type <code>TYPE</code>, using
-<a href="#make_sequence_of_type">MAKE-SEQUENCE-OF-TYPE</a>.</p>
-</div>
-<div class="paragraph">
-<p>If <code>TYPE</code> is a list the <code>CAR</code> of the list is passed as the first
-argument, to <code>MAKE-SEQUENCE-OF-TYPE</code>, and the <code>CDR</code> is passed as the
-second argument. Otherwise, if <code>TYPE</code> is not a list, it is passed as
-the first argument and <code>NIL</code> is passed as the second argument.</p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="sequence_elements">Sequence Elements</h4>
-<div class="sect4">
-<h5 id="elt">ELT</h5>
-<div class="paragraph">
-<p>Generic Function: <code>ELT SEQUENCE INDEX</code></p>
-</div>
-<div class="paragraph">
-<p>Returns the element at position <code>INDEX</code> in the sequence <code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>SEQUENCE T</code> and <code>VECTOR T</code></p>
-<div class="paragraph">
-<p>Returns <code>(CL:ELT SEQUENCE INDEX)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>ARRAY INTEGER</code></p>
-<div class="paragraph">
-<p>Multi-Dimensional Arrays.</p>
-</div>
-<div class="paragraph">
-<p>Returns <code>(ROW-MAJOR-AREF SEQUENCE INDEX)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>ARRAY LIST</code></p>
-<div class="paragraph">
-<p>Multi-Dimensional Arrays.</p>
-</div>
-<div class="paragraph">
-<p>If length of <code>index</code> matches array&#8217;s rank, returns <code>(apply #'aref sequence
-index)</code>.</p>
-</div>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>If <code>index&#8217;s length is less than the array&#8217;s rank, then returns a displaced
-array whose dimensions are `sequence&#8217;s "unused" dimensions (ie `(nthcdr
-(array-dimensions sequence) (length index))</code>) and which shares storage with the
-"subarray" of <code>sequence</code> specificied by <code>index</code></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>HASH-TABLE T</code></p>
-<div class="paragraph">
-<p>Hash Tables.</p>
-</div>
-<div class="paragraph">
-<p>Returns <code>(CL:GETHASH INDEX SEQUENCE)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>HASH-MAP T</code></p>
-<div class="paragraph">
-<p>Hash Maps.</p>
-</div>
-<div class="paragraph">
-<p>Returns <code>(GENERIC-CL:GET INDEX SEQUENCE)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>T T</code></p>
-<div class="paragraph">
-<p>Creates an iterator for <code>SEQUENCE</code>, with start position <code>INDEX</code>,
-and returns the first element returned by the iterator.</p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="setf_elt">(SETF ELT)</h5>
-<div class="paragraph">
-<p>Generic Function: <code>(SETF ELT) VALUE SEQUENCE INDEX</code></p>
-</div>
-<div class="paragraph">
-<p>Sets the value of the element at position <code>INDEX</code> in the sequence
-<code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>T SEQUENCE T</code> and <code>T VECTOR T</code></p>
-<div class="paragraph">
-<p>Returns <code>(SETF (CL:ELT SEQUENCE INDEX) VALUE)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>T ARRAY INTEGER</code></p>
-<div class="paragraph">
-<p>Multi-Dimensional Arrays.</p>
-</div>
-<div class="paragraph">
-<p>Returns <code>(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)</code></p>
-</div>
-</li>
-<li>
-<p><code>ARRAY LIST</code></p>
-<div class="paragraph">
-<p>Multi-Dimensional Arrays.</p>
-</div>
-<div class="paragraph">
-<p>If length of <code>index</code> matches array&#8217;s rank, returns <code>(setf (apply #'aref sequence
-index) value)</code>.</p>
-</div>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>If <code>index&#8217;s length is less than the array&#8217;s rank, then copies the contents of
-`value</code> to the "subarray" (see <code>generic-cl:elt</code>) specified by <code>index</code> and then
-returns <code>(elt sequence index)</code>. <code>value&#8217;s dimensions must equal the "unused"
-dimensions of `sequence</code> (ie <code>(nthcdr (array-dimensions sequence) (length
-index))</code>).</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>T HASH-TABLE T</code></p>
-<div class="paragraph">
-<p>Hash Tables.</p>
-</div>
-<div class="paragraph">
-<p>Returns <code>(SETF (CL:GETHASH SEQUENCE INDEX) VALUE)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>T HASH-MAP T</code></p>
-<div class="paragraph">
-<p>Hash Maps.</p>
-</div>
-<div class="paragraph">
-<p>Returns <code>(SETF (GENERIC-CL:GET SEQUENCE INDEX) VALUE)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>T T T</code></p>
-<div class="paragraph">
-<p>Creates an iterator for <code>SEQUENCE</code>, with start position <code>INDEX</code>,
-and sets the value of the element at the starting position of the
-iterator.</p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="first">FIRST</h5>
-<div class="paragraph">
-<p>Generic Function: <code>FIRST SEQUENCE</code></p>
-</div>
-<div class="paragraph">
-<p>Returns the first element in the sequence <code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>Implemented for lists, vectors and multi-dimensional arrays. For
-multi-dimensional arrays, the first element is obtained by
-<code>ROW-MAJOR-AREF</code>.</p>
-</div>
-<div class="paragraph">
-<p>The default method is implemented using <a href="#elt">GENERIC-CL:ELT</a>, i.e. is
-equivalent to:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-lisp" data-lang="lisp">(elt sequence index)</code></pre>
-</div>
-</div>
-</div>
-<div class="sect4">
-<h5 id="last">LAST</h5>
-<div class="paragraph">
-<p>Generic Function: <code>LAST SEQUENCE &amp;OPTIONAL (N 0)</code></p>
-</div>
-<div class="paragraph">
-<p>Returns the <code>N&#8217;th element from the last element of the sequence
-`SEQUENCE</code>. <code>N</code> defaults to <code>0</code> which indicates the last element. <code>1</code>
-indicates the second to last element, <code>2</code> the third to last and so on.</p>
-</div>
-<div class="paragraph">
-<p>Implemented for lists, vectors and multi-dimensional arrays. For
-multi-dimensional arrays, the last element is obtained by:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-lisp" data-lang="lisp">(row-major-aref sequence (- (array-total-size array) 1 n))</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>The default method is implemented using <a href="#elt">GENERIC-CL:ELT</a>, i.e. is
-equivalent to:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-lisp" data-lang="lisp">(elt sequence (- (length sequence) 1 n))</code></pre>
-</div>
-</div>
-<div class="admonitionblock caution">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-caution" title="Caution"></i>
-</td>
-<td class="content">
-The behaviour of this function differs from <code>CL:LAST</code> when
-called on lists, it returns the last element rather than the last
-<code>CONS</code> cell. The <a href="#lastcdr">LASTCDR</a> function performs the same function as
-<code>CL:LAST</code>.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect4">
-<h5 id="lastcdr">LASTCDR</h5>
-<div class="paragraph">
-<p>Function: <code>LASTCDR LIST &amp;OPTIONAL (N 1)</code></p>
-</div>
-<div class="paragraph">
-<p>This function is equivalent to <code>CL:LAST</code> list function.</p>
-</div>
-<div class="paragraph">
-<p>Returns the <code>CDR</code> of the <code>N&#8217;th `CONS</code> cell from the end of the list.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="erase">ERASE</h5>
-<div class="paragraph">
-<p>Generic Function: <code>ERASE SEQUENCE INDEX</code></p>
-</div>
-<div class="paragraph">
-<p>Removes the element at index <code>INDEX</code> from the sequence <code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>Destructively modifies <code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>VECTOR T</code></p>
-<div class="paragraph">
-<p>Shifts the elements following <code>INDEX</code> one element towards the
-front of the vector and shrinks the vector by one element.</p>
-</div>
-<div class="admonitionblock caution">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-caution" title="Caution"></i>
-</td>
-<td class="content">
-Signals a <code>TYPE-ERROR</code> if the vector is not adjustable.
-</td>
-</tr>
-</table>
-</div>
-</li>
-</ul>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-This method is not implemented for lists as removing the first
-element of a list cannot be implemented (efficiently) as a side effect
-alone.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="sequence_length">Sequence Length</h4>
-<div class="sect4">
-<h5 id="length">LENGTH</h5>
-<div class="paragraph">
-<p>Generic Function: <code>LENGTH SEQUENCE</code></p>
-</div>
-<div class="paragraph">
-<p>Returns the number of elements in the sequence <code>SEQUENCE</code>. If
-<code>SEQUENCE</code> is an iterator, returns the number of remaining elements to
-be iterated over.</p>
-</div>
-<div class="paragraph">
-<p>This function is implemented for all Common Lisp sequences, returning
-the length of the sequence (by <code>CL:LENGTH</code>), multi-dimensional arrays,
-returning the total number of elements in the array (by
-<code>ARRAY-TOTAL-SIZE</code>), and <a href="#hash_map">HASH-MAP</a>'s / hash tables, returning the
-total number of elements in the map/table.</p>
-</div>
-<div class="paragraph">
-<p>The following default methods are implemented:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>ITERATOR</code></p>
-<div class="paragraph">
-<p>Returns the number of elements between the iterator&#8217;s current
-position (inclusive) and the end of the iterator&#8217;s subsequence.</p>
-</div>
-<div class="paragraph">
-<p>This is implemented by advancing the iterator (by <a href="#advance">ADVANCE</a>) till
-<a href="#endp">ENDP</a> returns true, thus is a linear <code>O(n)</code> time operation.</p>
-</div>
-<div class="paragraph">
-<p>More efficient specialized methods are provided for iterators to
-sequences for which the size is known.</p>
-</div>
-</li>
-<li>
-<p><code>T</code></p>
-<div class="paragraph">
-<p>Returns the length of the generic sequence by creating an iterator to
-the sequence and calling the <a href="#iterator-struct">ITERATOR</a> specialized
-method. Thus this is a linear <code>O(n)</code>, in time, operation unless a more
-efficient method, which is specialized on the sequence&#8217;s iterator
-type, is implemented.</p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="emptyp">EMPTYP</h5>
-<div class="paragraph">
-<p>Generic Function: <code>EMPTYP SEQUENCE</code></p>
-</div>
-<div class="paragraph">
-<p>Returns true if the sequence <code>SEQUENCE</code> is empty.</p>
-</div>
-<div class="paragraph">
-<p>Implemented for lists, vectors, multi-dimensional arrays (always
-returns <code>NIL</code>) and <a href="#hash_map">HASH-MAP</a>'s.</p>
-</div>
-<div class="paragraph">
-<p>The default returns true if <a href="#endp">ENDP</a> returns true for a newly created
-iterator for <code>SEQUENCE</code>.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="clear">CLEAR</h5>
-<div class="paragraph">
-<p>Generic Function: <code>CLEAR SEQUENCE</code></p>
-</div>
-<div class="paragraph">
-<p>Destructively removes all elements from the sequence <code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>Implemented for vectors and <a href="#hash_map">HASH-MAP</a>'s.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="adjust_size">ADJUST-SIZE</h5>
-<div class="paragraph">
-<p>Generic Function: <code>ADJUST-SIZE SEQUENCE N &amp;KEY ELEMENT</code></p>
-</div>
-<div class="paragraph">
-<p>Return a new sequence containing the same elements as <code>SEQUENCE</code> however
-with its size changed to <code>N</code>.</p>
-</div>
-<div class="paragraph">
-<p>If <code>N</code> is less than the number of elements in <code>SEQUENCE</code>, the returned
-sequence contains only the first N elements of <code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>If <code>N</code> is greater than the number of elements in <code>SEQUENCE</code>, the
-returned sequence contains all the elements of <code>SEQUENCE</code> with an
-additional <code>(LENGTH SEQUENCE) - N</code> elements initialized to the value
-of <code>ELEMENT</code>.</p>
-</div>
-<div class="paragraph">
-<p>Methods are provided for lists and vectors. The default <code>T</code> method,
-implements this operation using the <a href="#iterator">Iterator</a> and <a href="#collector">Collector</a>
-interfaces.</p>
-</div>
-</div>
-<div class="sect4">
-<h5 id="nadjust_size">NADJUST-SIZE</h5>
-<div class="paragraph">
-<p>Generic Function: <code>NADJUST-SIZE SEQUENCE N &amp;KEY ELEMENT</code></p>
-</div>
-<div class="paragraph">
-<p>Return a new sequence containing the same elements as <code>SEQUENCE</code>
-however with its size changed to <code>N</code>.</p>
-</div>
-<div class="admonitionblock important">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-important" title="Important"></i>
-</td>
-<td class="content">
-<code>SEQUENCE</code> may be destructively modified.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>If <code>N</code> is less than the number of elements in <code>SEQUENCE</code>, the returned
-sequence contains only the first N elements of <code>SEQUENCE</code>.</p>
-</div>
-<div class="paragraph">
-<p>If <code>N</code> is greater than the number of elements in <code>SEQUENCE</code>, the
-returned sequence contains all the elements of <code>SEQUENCE</code> with an
-additional <code>(LENGTH SEQUENCE) - N</code> elements initialized to the value
-of <code>ELEMENT</code>.</p>
-</div>
-<div class="paragraph">
-<p>Methods are provided for lists and vectors. The default <code>T</code> method,
-implements this operation using the <a href="#iterator">Iterator</a> and <a href="#collector">Collector</a>
-interfaces.</p>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="subsequences">Subsequences</h4>
-<div class="sect4">
-<h5 id="subseq">SUBSEQ</h5>
-<div class="paragraph">
-<p>Generic Function: <code>SUBSEQ SEQUENCE START &amp;OPTIONAL END</code></p>
-</div>
-<div class="paragraph">
-<p>Returns a new sequence that contains the elements of <code>SEQUENCE</code> at the
-positions in the range <code>[START, END)</code>. If <code>SEQUENCE</code> is an iterator,
-an iterator for the sub-sequence relative to the current position of
-the iterator is returned.</p>
-</div>
-<div class="paragraph">
-<p><code>START</code> is the index of the first element of the subsequence, with <code>0</code>
-indicating the start of the sequence. if <code>SEQUENCE</code> is an iterator,
-<code>START</code> is the number of times the iterator should be <a href="#advance">ADVANCE</a>'d to
-reach the first element of the subsequence.</p>
-</div>
-<div class="paragraph">
-<p><code>END</code> is the index of the element following the last element of the
-subsequence. <code>NIL</code> (the default) indicates the end of the sequence. If
-<code>SEQUENCE</code> is an iterator, <code>END</code> is the number of times the iterator
-should be <a href="#advance">ADVANCE</a>'d till the end position is reached.</p>
-</div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>SEQUENCE T</code></p>
-<div class="paragraph">
-<p>Returns the subsequence using <code>CL:SUBSEQ</code>.</p>
-</div>
-</li>
-<li>
-<p><code>ITERATOR T</code></p>
-<div class="paragraph">
-<p>Returns a subsequence iterator which wraps a copy of the original
-iterator.</p>
-</div>
-</li>
-<li>
-<p><code>T T</code></p>
-<div class="paragraph">
-<p>Returns the subsequence of the generic sequence. This requires that
-the <a href="#cleared">CLEARED</a> method, the <a href="#iterator">Iterator</a> interface and <a href="#collector">Collector</a>
-interface are implemented for the generic sequence type.</p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-<div class="sect4">
-<h5 id="setf_subseq">(SETF SUBSEQ)</h5>
-<div class="paragraph">
-<p>Generic Function: <code>(SETF SUBSEQ) NEW-SEQUENCE SEQUENCE START &amp;OPTIONAL END</code></p>
-</div>
-<div class="paragraph">
-<p>Replaces the elements of <code>SEQUENCE</code> at the positions in the range
-<code>[START, END)</code>, with the elements of <code>NEW-SEQUENCE</code>. The shorter
-length of <code>NEW-SEQUENCE</code> and the number of elements between <code>START</code>
-and <code>END</code> determines how many elements of <code>SEQUENCE</code> are actually
-modified.</p>
-</div>
-<div class="paragraph">
-<p>See <a href="#subseq">SUBSEQ</a> for more details of how the <code>START</code> and <code>END</code> arguments are
-interpreted.</p>
-</div>
-<div class="paragraph">
-<p>Methods:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>SEQEUNCE SEQUENCE T</code></p>
-<div class="paragraph">
-<p>Sets the elements of the subsequence using <code>(SETF CL:SUBSEQ)</code>.</p>
-</div>
-</li>
-<li>
-<p><code>T T T</code></p>
-<div class="paragraph">
-<p>Sets the elements of the generic sequence using the <a href="#iterator">Iterator</a>
-interface, which should be implemented for both the types of
-<code>SEQUENCE</code> and <code>NEW-SEQUENCE</code>. This method requires that the
-<a href="#setf-at">(SETF AT)</a> method is implemented for the iterator type of <code>SEQUENCE</code>.</p>
-</div>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="sequence_operations">Sequence Operations</h4>
 <div class="paragraph">
 <p>Generic function wrappers, which are identical in behavior to their
 counterparts in the <code>COMMON-LISP</code> package, are provided for the
@@ -3288,7 +3296,7 @@ implemented for the sequence&#8217;s type.</p>
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-The default value of the <code>:TEST</code> keyword arguments is
+The default value of the <code>:TEST</code> keyword argument is
 <a href="#equalp">GENERIC-CL:EQUALP</a>. This should be the default value when
 implementing methods for user-defined sequence types. The <code>:TEST-NOT</code>
 keyword arguments have been removed.
@@ -3323,8 +3331,8 @@ arguments.</p>
 <p>The following functions either have no <code>CL</code> counterparts or differ
 slightly in behavior from their <code>CL</code> counterparts:</p>
 </div>
-<div class="sect4">
-<h5 id="find_it">FIND-IT</h5>
+<div class="sect3">
+<h4 id="find_it">FIND-IT</h4>
 <div class="paragraph">
 <p>Generic Function: <code>FIND-IT ITEM SEQUENCE &amp;KEY FROM-END START END TEST KEY</code></p>
 </div>
@@ -3346,6 +3354,7 @@ position at which an element is found rather than the element itself.
 </table>
 </div>
 <div class="dlist">
+<div class="title">Parameters</div>
 <dl>
 <dt class="hdlist1"><code>ITEM</code></dt>
 <dd>
@@ -3402,8 +3411,8 @@ the sequence.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="find_it_if">FIND-IT-IF</h5>
+<div class="sect3">
+<h4 id="find_it_if">FIND-IT-IF</h4>
 <div class="paragraph">
 <p>Generic Function: <code>FIND-IT-IF PREDICATE SEQUENCE &amp;KEY FROM-END START END KEY</code></p>
 </div>
@@ -3425,6 +3434,7 @@ position at which an element is found rather than the element itself.
 </table>
 </div>
 <div class="dlist">
+<div class="title">Parameters</div>
 <dl>
 <dt class="hdlist1"><code>PREDICATE</code></dt>
 <dd>
@@ -3479,8 +3489,8 @@ the sequence.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="find_it_if_not">FIND-IT-IF-NOT</h5>
+<div class="sect3">
+<h4 id="find_it_if_not">FIND-IT-IF-NOT</h4>
 <div class="paragraph">
 <p>Generic Function: <code>FIND-IT-IF PREDICATE SEQUENCE &amp;KEY FROM-END START END KEY</code></p>
 </div>
@@ -3502,6 +3512,7 @@ position at which an element is found rather than the element itself.
 </table>
 </div>
 <div class="dlist">
+<div class="title">Parameters</div>
 <dl>
 <dt class="hdlist1"><code>PREDICATE</code></dt>
 <dd>
@@ -3556,14 +3567,14 @@ the sequence.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="merge">MERGE</h5>
+<div class="sect3">
+<h4 id="merge">MERGE</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MERGE SEQUENCE1 SEQUENCE2 PREDICATE &amp;KEY</code></p>
 </div>
 <div class="paragraph">
-<p>Returns a new sequence, of the same type as <code>SEQUENCE1</code>, containing
-the elements of <code>SEQUENCE1</code> and <code>SEQUENCE2</code>. The elements are ordered
+<p>Return a new sequence, of the same type as <code>SEQUENCE1</code>, containing the
+elements of <code>SEQUENCE1</code> and <code>SEQUENCE2</code>. The elements are ordered
 according to the function <code>PREDICATE</code>.</p>
 </div>
 <div class="admonitionblock important">
@@ -3579,23 +3590,23 @@ Unlike <code>CL:MERGE</code> this function is non-destructive.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="nmerge">NMERGE</h5>
+<div class="sect3">
+<h4 id="nmerge">NMERGE</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MERGE SEQUENCE1 SEQUENCE2 PREDICATE &amp;KEY</code></p>
 </div>
 <div class="paragraph">
-<p>Same as <code>MERGE</code> however is permitted to destructively modify either
+<p>Same as <a href="#merge">MERGE</a> however is permitted to destructively modify either
 <code>SEQUENCE1</code> or <code>SEQUENCE2</code>.</p>
 </div>
 </div>
-<div class="sect4">
-<h5 id="sort">SORT</h5>
+<div class="sect3">
+<h4 id="sort">SORT</h4>
 <div class="paragraph">
 <p>Generic Function: <code>SORT SEQUENCE &amp;KEY TEST KEY</code></p>
 </div>
 <div class="paragraph">
-<p>Returns a new sequence of the same type as <code>SEQUENCE</code>, with the same
+<p>Return a new sequence of the same type as <code>SEQUENCE</code>, with the same
 elements sorted according to the order determined by the function
 <code>TEST</code>. <code>TEST</code> is <a href="#lessp">GENERIC-CL:LESSP</a> by default.</p>
 </div>
@@ -3626,13 +3637,13 @@ iterator type of <code>SEQUENCE</code>.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="stable_sort">STABLE-SORT</h5>
+<div class="sect3">
+<h4 id="stable_sort">STABLE-SORT</h4>
 <div class="paragraph">
 <p>Generic Function: <code>STABLE-SORT SEQUENCE &amp;KEY TEST KEY</code></p>
 </div>
 <div class="paragraph">
-<p>Same as <code>SORT</code> however the sort operation is guaranteed to be
+<p>Same as <a href="#sort">SORT</a> however the sort operation is guaranteed to be
 stable. <code>TEST</code> is <a href="#lessp">GENERIC-CL:LESSP</a> by default.</p>
 </div>
 <div class="admonitionblock important">
@@ -3662,33 +3673,33 @@ iterator type of <code>SEQUENCE</code>.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="nsort">NSORT</h5>
+<div class="sect3">
+<h4 id="nsort">NSORT</h4>
 <div class="paragraph">
 <p>Generic Function: <code>NSORT SEQUENCE &amp;KEY TEST KEY</code></p>
 </div>
 <div class="paragraph">
-<p>Same as <code>SORT</code> however is permitted to destructively modify
+<p>Same as <a href="#sort">SORT</a> however is permitted to destructively modify
 <code>SEQUENCE</code>.</p>
 </div>
 </div>
-<div class="sect4">
-<h5 id="stable_nsort">STABLE-NSORT</h5>
+<div class="sect3">
+<h4 id="stable_nsort">STABLE-NSORT</h4>
 <div class="paragraph">
 <p>Generic Function: <code>STABLE-NSORT SEQUENCE &amp;KEY TEST KEY</code></p>
 </div>
 <div class="paragraph">
-<p>Same as <code>STABLE-SORT</code> however is permitted to destructively modify
+<p>Same as <a href="#stable_sort">STABLE-SORT</a> however is permitted to destructively modify
 <code>SEQUENCE</code>.</p>
 </div>
 </div>
-<div class="sect4">
-<h5 id="concatenate">CONCATENATE</h5>
+<div class="sect3">
+<h4 id="concatenate">CONCATENATE</h4>
 <div class="paragraph">
 <p>Generic Function: <code>CONCATENATE SEQUENCE &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Returns a new sequence, of the same type as <code>SEQUENCE</code>, containing all
+<p>Return a new sequence, of the same type as <code>SEQUENCE</code>, containing all
 the elements of <code>SEQUENCE</code> and of each sequence in <code>SEQUENCES</code>, in the
 order they are supplied.</p>
 </div>
@@ -3706,14 +3717,14 @@ argument.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="nconcatenate">NCONCATENATE</h5>
+<div class="sect3">
+<h4 id="nconcatenate">NCONCATENATE</h4>
 <div class="paragraph">
 <p>Generic Function: <code>NCONCATENATE RESULT &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Destructively concatenates each sequence in <code>SEQUENCES</code> to the
-sequence <code>RESULT</code>.</p>
+<p>Destructively concatenate each sequence in <code>SEQUENCES</code> to the sequence
+<code>RESULT</code>.</p>
 </div>
 <div class="paragraph">
 <p>Returns the result of the concatenation.</p>
@@ -3734,13 +3745,13 @@ effects.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="map">MAP</h5>
+<div class="sect3">
+<h4 id="map">MAP</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MAP FUNCTION SEQUENCE &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Creates a new sequence, of the same type as <code>SEQUENCE</code> (by
+<p>Create a new sequence, of the same type as <code>SEQUENCE</code> (by
 <a href="#cleared">CLEARED</a>), containing the result of applying <code>FUNCTION</code> to each
 element of SEQUENCE and each element of each <code>SEQUENCE</code> in
 <code>SEQUENCES</code>.</p>
@@ -3761,13 +3772,13 @@ by a type argument.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="nmap">NMAP</h5>
+<div class="sect3">
+<h4 id="nmap">NMAP</h4>
 <div class="paragraph">
 <p>Generic Function: <code>NMAP RESULT FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Destructively replaces each element of <code>RESULT</code> with the result of
+<p>Destructively replace each element of <code>RESULT</code> with the result of
 applying <code>FUNCTION</code> to each element of <code>RESULT</code> and each element of
 each sequence in SEQUENCES.</p>
 </div>
@@ -3804,14 +3815,14 @@ do not rely on this function for its side effects.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="map_into">MAP-INTO</h5>
+<div class="sect3">
+<h4 id="map_into">MAP-INTO</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MAP-INTO RESULT FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Applies <code>FUNCTION</code> on each element of each sequence in <code>SEQUENCES</code> and
-accumulates the result in RESULT, using the <a href="#collector">Collector</a> interface.</p>
+<p>Apply <code>FUNCTION</code> on each element of each sequence in <code>SEQUENCES</code> and
+accumulate the result in RESULT, using the <a href="#collector">Collector</a> interface.</p>
 </div>
 <div class="paragraph">
 <p>Returns the resulting sequence.</p>
@@ -3831,14 +3842,14 @@ do not rely on this function for its side effects.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="map_to">MAP-TO</h5>
+<div class="sect3">
+<h4 id="map_to">MAP-TO</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MAP-TO TYPE FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Applies <code>FUNCTION</code> to each element of each sequence in <code>SEQUENCES</code> and
-stores the result in a new sequence of type <code>TYPE</code> (created using
+<p>Apply <code>FUNCTION</code> on each element of each sequence in <code>SEQUENCES</code> and
+store the result in a new sequence of type <code>TYPE</code> (created using
 <a href="#sequence_of_type">SEQUENCE-OF-TYPE</a>).  Returns the sequence in which the results of
 applying the function are stored.</p>
 </div>
@@ -3859,40 +3870,40 @@ accumulate the results, use <a href="#foreach">FOREACH</a> for that.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="map_extend">MAP-EXTEND</h5>
+<div class="sect3">
+<h4 id="map_extend">MAP-EXTEND</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MAP-EXTEND-TO FUNCTION SEQUENCE &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Applies <code>FUNCTION</code> to each respective element of <code>SEQUENCE</code>, and of
-each sequence in <code>SEQUENCES</code>, accumulating, using the <a href="#extend">EXTEND</a>
-method of the <a href="#collector">Collector</a> Interface, the elements of the result,
-which is expected to be a sequence, in a sequence of the same type as
+<p>Apply <code>FUNCTION</code> on each respective element of <code>SEQUENCE</code>, and of each
+sequence in <code>SEQUENCES</code>, accumulating, using the <a href="#extend">EXTEND</a> method of
+the <a href="#collector">Collector</a> Interface, the elements of the result, which is
+expected to be a sequence, in a sequence of the same type as
 <code>SEQUENCE</code>. The resulting sequence is returned.</p>
 </div>
 </div>
-<div class="sect4">
-<h5 id="map_extend_to">MAP-EXTEND-TO</h5>
+<div class="sect3">
+<h4 id="map_extend_to">MAP-EXTEND-TO</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MAP-EXTEND-TO TYPE FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Applies <code>FUNCTION</code> to each respective element of each sequence in
-<code>SEQUENCES</code>, and accumulates, using the <a href="#extend">EXTEND</a> method of the
+<p>Apply <code>FUNCTION</code> on each respective element of each sequence in
+<code>SEQUENCES</code>, and accumulate, using the <a href="#extend">EXTEND</a> method of the
 <a href="#collector">Collector</a> Interface, the elements of the result, which is expected
 to be a sequence, in a sequence of type <code>TYPE</code>, created using
 <a href="#sequence_of_type">SEQUENCE-OF-TYPE</a>. The resulting sequence is returned.</p>
 </div>
 </div>
-<div class="sect4">
-<h5 id="map_extend_into">MAP-EXTEND-INTO</h5>
+<div class="sect3">
+<h4 id="map_extend_into">MAP-EXTEND-INTO</h4>
 <div class="paragraph">
 <p>Generic Function: <code>MAP-EXTEND-INTO RESULT FUNCTION &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Applies <code>FUNCTION</code> to each respective element of each sequence in
-<code>SEQUENCES</code>, and accumulates, using the <a href="#extend">EXTEND</a> method of the
+<p>Apply <code>FUNCTION</code> on each respective element of each sequence in
+<code>SEQUENCES</code>, and accumulate, using the <a href="#extend">EXTEND</a> method of the
 <a href="#collector">Collector</a> Interface, the elements of the result, which is expected
 to be a sequence, in the sequence <code>RESULT</code>. The resulting sequence is
 returned.</p>
@@ -3912,16 +3923,113 @@ value, not its side effects.
 </table>
 </div>
 </div>
-<div class="sect4">
-<h5 id="foreach">FOREACH</h5>
+<div class="sect3">
+<h4 id="foreach">FOREACH</h4>
 <div class="paragraph">
 <p>Function: <code>FOREACH &amp;REST SEQUENCES</code></p>
 </div>
 <div class="paragraph">
-<p>Applies <code>FUNCTION</code> on each element of each sequence in <code>SEQUENCES</code>.</p>
+<p>Apply <code>FUNCTION</code> on each element of each sequence in <code>SEQUENCES</code>.</p>
 </div>
 <div class="paragraph">
 <p>Returns <code>NIL</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="implemented_methods">Implemented Methods</h4>
+<div class="paragraph">
+<p>This interface&#8217;s system also defines the following methods of the
+<a href="#container">Container</a> interface, implemented using the <a href="#iterator">Iterator</a> and
+<a href="#collector">Collector</a> interfaces.</p>
+</div>
+<div class="sect4">
+<h5 id="elt_2">ELT</h5>
+<div class="paragraph">
+<p>Method: <code>ELT (SEQUENCE T) (INDEX T)</code></p>
+</div>
+<div class="paragraph">
+<p>Creates an iterator for <code>SEQUENCE</code>, with start position <code>INDEX</code>,
+and returns the first element returned by the iterator.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="setf_elt">(SETF ELT)</h5>
+<div class="paragraph">
+<p>Method: <code>(SETF ELT) (VALUE T) (SEQUENCE T) (INDEX T)</code></p>
+</div>
+<div class="paragraph">
+<p>Creates an iterator for <code>SEQUENCE</code>, with start position <code>INDEX</code>, and
+sets the value of the element at the starting position of the
+iterator.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="length_2">LENGTH</h5>
+<div class="paragraph">
+<p>Method: <code>LENGTH (CONTAINER T)</code></p>
+</div>
+<div class="paragraph">
+<p>Returns the size of the container by creating an iterator and calling
+the <code>LENGTH</code> method specialized on the <a href="#iterator-struct">ITERATOR</a> structure.</p>
+</div>
+<div class="paragraph">
+<p>This is a linear <code>O(n)</code>, in time, operation unless a more efficient
+method, which is specialized on the containers&#8217;s iterator type, is
+implemented.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="emptyp_2">EMPTYP</h5>
+<div class="paragraph">
+<p>Method: <code>EMPTYP (CONTAINER T)</code></p>
+</div>
+<div class="paragraph">
+<p>Returns true if <a href="#endp">ENDP</a> returns true for a newly created
+iterator for <code>CONTAINER</code>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="adjust_size_2">ADJUST-SIZE</h5>
+<div class="paragraph">
+<p>Method: <code>ADJUST-SIZE (CONTAINER T) (N T) &amp;KEY ELEMENT</code></p>
+</div>
+<div class="paragraph">
+<p>Requires the <a href="#iterator">Iterator</a> and <a href="#collector">Collector</a> interfaces to be
+implemented for the container type.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="nadjust_size_2">NADJUST-SIZE</h5>
+<div class="paragraph">
+<p>Method: <code>NADJUST-SIZE (CONTAINER T) (N T) &amp;KEY ELEMENT</code></p>
+</div>
+<div class="paragraph">
+<p>Requires the <a href="#iterator">Iterator</a> and <a href="#collector">Collector</a> interfaces to be
+implemented for the container type.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="subseq_2">SUBSEQ</h5>
+<div class="paragraph">
+<p>Method: <code>SUBSEQ (SEQUENCE T) (START T) &amp;OPTIONAL END</code></p>
+</div>
+<div class="paragraph">
+<p>Requires the <a href="#cleared">CLEARED</a> method, the <a href="#iterator">Iterator</a> interface and
+<a href="#collector">Collector</a> interface to be implemented for the sequence type.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="setf_subseq_2">(SETF SUBSEQ)</h5>
+<div class="paragraph">
+<p>Method: <code>(SETF SUBSEQ) (NEW-SEQUENCE T) (SEQUENCE T) (START T) &amp;OPTIONAL END</code></p>
+</div>
+<div class="paragraph">
+<p>Requires the <a href="#iterator">Iterator</a> interface to be implemented for both the
+types of <code>SEQUENCE</code> and <code>NEW-SEQUENCE</code>.</p>
+</div>
+<div class="paragraph">
+<p>Requires the <a href="#setf-at">(SETF AT)</a> method to be implemented for the iterator
+type of <code>SEQUENCE</code>.</p>
 </div>
 </div>
 </div>
@@ -3929,12 +4037,15 @@ value, not its side effects.
 <div class="sect2">
 <h3 id="lazy_sequences">Lazy Sequences</h3>
 <div class="paragraph">
+<p>System and package name: <code>GENERIC-CL.LAZY-SEQ</code></p>
+</div>
+<div class="paragraph">
 <p>Lazy sequences are sequences in which the elements are only computed
 when they are actually referenced, rather than being computed
 immediately.</p>
 </div>
 <div class="paragraph">
-<p>Lazy sequences are implemented with <code>LAZY-SEQ</code> structure which is
+<p>Lazy sequences are implemented with the <code>LAZY-SEQ</code> structure which is
 similar to a <code>CONS</code> cell, however the <code>CDR</code>, the <code>TAIL</code> slot of the
 <code>LAZY-SEQ</code> structure, stores a function which computes and returns the
 remainder of the sequence, rather than storing the sequence directly.</p>
@@ -3945,10 +4056,10 @@ remainder of the sequence, rather than storing the sequence directly.</p>
 <p>Structure: <code>LAZY-SEQ</code></p>
 </div>
 <div class="paragraph">
-<p>Lazy sequence analogous to a <code>CONS</code>.</p>
+<p>Lazy sequence cell analogous to a <code>CONS</code>.</p>
 </div>
 <div class="dlist">
-<div class="title"><strong>Slots:</strong></div>
+<div class="title">Slots</div>
 <dl>
 <dt class="hdlist1"><code>HEAD</code></dt>
 <dd>
@@ -4009,7 +4120,7 @@ which have already been evaluated, into a <code>LAZY-SEQ</code>.
 </li>
 <li>
 <p>Methods, specialized on <code>LAZY-SEQ</code>, are implemented for the
-following <a href="#sequence_operations">Sequence Operations</a> and their
+following <a href="#sequence">Sequence Operations</a> and their
 destructive counterparts:</p>
 <div class="openblock">
 <div class="content">
@@ -4266,6 +4377,9 @@ to obtain the next successive number in the sequence.</p>
 <div class="sect2">
 <h3 id="generic_hash_tables">Generic Hash-Tables</h3>
 <div class="paragraph">
+<p>System and package name: <code>GENERIC-CL.MAP</code></p>
+</div>
+<div class="paragraph">
 <p>This interface provides a hash-table data structure with the generic
 function <a href="#hash">HASH</a> as the hash function and the generic function
 <a href="#equalp">GENERIC-CL:EQUALP</a> as the key comparison function. This
@@ -4283,24 +4397,17 @@ and comparison functions, a fallback solution is used, which is a
 custom hash-table implementation on top of standard hash-tables. The
 <a href="#hash_map">HASH-MAP</a> structure wraps the custom hash-table which allows
 methods methods to be specialized on a single type <code>HASH-MAP</code>
-regardless of whether standard or custom hash-tables are used. If the
-<code>HASH-MAP</code> wrapper were not used, two identical methods would have to
-be implemented, one specializing on standard hash-tables and one
-specializing on custom hash-tables. More identical methods would have
-to be implemented if the method has hash-table specializers for more
-than one arguments, leading to a combinatorial explosion.</p>
+regardless of whether standard or custom hash-tables are used.</p>
 </div>
 <div class="paragraph">
 <p>The functions in this interface are specialized on the <code>HASH-MAP</code>
-type, due to the issue described above, thus use this type, created
-with <a href="#make_hash_map">MAKE-HASH-MAP</a>, rather than built-in hash-tables. If a
-hash-table is obtained from an external source, use <a href="#hash_map">HASH-MAP</a> or
-<a href="#ensure_hash_map">ENSURE-HASH-MAP</a> to convert it to a <code>HASH-MAP</code>.</p>
-</div>
-<div class="paragraph">
-<p><strong>Standard Hash-Table Analogues:</strong></p>
+type, thus this type, created with <a href="#make_hash_map">MAKE-HASH-MAP</a>, should be used
+rather than built-in hash-tables. If a hash-table is obtained from an
+external source, use <a href="#hash_map">HASH-MAP</a> or <a href="#ensure_hash_map">ENSURE-HASH-MAP</a> to convert it
+to a <code>HASH-MAP</code>.</p>
 </div>
 <table class="tableblock frame-all grid-all" style="width: 80%;">
+<caption class="title">Table 1. <strong>Standard Hash-Table Counterparts</strong></caption>
 <colgroup>
 <col style="width: 50%;">
 <col style="width: 50%;">
@@ -4333,24 +4440,37 @@ hash-table is obtained from an external source, use <a href="#hash_map">HASH-MAP
 <div class="sect3">
 <h4 id="hash_map">HASH-MAP</h4>
 <div class="paragraph">
-<p>Structure: <code>HASH-MAP</code> with slots: <code>TABLE</code></p>
+<p>Structure: <code>HASH-MAP</code></p>
+</div>
+<div class="ulist">
+<div class="title">Slots</div>
+<ul>
+<li>
+<p><code>TABLE</code></p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>Function: <code>HASH-MAP TABLE</code></p>
 </div>
 <div class="paragraph">
-<p>The <code>HASH-MAP</code> structure wraps a standard <code>HASH-TABLE</code> or
-<code>CUSTOM-HASH-TABLE</code>. The <code>TABLE</code> slot, accessed with <code>HASH-MAP-TABLE</code>,
-stores the underlying hash-table.</p>
+<p>The <code>HASH-MAP</code> structure wraps a standard <code>HASH-TABLE</code>, or
+<code>CUSTOM-HASH-TABLE</code>, contained in the <code>TABLE</code> slot, which can be
+accessed accessed with <code>HASH-MAP-TABLE</code>.</p>
 </div>
 <div class="paragraph">
-<p>The <code>HASH-MAP</code> function creates a hash-map wrapping a hash table
-passed as its only argument.</p>
+<p>The <code>HASH-MAP</code> function takes a single argument, a hash-table, and
+creates a <code>HASH-MAP</code> wrapping it.</p>
 </div>
 <div class="sect4">
-<h5 id="implemented_interfaces">Implemented Interfaces</h5>
+<h5 id="implemented_interfaces_2">Implemented Interfaces</h5>
 <div class="paragraph">
-<p>The iterator interface is implemented for <code>HASH-MAP</code>'s. Each element
+<p>The <a href="#cleared">CLEARED</a>, <a href="#make_sequence_of_type">MAKE-SEQUENCE-OF-TYPE</a>, <a href="#length">LENGTH</a>, <a href="#emptyp">EMPTYP</a>,
+<a href="#clear">CLEAR</a>, <a href="#elt">ELT</a>, <a href="#setf-elt">(SETF ELT)</a> and <a href="#erase">ERASE</a> methods of the
+<a href="#container">Container</a> interface are implemented.</p>
+</div>
+<div class="paragraph">
+<p>The <a href="#iterator">Iterator</a> interface is implemented for <code>HASH-MAP</code>'s. Each element
 returned by the iterator is a <code>CONS</code> with the key in the <code>CAR</code> and the
 corresponding value in the <code>CDR</code>. The order in which the entries are
 iterated over is unspecified. Likewise it is unspecified which entries
@@ -4393,9 +4513,8 @@ method is not necessarily symmetric i.e. <code>(EQUALP A B)</code> does not impl
 </table>
 </div>
 <div class="paragraph">
-<p>A <a href="#likep">LIKEP</a> method is implemented for <code>HASH-MAP</code>'s, which is
-similar to the <code>EQUALP</code> method, however the keys and values are
-compared using <code>LIKEP</code>.</p>
+<p>A <a href="#likep">LIKEP</a> method is implemented for <code>HASH-MAP</code>'s, which is similar
+to the <code>EQUALP</code> method, however the values are compared using <code>LIKEP</code>.</p>
 </div>
 <div class="paragraph">
 <p>A <a href="#copy">COPY</a> method is implemented for <code>HASH-MAP</code>'s which by default
@@ -4484,7 +4603,7 @@ On some implementations the return value is not
 specifier.</p>
 </div>
 <div class="paragraph">
-<p>Returns a hash code for <code>OBJECT</code>, which should be a non-negative
+<p>Return a hash code for <code>OBJECT</code>, which should be a non-negative
 fixnum. If two objects are equal (under <a href="#equalp">GENERIC-CL:EQUALP</a>)
 then the hash codes, for the two objects, returned by <code>HASH</code>, should
 also be equal.</p>
@@ -4521,7 +4640,7 @@ characters, symbols, strings and other lists as elements.
 specifier.</p>
 </div>
 <div class="paragraph">
-<p>Returns a hash code for <code>OBJECT</code>, which should be a non-negative
+<p>Return a hash code for <code>OBJECT</code>, which should be a non-negative
 fixnum. If two objects are equal (under <a href="#likep">LIKEP</a>) then the hash
 codes, for the two objects, returned by <code>LIKE-HASH</code>, should also be
 equal.</p>
@@ -4538,7 +4657,7 @@ method calls the <code>HASH</code> function.</p>
 <p>Generic Function: <code>GET KEY MAP &amp;OPTIONAL DEFAULT</code></p>
 </div>
 <div class="paragraph">
-<p>Returns the value of the entry corresponding to the key <code>KEY</code> in the
+<p>Return the value of the entry corresponding to the key <code>KEY</code> in the
 map <code>MAP</code>. If the <code>MAP</code> does not contain any entry with that key,
 <code>DEFAULT</code> is returned. The second return value is true if an entry
 with key <code>KEY</code> was found in the map, false otherwise.</p>
@@ -4556,7 +4675,7 @@ the <code>EQ</code> key comparison function is used.</p>
 <p>Generic Function: <code>(SETF GET) VALUE KEY MAP &amp;OPTIONAL DEFAULT</code></p>
 </div>
 <div class="paragraph">
-<p>Sets the value of the entry corresponding to the key <code>KEY</code> in the map
+<p>Set the value of the entry corresponding to the key <code>KEY</code> in the map
 <code>MAP</code>. <code>DEFAULT</code> is ignored.</p>
 </div>
 <div class="admonitionblock important">
@@ -4589,12 +4708,56 @@ true if <code>KEY</code> was found in <code>MAP</code>, false otherwise.</p>
 </div>
 </div>
 <div class="sect3">
+<h4 id="elt_methods">ELT Methods</h4>
+<div class="paragraph">
+<p>The following <code>ELT</code> methods are provided:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>(MAP HASH-MAP) (KEY T)</code></p>
+<div class="paragraph">
+<p>Returns <code>(GENERIC-CL:GET KEY MAP)</code>.</p>
+</div>
+</li>
+<li>
+<p><code>(MAP HASH-TABLE) (KEY T)</code></p>
+<div class="paragraph">
+<p>Returns <code>(GETHASH KEY MAP)</code></p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="setf_elt_methods">(SETF ELT) Methods</h4>
+<div class="paragraph">
+<p>The following <code>(SETF ELT)</code> methods are provided:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>(VALUE T) (MAP HASH-MAP) (KEY T)</code></p>
+<div class="paragraph">
+<p>Calls <code>(SETF (GENERIC-CL:GET KEY MAP) VALUE)</code></p>
+</div>
+</li>
+<li>
+<p><code>(VALUE T) (MAP HASH-TABLE) (KEY T)</code></p>
+<div class="paragraph">
+<p>Calls <code>(SETF (GETHASH KEY MAP) VALUE)</code></p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
 <h4 id="erase_method">ERASE Method</h4>
 <div class="paragraph">
-<p>Method: <code>ERASE (MAP HASH-MAP) KEY</code></p>
+<p>Method: <code>ERASE (MAP HASH-MAP) (KEY T)</code></p>
 </div>
 <div class="paragraph">
-<p>Removes the entry with key <code>KEY</code> from <code>MAP</code>.</p>
+<p>Remove the entry with key <code>KEY</code> from <code>MAP</code>.</p>
 </div>
 <div class="paragraph">
 <p>Returns true if the map contained an entry with key <code>KEY</code>.</p>
@@ -4617,8 +4780,10 @@ the map <code>MAP</code>.</p>
 </div>
 <div class="paragraph">
 <p>Returns a <a href="#hash_map">HASH-MAP</a> containing all entries in the association list
-<code>ALIST</code>. <code>ARGS</code> are the additional arguments passed to
-<a href="#make_hash_map">MAKE-HASH-MAP</a>.</p>
+<code>ALIST</code>.</p>
+</div>
+<div class="paragraph">
+<p><code>ARGS</code> are the additional arguments passed to <a href="#make_hash_map">MAKE-HASH-MAP</a>.</p>
 </div>
 </div>
 <div class="sect3">
@@ -4627,7 +4792,7 @@ the map <code>MAP</code>.</p>
 <p>Generic Function: <code>MAP-KEYS MAP</code></p>
 </div>
 <div class="paragraph">
-<p>Returns a sequence containing all the keys in the map <code>MAP</code>.</p>
+<p>Return a sequence containing all the keys in the map <code>MAP</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -4648,7 +4813,7 @@ Specialized only on <code>HASH-MAP</code>'s and <code>CL:HASH-TABLE</code>'s.
 <p>Generic Function: <code>MAP-VALUES MAP</code></p>
 </div>
 <div class="paragraph">
-<p>Returns a sequence containing all the values in the map <code>MAP</code>.</p>
+<p>Return a sequence containing all the values in the map <code>MAP</code>.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -4687,9 +4852,21 @@ the map.</p>
 </ul>
 </div>
 </div>
+<div class="sect3">
+<h4 id="make_sequence_of_type_method">MAKE-SEQUENCE-OF-TYPE Method</h4>
+<div class="paragraph">
+<p>Method: <code>MAKE-SEQUENCE-OF-TYPE (TYPE (EQL 'HASH-MAP)) (ARGS NULL)</code></p>
+</div>
+<div class="paragraph">
+<p>Return a new empty <code>HASH-MAP</code> with test function <code>GENERIC-CL:EQUALP</code>.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="set_operations">Set Operations</h3>
+<h3 id="sets">Sets</h3>
+<div class="paragraph">
+<p>System and package name <code>GENERIC-CL.SET</code>.</p>
+</div>
 <div class="paragraph">
 <p>The set interface provides generic functions for performing set
 operations and implementations of those operations for a hash-set data
@@ -4761,8 +4938,8 @@ returned, by the set operation functions, are unspecified.
 <p>Generic Function: <code>ADJOIN ITEM SET &amp;KEY &amp;ALLOW-OTHER-KEYS</code></p>
 </div>
 <div class="paragraph">
-<p>Returns a new set, of the same type as <code>SET</code>, which contains <code>ITEM</code>
-and all elements in <code>SET</code>.</p>
+<p>Return a new set containing the elements of <code>SET</code>, and of the same
+type, with <code>ITEM</code> added to it.</p>
 </div>
 <div class="admonitionblock important">
 <table>
@@ -4807,9 +4984,9 @@ they are ignored by the <a href="#hash_map">HASH-MAP</a> method.
 </td>
 <td class="content">
 The set returned is <code>EQ</code> to <code>SET</code> in the case of <code>SET</code>
-being a <a href="#hash_map">HASH-MAP</a> however is note required to be <code>EQ</code> and is not
-<code>EQ</code> if <code>SET</code> is a list. Thus this function should not be relied upon
-for its side effects.
+being a <a href="#hash_map">HASH-MAP</a> however this is not a requirement and is not <code>EQ</code>
+if <code>SET</code> is a list. Thus this function should not be relied upon for
+its side effects.
 </td>
 </tr>
 </table>
@@ -4856,8 +5033,8 @@ accepted by <code>CL:MEMBER</code> are accepted, however are ignored by the
 <p>Structure: <code>HASH-SET</code></p>
 </div>
 <div class="paragraph">
-<p>A hash-set is a <a href="#hash_map">HASH-MAP</a> however it is used to indicate that only
-the keys are important. This allows the <a href="#equalp">EQUALP</a> and <a href="#copy">COPY</a>
+<p>A <code>HASH-SET</code> is a <a href="#hash_map">HASH-MAP</a> however it is used to indicate that
+only the keys are important. This allows the <a href="#equalp">EQUALP</a> and <a href="#copy">COPY</a>
 methods, specialized on `HASH-SET&#8217;s to be implemented more
 efficiently, than the methods specialized on <code>HASH-MAP</code>'s, as the
 map values are not compared/copied.</p>
@@ -4932,16 +5109,23 @@ The set operations are implemented both for <code>HASH-MAP</code>'s and
 </div>
 </div>
 <div class="sect2">
-<h3 id="math_functions">Math Functions</h3>
+<h3 id="math">Math</h3>
 <div class="paragraph">
-<p>Generic function wrappers are provided over a number of math
-functions. Methods specialized on <code>NUMBER</code> are provided, which simply
-call the corresponding functions in the <code>CL</code> package. The idea of this
-interface is to allow the mathematical functions to be extended to
-vectors and matrices. This interface might not used as often as the
-previous interfaces, thus is contained in a separate package
-<code>GENERIC-MATH-CL</code> which exports all symbols exported by <code>GENERIC-CL</code>
-and shadows the math functions.</p>
+<p>System and package name <code>GENERIC-CL.MATH</code>.</p>
+</div>
+<div class="paragraph">
+<p>This interface provides generic function wrappers are provided over a
+number of math functions. Methods specialized on <code>NUMBER</code> are
+provided, which simply call the corresponding functions in the <code>CL</code>
+package. The purpose of this interface is to allow the mathematical
+functions to be extended to vectors and matrices.</p>
+</div>
+<div class="paragraph">
+<p>This interface is not exported by the <code>GENERIC-CL</code> package, as it&#8217;s
+not as frequently used as the previous interfaces. The
+<code>GENERIC-MATH-CL</code> package exports all symbols exports by the
+<code>GENERIC-CL</code> package and the shadowed math functions in
+<code>GENERIC-CL.MATH</code>.</p>
 </div>
 <div class="paragraph">
 <p>Generic function wrappers are provided for the following functions:</p>
@@ -5029,34 +5213,6 @@ and shadows the math functions.</p>
 </ul>
 </div>
 </div>
-<div class="sect2">
-<h3 id="miscellaneous">Miscellaneous</h3>
-<div class="sect3">
-<h4 id="defconstant">DEFCONSTANT</h4>
-<div class="paragraph">
-<p>Macro: <code>DEFCONSTANT SYMBOL VALUE &amp;OPTIONAL DOCUMENTATION</code></p>
-</div>
-<div class="paragraph">
-<p>Ensures that <code>SYMBOL</code> is a constant with a value that is equal, by
-<code>GENERIC-CL:EQUALP</code> to <code>VALUE</code>. This means that if <code>SYMBOL</code> already
-names a constant, which occurs when the <code>DEFCONSTANT</code> form is
-reevaluated, no condition will be signalled if its value is equal (by
-<code>GENERIC-CL:EQUALP</code>) to <code>VALUE</code>.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-Implemented using <code>ALEXANDRIA:DEFINE-CONSTANT</code>
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -5091,7 +5247,7 @@ interface.</p>
 <p>Function: <code>REPEATEDLY F &amp;OPTIONAL N TYPE</code></p>
 </div>
 <div class="paragraph">
-<p>Create a lazy sequence containing <code>N</code> elements, with each element each
+<p>Create a lazy sequence containing <code>N</code> elements, with each element
 being the result of an application of the function <code>F</code> on no
 arguments. If <code>N</code> is <code>NIL</code> or not provided, an infinite sequence is
 returned.</p>
@@ -5167,15 +5323,21 @@ declarations of its arguments.</p>
 </div>
 <div class="paragraph">
 <p>For a generic function call to be inlined, the generic function has to
-be declared inline (either locally or globally), and the arguments
-must either have type declarations (if they are variables), or be
-surrounded in a <code>THE</code> form.</p>
+be declared inline (either locally or globally), with the <code>OPTIMIZE</code>
+<code>SPEED</code> level greater than the <code>SAFETY</code> level. Additionally, it must
+also be possible to determine the types of the arguments at
+compile-time. <em>See
+<a href="https://github.com/alex-gutev/static-dispatch">STATIC-DISPATCH</a> and
+<a href="https://github.com/alex-gutev/cl-form-types">CL-FORM-TYPES</a> for
+information on how the types of the arguments are determined and how
+to make the type information available</em>.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example</div>
 <div class="content">
 <pre class="highlight"><code class="language-lisp" data-lang="lisp">(let ((x 1))
   (declare (inline equalp)
+           (optimize (speed 3) (safety 2))
 	   (type number x))
 
   (equalp x (the number (+ 3 4))))</code></pre>
@@ -5214,27 +5376,21 @@ being statically dispatched, though this has not yet been tested:</p>
 STATIC-DISPATCH requires the ability to extract <code>TYPE</code> and
  <code>INLINE</code> declarations from implementation specific environment
  objects. This is provided by the
- <a href="https://github.com/alex-gutev/cl-environments">CL-ENVIRONMENTS</a>
- library however in order for it to work on all supported
- implementations, the <code>ENABLE-HOOK</code> function (exported by
- <code>GENERIC-CL</code>) has to be called at some point before the generic
- function call is compiled.
+ <a href="https://alex-gutev.github.io/cl-environments/">CL-ENVIRONMENTS</a>
+ library, which works in the general case however some
+ <a href="https://alex-gutev.github.io/cl-environments/#ensuring_code_walking">workarounds</a>
+ are necessary in order for it to work on all implementations in all
+ cases.
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>See <a href="https://github.com/alex-gutev/static-dispatch">STATIC-DISPATCH</a> and
-<a href="https://github.com/alex-gutev/cl-environments">CL-ENVIRONMENTS</a> for
-more information about these optimizations and the current
-limitations.</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-31 20:04:31 +0200
+Last updated 2021-06-02 10:53:21 +0200
 </div>
 </div>
 </body>
