@@ -55,7 +55,7 @@
   :description "Tests for generic-cl."
   :author "Alexander Gutev"
   :license "MIT"
-  :depends-on (:generic-cl :fiveam)
+  :depends-on (#:generic-cl #:fiveam)
   :serial t
   :components
   ((:module "test"
