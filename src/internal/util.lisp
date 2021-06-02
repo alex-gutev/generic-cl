@@ -32,6 +32,6 @@
   (flet ((number? (thing)
 	   ;; For some reason SUBTYPEP on CMUCL does not take a third
 	   ;; environment parameter
-	   (subtypep (get-value-type thing env) 'number #-cmucl env)))
+	   (subtypep (nth-form-type thing env) 'number #-cmucl env)))
 
     (every #'number? args)))

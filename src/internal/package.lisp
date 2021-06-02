@@ -25,7 +25,7 @@
 
 (defpackage :generic-cl.internal
   (:use :static-dispatch-cl
-        :cl-environments.tools)
+        :cl-form-types)
 
   (:export :numbers?)
 

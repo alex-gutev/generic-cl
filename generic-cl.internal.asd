@@ -31,6 +31,7 @@
   :version "0.9"
   :serial t
   :depends-on (#:alexandria
+               #:cl-form-types
                #:static-dispatch)
 
   :components
