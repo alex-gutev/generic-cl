@@ -611,3 +611,23 @@
       (setf (get key new-map) value))
 
     (is (= map new-map))))
+
+(test do-sequences
+  "Test DO-SEQUENCES on multiple sequences"
+
+  (let ((res1 nil)
+        (res2 nil)
+        (res3 (make-hash-map)))
+
+   (do-sequences ((x (list 1 2 3))
+                  (y #(a b c d e) :start 1)
+                  ((zkey . zval) (alist-hash-map '((k1 . 1) (k2 . 2) (k3 . 3)))))
+
+     (push x res1)
+     (push y res2)
+     (setf (get zkey res3) zval))
+
+   (is (= '(3 2 1) res1))
+   (is (= '(d c b) res2))
+   (is (= (alist-hash-map '((k1 . 1) (k2 . 2) (k3 . 3)))
+          res3))))
