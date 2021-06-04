@@ -491,6 +491,46 @@
 
   `(doiters ((,iter ,@args)) ,@body))
 
+(defmacro do-sequences ((&rest seqs) &body body)
+  "Iterate over the elements of one or more sequences.
+
+   Iteration is performed using the iterator interface, and over
+   multiple sequences simultaneously.
+
+   Each element of SEQS is a list of the form (VAR SEQUENCE . ARGS),
+   where VAR is the variable to which the element of the sequence,
+   SEQUENCE, is bound, at each iteration, and ARGS are arguments
+   passed to the ITERATOR function, after the sequence.
+
+   BODY is a list of forms evaluated at each
+   iteration. RETURN (RETURN-FROM NIL ...) may be used to terminate
+   the iteration early and return a value from the DO-SEQUENCES
+   form. NIL is returned if there is no explicit RETURN."
+
+  (flet ((bind-elem (elem iter body)
+           (match elem
+             ((type list)
+              `((destructuring-bind ,elem (at ,iter)
+                  ,@body)))
+
+             (_
+              `((let ((,elem (at ,iter)))
+                  ,@body))))))
+
+    (let ((iters (make-gensym-list (cl:length seqs) "ITER")))
+      `(doiters
+           ,(loop
+               for (nil . seq) in seqs
+               for iter in iters
+               collect `(,iter ,@seq))
+
+         ,@(loop
+              for (elem) in seqs
+              for iter in iters
+              for forms = (bind-elem elem iter body)
+              then (bind-elem elem iter forms)
+              finally (return forms))))))
+
 (defmacro! doseq ((element o!sequence &rest args) &body body)
   "Iterates over the elements of the sequence SEQUENCE. For each
    element the forms in BODY are evaluated with the symbol named by

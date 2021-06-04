@@ -35,7 +35,12 @@
 
   (:use :anaphora
         :arrows
-        :cl-custom-hash-table)
+        :cl-custom-hash-table
+        :cl-form-types)
+
+  (:import-from :alexandria
+                :rcurry
+                :make-gensym-list)
 
   (:import-from :generic-cl.map
                 :make-hash-map-table

@@ -37,6 +37,9 @@
                 :defmacro!
                 :symb)
 
+  (:import-from :alexandria
+                :make-gensym-list)
+
   (:shadow
    :endp)
 
@@ -52,6 +55,7 @@
    :endp
 
    :doseq
+   :do-sequences
    :doiter
    :doiters)
 
