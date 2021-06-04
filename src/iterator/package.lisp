@@ -34,8 +34,7 @@
         :trivia)
 
   (:import-from :agutil
-                :defmacro!
-                :symb)
+                :let-if)
 
   (:import-from :alexandria
                 :make-gensym-list)

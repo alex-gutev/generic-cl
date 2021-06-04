@@ -451,91 +451,150 @@
 
 ;;;; Iteration Macros
 
-(defmacro doiters ((&rest iters) &body body)
-  "Iterates over one or more sequences and binds the iterator of each
-   sequence to a variable.
+(defmacro doiters (name/iters &body body)
+  "Iterate over one or more sequences with the iterator of each sequence bound to a variable.
 
-   Each element of ITERS is a list of the form (IT-VAR SEQUENCE
-   . ARGS) where IT-VAR is the variable to which the iterator for
-   SEQUENCE is bound. Args are the remaining arguments passed to the
+   The macro arguments can be in one of the following two forms:
+
+    1. (NAME (&REST ITERS) &BODY BODY)
+
+    2. ((&REST ITERS) &BODY BODY)
+
+
+   NAME is a symbol serving as the name of the BLOCK from which the
+   forms in BODY can return, using (RETURN-FROM NAME ...). If not
+   given defaults to NIL.
+
+   ITERS is a list of bindings with each element of the form (IT-VAR
+   SEQUENCE . ARGS). IT-VAR is the variable to which the iterator for
+   SEQUENCE is bound. ARGS are the remaining arguments passed to the
    ITERATOR function (if any).
 
-   The forms in BODY are evaluated, with the iterator variable
-   bindings visible to the forms, after which each iterator is
-   advanced by one position, by the ADVANCE function. The forms are
-   evaluated repeatedly until at least one iterator reaches the end of
-   its sequence (ENDP returns true)."
+   BODY is a list of forms which are evaluated at each iteration. The
+   bindings to the iterator variables (IT-VAR's) are visible. At the
+   end of each iteration, each iterator is advanced by one position
+   with ADVANCE. The loop is terminated, with the DOITERS form
+   returning NIL, when at least one of the iterators reaches the end
+   of its sequence (ENDP returns true). The loop can be terminated
+   early with a RETURN-FROM to the block named NAME."
 
-  (flet ((make-it-binding (it)
-	   (destructuring-bind (var &rest args) it
-	     `(,var (iterator ,@args))))
+  (let-if ((name name/iters)
+           (iters (first body) name/iters)
+           (body (rest body) body))
+      (symbolp name/iters)
 
-	 (make-end-test (it)
-	   `(endp ,(car it)))
+    (flet ((make-it-binding (it)
+	     (destructuring-bind (var &rest args) it
+	       `(,var (iterator ,@args))))
 
-	 (make-advance (it)
-	   `(advance ,(car it))))
+	   (make-end-test (it)
+	     `(endp ,(car it)))
 
-    `(let ,(mapcar #'make-it-binding iters)
-       (loop until (or ,@(mapcar #'make-end-test iters))
-	  do
-	    (progn ,@body)
-	    ,@(mapcar #'make-advance iters)))))
+	   (make-advance (it)
+	     `(advance ,(car it))))
 
-(defmacro doiter ((iter &rest args) &body body)
+      `(let ,(mapcar #'make-it-binding iters)
+         (loop named ,name
+            until (or ,@(mapcar #'make-end-test iters))
+	    do
+	      (progn ,@body)
+	      ,@(mapcar #'make-advance iters))))))
+
+(defmacro doiter (name/iter &body body)
   "Sames as DOITERS however for the special case of iterating over a
    single sequence.
 
-   ITER is the variable to which the iterator is bound. ARGS are the
-   arguments passed to the ITERATOR function."
+   The macro arguments can be in one of the following two forms:
 
-  `(doiters ((,iter ,@args)) ,@body))
+    1. (NAME (ITER &REST ARGS) &BODY BODY)
 
-(defmacro do-sequences ((&rest seqs) &body body)
+    2. ((ITER &REST ARGS) &BODY BODY)
+
+   NAME is the block name, NIL if not given.
+
+   ITER is the variable to which the sequence iterator is bound.
+
+   ARGS are the arguments passed to the ITERATOR function, the result
+   of which is bound to ITER.
+
+   BODY is the list of forms in the loop body."
+
+  (let-if ((name name/iter)
+           (iter (first body) name/iter)
+           (body (rest body) body))
+      (symbolp name/iter)
+
+    (destructuring-bind (iter &rest args) iter
+      `(doiters ,name ((,iter ,@args)) ,@body))))
+
+(defmacro do-sequences (name/seqs &body body)
   "Iterate over the elements of one or more sequences.
 
    Iteration is performed using the iterator interface, and over
    multiple sequences simultaneously.
+
+   The macro arguments can be in one of the following two forms:
+
+    1. (NAME (&REST SEQS) &BODY BODY)
+
+    2. ((&REST SEQS) &BODY BODY)
+
+   NAME is a symbol serving as the name of the BLOCK from which the
+   forms in BODY can return, using (RETURN-FROM NAME ...). If not
+   given defaults to NIL.
 
    Each element of SEQS is a list of the form (VAR SEQUENCE . ARGS),
    where VAR is the variable to which the element of the sequence,
    SEQUENCE, is bound, at each iteration, and ARGS are arguments
    passed to the ITERATOR function, after the sequence.
 
-   BODY is a list of forms evaluated at each
-   iteration. RETURN (RETURN-FROM NIL ...) may be used to terminate
-   the iteration early and return a value from the DO-SEQUENCES
-   form. NIL is returned if there is no explicit RETURN."
+   BODY is a list of forms evaluated at each iteration. RETURN-FROM to
+   the block named NAME may be used to terminate the iteration early
+   and return a value from the DO-SEQUENCES form. NIL is returned if
+   there is no explicit RETURN."
 
-  (flet ((bind-elem (elem iter body)
-           (match elem
-             ((type list)
-              `((destructuring-bind ,elem (at ,iter)
-                  ,@body)))
+  (let-if ((name name/seqs)
+           (seqs (first body) name/seqs)
+           (body (rest body) body))
+      (symbolp name/seqs)
 
-             (_
-              `((let ((,elem (at ,iter)))
-                  ,@body))))))
+    (flet ((bind-elem (elem iter body)
+             (match elem
+               ((type list)
+                `((destructuring-bind ,elem (at ,iter)
+                    ,@body)))
 
-    (let ((iters (make-gensym-list (cl:length seqs) "ITER")))
-      `(doiters
+               (_
+                `((let ((,elem (at ,iter)))
+                    ,@body))))))
+
+      (let ((iters (make-gensym-list (cl:length seqs) "ITER")))
+        `(doiters ,name
            ,(loop
                for (nil . seq) in seqs
                for iter in iters
                collect `(,iter ,@seq))
 
-         ,@(loop
-              for (elem) in seqs
-              for iter in iters
-              for forms = (bind-elem elem iter body)
-              then (bind-elem elem iter forms)
-              finally (return forms))))))
+           ,@(loop
+                for (elem) in seqs
+                for iter in iters
+                for forms = (bind-elem elem iter body)
+                then (bind-elem elem iter forms)
+                finally (return forms)))))))
 
-(defmacro doseq ((element sequence &rest args) &body body)
-  "Iterates over the elements of a single sequence SEQUENCE.
+(defmacro doseq (name/seq &body body)
+  "Iterate over the elements of a single sequence SEQUENCE.
 
    Same as DO-SEQUENCES but for the special case of iterating over a
    single sequence.
+
+   The macro arguments can be in one of the following two forms:
+
+    1. (NAME (ELEMENT SEQUENCE &REST ARGS) &BODY BODY)
+
+    2. ((ELEMENT SEQUENCE &REST ARGS) &BODY BODY)
+
+   NAME is the block name, NIL if not given.
 
    ELEMENT is the variable to which each element of the sequence is
    bound.
@@ -545,5 +604,12 @@
 
    BODY is the list of forms evaluated on each iteration."
 
-  `(do-sequences ((,element ,sequence ,@args))
-     ,@body))
+  (let-if ((name name/seq)
+           (seq (first body) name/seq)
+           (body (rest body) body))
+      (symbolp name/seq)
+
+    (destructuring-bind (element sequence &rest args) seq
+      `(do-sequences ,name
+         ((,element ,sequence ,@args))
+         ,@body))))
