@@ -40,6 +40,7 @@
 
   (:import-from :alexandria
                 :rcurry
+                :with-gensyms
                 :make-gensym-list)
 
   (:import-from :generic-cl.map
