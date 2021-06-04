@@ -531,26 +531,19 @@
               then (bind-elem elem iter forms)
               finally (return forms))))))
 
-(defmacro! doseq ((element o!sequence &rest args) &body body)
-  "Iterates over the elements of the sequence SEQUENCE. For each
-   element the forms in BODY are evaluated with the symbol named by
-   ELEMENT bound to the current element of the sequence. If ELEMENT is
-   a list, destructuring is performed (as if by DESTRUCTURING-BIND) on
-   the sequence element.
+(defmacro doseq ((element sequence &rest args) &body body)
+  "Iterates over the elements of a single sequence SEQUENCE.
 
-   ARGS are additional arguments passed to the ITERATOR function.
+   Same as DO-SEQUENCES but for the special case of iterating over a
+   single sequence.
 
-   The forms in BODY are surrounded in an implicit (BLOCK NIL ...)
-   thus RETURN may be used to terminate the loop early. The return
-   value of the DOSEQ form is NIL, unless it is terminated early by
-   RETURN."
+   ELEMENT is the variable to which each element of the sequence is
+   bound.
 
-  `(doiter (,g!iter ,g!sequence ,@args)
-     ,(match element
-	((type list)
-	 `(destructuring-bind ,element (at ,g!iter)
-	    ,@body))
+   SEQUENCE is the sequence, with ARGS being the remaining arguments
+   passed to the ITERATOR function.
 
-	(_
-	 `(let ((,element (at ,g!iter)))
-	    ,@body)))))
+   BODY is the list of forms evaluated on each iteration."
+
+  `(do-sequences ((,element ,sequence ,@args))
+     ,@body))
