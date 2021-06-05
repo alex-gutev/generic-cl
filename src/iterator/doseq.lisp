@@ -137,7 +137,11 @@
     function.
 
     BODY is the form which should be executed at each iteration with
-    the given bindings visible to it.
+    the given bindings visible to it. The last form in BODY is
+    typically transfers control back to the start of the loop, to
+    perform the next iteration. Thus a method can control whether the
+    next iteration is executed, or the loop terminates by wrapping
+    this form in a conditional.
 
     ENV is the environment in which the DO-SEQUENCES/DOSEQ form is
     found.
@@ -220,15 +224,12 @@
                    body))
 
              (make-tagbody (body)
-               (with-gensyms (start end)
+               (with-gensyms (start)
                  `(tagbody
                      ,start
-                     (macrolet ((end-doseq ()
-                                  `(go ,',end)))
-                       ,body)
-
-                     (go ,start)
-                     ,end)))
+                     (macrolet ((next-iter ()
+                                  `(go ,',start)))
+                       ,body))))
 
              (make-block (body)
                `(block ,name
@@ -240,7 +241,7 @@
       (loop
          for (var seq . args) in seqs
          for (bindings body parent) =
-           (expand-doseq var seq args `(progn ,@forms) env) then
+           (expand-doseq var seq args `(progn ,@forms (next-iter)) env) then
            (expand-doseq var seq args loop-body env)
 
          for loop-body = body

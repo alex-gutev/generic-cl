@@ -37,12 +37,10 @@
      `((,list ,form))
 
      `(progn
-        (unless ,list
-          (end-doseq))
-
-        (let ((,var (car ,list)))
-         ,body
-         (setf ,list (cdr ,list))))
+        (when ,list
+          (let ((,var (car ,list)))
+            (setf ,list (cdr ,list))
+            ,body)))
 
      nil)))
 
@@ -64,12 +62,10 @@
        (,length (cl:length ,vec)))
 
      `(progn
-        (unless (cl:< ,index ,length)
-          (end-doseq))
-
-        (let ((,var (aref ,vec ,index)))
-          ,body
-          (incf ,index)))
+        (when (cl:< ,index ,length)
+          (let ((,var (aref ,vec ,index)))
+            (incf ,index)
+            ,body)))
 
      nil)))
 
@@ -105,21 +101,17 @@
 
              (declare (ignorable ,key ,value))
 
-             (unless ,more?
-               (end-doseq))
-
-             ,body)))
+             (when ,more?
+               ,body))))
 
        (_
         (with-gensyms (key value)
           `(multiple-value-bind (,more? ,key ,value)
                (,next)
 
-             (unless ,more?
-               (end-doseq))
-
-             (destructuring-bind ,pattern (cons ,key ,value)
-               ,body)))))
+             (when ,more?
+               (destructuring-bind ,pattern (cons ,key ,value)
+                 ,body))))))
 
      `(with-hash-table-iterator (,next ,form) (&body)))))
 
@@ -134,12 +126,10 @@
      `((,it (iterator ,form ,@args)))
 
      `(progn
-        (when (endp ,it)
-          (end-doseq))
-
-        (let ((,var (at ,it)))
-         ,body
-         (advance ,it)))
+        (unless (endp ,it)
+          (let ((,var (at ,it)))
+            (advance ,it)
+            ,body)))
 
      nil)))
 
