@@ -29,111 +29,121 @@
 
 ;;; Lists
 
-(defmethod make-doseq list ((type t) (var symbol) form args env)
+(defmethod make-doseq list ((type t) (var symbol) form args body env)
   (declare (ignore env))
 
-  (values
-   nil
-   nil
-   nil
-   `(for ,var in ,form)
-   nil))
-
-(defmethod make-doseq list ((type t) (pattern list) form args env)
-  (with-gensyms (item)
+  (with-gensyms (list)
     (values
-     nil
-     nil
-     nil
-     `(for ,item in ,form)
-     `(destructuring-bind ,pattern ,item (&body)))))
+     `((,list ,form))
+
+     `(progn
+        (unless ,list
+          (end-doseq))
+
+        (let ((,var (car ,list)))
+         ,body
+         (setf ,list (cdr ,list))))
+
+     nil)))
+
+(defmethod make-doseq list ((type t) (pattern list) form args body env)
+  (with-gensyms (item)
+    (-<> `(destructuring-bind ,pattern ,item ,body)
+         (make-doseq type item form args <> env))))
 
 
 ;;; Vectors
 
-(defmethod make-doseq vector ((type t) (var symbol) form args env)
+(defmethod make-doseq vector ((type t) (var symbol) form args body env)
   (declare (ignore env))
 
-  (values
-   nil
-   nil
-   nil
-   `(for ,var across ,form)
-   nil))
-
-(defmethod make-doseq vector ((type t) (pattern list) form args env)
-  (declare (ignore env))
-
-  (with-gensyms (item)
+  (with-gensyms (vec index length)
     (values
-     nil
-     nil
-     nil
-     `(for ,item across ,form)
-     `(destructuring-bind ,pattern ,item (&body)))))
+     `((,vec ,form)
+       (,index 0)
+       (,length (cl:length ,vec)))
+
+     `(progn
+        (unless (cl:< ,index ,length)
+          (end-doseq))
+
+        (let ((,var (aref ,vec ,index)))
+          ,body
+          (incf ,index)))
+
+     nil)))
+
+(defmethod make-doseq vector ((type t) (pattern list) form args body env)
+  (with-gensyms (item)
+    (-<> `(destructuring-bind ,pattern ,item ,body)
+         (make-doseq type item form args <> env))))
 
 
 ;;; Hash-Tables
 
-(defmethod make-doseq hash-table ((type t) (var symbol) form args env)
+(defmethod make-doseq hash-table ((type t) (var symbol) form args body env)
+  (with-gensyms (key value)
+    (-<> `(let ((,var (cons ,key ,value))) ,body)
+         (make-doseq type (cons key value) form args <> env))))
+
+(defmethod make-doseq hash-table ((type t) (pattern list) form args body env)
   (declare (ignore env))
 
-  (with-gensyms (table key value)
+  (with-gensyms (more? next)
     (values
-     `((,table ,form))
      nil
-     nil
-     `(for ,key being the hash-keys of ,table
-           for ,value being the hash-values of ,table)
-     nil)))
 
-(defmethod make-doseq hash-table ((type t) (pattern list) form args env)
-  (declare (ignore env))
+     (match pattern
+       ((cons (and (type symbol) key)
+              (and (type symbol) value))
 
-  (flet ((make-destructure (var pattern &optional body)
-           (if (symbolp pattern)
-               body
-               `(destructuring-bind ,pattern ,var
-                  ,(or body '(&body))))))
+        (let ((key (or key (gensym "KEY")))
+              (value (or value (gensym "VALUE"))))
 
-    (destructuring-bind (key . value) pattern
-      (let ((key-var (if (symbolp key) key (gensym "KEY")))
-            (value-var (if (symbolp value) value (gensym "VALUE"))))
+          `(multiple-value-bind (,more? ,key ,value)
+               (,next)
 
-        (with-gensyms (table)
-          (values
-           `((,table ,form))
-           nil
-           nil
-           (append
-            (when key `(for ,key being the hash-keys of ,table))
-            (when value `(for ,value being the hash-values of ,table)))
+             (declare (ignorable ,key ,value))
 
-           (->> (make-destructure key-var key)
-                (make-destructure value-var value))))))))
+             (unless ,more?
+               (end-doseq))
+
+             ,body)))
+
+       (_
+        (with-gensyms (key value)
+          `(multiple-value-bind (,more? ,key ,value)
+               (,next)
+
+             (unless ,more?
+               (end-doseq))
+
+             (destructuring-bind ,pattern (cons ,key ,value)
+               ,body)))))
+
+     `(with-hash-table-iterator (,next ,form) (&body)))))
 
 
 ;;; Default
 
-(defmethod make-doseq t ((type t) (var symbol) form args env)
+(defmethod make-doseq t ((type t) (var symbol) form args body env)
   (declare (ignore env))
 
   (with-gensyms (it)
     (values
      `((,it (iterator ,form ,@args)))
-     `((,var (at ,it)))
-     `((prog1 (not (endp ,it)) (advance ,it)))
-     nil
+
+     `(progn
+        (unless (endp ,it)
+          (end-doseq))
+
+        (let ((,var (at ,it)))
+         ,body
+         (advance ,it)))
+
      nil)))
 
-(defmethod make-doseq t ((type t) (pattern list) form args env)
-  (declare (ignore env))
-
-  (with-gensyms (item it)
-    (values
-     `((,it (iterator ,form ,@args)))
-     `((,item (at ,it)))
-     `((prog1 (not (endp ,it)) (advance ,it)))
-     nil
-     `(destructuring-bind ,pattern ,item
-        (&body)))))
+(defmethod make-doseq t ((type t) (pattern list) form args body env)
+  (with-gensyms (item)
+    (-<> `(destructuring-bind ,pattern ,item ,body)
+         (make-doseq type item form args <> env))))

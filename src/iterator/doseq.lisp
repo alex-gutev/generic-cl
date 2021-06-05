@@ -111,42 +111,7 @@
 
 ;;;; Optimizations
 
-(define-method-combination subtype ()
-  ((methods * :required t))
-  (:arguments type)
-
-  "Dispatch based on a type keyword given as a qualifier.
-
-   With this method combination each method includes a single
-   qualifier, which is interpreted as a type specifier symbol.
-
-   The method of which the value given in the first argument,
-   interpreted as a type specifier, is a subtype of the method's
-   qualified type specifier, given in the first qualifier, is called.
-
-   The methods are ordered such that the methods qualified with the
-   most derived type, i.e. a type which is a subtype of the others,
-   are called first."
-
-  (labels ((type-qualifier (method)
-             (first (method-qualifiers method)))
-
-           (type< (t1 t2)
-             (subtypep t1 t2))
-
-           (make-if (method else)
-             `(if (subtypep ,type ',(type-qualifier method))
-                  (call-method ,method)
-                  ,else)))
-
-    (-<> (copy-list methods)
-         (sort #'type< :key #'type-qualifier)
-         (reduce #'make-if <>
-                 :from-end t
-                 :initial-value
-                 `(method-combination-error "No method for type ~a" ,type)))))
-
-(defgeneric make-doseq (type var seq args env)
+(defgeneric make-doseq (type var seq args body env)
   (:method-combination subtype)
 
   (:documentation
@@ -171,83 +136,23 @@
     should be interpreted as they are interpreted by the ITERATOR
     function.
 
+    BODY is the form which should be executed at each iteration with
+    the given bindings visible to it.
+
     ENV is the environment in which the DO-SEQUENCES/DOSEQ form is
     found.
 
     Methods of this function should return the following values:
 
-     1. A list of bindings which are established before the first
-        iteration and remain visible to the body forms throughout all
-        iterations.
+     1. A list of bindings, as by LET*, which are established before
+        the first iteration and remain visible to the body forms
+        throughout all iterations.
 
-        Each element is a list of the form (VAR INIT-FORM) where VAR is the
-        symbol naming the variable and INIT-FORM is the form to the
-        value of which, VAR is bound.
+     3. The new body form to be evaluated at each iteration.
 
-     2. A list of bindings which are established before each
-        iteration.
-
-        Each element is a list of the form (VAR INIT-FORM STEP-FORM)
-        where VAR is the symbol naming the variable, INIT-FORM is the
-        form to the value of which, VAR is bound before the first
-        iteration, and STEP-FORM is the form to the value of which,
-        VAR is bound before the subsequent iterations. STEP-FORM is
-        reevaluated at each iteration following the first. If
-        STEP-FORM is omitted, VAR is bound to the evaluation of
-        INIT-FORM (reevaluated at each iteration) at each iteration.
-
-     3. The condition form. This is evaluated before each iteration,
-        and when it evaluates to false (NIL), the loop is terminated.
-
-     4. A list of additional CL:LOOP keywords, which are inserted
-        between the bindings and the condition form.
-
-     5. A form to use as the body form executed at each iteration. If
-        NIL the body forms provided to the DOSEQ/DO-SEQUENCES macro
-        are used."))
-
-(defun expand-doseq (var seq args env)
-  "Generate binding code for a given sequence
-
-   VAR is the variable/pattern to which successive elements of the
-   sequence should be bound.
-
-   SEQ is the form which returns the sequence.
-
-   ARGS is the list of additional arguments passed after the sequence,
-   interpreted the same as arguments to the ITERATOR function.
-
-   ENV is the environment in which the DOSEQ/DO-SEQUENCES form is
-   found."
-
-  (-> (nth-form-type seq env)
-      (doseq-expansion var seq args env)))
-
-(defun doseq-expansion (type var form args env)
-  (flet ((make-with-binding (binding)
-           (destructuring-bind (var init) binding
-             `(with ,var = ,init)))
-
-         (make-for-binding (binding)
-           (destructuring-bind (var init &optional (step nil step-p))
-               binding
-
-             `(for ,var = ,init
-                   ,@(when step-p
-                       `(then ,step))))))
-
-   (multiple-value-bind (with-bindings for-bindings condition keywords body)
-       (make-doseq type var form args env)
-
-     (values
-      (append
-       (mappend #'make-with-binding with-bindings)
-       (mappend #'make-for-binding for-bindings)
-       keywords
-       (when condition
-         `(while ,condition)))
-
-      body))))
+     4. A form to wrap the entire iteration code. The local
+        macro (&BODY) is available to it which expands to the entire
+        iteration code."))
 
 
 ;;;; DO-SEQUENCES Macro
@@ -278,41 +183,74 @@
    and return a value from the DO-SEQUENCES form. NIL is returned if
    there is no explicit RETURN."
 
-  (labels ((make-&body (old new)
-             (if new
-                 `(macrolet ((&body ()
-                               ,(make-&body-expansion old)))
+  (let-if ((name name/seqs)
+           (seqs (first forms) name/seqs)
+           (forms (rest forms) forms))
+      (symbolp name/seqs)
 
-                    ,new)
-                 old))
+    (labels ((expand-doseq (var seq args body env)
+               (-> (nth-form-type seq env)
+                   (make-doseq var seq args body env)
+                   multiple-value-list))
 
-           (make-&body-expansion (old)
-             (if old
-                 ``,',old
-                 ``(progn ,@',forms))))
+             (wrap-parent (old new)
+               (if new
+                   `(macrolet ((&body ()
+                                 ,(make-&body-expansion old)))
 
-    (let-if ((name name/seqs)
-             (seqs (first forms) name/seqs)
-             (forms (rest forms) forms))
-        (symbolp name/seqs)
+                      ,new)
+                   old))
+
+             (make-&body-expansion (old)
+               (if old
+                   `',old
+                   ''(loop-body)))
+
+             (make-loop (bindings body parent)
+               (->> (make-tagbody body)
+                    (make-bindings bindings)
+                    (make-block)
+                    (make-parent parent)))
+
+             (make-parent (parent body)
+               (if parent
+                   `(macrolet ((loop-body ()
+                                  ',body))
+                      ,parent)
+                   body))
+
+             (make-tagbody (body)
+               (with-gensyms (start end)
+                 `(tagbody
+                     ,start
+                     (macrolet ((end-doseq ()
+                                  `(go ,',end)))
+                       ,body)
+
+                     (go ,start)
+                     ,end)))
+
+             (make-block (body)
+               `(block ,name
+                  ,body))
+
+             (make-bindings (bindings body)
+               `(let* ,bindings ,body)))
 
       (loop
          for (var seq . args) in seqs
-         for (keywords body) =
-           (-> (nth-form-type seq env)
-               (doseq-expansion var seq args env)
-               multiple-value-list)
+         for (bindings body parent) =
+           (expand-doseq var seq args `(progn ,@forms) env) then
+           (expand-doseq var seq args loop-body env)
 
-         for loop-body = (make-&body nil body)
-         then (make-&body loop-body body)
+         for loop-body = body
+         for loop-parent = (wrap-parent loop-parent parent)
 
-         append keywords into loop-keywords
+         append bindings into all-bindings
+
          finally
            (return
-             `(loop named ,name ,@loop-keywords do
-                   ,@(if loop-body
-                         (list loop-body)
-                         forms)))))))
+             (make-loop all-bindings loop-body loop-parent))))))
 
 (defmacro do-sequences% (name (&rest seqs) &body body)
   "Expansion of DO-SEQUENCES into DOITERS without optimization.

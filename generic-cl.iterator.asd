@@ -47,5 +47,6 @@
     :components
     ((:file "package")
      (:file "iterator")
+     (:file "util")
      (:file "doseq")
      (:file "expanders")))))
