@@ -36,11 +36,10 @@
     (values
      `((,list ,form))
 
-     `(progn
-        (when ,list
-          (let ((,var (car ,list)))
-            (setf ,list (cdr ,list))
-            ,body)))
+     `(when ,list
+        (let ((,var (car ,list)))
+          (setf ,list (cdr ,list))
+          ,body))
 
      nil)))
 
@@ -61,11 +60,10 @@
        (,index 0)
        (,length (cl:length ,vec)))
 
-     `(progn
-        (when (cl:< ,index ,length)
-          (let ((,var (aref ,vec ,index)))
-            (incf ,index)
-            ,body)))
+     `(when (cl:< ,index ,length)
+        (let ((,var (aref ,vec ,index)))
+          (incf ,index)
+          ,body))
 
      nil)))
 
@@ -125,11 +123,10 @@
     (values
      `((,it (iterator ,form ,@args)))
 
-     `(progn
-        (unless (endp ,it)
-          (let ((,var (at ,it)))
-            (advance ,it)
-            ,body)))
+     `(unless (endp ,it)
+        (let ((,var (at ,it)))
+          (advance ,it)
+          ,body))
 
      nil)))
 
