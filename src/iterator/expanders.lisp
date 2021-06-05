@@ -134,7 +134,7 @@
      `((,it (iterator ,form ,@args)))
 
      `(progn
-        (unless (endp ,it)
+        (when (endp ,it)
           (end-doseq))
 
         (let ((,var (at ,it)))
