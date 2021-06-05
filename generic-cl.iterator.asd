@@ -36,6 +36,7 @@
                #:arrows
                #:trivia
                #:static-dispatch
+               #:cl-form-types
 
                #:generic-cl.object
                #:generic-cl.container)
@@ -45,4 +46,6 @@
     :serial t
     :components
     ((:file "package")
-     (:file "iterator")))))
+     (:file "iterator")
+     (:file "doseq")
+     (:file "expanders")))))

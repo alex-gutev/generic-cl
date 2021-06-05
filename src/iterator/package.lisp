@@ -31,13 +31,17 @@
 
   (:use :anaphora
         :arrows
-        :trivia)
+        :trivia
+        :cl-form-types)
 
   (:import-from :agutil
                 :let-if)
 
   (:import-from :alexandria
-                :make-gensym-list)
+                :with-gensyms
+                :make-gensym-list
+                :mappend
+                :ensure-car)
 
   (:shadow
    :endp)
