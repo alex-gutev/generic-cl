@@ -60,7 +60,9 @@
    :doseq
    :do-sequences
    :doiter
-   :doiters)
+   :doiters
+
+   :make-doseq)
 
   (:documentation
    "Generic iterator interface"))
