@@ -37,6 +37,7 @@
                #:static-dispatch
                #:cl-form-types
 
+               #:generic-cl.internal
                #:generic-cl.comparison
                #:generic-cl.object
                #:generic-cl.container

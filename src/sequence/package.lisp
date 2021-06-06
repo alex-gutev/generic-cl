@@ -36,7 +36,9 @@
   (:use :anaphora
         :arrows
         :cl-custom-hash-table
-        :cl-form-types)
+        :cl-form-types
+
+        :generic-cl.internal)
 
   (:import-from :alexandria
                 :rcurry

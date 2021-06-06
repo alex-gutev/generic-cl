@@ -40,11 +40,8 @@
 
   (cl:every (rcurry #'sequence? env) forms))
 
-
-;;; Sequence Predicates
-
-(defmacro optimize-predicate ((vars block) (seqs result) &body body)
-  "Generate optimized code for a sequence predicate function.
+(defmacro optimize-seq-fn ((vars block) (seqs result) &body body)
+  "Generate optimized code for an optimized sequence function.
 
    The macro expands to a form which generates a DO-SEQUENCES forms
    with the elements of the sequence in SEQS, bound to gensym'd
@@ -80,11 +77,14 @@
 
             ,,result)))))
 
+
+;;; Sequence Predicates
+
 (define-compiler-macro every (f &rest seqs &environment env)
   (if (sequences? seqs env)
       `(cl:every ,f ,@seqs)
 
-      (optimize-predicate (vars block) (seqs t)
+      (optimize-seq-fn (vars block) (seqs t)
         `(unless (funcall ,f ,@vars)
            (return-from ,block nil)))))
 
@@ -92,7 +92,7 @@
   (if (sequences? seqs env)
       `(cl:some ,f ,@seqs)
 
-      (optimize-predicate (vars block) (seqs nil)
+      (optimize-seq-fn (vars block) (seqs nil)
         (with-gensyms (value)
           `(let ((,value (funcall ,f ,@vars)))
              (when ,value
@@ -102,7 +102,7 @@
   (if (sequences? seqs env)
       `(cl:notany ,f ,@seqs)
 
-      (optimize-predicate (vars block) (seqs t)
+      (optimize-seq-fn (vars block) (seqs t)
         `(when (funcall ,f ,@vars)
            (return-from ,block nil)))))
 
@@ -110,6 +110,57 @@
   (if (sequences? seqs env)
       `(cl:notevery ,f ,@seqs)
 
-      (optimize-predicate (vars block) (seqs nil)
+      (optimize-seq-fn (vars block) (seqs nil)
         `(unless (funcall ,f ,@vars)
            (return-from ,block t)))))
+
+
+;;; Concatenation
+
+(define-compiler-macro concatenate-to (&whole whole type &rest seqs &environment env)
+  (multiple-value-bind (result-type const?)
+      (constant-form-value type env)
+
+    (if (and const?
+             (subtypep result-type 'sequence env)
+             (sequences? seqs env))
+
+        `(cl:concatenate ,type ,@seqs)
+        (static-dispatch whole env))))
+
+
+;;; Mapping
+
+(define-compiler-macro map-to (&whole whole type f &rest seqs &environment env)
+  (multiple-value-bind (result-type const?)
+      (constant-form-value type env)
+
+    (if (and const?
+             (subtypep result-type 'sequence env)
+             (sequences? seqs env))
+
+        `(cl:map ,type ,f ,(first seqs) ,@(rest seqs))
+        (static-dispatch whole env))))
+
+(define-compiler-macro nmap (&whole whole result f &rest seqs &environment env)
+  (let ((result-type (nth-form-type result env)))
+    (if (and (subtypep result-type '(or simple-vector simple-string simple-bit-vector list) env)
+             (sequences? seqs env))
+
+        `(cl:map-into ,result ,f ,result ,@seqs)
+        (static-dispatch whole env))))
+
+(define-compiler-macro map (&whole whole f seq &rest sequences &environment env)
+  (let ((result-type (nth-form-type seq env)))
+    (if (and (subtypep result-type 'sequence env)
+             (sequences? sequences env))
+
+        `(cl:map ',result-type ,f ,seq ,@sequences)
+        (static-dispatch whole env))))
+
+(define-compiler-macro foreach (f &rest seqs &environment env)
+  (if (sequences? seqs env)
+      `(cl:map nil ,f ,(first seqs) ,@(rest seqs))
+
+      (optimize-seq-fn (vars block) (seqs nil)
+        `(funcall ,f ,@vars))))
