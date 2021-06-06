@@ -202,7 +202,10 @@
          ,@forms))))
 
 (defmacro do-sequences-fast% (name (&rest seqs) &body forms &environment env)
-  "Optimized expansion of DO-SEQUENCES."
+  "Optimized expansion of DO-SEQUENCES.
+
+   Generates optimized iteration code for the sequence types using
+   MAKE-DOSEQ."
 
   (labels ((expand-doseq (var seq args body env)
              (-> (nth-form-type seq env)
