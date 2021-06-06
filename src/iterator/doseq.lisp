@@ -192,68 +192,80 @@
            (forms (rest forms) forms))
       (symbolp name/seqs)
 
-    (labels ((expand-doseq (var seq args body env)
-               (-> (nth-form-type seq env)
-                   (make-doseq var seq args body env)
-                   multiple-value-list))
+    (let ((safety (cadr (assoc 'safety (declaration-information 'optimize env)))))
+      `(,(if (> safety 2)
+             'do-sequences-safe%
+             'do-sequences-fast%)
 
-             (wrap-parent (old new)
-               (if new
-                   `(macrolet ((&body ()
-                                 ,(make-&body-expansion old)))
+         ,name
+         ,seqs
+         ,@forms))))
 
-                      ,new)
-                   old))
+(defmacro do-sequences-fast% (name (&rest seqs) &body forms &environment env)
+  "Optimized expansion of DO-SEQUENCES."
 
-             (make-&body-expansion (old)
-               (if old
-                   `',old
-                   ''(loop-body)))
+  (labels ((expand-doseq (var seq args body env)
+             (-> (nth-form-type seq env)
+                 (make-doseq var seq args body env)
+                 multiple-value-list))
 
-             (make-loop (bindings body parent)
-               (->> (make-tagbody body)
-                    (make-block)
-                    (make-parent parent)
-                    (make-bindings bindings)))
+           (wrap-parent (old new)
+             (if new
+                 `(macrolet ((&body ()
+                               ,(make-&body-expansion old)))
 
-             (make-parent (parent body)
-               (if parent
-                   `(macrolet ((loop-body ()
-                                  ',body))
-                      ,parent)
-                   body))
+                    ,new)
+                 old))
 
-             (make-tagbody (body)
-               (with-gensyms (start)
-                 `(tagbody
-                     ,start
-                     (macrolet ((next-iter ()
-                                  `(go ,',start)))
-                       ,body))))
+           (make-&body-expansion (old)
+             (if old
+                 `',old
+                 ''(loop-body)))
 
-             (make-block (body)
-               `(block ,name
-                  ,body))
+           (make-loop (bindings body parent)
+             (->> (make-tagbody body)
+                  (make-block)
+                  (make-parent parent)
+                  (make-bindings bindings)))
 
-             (make-bindings (bindings body)
-               `(let* ,bindings ,body)))
+           (make-parent (parent body)
+             (if parent
+                 `(macrolet ((loop-body ()
+                                ',body))
+                    ,parent)
+                 body))
 
-      (loop
-         for (var seq . args) in seqs
-         for (bindings body parent) =
-           (expand-doseq var seq args `(progn ,@forms (next-iter)) env) then
-           (expand-doseq var seq args loop-body env)
+           (make-tagbody (body)
+             (with-gensyms (start)
+               `(tagbody
+                   ,start
+                   (macrolet ((next-iter ()
+                                `(go ,',start)))
+                     ,body))))
 
-         for loop-body = body
-         for loop-parent = (wrap-parent loop-parent parent)
+           (make-block (body)
+             `(block ,name
+                ,body))
 
-         append bindings into all-bindings
+           (make-bindings (bindings body)
+             `(let* ,bindings ,body)))
 
-         finally
-           (return
-             (make-loop all-bindings loop-body loop-parent))))))
+    (loop
+       for (var seq . args) in seqs
+       for (bindings body parent) =
+         (expand-doseq var seq args `(progn ,@forms (next-iter)) env) then
+         (expand-doseq var seq args loop-body env)
 
-(defmacro do-sequences% (name (&rest seqs) &body body)
+       for loop-body = body
+       for loop-parent = (wrap-parent loop-parent parent)
+
+       append bindings into all-bindings
+
+       finally
+         (return
+           (make-loop all-bindings loop-body loop-parent)))))
+
+(defmacro do-sequences-safe% (name (&rest seqs) &body body)
   "Expansion of DO-SEQUENCES into DOITERS without optimization.
 
    This macro is meant to be used internally when an optimization
