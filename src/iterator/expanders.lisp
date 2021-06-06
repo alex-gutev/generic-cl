@@ -58,6 +58,70 @@
 
         (values form nil))))
 
+(defun process-iterator-args (args env)
+  "Extract the values of the ITERATOR arguments.
+
+   Extracts the FROM-END, START and END arguments interpreted as they
+   are in the ITERATOR function. Checks whether the arguments evaluate
+   to constant values and returns those constants.
+
+   ARGS is the argument list.
+
+   ENV is the environment in which they occur.
+
+   Returns the following values:
+
+    1. Value of FROM-END argument.
+
+    2. True if the FROM-END argument is a constant, NIL otherwise.
+
+    3. Value of START argument.
+
+    4. True if the START argument is a constant, NIL otherwise.
+
+    5. Value of END argument.
+
+    6. True if the END argument is a constant, NIL otherwise."
+
+  (destructuring-bind (&key from-end (start 0) (end nil))
+      args
+
+    (multiple-value-bind (from-end constant-from-end?)
+        (constant-form-value from-end env)
+
+      (multiple-value-bind (start constant-start?)
+          (constant-form-value start env)
+
+        (multiple-value-bind (end constant-end?)
+            (constant-form-value end env)
+
+          (values
+           from-end
+           constant-from-end?
+           start
+           constant-start?
+           end
+           constant-end?))))))
+
+(defmacro oif (cond if-true &optional if-false &environment env)
+  "Optimized IF expression.
+
+   If the condition form is a constant the IF expression is replaced
+   with the appropriate branch.
+
+   COND is the IF expression condition form.
+
+   IF-TRUE is the form to return if COND evaluates to true.
+
+   IF-FALSE is the form to return if COND evaluates to false."
+
+  (multiple-value-bind (cond const?)
+      (constant-form-value cond env)
+
+    (if const?
+        (if cond if-true if-false)
+        `(if ,cond ,if-true ,if-false))))
+
 (defun make-iter-sequence (seq args)
   "Generate a form which process the ITERATOR arguments.
 
@@ -135,20 +199,43 @@
 ;;; Vectors
 
 (defmethod make-doseq vector ((type t) (var symbol) form args body env)
-  (declare (ignore env))
+  (multiple-value-bind (from-end c-from-end? start c-start? end c-end?)
+      (process-iterator-args args env)
 
-  (with-gensyms (vec index length)
-    (values
-     `((,vec ,form)
-       (,index 0)
-       (,length (cl:length ,vec)))
+    (let ((v-from-end (if c-from-end? from-end (gensym "FROM-END")))
+          (v-start (if c-start? start (gensym "START")))
+          (v-end (if c-end? end (gensym "END"))))
 
-     `(when (cl:< ,index ,length)
-        (let ((,var (aref ,vec ,index)))
-          (incf ,index)
-          ,body))
+      (with-gensyms (vec index end-index)
+        (values
+         `((,vec ,form)
 
-     nil)))
+           ,@(unless c-from-end?
+               `((,v-from-end ,from-end)))
+
+           ,@(unless c-start?
+               `((,v-start ,start)))
+
+           ,@(unless c-end?
+               `((,v-end ,end)))
+
+           (,end-index
+            (oif ,v-end ,v-end (cl:length ,vec)))
+
+           (,index
+            (oif ,v-from-end ,end-index ,v-start)))
+
+         `(when (oif ,v-from-end
+                     (cl>= ,index ,start)
+                     (cl:< ,index ,end-index))
+
+            (let ((,var (aref ,vec ,index)))
+              (oif ,v-from-end
+                   (decf ,index)
+                   (incf ,index))
+              ,body))
+
+         nil)))))
 
 (defmethod make-doseq vector ((type t) (pattern list) form args body env)
   (with-gensyms (item)
