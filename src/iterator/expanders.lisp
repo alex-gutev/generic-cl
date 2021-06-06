@@ -251,37 +251,55 @@
          (make-doseq type (cons key value) form args <> env))))
 
 (defmethod make-doseq hash-table ((type t) (pattern list) form args body env)
-  (declare (ignore env))
+  (multiple-value-bind (from-end c-from-end? start c-start? end c-end?)
+      (process-iterator-args args env)
 
-  (with-gensyms (more? next)
-    (values
-     nil
+    (declare (ignore from-end c-from-end?))
 
-     (match pattern
-       ((cons (and (type symbol) key)
-              (and (type symbol) value))
+    (with-gensyms (table more? next size index)
+      (let* ((counted? (or (not (and c-start? c-end?))
+                           (or (> start 0) end)))
 
-        (let ((key (or key (gensym "KEY")))
-              (value (or value (gensym "VALUE"))))
+             (test (if counted?
+                       `(and ,more? (cl:< ,index ,size))
+                       more?))
 
-          `(multiple-value-bind (,more? ,key ,value)
-               (,next)
+             (inc (when counted?
+                    `((cl:incf ,index)))))
 
-             (declare (ignorable ,key ,value))
+        (values
+         `((,table ,form)
+           ,@(when counted?
+               `((,index ,start)
+                 (,size (oif ,end ,end (hash-table-count ,table))))))
 
-             (when ,more?
-               ,body))))
+         (match pattern
+           ((cons (and (type symbol) key)
+                  (and (type symbol) value))
 
-       (_
-        (with-gensyms (key value)
-          `(multiple-value-bind (,more? ,key ,value)
-               (,next)
+            (let ((key (or key (gensym "KEY")))
+                  (value (or value (gensym "VALUE"))))
 
-             (when ,more?
-               (destructuring-bind ,pattern (cons ,key ,value)
-                 ,body))))))
+              `(multiple-value-bind (,more? ,key ,value)
+                   (,next)
 
-     `(with-hash-table-iterator (,next ,form) (&body)))))
+                 (declare (ignorable ,key ,value))
+
+                 (when ,test
+                   ,@inc
+                   ,body))))
+
+           (_
+            (with-gensyms (key value)
+              `(multiple-value-bind (,more? ,key ,value)
+                   (,next)
+
+                 (when ,test
+                   ,@inc
+                   (destructuring-bind ,pattern (cons ,key ,value)
+                     ,body))))))
+
+         `(with-hash-table-iterator (,next ,table) (&body)))))))
 
 
 ;;; Default
