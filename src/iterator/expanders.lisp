@@ -27,21 +27,104 @@
 
 (in-package :generic-cl.iterator)
 
+(defun constant-form-value (form env)
+  "Return the value of a form if it is a constant.
+
+   FORM is a form.
+
+   ENV is the environment in which FORM is found.
+
+   Returns two values:
+
+    1. The constant value if the form is constant in the
+       environment. Otherwise is FORM itself.
+
+    2. True if the form is constant, otherwise is NIL."
+
+  (labels ((simplify-type (type)
+             (match type
+               ((list 'member value)
+                `(eql ,value))
+
+               (_ type))))
+
+    (if (constantp form env)
+        (match (simplify-type (nth-form-type form env 0 t))
+          ((list 'eql value)
+           (values value t))
+
+          ((eql 'null)
+           (values nil t)))
+
+        (values form nil))))
+
+(defun make-iter-sequence (seq args)
+  "Generate a form which process the ITERATOR arguments.
+
+   The generated form extracts the subsequence and reverses it if
+   specified by the arguments.
+
+   SEQ is a form which references the sequence.
+
+   ARGS is the argument list, interpreted as the argument list to the
+   ITERATOR function."
+
+  (destructuring-bind (&key from-end (start 0) (end nil))
+      args
+
+    (let ((bounded `(cl:subseq ,seq ,start ,end)))
+      `(if ,from-end
+           (cl:reverse ,bounded)
+           ,bounded))))
+
 ;;; Lists
 
 (defmethod make-doseq list ((type t) (var symbol) form args body env)
-  (declare (ignore env))
+  (labels ((optimize-seq (form)
+             (match form
+               ((list 'if cond true false)
+                (multiple-value-bind (value const?)
+                    (constant-form-value cond env)
 
-  (with-gensyms (list)
-    (values
-     `((,list ,form))
+                  (if const?
+                      (optimize-seq
+                       (if value true false))
+                      form)))
 
-     `(when ,list
-        (let ((,var (car ,list)))
-          (setf ,list (cdr ,list))
-          ,body))
+               ((list 'cl:subseq seq start end)
+                (multiple-value-bind (end c-end?)
+                    (constant-form-value end env)
 
-     nil)))
+                  (if (and c-end? (null end))
+                      (optimize-seq `(nthcdr ,start ,seq))
+                      form)))
+
+               ((list 'nthcdr start seq)
+                (multiple-value-bind (start const?)
+                    (constant-form-value start env)
+
+                  (if (and const? (zerop start))
+                      seq
+                      form)))
+
+               ((list 'cl:reverse seq)
+                `(cl:reverse ,(optimize-seq seq)))
+
+               (_ form))))
+
+    (with-gensyms (list)
+      (let ((form (-> (make-iter-sequence form args)
+                      optimize-seq)))
+
+        (values
+         `((,list ,form))
+
+         `(when ,list
+            (let ((,var (car ,list)))
+              (setf ,list (cdr ,list))
+              ,body))
+
+         nil)))))
 
 (defmethod make-doseq list ((type t) (pattern list) form args body env)
   (with-gensyms (item)
