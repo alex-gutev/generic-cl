@@ -231,8 +231,8 @@
 
             (let ((,var (aref ,vec ,index)))
               (oif ,v-from-end
-                   (decf ,index)
-                   (incf ,index))
+                   (cl:decf ,index)
+                   (cl:incf ,index))
               ,body))
 
          nil)))))
