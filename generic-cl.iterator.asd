@@ -38,6 +38,7 @@
                #:static-dispatch
                #:cl-form-types
 
+               #:generic-cl.internal
                #:generic-cl.object
                #:generic-cl.container)
 

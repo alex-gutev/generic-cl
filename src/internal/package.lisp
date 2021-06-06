@@ -25,9 +25,11 @@
 
 (defpackage :generic-cl.internal
   (:use :static-dispatch-cl
-        :cl-form-types)
+        :cl-form-types
+        :trivia)
 
-  (:export :numbers?)
+  (:export :numbers?
+           :constant-form-value)
 
   (:documentation
    "Utilities used internally by generic-cl"))

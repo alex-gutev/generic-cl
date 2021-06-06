@@ -32,7 +32,9 @@
   (:use :anaphora
         :arrows
         :trivia
-        :cl-form-types)
+        :cl-form-types
+
+        :generic-cl.internal)
 
   (:import-from :agutil
                 :let-if)
