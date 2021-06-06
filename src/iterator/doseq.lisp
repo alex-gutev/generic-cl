@@ -212,9 +212,9 @@
 
              (make-loop (bindings body parent)
                (->> (make-tagbody body)
-                    (make-bindings bindings)
                     (make-block)
-                    (make-parent parent)))
+                    (make-parent parent)
+                    (make-bindings bindings)))
 
              (make-parent (parent body)
                (if parent
