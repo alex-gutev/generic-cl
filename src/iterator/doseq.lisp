@@ -122,8 +122,8 @@
     symbol. The method with the most derived type, which is a subtype
     of the type specifier given in TYPE, is called.
 
-    TYPE is a the type specifier of the sequence, as determined from
-    the environment.
+    TYPE is the type specifier of the sequence, as determined from the
+    environment.
 
     VAR is a symbol naming the variable to which successive elements
     of the sequence are bound. VAR may also be a list in which case it
@@ -151,6 +151,19 @@
      1. A list of bindings, as by LET*, which are established before
         the first iteration and remain visible to the body forms
         throughout all iterations.
+
+        Each binding, in this list, may optionally provide the
+        following keyword arguments following the init-form:
+
+        :CONSTANT
+
+            Flag for whether the variable should be treated as a
+            constant. If true and the init-form is a constant-form,
+            the symbol is bound by SYMBOL-MACROLET, preceding the
+            non-constant bindings, rather than LET.
+
+            NOTE: A constant binding may only reference other bindings
+            for which this flag is true.
 
      3. The new body form to be evaluated at each iteration.
 
@@ -251,7 +264,29 @@
                 ,body))
 
            (make-bindings (bindings body)
-             `(let* ,bindings ,body)))
+             (loop
+                for binding in bindings
+                for (init constant?) = (multiple-value-list (make-binding binding))
+                if constant? collect init into constants
+                else collect init into vars
+                finally
+                  (return
+                    `(symbol-macrolet ,constants
+                       (let* ,vars ,body)))))
+
+           (make-binding (binding)
+             (destructuring-bind (var init &key constant) binding
+               (if constant
+                   (multiple-value-bind (value constant?)
+                       (constant-form-value init env)
+
+                     (values
+                      `(,var ,value)
+                      constant?))
+
+                   (values
+                    `(,var ,init)
+                    nil)))))
 
     (loop
        for (var seq . args) in seqs

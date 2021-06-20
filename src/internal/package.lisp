@@ -26,10 +26,12 @@
 (defpackage :generic-cl.internal
   (:use :static-dispatch-cl
         :cl-form-types
+        :alexandria
         :trivia)
 
   (:export :numbers?
-           :constant-form-value)
+           :constant-form-value
+           :with-constant-values)
 
   (:documentation
    "Utilities used internally by generic-cl"))

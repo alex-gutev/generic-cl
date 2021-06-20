@@ -27,191 +27,136 @@
 
 (in-package :generic-cl.iterator)
 
-(defun process-iterator-args (args env)
-  "Extract the values of the ITERATOR arguments.
-
-   Extracts the FROM-END, START and END arguments interpreted as they
-   are in the ITERATOR function. Checks whether the arguments evaluate
-   to constant values and returns those constants.
-
-   ARGS is the argument list.
-
-   ENV is the environment in which they occur.
-
-   Returns the following values:
-
-    1. Value of FROM-END argument.
-
-    2. True if the FROM-END argument is a constant, NIL otherwise.
-
-    3. Value of START argument.
-
-    4. True if the START argument is a constant, NIL otherwise.
-
-    5. Value of END argument.
-
-    6. True if the END argument is a constant, NIL otherwise."
-
-  (destructuring-bind (&key from-end (start 0) (end nil))
-      args
-
-    (multiple-value-bind (from-end constant-from-end?)
-        (constant-form-value from-end env)
-
-      (multiple-value-bind (start constant-start?)
-          (constant-form-value start env)
-
-        (multiple-value-bind (end constant-end?)
-            (constant-form-value end env)
-
-          (values
-           from-end
-           constant-from-end?
-           start
-           constant-start?
-           end
-           constant-end?))))))
-
-(defmacro oif (cond if-true &optional if-false &environment env)
-  "Optimized IF expression.
-
-   If the condition form is a constant the IF expression is replaced
-   with the appropriate branch.
-
-   COND is the IF expression condition form.
-
-   IF-TRUE is the form to return if COND evaluates to true.
-
-   IF-FALSE is the form to return if COND evaluates to false."
-
-  (multiple-value-bind (cond const?)
-      (constant-form-value cond env)
-
-    (if const?
-        (if cond if-true if-false)
-        `(if ,cond ,if-true ,if-false))))
-
-(defun make-iter-sequence (seq args)
-  "Generate a form which process the ITERATOR arguments.
-
-   The generated form extracts the subsequence and reverses it if
-   specified by the arguments.
-
-   SEQ is a form which references the sequence.
-
-   ARGS is the argument list, interpreted as the argument list to the
-   ITERATOR function."
-
-  (destructuring-bind (&key from-end (start 0) (end nil))
-      args
-
-    (let ((bounded `(cl:subseq ,seq ,start ,end)))
-      `(if ,from-end
-           (cl:reverse ,bounded)
-           ,bounded))))
-
+
 ;;; Lists
 
 (defmethod make-doseq list ((type t) (var symbol) form args body env)
-  (labels ((optimize-seq (form)
-             (match form
-               ((list 'if cond true false)
-                (multiple-value-bind (value const?)
-                    (constant-form-value cond env)
+  (destructuring-bind (&key from-end (start 0) end) args
+    (with-constant-values (from-end start end) env
+      ((from-end start end)
+       (cond
+         (from-end
+          (make-traverse-list
+           var
+           `(cl:nreverse (cl:subseq ,form ,start ,end))
+           body))
 
-                  (if const?
-                      (optimize-seq
-                       (if value true false))
-                      form)))
+         (end
+          (make-traverse-bounded-list var form start end body))
 
-               ((list 'cl:subseq seq start end)
-                (multiple-value-bind (end c-end?)
-                    (constant-form-value end env)
+         ((> start 0)
+          (make-traverse-list var `(nthcdr ,start ,form) body))
 
-                  (if (and c-end? (null end))
-                      (optimize-seq `(nthcdr ,start ,seq))
-                      form)))
+         (t
+          (make-traverse-list var form body))))
 
-               ((list 'nthcdr start seq)
-                (multiple-value-bind (start const?)
-                    (constant-form-value start env)
+      ((start end)
+       (cond
+         (end
+          (make-traverse-list
+           var
+           `(if ,from-end
+                (cl:nreverse (cl:subseq ,form ,start ,end))
+                (cl:subseq ,form ,start ,end))
+           body))
 
-                  (if (and const? (zerop start))
-                      seq
-                      form)))
+         ((> start 0)
+          (make-traverse-list
+           var
+           `(if ,from-end
+                (cl:reverse (nthcdr ,start ,form))
+                (nthcdr ,start ,form))
+           body))
 
-               ((list 'cl:reverse seq)
-                `(cl:reverse ,(optimize-seq seq)))
+         (t
+          (make-traverse-list
+           var
+           `(if ,from-end
+                (cl:reverse ,form)
+                ,form)
+           body))))
 
-               (_ form))))
-
-    (with-gensyms (list)
-      (let ((form (-> (make-iter-sequence form args)
-                      optimize-seq)))
-
-        (values
-         `((,list ,form))
-
-         `(when ,list
-            (let ((,var (car ,list)))
-              (setf ,list (cdr ,list))
-              ,body))
-
-         nil)))))
+      (nil
+       (make-traverse-list
+        var
+        `(if ,from-end
+             (cl:nreverse (cl:subseq ,form ,start ,end))
+             (cl:subseq ,form ,start ,end))
+        body)))))
 
 (defmethod make-doseq list ((type t) (pattern list) form args body env)
   (with-gensyms (item)
     (-<> `(destructuring-bind ,pattern ,item ,body)
          (make-doseq type item form args <> env))))
 
+(defun make-traverse-bounded-list (element form start end body)
+  "Generate a TRAVERSE expansion for a bounded list traversal, when END is non-NIL."
 
+  (multiple-value-bind (bindings body parent)
+      (make-traverse-list
+       element
+       `(nthcdr ,start ,form)
+       body)
+
+    (with-gensyms (index)
+      (values
+       `((,index ,start) ,@bindings)
+
+       `(when (< ,index ,end)
+          (incf ,index)
+          ,body)
+
+       parent))))
+
+(defun make-traverse-list (element form body)
+  "Generate a TRAVERSE expansion for a unbounded list traversal."
+
+  (with-gensyms (list)
+    (values
+     `((,list ,form))
+
+     `(when ,list
+        (let ((,element (car ,list)))
+          (setf ,list (cdr ,list))
+          ,body))
+
+     nil)))
+
+
 ;;; Vectors
 
 (defmethod make-doseq vector ((type t) (var symbol) form args body env)
-  (multiple-value-bind (from-end c-from-end? start c-start? end c-end?)
-      (process-iterator-args args env)
+  (destructuring-bind (&key from-end (start 0) end) args
+    (with-gensyms (vec index end-index v-from-end v-start v-end)
+      (values
+       `((,v-from-end ,from-end :constant t)
+         (,v-start ,start :constant t)
+         (,v-end ,end :constant t)
 
-    (let ((v-from-end (if c-from-end? from-end (gensym "FROM-END")))
-          (v-start (if c-start? start (gensym "START")))
-          (v-end (if c-end? end (gensym "END"))))
+         (,vec ,form)
+         (,end-index (if ,v-end ,v-end (cl:length ,vec)) :constant t)
 
-      (with-gensyms (vec index end-index)
-        (values
-         `((,vec ,form)
+         (,index
+          (if ,v-from-end (cl:1- ,end-index) ,v-start)))
 
-           ,@(unless c-from-end?
-               `((,v-from-end ,from-end)))
+       `(when (if ,v-from-end
+                  (cl:>= ,index ,v-start)
+                  (cl:< ,index ,end-index))
 
-           ,@(unless c-start?
-               `((,v-start ,start)))
+          (let ((,var (aref ,vec ,index)))
+            (if ,v-from-end
+                (cl:decf ,index)
+                (cl:incf ,index))
+            ,body))
 
-           ,@(unless c-end?
-               `((,v-end ,end)))
-
-           (,end-index
-            (oif ,v-end ,v-end (cl:length ,vec)))
-
-           (,index
-            (oif ,v-from-end ,end-index ,v-start)))
-
-         `(when (oif ,v-from-end
-                     (cl>= ,index ,start)
-                     (cl:< ,index ,end-index))
-
-            (let ((,var (aref ,vec ,index)))
-              (oif ,v-from-end
-                   (cl:decf ,index)
-                   (cl:incf ,index))
-              ,body))
-
-         nil)))))
+       nil))))
 
 (defmethod make-doseq vector ((type t) (pattern list) form args body env)
   (with-gensyms (item)
     (-<> `(destructuring-bind ,pattern ,item ,body)
          (make-doseq type item form args <> env))))
 
-
+
 ;;; Hash-Tables
 
 (defmethod make-doseq hash-table ((type t) (var symbol) form args body env)
@@ -220,57 +165,71 @@
          (make-doseq type (cons key value) form args <> env))))
 
 (defmethod make-doseq hash-table ((type t) (pattern list) form args body env)
-  (multiple-value-bind (from-end c-from-end? start c-start? end c-end?)
-      (process-iterator-args args env)
+  (destructuring-bind (&key from-end (start 0) end) args
+    (declare (ignore from-end))
 
-    (declare (ignore from-end c-from-end?))
+    (with-gensyms (table next more? size index)
+      (flet ((make-body (test inc)
+               (match pattern
+                 ((cons (and (type symbol) key)
+                        (and (type symbol) value))
 
-    (with-gensyms (table more? next size index)
-      (let* ((counted? (or (not (and c-start? c-end?))
-                           (or (> start 0) end)))
+                  (let ((key (or key (gensym "KEY")))
+                        (value (or value (gensym "VALUE"))))
 
-             (test (if counted?
-                       `(and ,more? (cl:< ,index ,size))
-                       more?))
+                    `(multiple-value-bind (,more? ,key ,value)
+                         (,next)
 
-             (inc (when counted?
-                    `((cl:incf ,index)))))
+                       (declare (ignorable ,key ,value))
 
-        (values
-         `((,table ,form)
-           ,@(when counted?
-               `((,index ,start)
-                 (,size (oif ,end ,end (hash-table-count ,table))))))
+                       (when ,test
+                         ,@inc
+                         ,body))))
 
-         (match pattern
-           ((cons (and (type symbol) key)
-                  (and (type symbol) value))
+                 (_
+                  (with-gensyms (key value)
+                    `(multiple-value-bind (,more? ,key ,value)
+                         (,next)
 
-            (let ((key (or key (gensym "KEY")))
-                  (value (or value (gensym "VALUE"))))
+                       (when ,test
+                         ,@inc
+                         (destructuring-bind ,pattern (cons ,key ,value)
+                           ,body))))))))
 
-              `(multiple-value-bind (,more? ,key ,value)
-                   (,next)
+        (with-constant-values (start end) env
+          ((start end)
+           (let* ((counted? (or (> start 0) end))
 
-                 (declare (ignorable ,key ,value))
+                  (test (if counted?
+                            `(and ,more? (cl:< ,index ,size))
+                            more?))
 
-                 (when ,test
-                   ,@inc
-                   ,body))))
+                  (inc (when counted?
+                         `((cl:incf ,index)))))
 
-           (_
-            (with-gensyms (key value)
-              `(multiple-value-bind (,more? ,key ,value)
-                   (,next)
+             (values
+              `((,table ,form)
+                ,@(when counted?
+                    `((,index ,start)
+                      (,size ,(or end `(hash-table-count ,table))))))
 
-                 (when ,test
-                   ,@inc
-                   (destructuring-bind ,pattern (cons ,key ,value)
-                     ,body))))))
+              (make-body test inc)
 
-         `(with-hash-table-iterator (,next ,table) (&body)))))))
+              `(with-hash-table-iterator (,next ,table) (&body)))))
 
+          (nil
+           (values
+            `((,table ,form)
+              (,index ,start)
+              (,size (or ,end (hash-table-count ,table))))
 
+            (make-body
+             `(and ,more? (cl:< ,index ,size))
+             `((cl:incf ,index)))
+
+            `(with-hash-table-iterator (,next ,table) (&body)))))))))
+
+
 ;;; Default
 
 (defmethod make-doseq t ((type t) (var symbol) form args body env)
