@@ -47,4 +47,5 @@
     :serial t
     :components
     ((:file "package")
-     (:file "hash-tables")))))
+     (:file "hash-tables")
+     (:file "expanders")))))

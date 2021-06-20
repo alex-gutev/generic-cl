@@ -157,79 +157,6 @@
          (make-doseq type item form args <> env))))
 
 
-;;; Hash-Tables
-
-(defmethod make-doseq hash-table ((type t) (var symbol) form args body env)
-  (with-gensyms (key value)
-    (-<> `(let ((,var (cons ,key ,value))) ,body)
-         (make-doseq type (cons key value) form args <> env))))
-
-(defmethod make-doseq hash-table ((type t) (pattern list) form args body env)
-  (destructuring-bind (&key from-end (start 0) end) args
-    (declare (ignore from-end))
-
-    (with-gensyms (table next more? size index)
-      (flet ((make-body (test inc)
-               (match pattern
-                 ((cons (and (type symbol) key)
-                        (and (type symbol) value))
-
-                  (let ((key (or key (gensym "KEY")))
-                        (value (or value (gensym "VALUE"))))
-
-                    `(multiple-value-bind (,more? ,key ,value)
-                         (,next)
-
-                       (declare (ignorable ,key ,value))
-
-                       (when ,test
-                         ,@inc
-                         ,body))))
-
-                 (_
-                  (with-gensyms (key value)
-                    `(multiple-value-bind (,more? ,key ,value)
-                         (,next)
-
-                       (when ,test
-                         ,@inc
-                         (destructuring-bind ,pattern (cons ,key ,value)
-                           ,body))))))))
-
-        (with-constant-values (start end) env
-          ((start end)
-           (let* ((counted? (or (> start 0) end))
-
-                  (test (if counted?
-                            `(and ,more? (cl:< ,index ,size))
-                            more?))
-
-                  (inc (when counted?
-                         `((cl:incf ,index)))))
-
-             (values
-              `((,table ,form)
-                ,@(when counted?
-                    `((,index ,start)
-                      (,size ,(or end `(hash-table-count ,table))))))
-
-              (make-body test inc)
-
-              `(with-hash-table-iterator (,next ,table) (&body)))))
-
-          (nil
-           (values
-            `((,table ,form)
-              (,index ,start)
-              (,size (or ,end (hash-table-count ,table))))
-
-            (make-body
-             `(and ,more? (cl:< ,index ,size))
-             `((cl:incf ,index)))
-
-            `(with-hash-table-iterator (,next ,table) (&body)))))))))
-
-
 ;;; Default
 
 (defmethod make-doseq t ((type t) (var symbol) form args body env)
