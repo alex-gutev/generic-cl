@@ -64,7 +64,25 @@
    :doiter
    :doiters
 
-   :make-doseq)
+   :with-iterators)
+
+  (:intern :make-doseq
+           :doseq-finish
+           :subtype)
 
   (:documentation
    "Generic iterator interface"))
+
+(defpackage :generic-cl.iterator.optimization
+  (:use)
+
+  (:import-from :generic-cl.iterator
+                :make-doseq
+                :doseq-finish)
+
+  (:export :make-doseq
+           :doseq-finish
+           :subtype)
+
+  (:documentation
+   "Optimization interface of iterator interface."))

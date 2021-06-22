@@ -30,85 +30,113 @@
 
 ;;; Hash-Tables
 
-(defmethod make-doseq hash-table ((type t) (var symbol) form args body env)
-  (with-gensyms (key value)
-    (-<> `(let ((,var (cons ,key ,value))) ,body)
-         (make-doseq type (cons key value) form args <> env))))
-
-(defmethod make-doseq hash-table ((type t) (pattern list) form args body env)
+(defmethod make-doseq hash-table ((type t) form args body env)
   (destructuring-bind (&key from-end (start 0) end) args
     (declare (ignore from-end))
 
     (with-gensyms (table next more? size index)
-      (flet ((make-body (test inc)
-               (match pattern
-                 ((cons (and (type symbol) key)
-                        (and (type symbol) value))
+      (with-constant-values (start end) env
+        ((start end)
+         (let* ((counted? (or (> start 0) end))
 
-                  (let ((key (or key (gensym "KEY")))
-                        (value (or value (gensym "VALUE"))))
+                (test (if counted?
+                          `(and ,more? (cl:< ,index ,size))
+                          more?))
 
-                    `(multiple-value-bind (,more? ,key ,value)
-                         (,next)
+                (inc (when counted?
+                       `((cl:incf ,index)))))
 
-                       (declare (ignorable ,key ,value))
-
-                       (when ,test
-                         ,@inc
-                         ,body))))
-
-                 (_
-                  (with-gensyms (key value)
-                    `(multiple-value-bind (,more? ,key ,value)
-                         (,next)
-
-                       (when ,test
-                         ,@inc
-                         (destructuring-bind ,pattern (cons ,key ,value)
-                           ,body))))))))
-
-        (with-constant-values (start end) env
-          ((start end)
-           (let* ((counted? (or (> start 0) end))
-
-                  (test (if counted?
-                            `(and ,more? (cl:< ,index ,size))
-                            more?))
-
-                  (inc (when counted?
-                         `((cl:incf ,index)))))
-
-             (values
-              `((,table ,form)
-                ,@(when counted?
-                    `((,index ,start)
-                      (,size ,(or end `(hash-table-count ,table))))))
-
-              (make-body test inc)
-
-              `(with-hash-table-iterator (,next ,table) (&body)))))
-
-          (nil
            (values
             `((,table ,form)
-              (,index ,start)
-              (,size (or ,end (hash-table-count ,table))))
+              ,@(when counted?
+                  `((,index ,start)
+                    (,size ,(or end `(hash-table-count ,table))))))
 
-            (make-body
-             `(and ,more? (cl:< ,index ,size))
-             `((cl:incf ,index)))
+            `((with-hash-table-iterator (,next ,table)
+                ,@body))
 
-            `(with-hash-table-iterator (,next ,table) (&body)))))))))
+            `(lambda (pattern body)
+               (bind-hash-table-element pattern body ',next ',more? ',test ',inc)))))
+
+        (nil
+         (values
+          `((,table ,form)
+            (,index ,start)
+            (,size (or ,end (hash-table-count ,table))))
+
+          `((with-hash-table-iterator (,next ,table)
+              ,@body))
+
+          `(lambda (pattern body)
+             (bind-hash-table-element
+              pattern body
+              ',next ',more?
+              '(and ,more? (cl:< ,index ,size))
+              '((cl:incf ,index))))))))))
+
+(defun bind-hash-table-element (pattern body next more? test inc)
+  "Generate a form which binds the next element of a hash-table.
+
+   PATTERN is the binding pattern.
+
+   BODY is the list of forms to be evaluated, within the environment
+   of the binding.
+
+   NEXT is the hash-table iterator next element macro.
+
+   MORE? is the name of the variable to which the more elements flag
+   should be bound.
+
+   TEST is the loop termination test form.
+
+   INC is the list of index incrementation forms."
+
+  (ematch pattern
+    ((cons (and (type symbol) key)
+           (and (type symbol) value))
+
+     (let ((key (or key (gensym "KEY")))
+           (value (or value (gensym "VALUE"))))
+
+       `(multiple-value-bind (,more? ,key ,value)
+            (,next)
+
+          (unless ,test
+            (doseq-finish))
+
+          ,@body)))
+
+    ((type symbol)
+     (with-gensyms (key value)
+       (bind-hash-table-element
+        (cons key value)
+
+        `((let ((,pattern (cons ,key ,value)))
+            ,@body))
+
+        next more? test inc)))
+
+    ((type list)
+     (with-gensyms (key value)
+       (bind-hash-table-element
+        (cons key value)
+
+        `((destructuring-bind ,pattern (cons ,key ,value)
+            ,@body))
+
+        next more? test inc)))))
 
 
 ;;; Hash-Maps
 
-(defmethod make-doseq hash-map ((type t) pattern form args body env)
-  (multiple-value-bind (bindings body parent)
-      (make-doseq 'hash-table pattern `(hash-map-table ,form) args body env)
+(defmethod make-doseq hash-map ((type t) form args body env)
+  (multiple-value-bind (bindings body bind-value)
+      (make-doseq 'hash-table `(hash-map-table ,form) args body env)
 
     (values
      bindings
-     body
-     `(with-custom-hash-table
-        ,(or parent '(&body))))))
+
+     `((with-custom-hash-table
+         ,@body))
+
+     bind-value)))

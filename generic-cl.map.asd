@@ -32,10 +32,13 @@
   :serial t
   :depends-on (#:agutil
                #:anaphora
+               #:alexandria
+               #:arrows
                #:trivia
                #:static-dispatch
                #:cl-custom-hash-table
 
+               #:generic-cl.internal
                #:generic-cl.comparison
                #:generic-cl.object
                #:generic-cl.container

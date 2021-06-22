@@ -111,11 +111,11 @@
 
 ;;;; Optimizations
 
-(defgeneric make-doseq (type var seq args body env)
+(defgeneric make-doseq (type seq args body env)
   (:method-combination subtype)
 
   (:documentation
-   "Generate iteration code for DOSEQ over a sequence of a given type.
+   "Generate the WITH-ITERATORS expansion for a sequence of a given type.
 
     This method has the SUBTYPE method combination meaning each method
     has a single qualifier which is interpreted as a type specifier
@@ -125,23 +125,14 @@
     TYPE is the type specifier of the sequence, as determined from the
     environment.
 
-    VAR is a symbol naming the variable to which successive elements
-    of the sequence are bound. VAR may also be a list in which case it
-    should be interpreted as a destructuring pattern (as if to
-    DESTRUCTURING-BIND).
-
     SEQ is the form which returns the sequence over which to iterate.
 
     ARGS are the additional arguments passed after the sequence which
     should be interpreted as they are interpreted by the ITERATOR
     function.
 
-    BODY is the form which should be executed at each iteration with
-    the given bindings visible to it. The last form in BODY is
-    typically transfers control back to the start of the loop, to
-    perform the next iteration. Thus a method can control whether the
-    next iteration is executed, or the loop terminates by wrapping
-    this form in a conditional.
+    BODY is list of forms comprising the body of the WITH-ITERATORS
+    form.
 
     ENV is the environment in which the DO-SEQUENCES/DOSEQ form is
     found.
@@ -165,11 +156,238 @@
             NOTE: A constant binding may only reference other bindings
             for which this flag is true.
 
-     3. The new body form to be evaluated at each iteration.
+     2. The new body of the WITH-ITERATORS form.
 
-     4. A form to wrap the entire iteration code. The local
-        macro (&BODY) is available to it which expands to the entire
-        iteration code."))
+     3. A LAMBDA form of two arguments, representing the function to
+        call when expanding WITH-ITER-VALUE for the sequence iterator.
+
+        The first argument is the element binding pattern, to which
+        elements of the sequence are bound. This may either be a list
+        interpreted as a pattern to `destructuring-bind`.
+
+        The second element is the list of forms comprising the body of
+        the `WITH-ITER-VALUE` form.
+
+        This function should return a form which binds the current
+        sequence element to the variable(s) specified in the binding
+        pattern, advances the position of the iterator to the next
+        element in the sequence, and evaluates the body forms, with
+        the element bindings visible to them.
+
+        The form returned, should use the lexical DOSEQ-FINISH macro
+        to jump out of the WITH-ITERATORS form, if there are no more
+        elements in the sequence."))
+
+
+;;;; WITH-ITERATORS MACRO
+
+(defmacro with-iterators (seqs &body forms &environment env)
+  "Create static iterators for one or more sequence.
+
+   This macro attempts to determine the type of each sequence, and calls
+   MAKE-DOSEQ to generate optimal static iterator code for the given
+   sequence types, rather than creating dynamic iterator objects.
+
+   SEQS:
+
+     A list of the form (ITER SEQUENCE . ARGS) where ITER is a symbol
+     identifying the iterator for the sequence, SEQUENCE is the form
+     which evaluates to a sequence, and ARGS are the remaining
+     iteration arguments, interpreted as they are to the ITERATOR
+     function.
+
+     Each iterator identifier (ITER) can be passed to
+     WITH-ITER-VALUE, within the body forms of WITH-ITERATORS, to
+     retrieve the values of the elements of the sequence.
+
+     The iterator identifiers are in a namespace of their own that is
+     they do not name lexical variables/symbol-macros nor functions/macros.
+
+
+   FORMS:
+
+     A list of forms evaluated in an implicit TAGBODY, thus symbols
+     are interpreted as tag names.
+
+     The WITH-ITER-VALUE macro can be used, within FORMS, to retrieve
+     the current element of the sequence and advance the iterator to
+     the next position.
+
+     The DOSEQ-FINISH macro can be used to jump out of the
+     WITH-ITERATORS form.
+
+     NOTE: The value of the last form is not returned, due to it being
+     evaluated in a TAGBODY, instead NIL is returned. RETURN-FROM, to
+     an outer BLOCK, should be used to return a value from this form.
+
+     NOTE: Whilst the intended use of WITH-ITERATORS is to implement
+     iteration macros, such as DOSEQ, the FORMS are only evaluated
+     once. It is up to the user to implement the actual loop, using
+     the provided TAGBODY facility."
+
+  (with-gensyms (end-tag)
+    (labels ((expand-doseq (seq args body env)
+               (-> (nth-form-type seq env)
+                   (make-doseq seq args body env)
+                   multiple-value-list))
+
+             (make-form (bindings get-values body)
+               (->> (make-macros get-values body)
+                    (make-bindings bindings)))
+
+             (make-macros (get-values body)
+               (with-gensyms (pattern iter forms)
+                 `(macrolet
+                      ((with-iter-value ((,pattern ,iter) &body ,forms)
+                         (case ,iter
+                           ,@(loop for (it fn) in get-values
+                                collect `(,it (,fn ,pattern ,forms)))
+                           (otherwise
+                            (error "In WITH-ITER-VALUE: ~s not one of ~s passed to WITH-ITERATORS."
+                                   ,iter ',(mapcar #'car get-values))))))
+                    ,@body)))
+
+             ;; Tagbody
+
+             (make-tagbody (body)
+               `((macrolet ((doseq-finish () `(go ,',end-tag)))
+                   (tagbody
+                      ,@body
+                      ,end-tag))))
+
+
+             ;; Bindings
+
+             (make-bindings (bindings body)
+               (loop
+                  for binding in bindings
+                  for (init constant?) = (multiple-value-list (make-binding binding))
+                  if constant? collect init into constants
+                  else collect init into vars
+                  finally
+                    (return
+                      `(symbol-macrolet ,constants
+                         (let* ,vars ,body)))))
+
+             (make-binding (binding)
+               (destructuring-bind (var init &key constant) binding
+                 (if constant
+                     (multiple-value-bind (value constant?)
+                         (constant-form-value init env)
+
+                       (values
+                        `(,var ,value)
+                        constant?))
+
+                     (values
+                      `(,var ,init)
+                      nil)))))
+
+      (loop
+         for (var seq . args) in seqs
+         for (bindings body get-value) =
+           (expand-doseq seq args (make-tagbody forms) env) then
+           (expand-doseq seq args form-body env)
+
+         for form-body = body
+         append bindings into all-bindings
+         collect (list var get-value) into get-values
+
+         finally
+           (return
+             (make-form all-bindings get-values form-body))))))
+
+(defmacro with-iter-value ((pattern iter) &body forms)
+  "Bind the current element of a sequence, pointed to by a static iterator, to a variable.
+
+   This macro may only be used within the body of a WITH-ITERATORS
+   macro.
+
+   The current value of the sequence, with iterator ITER, is bound to
+   the variable(s) specified by PATTERN, with the bindings visible to
+   FORMS.
+
+   If the iterator is already at the end of the sequence, DOSEQ-FINISH
+   is called to jump out of the enclosing WITH-ITERATORS form.
+
+   After binding, the iterator is advanced to the next element of the
+   sequence.
+
+   PATTERN:
+
+     A binding pattern specifying the variable(s) to which the current
+     element of the sequence is bound.
+
+     This may either be a symbol, naming a variable, or a list which
+     is interpreted as a pattern to `destructuring-bind`.
+
+   ITER:
+
+     Symbol identifying the iterator, as established by the
+     WITH-ITERATOR form.
+
+     This must be one an iterator symbol passed in the first argument
+     to the enclosing WITH-ITERATORS macro, otherwise an error is
+     signalled.
+
+     This may not be an iterator from a WITH-ITERATORS form other than
+     the immediate WITH-ITERATORS form in which this form is nested.
+
+   FORMS:
+
+     List of forms evaluated in an implicit PROGN. The binding(s) for
+     the current element are visible to the forms.
+
+     NOTE: If there are no more elements in the sequence, the FORMS
+     are not evaluated and a non-local jump to the end of the
+     WITH-ITERATORS form is performed."
+
+  (declare (ignore pattern iter forms))
+
+  (error "Illegal usage of WITH-ITER-VALUE outside WITH-ITERATORS"))
+
+(defmacro do-iter-values ((&rest iters) &body forms)
+  "Iterate over the remaining elements of a sequence pointed to by static iterators.
+
+   Evaluate FORMS at each iteration, for each remaining element, until
+   one of the iterators reaches the end of the sequence.
+
+   NOTE: May only be used inside a WITH-ITERATORS form.
+
+   ITERS:
+
+     List of bindings. Each element is of the form (PATTERN ITER),
+     interpreted as if to WITH-ITER-VALUE, where PATTERN is a binding
+     pattern, for the binding to the sequence element value, and ITER
+     is a static iterator identifier symbol, which must have been
+     created with the WITH-ITERATORS form in which this form is
+     contained..
+
+   FORMS
+
+     List of forms evaluated for each remaining element in the
+     sequences pointed to by the static iterators.
+
+     At each evaluation the next element of each sequence, pointed by
+     each ITER in ITERS, is bound to the variable(s) specified by the
+     corresponding PATTERN. After which the iterators are advanced to
+     the next elements.
+
+   If one of the iterators has reached the end of its sequence, a
+   non-local jump outside the enclosing WITH-ITERATORS form is
+   performed, i.e. any forms following this form, within the enclosing
+   WITH-ITERATORS form, will not be evaluated."
+
+  (flet ((make-iter-value (iter forms)
+           (destructuring-bind (pattern iter) iter
+             `((with-iter-value (,pattern ,iter)
+                 ,@forms)))))
+
+    (with-gensyms (start)
+      `(tagbody
+          ,start
+          ,@(cl:reduce #'make-iter-value iters :initial-value forms :from-end t)
+          (go ,start)))))
 
 
 ;;;; DO-SEQUENCES Macro
@@ -214,94 +432,25 @@
          ,seqs
          ,@forms))))
 
-(defmacro do-sequences-fast% (name (&rest seqs) &body forms &environment env)
+(defmacro do-sequences-fast% (name (&rest seqs) &body forms)
   "Optimized expansion of DO-SEQUENCES.
 
    Generates optimized iteration code for the sequence types using
    MAKE-DOSEQ."
 
-  (labels ((expand-doseq (var seq args body env)
-             (-> (nth-form-type seq env)
-                 (make-doseq var seq args body env)
-                 multiple-value-list))
+  (flet ((make-iter-binding (iter seq)
+           `(,iter ,@(rest seq)))
 
-           (wrap-parent (old new)
-             (if new
-                 `(macrolet ((&body ()
-                               ,(make-&body-expansion old)))
+         (make-value-binding (seq iter)
+           `(,(first seq) ,iter)))
 
-                    ,new)
-                 old))
+    (let ((iters (make-gensym-list (length seqs))))
+      `(block ,name
+         (with-iterators
+             ,(mapcar #'make-iter-binding iters seqs)
 
-           (make-&body-expansion (old)
-             (if old
-                 `',old
-                 ''(loop-body)))
-
-           (make-loop (bindings body parent)
-             (->> (make-tagbody body)
-                  (make-block)
-                  (make-parent parent)
-                  (make-bindings bindings)))
-
-           (make-parent (parent body)
-             (if parent
-                 `(macrolet ((loop-body ()
-                                ',body))
-                    ,parent)
-                 body))
-
-           (make-tagbody (body)
-             (with-gensyms (start)
-               `(tagbody
-                   ,start
-                   (macrolet ((next-iter ()
-                                `(go ,',start)))
-                     ,body))))
-
-           (make-block (body)
-             `(block ,name
-                ,body))
-
-           (make-bindings (bindings body)
-             (loop
-                for binding in bindings
-                for (init constant?) = (multiple-value-list (make-binding binding))
-                if constant? collect init into constants
-                else collect init into vars
-                finally
-                  (return
-                    `(symbol-macrolet ,constants
-                       (let* ,vars ,body)))))
-
-           (make-binding (binding)
-             (destructuring-bind (var init &key constant) binding
-               (if constant
-                   (multiple-value-bind (value constant?)
-                       (constant-form-value init env)
-
-                     (values
-                      `(,var ,value)
-                      constant?))
-
-                   (values
-                    `(,var ,init)
-                    nil)))))
-
-    (loop
-       for (var seq . args) in seqs
-       for (bindings body parent) =
-         (expand-doseq var seq args `(progn ,@forms (next-iter)) env) then
-         (expand-doseq var seq args loop-body env)
-
-       for loop-body = body
-       for loop-parent = (wrap-parent loop-parent parent)
-
-       append bindings into all-bindings
-
-       finally
-         (return
-           (make-loop all-bindings loop-body loop-parent)))))
+           (do-iter-values ,(mapcar #'make-value-binding seqs iters)
+             ,@forms))))))
 
 (defmacro do-sequences-safe% (name (&rest seqs) &body body)
   "Expansion of DO-SEQUENCES into DOITERS without optimization.
