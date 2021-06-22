@@ -157,29 +157,29 @@
 
 ;;;; Reduction
 
-(defmethod reduce (fn sequence &key key from-end (start 0) end (initial-value nil init-sp))
+(defmethod reduce (f sequence &key key from-end (start 0) end (initial-value nil initp))
   (let ((key (or key #'identity))
-	(f (if from-end (lambda (x y) (funcall fn y x)) fn)) ; Flip function arguments if FROM-END is T
-	(iter (iterator sequence :start start :end end :from-end from-end)))
+        (result nil)
+        (resultp nil))
 
-    (flet ((reduce-seq (res)
-	     (advance iter)
-	     (loop
-		with elem
-		with res = res
-		until (endp iter)
-		do
-		  (setf elem (funcall key (at iter)))
-		  (setf res (funcall f res elem))
-		  (advance iter)
-		finally (return res))))
+    (with-iterators ((it sequence :from-end from-end :start start :end end))
+      (setf result
+            (if initp
+                initial-value
+                (funcall key (with-iter-value (value it) value))))
 
-      (if (endp iter) ; If sequence is empty
-	  ;; Return INITIAL-VALUE if supplied or call FN with no arguments
-	  (if init-sp initial-value (funcall fn))
+      (setf resultp t)
 
-	  (let ((elem (funcall key (at iter))))
-	    (reduce-seq (if init-sp (funcall f initial-value elem) elem)))))))
+      (if from-end
+          (do-iter-values ((item it))
+            (setf result (funcall f (funcall key item) result)))
+
+          (do-iter-values ((item it))
+            (setf result (funcall f result (funcall key item))))))
+
+    (if resultp
+        result
+        (funcall f))))
 
 
 ;;;; Count
