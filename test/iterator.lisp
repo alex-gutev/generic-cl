@@ -567,6 +567,8 @@
 
 ;;; DOSEQ Macro Tests
 
+;;;; Lists
+
 (test doseq-list-unbounded
   "Test DOSEQ macro on list (unbounded)"
 
@@ -575,6 +577,15 @@
       (push elem result))
 
     (is (= '(1 2 3 4) (cl:nreverse result)))))
+
+(test doseq-list-destructure
+  "Test DOSEQ with destructuring on list"
+
+  (let (result)
+    (doseq ((x y) '((1 2) (3 4) (5 6) (7 8)))
+      (push (cl:+ x y) result))
+
+    (is (= '(3 7 11 15) (cl:nreverse result)))))
 
 (test doseq-list-reverse
   "Test DOSEQ macro on list with :FROM-END t"
@@ -596,6 +607,68 @@
 
     (is (= '(2 3 4) (cl:nreverse result)))))
 
+(test doseq-list-reverse-bounded
+  "Test DOSEQ macro on list with :START 1, :END 4, :FROM-END T"
+
+  (let* (result)
+    (doseq (elem '(1 2 3 4 5) :start 1 :end 4 :from-end t)
+      (push elem result))
+
+    (is (= '(4 3 2) (cl:nreverse result)))))
+
+
+;;;; Vectors
+
+(test doseq-vector-unbounded
+  "Test DOSEQ macro on vector (unbounded)"
+
+  (let (result)
+    (doseq (elem #(1 2 3 4))
+      (push elem result))
+
+    (is (= '(1 2 3 4) (cl:nreverse result)))))
+
+(test doseq-vector-destructure
+  "Test DOSEQ with destructuring on vector"
+
+  (let (result)
+    (doseq ((x y) #((1 2) (3 4) (5 6) (7 8)))
+      (push (cl:+ x y) result))
+
+    (is (= '(3 7 11 15) (cl:nreverse result)))))
+
+(test doseq-vector-reverse
+  "Test DOSEQ macro on vector with :FROM-END t"
+
+  (let* ((vec #(1 2 3 4))
+         (result nil))
+
+    (doseq (elem (the vector vec) :from-end t)
+      (push elem result))
+
+    (is (= '(4 3 2 1) (cl:nreverse result)))))
+
+(test doseq-vector-bounded
+  "Test DOSEQ macro on vector with :START 1 and :END 4"
+
+  (let* (result)
+    (doseq (elem #(1 2 3 4 5) :start 1 :end 4)
+      (push elem result))
+
+    (is (= '(2 3 4) (cl:nreverse result)))))
+
+(test doseq-vector-reverse-bounded
+  "Test DOSEQ macro on vector with :START 1, :END 4, :FROM-END T"
+
+  (let* (result)
+    (doseq (elem #(1 2 3 4 5) :start 1 :end 4 :from-end t)
+      (push elem result))
+
+    (is (= '(4 3 2) (cl:nreverse result)))))
+
+
+;;;; Hash Tables
+
 (test doseq-hash-table
   "Test DOSEQ macro on hash-table"
 
@@ -607,6 +680,9 @@
 
     (is (= map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))))
 
+
+;;;; Iterator Based Implementation
+
 (test doseq-generic
   "Test DOSEQ macro on untyped sequence"
 
@@ -617,6 +693,52 @@
       (push elem result))
 
     (is (= '(1 2 3 4 5 6) (cl:nreverse result)))))
+
+(test doseq-generic-destructure
+  "Test DOSEQ with destructuring on untyped sequence"
+
+  (let ((seq '((1 2) (3 4) (5 6) (7 8)))
+        (result nil))
+    (doseq ((x y) seq)
+      (push (cl:+ x y) result))
+
+    (is (= '(3 7 11 15) (cl:nreverse result)))))
+
+(test doseq-generic-reverse
+  "Test DOSEQ macro on untyped sequence with :FROM-END t"
+
+  (let* ((list '(1 2 3 4))
+         (result nil))
+
+    (doseq (elem list :from-end t)
+      (push elem result))
+
+    (is (= '(4 3 2 1) (cl:nreverse result)))))
+
+(test doseq-generic-bounded
+  "Test DOSEQ macro on untyped sequence with :START 1 and :END 4"
+
+  (let* ((list '(1 2 3 4 5))
+         result)
+
+    (doseq (elem list :start 1 :end 4)
+      (push elem result))
+
+    (is (= '(2 3 4) (cl:nreverse result)))))
+
+(test doseq-generic-reverse-bounded
+  "Test DOSEQ macro on untyped sequence with :START 1, :END 4, :FROM-END T"
+
+  (let* ((seq '(1 2 3 4 5))
+         result)
+
+    (doseq (elem seq :start 1 :end 4 :from-end t)
+      (push elem result))
+
+    (is (= '(4 3 2) (cl:nreverse result)))))
+
+
+;;;; DO-SEQUENCES macro
 
 (test do-sequences
   "Test DO-SEQUENCES on multiple sequences"
@@ -633,7 +755,7 @@
      (push y res2)
      (setf (get zkey res3) zval))
 
-   (is (= '(3 2 1) res1))
-   (is (= '(d c b) res2))
+   (is (= '(1 2 3) (cl:nreverse res1)))
+   (is (= '(b c d) (cl:nreverse res2)))
    (is (= (alist-hash-map '((k1 . 1) (k2 . 2) (k3 . 3)))
           res3))))
