@@ -570,36 +570,31 @@
 (test doseq-list-unbounded
   "Test DOSEQ macro on list (unbounded)"
 
-  (let ((list '(1 2 3 4)))
-    (doseq (elem list)
-      (is (= (car list) elem))
-      (setf list (cdr list)))
+  (let (result)
+    (doseq (elem '(1 2 3 4))
+      (push elem result))
 
-    (is (= nil list))))
+    (is (= '(1 2 3 4) (cl:nreverse result)))))
 
 (test doseq-list-reverse
   "Test DOSEQ macro on list with :FROM-END t"
 
   (let* ((list '(1 2 3 4))
-	 (rlist (cl:reverse list)))
+         (result nil))
 
-    (doseq (elem list :from-end t)
-      (is (= (car rlist) elem))
-      (setf rlist (cdr rlist)))
+    (doseq (elem (the list list) :from-end t)
+      (push elem result))
 
-    (is (= nil rlist))))
+    (is (= '(4 3 2 1) (cl:nreverse result)))))
 
 (test doseq-list-bounded
   "Test DOSEQ macro on list with :START 1 and :END 4"
 
-  (let* ((list '(1 2 3 4 5))
-	 (test-list (cl:subseq list 1 4)))
+  (let* (result)
+    (doseq (elem '(1 2 3 4 5) :start 1 :end 4)
+      (push elem result))
 
-    (doseq (elem list :start 1 :end 4)
-      (is (= (car test-list) elem))
-      (setf test-list (cdr test-list)))
-
-    (is (= nil test-list))))
+    (is (= '(2 3 4) (cl:nreverse result)))))
 
 (test doseq-hash-table
   "Test DOSEQ macro on hash-table"
@@ -607,10 +602,21 @@
   (let* ((map (alist-hash-map '((a . 1) (b . 2) (c . 3))))
 	 (new-map (make-hash-map)))
 
-    (doseq ((key . value) map)
+    (doseq ((key . value) (the hash-map map))
       (setf (get key new-map) value))
 
-    (is (= map new-map))))
+    (is (= map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))))
+
+(test doseq-generic
+  "Test DOSEQ macro on untyped sequence"
+
+  (let* ((seq '(1 2 3 4 5 6))
+         (result nil))
+
+    (doseq (elem seq)
+      (push elem result))
+
+    (is (= '(1 2 3 4 5 6) (cl:nreverse result)))))
 
 (test do-sequences
   "Test DO-SEQUENCES on multiple sequences"
