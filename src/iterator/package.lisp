@@ -64,7 +64,9 @@
    :doiter
    :doiters
 
-   :with-iterators)
+   :with-iterators
+   :with-iter-value
+   :do-iter-values)
 
   (:intern :make-doseq
            :doseq-finish
