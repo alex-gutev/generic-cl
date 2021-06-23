@@ -210,10 +210,10 @@
           (doseq-finish))
 
         (let ((,pattern (aref ,vec ,index)))
-            (if ,from-end
-                (cl:decf ,index)
-                (cl:incf ,index))
-            ,@body)))))
+          (if ,from-end
+              (cl:decf ,index)
+              (cl:incf ,index))
+          ,@body)))))
 
 
 ;;; Default
