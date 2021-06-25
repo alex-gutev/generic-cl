@@ -61,11 +61,13 @@
 
    :doseq
    :do-sequences
+   :do-sequences!
    :doiter
    :doiters
 
    :with-iterators
    :with-iter-value
+   :iter-place
    :do-iter-values)
 
   (:intern :make-doseq

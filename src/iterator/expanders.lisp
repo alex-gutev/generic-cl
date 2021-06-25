@@ -82,16 +82,22 @@
 (defun make-traverse-bounded-list (form start end body)
   "Generate a TRAVERSE expansion for a bounded list traversal, when END is non-NIL."
 
-  (multiple-value-bind (bindings body bind-value)
+  (multiple-value-bind (bindings body bind-value place)
       (make-traverse-list
        `(nthcdr ,start ,form)
        body)
 
-    (with-gensyms (index)
+    (with-gensyms (index new-place)
       (values
        `((,index ,start) ,@bindings)
 
-       body
+       `((macrolet ((,new-place (var &body body)
+                      `(,',place
+                        ,var
+                        (prog1 (progn,@body)
+                          (unless (< (incf ,',index) ,',end)
+                            (doseq-finish))))))
+           ,@body))
 
        `(lambda (pattern body)
           (,bind-value
@@ -100,21 +106,29 @@
            `((unless (< ,',index ,',end)
                (doseq-finish))
 
-
              (incf ,',index)
-             ,@body)))))))
+             ,@body)))
+
+       place))))
 
 (defun make-traverse-list (form body)
   "Generate a TRAVERSE expansion for a unbounded list traversal."
 
-  (with-gensyms (list)
+  (with-gensyms (list place)
     (values
      `((,list ,form))
 
-     body
+     `((macrolet ((,place (var &body body)
+                    `(symbol-macrolet ((,var (car ,',list)))
+                       (prog1 (progn ,@body)
+                         (unless (setf ,',list (cdr ,',list))
+                           (doseq-finish))))))
+         ,@body))
 
      `(lambda (pattern body)
-        (bind-list-element pattern body ',list)))))
+        (bind-list-element pattern body ',list))
+
+     place)))
 
 (defun bind-list-element (pattern body list)
   "Generate a form which binds the next element of a list.
@@ -149,7 +163,7 @@
 
 (defmethod make-doseq vector ((type t) form args body env)
   (destructuring-bind (&key from-end (start 0) end) args
-    (with-gensyms (vec index end-index v-from-end v-start v-end)
+    (with-gensyms (vec index end-index v-from-end v-start v-end place)
       (values
        `((,v-from-end ,from-end :constant t)
          (,v-start ,start :constant t)
@@ -161,10 +175,19 @@
          (,index
           (if ,v-from-end (cl:1- ,end-index) ,v-start)))
 
-       body
+       `((macrolet ((,place (var &body body)
+                      `(symbol-macrolet ((,var (aref ,',vec ,',index)))
+                         (prog1 (progn ,@body)
+                           (unless (if ,',from-end
+                                       (cl:>= ,',index ,',start)
+                                       (cl:< ,',index ,',end))
+                             (doseq-finish))))))
+           ,@body))
 
        `(lambda (pattern body)
-          (bind-vector-element pattern body ',vec ',index ',v-start ',end-index ',v-from-end))))))
+          (bind-vector-element pattern body ',vec ',index ',v-start ',end-index ',v-from-end))
+
+       place))))
 
 (defun bind-vector-element (pattern body vec index start end from-end)
   "Generate a form which binds the next element of a vector.
@@ -221,14 +244,22 @@
 (defmethod make-doseq t ((type t) form args body env)
   (declare (ignore env))
 
-  (with-gensyms (it)
+  (with-gensyms (it place)
     (values
      `((,it (iterator ,form ,@args)))
 
-     body
+     `((macrolet ((,place (var &body body)
+                    `(symbol-macrolet ((,var (at ,',it)))
+                       (prog1 (progn ,@body)
+                         (advance ,',it)
+                         (when (endp ,',it)
+                           (doseq-finish))))))
+         ,@body))
 
      `(lambda (pattern body)
-        (bind-iter-element pattern body ',it)))))
+        (bind-iter-element pattern body ',it))
+
+     place)))
 
 (defun bind-iter-element (pattern body iter)
   "Generate a form which binds the next element of a generic sequence.

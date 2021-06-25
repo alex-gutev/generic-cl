@@ -176,7 +176,27 @@
 
         The form returned, should use the lexical DOSEQ-FINISH macro
         to jump out of the WITH-ITERATORS form, if there are no more
-        elements in the sequence."))
+        elements in the sequence.
+
+     4. A symbol naming the macro which should be used as the
+        expansion of WITH-ITER-PLACE for this sequence's iterator.
+
+        The macro should have the following lambda-list:
+
+          (NAME &BODY FORMS)
+
+        where NAME is the name of the symbol-macro to be introduced,
+        expanding to the 'place' of the current sequence element,
+        corresponding to the NAME argument of WITH-ITER-PLACE, and
+        FORMS are the body forms of the WITH-ITER-PLACE form,
+        corresponding to the FORMS argument of WITH-ITER-PLACE.
+
+        If this return value is NIL it is assumed the sequence is
+        immutable, and any uses of WITH-ITER-PLACE on it
+
+        NOTE: This should generally be the name of a macro, introduce
+        by a MACROLET form which is included in the second return
+        value."))
 
 
 ;;;; WITH-ITERATORS MACRO
@@ -231,11 +251,11 @@
                    (make-doseq seq args body env)
                    multiple-value-list))
 
-             (make-form (bindings get-values body)
-               (->> (make-macros get-values body)
+             (make-form (bindings get-values places body)
+               (->> (make-macros get-values places body)
                     (make-bindings bindings)))
 
-             (make-macros (get-values body)
+             (make-macros (get-values places body)
                (with-gensyms (pattern iter forms)
                  `(macrolet
                       ((with-iter-value ((,pattern ,iter) &body ,forms)
@@ -244,6 +264,16 @@
                                 collect `(,it (,fn ,pattern ,forms)))
                            (otherwise
                             (error "In WITH-ITER-VALUE: ~s not one of ~s passed to WITH-ITERATORS."
+                                   ,iter ',(mapcar #'car get-values)))))
+
+                       (with-iter-place ((,pattern ,iter) &body ,forms)
+                         (case ,iter
+                           ,@(loop
+                                for (it mac) in places
+                                collect `(,it (list* ',mac ,pattern ,forms)))
+
+                           (otherwise
+                            (error "In WITH-ITER-PLACE: Iterator ~s not one of ~s passed to WITH-ITERATORS."
                                    ,iter ',(mapcar #'car get-values))))))
                     ,@body)))
 
@@ -285,17 +315,18 @@
 
       (loop
          for (var seq . args) in seqs
-         for (bindings body get-value) =
+         for (bindings body get-value place) =
            (expand-doseq seq args (make-tagbody forms) env) then
            (expand-doseq seq args form-body env)
 
          for form-body = body
          append bindings into all-bindings
          collect (list var get-value) into get-values
+         collect (list var place) into places
 
          finally
            (return
-             (make-form all-bindings get-values form-body))))))
+             (make-form all-bindings get-values places form-body))))))
 
 (defmacro with-iter-value ((pattern iter) &body forms)
   "Bind the current element of a sequence, pointed to by a static iterator, to a variable.
@@ -346,6 +377,58 @@
 
   (error "Illegal usage of WITH-ITER-VALUE outside WITH-ITERATORS"))
 
+(defmacro with-iter-place ((name iter) &body forms)
+  "Introduce an identifier serving as a place to the current sequence element.
+
+   This macro may only be used within the body of a WITH-ITERATORS
+   macro.
+
+   A symbol-macro, with identifier NAME, is introduced which expands
+   to a place, suitable for use with SETF, to the current element of
+   the sequence, pointed by the iterator ITER. This symbol-macro is
+   visible to the body FORMS of the WITH-ITER-PLACE form.
+
+   If the iterator is already at the end of the sequence, DOSEQ-FINISH
+   is called to jump out of the enclosing WITH-ITERATORS form.
+
+   Simultaneously the iterator is also advanced to the next element of
+   the sequence. However, the iterator is only guaranteed to be
+   advanced on a normal exit from the WITH-ITER-PLACE form. If a
+   non-local jump is used, via GO, RETURN-FROM or THROW, the iterator
+   might not be advanced.
+
+   NAME:
+
+     Identifier of the symbol-macro which is introduced.
+
+     NOTE: Unlike in WITH-ITER-VALUE this must be a symbol, and cannot
+     be a destructuring-bind pattern.
+
+   ITER:
+
+     Symbol identifying the iterator, as established by the
+     WITH-ITERATOR form.
+
+     This must be one an iterator symbol passed in the first argument
+     to the enclosing WITH-ITERATORS macro, otherwise an error is
+     signalled.
+
+     This may not be an iterator from a WITH-ITERATORS form other than
+     the immediate WITH-ITERATORS form in which this form is nested.
+
+   FORMS:
+
+     List of forms evaluated in an implicit PROGN. The binding(s) for
+     the current element are visible to the forms.
+
+     NOTE: If there are no more elements in the sequence, the FORMS
+     are not evaluated and a non-local jump to the end of the
+     WITH-ITERATORS form is performed."
+
+  (declare (ignore iter))
+
+  (error "Illegal use of WITH-ITER-PLACE outside WITH-ITERATORS."))
+
 (defmacro do-iter-values ((&rest iters) &body forms)
   "Iterate over the remaining elements of a sequence pointed to by static iterators.
 
@@ -387,6 +470,23 @@
       `(tagbody
           ,start
           ,@(cl:reduce #'make-iter-value iters :initial-value forms :from-end t)
+          (go ,start)))))
+
+(defmacro do-iter-places ((&rest iters) &body forms)
+  "Like DO-ITER-VALUES but instead of binding the value of each
+   sequence element, to variables, by WITH-ITER-VALUE, a symbol-macro
+   expanding to the 'place' of the current sequence element, is
+   introduced, as if by WITH-ITER-PLACE."
+
+  (flet ((make-iter-place (iter forms)
+           (destructuring-bind (var iter) iter
+             `((with-iter-place (,var ,iter)
+                 ,@forms)))))
+
+    (with-gensyms (start)
+      `(tagbody
+          ,start
+          ,@(cl:reduce #'make-iter-place iters :initial-value forms :from-end t)
           (go ,start)))))
 
 
@@ -482,6 +582,76 @@
               then (bind-elem elem iter forms)
               finally (return forms))))))
 
+;;;; DO-SEQUENCES!
+
+(defmacro do-sequences! (name/seqs &body forms &environment env)
+  "Mutable version of DO-SEQUENCES.
+
+   This is the same as DO-SEQUENCES however each NAME, is the name of
+   a symbol-macro, that is introduced, which expands to the 'place',
+   suitable for use with SETF, of the current sequence element, rather
+   than a variable storing its value. This allows the elements of the
+   sequence to be mutated.
+
+   NOTE: This macro does not support destructuring of the sequence
+   elements."
+
+  (let-if ((name name/seqs)
+           (seqs (first forms) name/seqs)
+           (forms (rest forms) forms))
+      (symbolp name/seqs)
+
+    (let ((safety (cadr (assoc 'safety (declaration-information 'optimize env)))))
+      `(,(if (> safety 2)
+             'do-sequences!-safe%
+             'do-sequences!-fast%)
+
+         ,name
+         ,seqs
+         ,@forms))))
+
+(defmacro do-sequences!-fast% (name (&rest seqs) &body forms)
+  "Optimized expansion of DO-SEQUENCES!.
+
+   Generates optimized iteration code for the sequence types using
+   MAKE-DOSEQ."
+
+  (flet ((make-iter-binding (iter seq)
+           `(,iter ,@(rest seq)))
+
+         (make-value-binding (seq iter)
+           `(,(first seq) ,iter)))
+
+    (let ((iters (make-gensym-list (length seqs))))
+      `(block ,name
+         (with-iterators
+             ,(mapcar #'make-iter-binding iters seqs)
+
+           (do-iter-places ,(mapcar #'make-value-binding seqs iters)
+             ,@forms))))))
+
+(defmacro do-sequences!-safe% (name (&rest seqs) &body body)
+  "Expansion of DO-SEQUENCES! into DOITERS without optimization.
+
+   This macro is meant to be used internally when an optimization
+   policy of (SAFETY 3) is used."
+
+  (let ((iters (make-gensym-list (cl:length seqs) "ITER")))
+    `(doiters ,name
+       ,(loop
+           for (nil . seq) in seqs
+           for iter in iters
+           collect `(,iter ,@seq))
+
+       (symbol-macrolet
+           ,(loop
+               for (name) in seqs
+               for iter in iters
+               collect `(,name (at ,iter)))
+
+         ,@body))))
+
+
 ;;;; DOSEQ
 
 (defmacro doseq (name/seq &body body)
@@ -505,6 +675,19 @@
    passed to the ITERATOR function.
 
    BODY is the list of forms evaluated on each iteration."
+
+  (let-if ((name name/seq)
+           (seq (first body) name/seq)
+           (body (rest body) body))
+      (symbolp name/seq)
+
+    (destructuring-bind (element sequence &rest args) seq
+      `(do-sequences ,name
+         ((,element ,sequence ,@args))
+         ,@body))))
+
+(defmacro doseq! (name/seq &body body)
+  "Mutable version of DOSEQ, expanding into DO-SEQUENCES!."
 
   (let-if ((name name/seq)
            (seq (first body) name/seq)
