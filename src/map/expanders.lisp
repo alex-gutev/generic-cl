@@ -28,109 +28,106 @@
 (in-package :generic-cl.map)
 
 
+;;; Utilities
+
+(defmacro with-destructure-entry ((key value pattern) (body-var body) &body forms)
+  "Like WITH-DESTRUCTURE-PATTERN, except that FORMS should generate
+   code which binds the current entry key to KEY and the value to
+   VALUE."
+
+  `(make-destructure-pattern
+    ,pattern ,body
+    (lambda (,key ,value ,body-var)
+      ,@forms)))
+
+(defun make-destructure-pattern (pattern body fn)
+  (ematch pattern
+    ((cons (and (type symbol) key)
+           (and (type symbol) value))
+
+     (funcall fn
+              (or key (gensym "KEY"))
+              (or value (gensym "VALUE"))
+              body))
+
+    ((type symbol)
+     (with-gensyms (key value)
+       (->> `((let ((,pattern (cons ,key ,value)))
+                ,@body))
+            (funcall fn key value))))
+
+    ((type list)
+     (with-gensyms (key value)
+       (->> `((destructuring-bind ,pattern (cons ,key ,value)
+                ,@body))
+            (funcall fn key value))))))
+
+
 ;;; Hash-Tables
 
 (defmethod make-doseq hash-table ((type t) form args body env)
   (destructuring-bind (&key from-end (start 0) end) args
     (declare (ignore from-end))
 
-    (with-gensyms (table next more? size index)
-      (with-constant-values (start end) env
-        ((start end)
-         (let* ((counted? (or (> start 0) end))
+    (with-gensyms (table next more? size index place)
+      (flet ((make-iter-value (test inc)
+               `((pattern &body body)
+                 (with-destructure-entry (key value pattern)
+                     (body body)
 
-                (test (if counted?
-                          `(and ,more? (cl:< ,index ,size))
-                          more?))
+                   `(multiple-value-bind (,',more? ,key ,value)
+                        (,',next)
+                      (declare (ignorable ,key ,value))
 
-                (inc (when counted?
-                       `((cl:incf ,index)))))
+                      (unless ,',test
+                        (doseq-finish))
 
+                      ,@',inc
+                      ,@body)))))
+
+        (with-constant-values (start end) env
+          ((start end)
+           (let* ((counted? (or (> start 0) end))
+
+                  (test (if counted?
+                            `(and ,more? (cl:< ,index ,size))
+                            more?))
+
+                  (inc (when counted?
+                         `((cl:incf ,index)))))
+
+             (values
+              `((,table ,form)
+                ,@(when counted?
+                    `((,index ,start)
+                      (,size ,(or end `(hash-table-count ,table))))))
+
+              `((with-hash-table-iterator (,next ,table)
+                  ,@body))
+
+              (make-iter-value test inc)
+
+              place)))
+
+          (nil
            (values
             `((,table ,form)
-              ,@(when counted?
-                  `((,index ,start)
-                    (,size ,(or end `(hash-table-count ,table))))))
+              (,index ,start)
+              (,size (or ,end (hash-table-count ,table))))
 
             `((with-hash-table-iterator (,next ,table)
                 ,@body))
 
-            `(lambda (pattern body)
-               (bind-hash-table-element pattern body ',next ',more? ',test ',inc)))))
+            (make-iter-value `(and ,more? (cl:< ,index ,size))
+                             `((cl:incf ,index)))
 
-        (nil
-         (values
-          `((,table ,form)
-            (,index ,start)
-            (,size (or ,end (hash-table-count ,table))))
-
-          `((with-hash-table-iterator (,next ,table)
-              ,@body))
-
-          `(lambda (pattern body)
-             (bind-hash-table-element
-              pattern body
-              ',next ',more?
-              '(and ,more? (cl:< ,index ,size))
-              '((cl:incf ,index))))))))))
-
-(defun bind-hash-table-element (pattern body next more? test inc)
-  "Generate a form which binds the next element of a hash-table.
-
-   PATTERN is the binding pattern.
-
-   BODY is the list of forms to be evaluated, within the environment
-   of the binding.
-
-   NEXT is the hash-table iterator next element macro.
-
-   MORE? is the name of the variable to which the more elements flag
-   should be bound.
-
-   TEST is the loop termination test form.
-
-   INC is the list of index incrementation forms."
-
-  (ematch pattern
-    ((cons (and (type symbol) key)
-           (and (type symbol) value))
-
-     (let ((key (or key (gensym "KEY")))
-           (value (or value (gensym "VALUE"))))
-
-       `(multiple-value-bind (,more? ,key ,value)
-            (,next)
-
-          (unless ,test
-            (doseq-finish))
-
-          ,@body)))
-
-    ((type symbol)
-     (with-gensyms (key value)
-       (bind-hash-table-element
-        (cons key value)
-
-        `((let ((,pattern (cons ,key ,value)))
-            ,@body))
-
-        next more? test inc)))
-
-    ((type list)
-     (with-gensyms (key value)
-       (bind-hash-table-element
-        (cons key value)
-
-        `((destructuring-bind ,pattern (cons ,key ,value)
-            ,@body))
-
-        next more? test inc)))))
+            place)))))))
 
 
 ;;; Hash-Maps
 
 (defmethod make-doseq hash-map ((type t) form args body env)
-  (multiple-value-bind (bindings body bind-value)
+  (multiple-value-bind (bindings body iter-value)
       (make-doseq 'hash-table `(hash-map-table ,form) args body env)
 
     (values
@@ -139,4 +136,4 @@
      `((with-custom-hash-table
          ,@body))
 
-     bind-value)))
+     iter-value)))

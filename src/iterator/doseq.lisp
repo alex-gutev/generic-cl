@@ -158,25 +158,39 @@
 
      2. The new body of the WITH-ITERATORS form.
 
-     3. A LAMBDA form of two arguments, representing the function to
-        call when expanding WITH-ITER-VALUE for the sequence iterator.
+     3. A lexical macro definition defining the expansion of
+        WITH-ITER-VALUE for the sequence's iterator.
 
-        The first argument is the element binding pattern, to which
-        elements of the sequence are bound. This may either be a list
-        interpreted as a pattern to `destructuring-bind`.
+        This should be a list of the form:
 
-        The second element is the list of forms comprising the body of
-        the `WITH-ITER-VALUE` form.
+           (LAMBDA-LIST . BODY)
 
-        This function should return a form which binds the current
-        sequence element to the variable(s) specified in the binding
-        pattern, advances the position of the iterator to the next
-        element in the sequence, and evaluates the body forms, with
-        the element bindings visible to them.
+        where LAMBDA-LIST is the macro lambda-list and BODY is the
+        macro definition body. A name should not be provided as a name
+        for the macro is generated.
 
-        The form returned, should use the lexical DOSEQ-FINISH macro
-        to jump out of the WITH-ITERATORS form, if there are no more
-        elements in the sequence.
+        The lambda-list should have the following arguments:
+
+           (PATTERN &BODY BODY)
+
+        where PATTERN is the binding pattern, corresponding to the
+        PATTERN argument of WITH-ITER-VALUE, describing which
+        variable(s) to bind to the value of current sequence element.
+
+        This may either be a symbol, naming a variable or a list which
+        should be interpreted as a destructuring-bind pattern.
+
+        BODY is the list of body forms of the WITH-ITER-VALUE form,
+        corresponding to the BODY argument.
+
+        The macro should expand to a form which binds the current
+        sequence element to the variable(s) specified in PATTERN,
+        advances the position of the iterator to the next element in
+        the sequence, and evaluates the body forms.
+
+        The expansion should jump out of the WITH-ITERATORS form,
+        using DOSEQ-FINISH, if there are no more elements in the
+        sequence.
 
      4. A symbol naming the macro which should be used as the
         expansion of WITH-ITER-PLACE for this sequence's iterator.
@@ -260,8 +274,8 @@
                  `(macrolet
                       ((with-iter-value ((,pattern ,iter) &body ,forms)
                          (case ,iter
-                           ,@(loop for (it fn) in get-values
-                                collect `(,it (,fn ,pattern ,forms)))
+                           ,@(loop for (it mac) in get-values
+                                collect `(,it (list* ',mac ,pattern ,forms)))
                            (otherwise
                             (error "In WITH-ITER-VALUE: ~s not one of ~s passed to WITH-ITERATORS."
                                    ,iter ',(mapcar #'car get-values)))))
@@ -315,13 +329,15 @@
 
       (loop
          for (var seq . args) in seqs
-         for (bindings body get-value place) =
+         for (bindings body value place) =
            (expand-doseq seq args (make-tagbody forms) env) then
            (expand-doseq seq args form-body env)
 
-         for form-body = body
+         for iter-value = (gensym "ITER-VALUE")
+         for form-body = `((macrolet ((,iter-value ,@value)) ,@body))
+
          append bindings into all-bindings
-         collect (list var get-value) into get-values
+         collect (list var iter-value) into get-values
          collect (list var place) into places
 
          finally

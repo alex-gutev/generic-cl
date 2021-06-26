@@ -28,6 +28,48 @@
 (in-package :generic-cl.iterator)
 
 
+;;; Utilities
+
+(defmacro with-destructure-pattern ((var pattern) (body-var body) &body forms)
+  "Automatically generate destructuring code if the binding pattern is
+   a destructuring-bind pattern.
+
+   The WITH-ITER-VALUE binding pattern, PATTERN, is checked whether it
+   is a symbol naming a variable or a list representing a
+   DESTRUCTURING-BIND pattern.
+
+   If PATTERN is a list, a variable name is generated, and bound to
+   the variable VAR. BODY-VAR is bound to forms which destructure the
+   value stored in the variable, wrapping the forms in BODY.
+
+   If PATTERN is a symbol, the variable given by VAR is bound directly
+   to that symbol and the variable given by BODY-VAR is bound directly
+   to BODY.
+
+   The body forms of the macro FORMS are evaluated in an implicit
+   PROGN, with the bindings to the variables given by VAR and BODY-VAR
+   visible. The return value of the last form is returned.
+
+   FORMS should generate code which binds the current sequence element
+   to the variable with name stored in VAR."
+
+  `(make-destructure-pattern
+    ,pattern ,body
+    (lambda (,var ,body-var)
+      ,@forms)))
+
+(defun make-destructure-pattern (pattern body fn)
+  (etypecase pattern
+    (list
+     (with-gensyms (var)
+       (->> `((destructuring-bind ,pattern ,var
+                ,@body))
+            (funcall fn var))))
+
+    (symbol
+     (funcall fn pattern body))))
+
+
 ;;; Lists
 
 (defmethod make-doseq list ((type t) form args body env)
@@ -87,7 +129,7 @@
        `(nthcdr ,start ,form)
        body)
 
-    (with-gensyms (index new-place)
+    (with-gensyms (index iter-value new-place)
       (values
        `((,index ,start) ,@bindings)
 
@@ -99,11 +141,12 @@
                             (doseq-finish))))))
            ,@body))
 
-       `(lambda (pattern body)
-          (,bind-value
-           pattern
+       `((pattern &body body)
+         `(macrolet ((,',iter-value ,@',bind-value))
+            (,',iter-value
+             ,pattern
 
-           `((unless (< ,',index ,',end)
+             (unless (< ,',index ,',end)
                (doseq-finish))
 
              (incf ,',index)
@@ -125,38 +168,20 @@
                            (doseq-finish))))))
          ,@body))
 
-     `(lambda (pattern body)
-        (bind-list-element pattern body ',list))
+     `((pattern &body body)
+       (with-destructure-pattern (var pattern)
+           (body body)
+
+         `(progn
+            (unless ,',list
+              (doseq-finish))
+
+            (let ((,var (car ,',list)))
+              (setf ,',list (cdr ,',list))
+
+              ,@body))))
 
      place)))
-
-(defun bind-list-element (pattern body list)
-  "Generate a form which binds the next element of a list.
-
-   PATTERN is the binding pattern.
-
-   BODY is the list of forms to be evaluated, within the environment
-   of the binding.
-
-   LIST is the name of the variable storing the list."
-
-  (etypecase pattern
-    (list
-     (with-gensyms (var)
-       (bind-list-element
-        var
-        `((destructuring-bind ,pattern ,var
-            ,@body))
-        list)))
-
-    (symbol
-     `(progn
-        (unless ,list
-          (doseq-finish))
-
-        (let ((,pattern (car ,list)))
-          (setf ,list (cdr ,list))
-          ,@body)))))
 
 
 ;;; Vectors
@@ -184,59 +209,23 @@
                              (doseq-finish))))))
            ,@body))
 
-       `(lambda (pattern body)
-          (bind-vector-element pattern body ',vec ',index ',v-start ',end-index ',v-from-end))
+       `((pattern &body body)
+         (with-destructure-pattern (var pattern)
+             (body body)
+
+           `(progn
+              (unless (if ,',v-from-end
+                          (cl:>= ,',index ,',v-start)
+                          (cl:< ,',index ,',end-index))
+                (doseq-finish))
+
+              (let ((,var (aref ,',vec ,',index)))
+                (if ,',v-from-end
+                    (cl:decf ,',index)
+                    (cl:incf ,',index))
+                ,@body))))
 
        place))))
-
-(defun bind-vector-element (pattern body vec index start end from-end)
-  "Generate a form which binds the next element of a vector.
-
-   PATTERN is the binding pattern.
-
-   BODY is the list of forms to be evaluated, within the environment
-   of the binding.
-
-   VEC is the name of the variable storing the vector.
-
-   INDEX is the name of the variable/symbol-macro storing the element
-   index.
-
-   START is the name of the variable/symbol-macro storing the starting
-   index.
-
-   END is the name of the variable/symbol-macro storing the ending
-   index.
-
-   FROM-END is the name of the variable/symbol-macro storing the
-   FROM-END flag."
-
-  (etypecase pattern
-    (list
-     (with-gensyms (var)
-       (bind-vector-element
-        var
-        `((destructuring-bind ,pattern ,var
-            ,@body))
-
-        vec
-        index
-        start
-        end
-        from-end)))
-
-    (symbol
-     `(progn
-        (unless (if ,from-end
-                    (cl:>= ,index ,start)
-                    (cl:< ,index ,end))
-          (doseq-finish))
-
-        (let ((,pattern (aref ,vec ,index)))
-          (if ,from-end
-              (cl:decf ,index)
-              (cl:incf ,index))
-          ,@body)))))
 
 
 ;;; Default
@@ -256,36 +245,16 @@
                            (doseq-finish))))))
          ,@body))
 
-     `(lambda (pattern body)
-        (bind-iter-element pattern body ',it))
+     `((pattern &body body)
+       (with-destructure-pattern (var pattern)
+           (body body)
+
+         `(progn
+            (when (endp ,',it)
+              (doseq-finish))
+
+            (let ((,var (at ,',it)))
+              (advance ,',it)
+              ,@body))))
 
      place)))
-
-(defun bind-iter-element (pattern body iter)
-  "Generate a form which binds the next element of a generic sequence.
-
-   PATTERN is the binding pattern.
-
-   BODY is the list of forms to be evaluated, within the environment
-   of the binding.
-
-   ITER is the variable storing the iterator object."
-
-  (etypecase pattern
-    (list
-     (with-gensyms (var)
-       (bind-iter-element
-        var
-        `((destructuring-bind ,pattern ,var
-            ,@body))
-
-        iter)))
-
-    (symbol
-     `(progn
-        (when (endp ,iter)
-          (doseq-finish))
-
-        (let ((,pattern (at ,iter)))
-          (advance ,iter)
-          ,@body)))))

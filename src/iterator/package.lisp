@@ -86,7 +86,8 @@
 
   (:export :make-doseq
            :doseq-finish
-           :subtype)
+           :subtype
+           :with-destructure-pattern)
 
   (:documentation
    "Optimization interface of iterator interface."))
