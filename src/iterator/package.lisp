@@ -68,7 +68,7 @@
 
    :with-iterators
    :with-iter-value
-   :iter-place
+   :with-iter-place
    :do-iter-values)
 
   (:intern :make-doseq
