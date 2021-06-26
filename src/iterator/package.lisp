@@ -71,8 +71,8 @@
    :do-iter-values)
 
   (:intern :make-doseq
-           :doseq-finish
-           :subtype)
+           :subtype
+           :with-destructure-pattern)
 
   (:documentation
    "Generic iterator interface"))
@@ -82,10 +82,10 @@
 
   (:import-from :generic-cl.iterator
                 :make-doseq
-                :doseq-finish)
+                :subtype
+                :with-destructure-pattern)
 
   (:export :make-doseq
-           :doseq-finish
            :subtype
            :with-destructure-pattern)
 

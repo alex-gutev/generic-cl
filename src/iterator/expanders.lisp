@@ -72,7 +72,7 @@
 
 ;;; Lists
 
-(defmethod make-doseq list ((type t) form args body env)
+(defmethod make-doseq list ((type t) form args tag body env)
   (destructuring-bind (&key from-end (start 0) end) args
     (with-constant-values (from-end start end) env
       ((from-end start end)
@@ -80,16 +80,17 @@
          (from-end
           (make-traverse-list
            `(cl:nreverse (cl:subseq ,form ,start ,end))
+           tag
            body))
 
          (end
-          (make-traverse-bounded-list form start end body))
+          (make-traverse-bounded-list form start end tag body))
 
          ((> start 0)
-          (make-traverse-list `(nthcdr ,start ,form) body))
+          (make-traverse-list `(nthcdr ,start ,form) tag body))
 
          (t
-          (make-traverse-list form body))))
+          (make-traverse-list form tag body))))
 
       ((start end)
        (cond
@@ -98,6 +99,7 @@
            `(if ,from-end
                 (cl:nreverse (cl:subseq ,form ,start ,end))
                 (cl:subseq ,form ,start ,end))
+           tag
            body))
 
          ((> start 0)
@@ -105,6 +107,7 @@
            `(if ,from-end
                 (cl:reverse (nthcdr ,start ,form))
                 (nthcdr ,start ,form))
+           tag
            body))
 
          (t
@@ -112,6 +115,7 @@
            `(if ,from-end
                 (cl:reverse ,form)
                 ,form)
+           tag
            body))))
 
       (nil
@@ -119,14 +123,16 @@
         `(if ,from-end
              (cl:nreverse (cl:subseq ,form ,start ,end))
              (cl:subseq ,form ,start ,end))
+        tag
         body)))))
 
-(defun make-traverse-bounded-list (form start end body)
+(defun make-traverse-bounded-list (form start end tag body)
   "Generate a TRAVERSE expansion for a bounded list traversal, when END is non-NIL."
 
   (multiple-value-bind (bindings body bind-value bind-place)
       (make-traverse-list
        `(nthcdr ,start ,form)
+       tag
        body)
 
     (with-gensyms (index iter-value iter-place)
@@ -141,7 +147,7 @@
              ,pattern
 
              (unless (< ,',index ,',end)
-               (doseq-finish))
+               (go ,',tag))
 
              (incf ,',index)
              ,@body)))
@@ -152,9 +158,9 @@
              ,name
              (prog1 (progn,@body)
                (unless (< (incf ,',index) ,',end)
-                 (doseq-finish))))))))))
+                 (go ,',tag))))))))))
 
-(defun make-traverse-list (form body)
+(defun make-traverse-list (form tag body)
   "Generate a TRAVERSE expansion for a unbounded list traversal."
 
   (with-gensyms (list)
@@ -169,7 +175,7 @@
 
          `(progn
             (unless ,',list
-              (doseq-finish))
+              (go ,',tag))
 
             (let ((,var (car ,',list)))
               (setf ,',list (cdr ,',list))
@@ -180,12 +186,12 @@
        `(symbol-macrolet ((,name (car ,',list)))
           (prog1 (progn ,@body)
             (unless (setf ,',list (cdr ,',list))
-              (doseq-finish))))))))
+              (go ,',tag))))))))
 
 
 ;;; Vectors
 
-(defmethod make-doseq vector ((type t) form args body env)
+(defmethod make-doseq vector ((type t) form args tag body env)
   (destructuring-bind (&key from-end (start 0) end) args
     (with-gensyms (vec index end-index v-from-end v-start v-end)
       (values
@@ -209,7 +215,7 @@
               (unless (if ,',v-from-end
                           (cl:>= ,',index ,',v-start)
                           (cl:< ,',index ,',end-index))
-                (doseq-finish))
+                (go ,',tag))
 
               (let ((,var (aref ,',vec ,',index)))
                 (if ,',v-from-end
@@ -223,12 +229,12 @@
               (unless (if ,',from-end
                           (cl:>= ,',index ,',start)
                           (cl:< ,',index ,',end))
-                (doseq-finish)))))))))
+                (go ,',tag)))))))))
 
 
 ;;; Default
 
-(defmethod make-doseq t ((type t) form args body env)
+(defmethod make-doseq t ((type t) form args tag body env)
   (declare (ignore env))
 
   (with-gensyms (it)
@@ -243,7 +249,7 @@
 
          `(progn
             (when (endp ,',it)
-              (doseq-finish))
+              (go ,',tag))
 
             (let ((,var (at ,',it)))
               (advance ,',it)
@@ -254,4 +260,4 @@
           (prog1 (progn ,@body)
             (advance ,',it)
             (when (endp ,',it)
-              (doseq-finish))))))))
+              (go ,',tag))))))))

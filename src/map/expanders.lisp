@@ -65,7 +65,7 @@
 
 ;;; Hash-Tables
 
-(defmethod make-doseq hash-table ((type t) form args body env)
+(defmethod make-doseq hash-table ((type t) form args tag body env)
   (destructuring-bind (&key from-end (start 0) end) args
     (declare (ignore from-end))
 
@@ -80,7 +80,7 @@
                       (declare (ignorable ,key ,value))
 
                       (unless ,',test
-                        (doseq-finish))
+                        (go ,',tag))
 
                       ,@',inc
                       ,@body))))
@@ -92,7 +92,7 @@
                         (,',next)
 
                       (unless ,',test
-                        (doseq-finish))
+                        (go ,',tag))
 
                       ,@',inc
 
@@ -140,9 +140,9 @@
 
 ;;; Hash-Maps
 
-(defmethod make-doseq hash-map ((type t) form args body env)
+(defmethod make-doseq hash-map ((type t) form args tag body env)
   (multiple-value-bind (bindings body iter-value iter-place)
-      (make-doseq 'hash-table `(hash-map-table ,form) args body env)
+      (make-doseq 'hash-table `(hash-map-table ,form) args tag body env)
 
     (values
      bindings

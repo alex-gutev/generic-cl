@@ -111,7 +111,7 @@
 
 ;;;; Optimizations
 
-(defgeneric make-doseq (type seq args body env)
+(defgeneric make-doseq (type seq args tag body env)
   (:method-combination subtype)
 
   (:documentation
@@ -130,6 +130,10 @@
     ARGS are the additional arguments passed after the sequence which
     should be interpreted as they are interpreted by the ITERATOR
     function.
+
+    TAG is the name of the tag (in TAGBODY) to which a non-local jump
+    should be performed, by GO, when the end of the container is
+    reached.
 
     BODY is list of forms comprising the body of the WITH-ITERATORS
     form.
@@ -189,8 +193,7 @@
         the sequence, and evaluates the body forms.
 
         The expansion should jump out of the WITH-ITERATORS form,
-        using DOSEQ-FINISH, if there are no more elements in the
-        sequence.
+        using a GO to the tag name given in the TAG argument.
 
      4. A lexical macro definition defining the expansion of
         WITH-ITER-PLACE for the sequence's iterator.
@@ -252,9 +255,6 @@
      the current element of the sequence and advance the iterator to
      the next position.
 
-     The DOSEQ-FINISH macro can be used to jump out of the
-     WITH-ITERATORS form.
-
      NOTE: The value of the last form is not returned, due to it being
      evaluated in a TAGBODY, instead NIL is returned. RETURN-FROM, to
      an outer BLOCK, should be used to return a value from this form.
@@ -267,7 +267,7 @@
   (with-gensyms (end-tag)
     (labels ((expand-doseq (seq args body env)
                (-> (nth-form-type seq env)
-                   (make-doseq seq args body env)
+                   (make-doseq seq args end-tag body env)
                    multiple-value-list))
 
              (make-form (bindings get-values places body)
@@ -299,10 +299,9 @@
              ;; Tagbody
 
              (make-tagbody (body)
-               `((macrolet ((doseq-finish () `(go ,',end-tag)))
-                   (tagbody
-                      ,@body
-                      ,end-tag))))
+               `((tagbody
+                    ,@body
+                    ,end-tag)))
 
 
              ;; Bindings
@@ -362,8 +361,9 @@
    the variable(s) specified by PATTERN, with the bindings visible to
    FORMS.
 
-   If the iterator is already at the end of the sequence, DOSEQ-FINISH
-   is called to jump out of the enclosing WITH-ITERATORS form.
+   If the iterator is already at the end of the sequence a non-local
+   jump, to the end of the enclosing WITH-ITERATORS form, is
+   performed..
 
    After binding, the iterator is advanced to the next element of the
    sequence.
@@ -412,8 +412,9 @@
    the sequence, pointed by the iterator ITER. This symbol-macro is
    visible to the body FORMS of the WITH-ITER-PLACE form.
 
-   If the iterator is already at the end of the sequence, DOSEQ-FINISH
-   is called to jump out of the enclosing WITH-ITERATORS form.
+   If the iterator is already at the end of the sequence a non-local
+   jump, to the end of the enclosing WITH-ITERATORS form, is
+   performed..
 
    Simultaneously the iterator is also advanced to the next element of
    the sequence. However, the iterator is only guaranteed to be
