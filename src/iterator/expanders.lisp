@@ -156,9 +156,11 @@
          `(macrolet ((,',iter-place ,@',bind-place))
             (,',iter-place
              ,name
-             (prog1 (progn,@body)
-               (unless (< (incf ,',index) ,',end)
-                 (go ,',tag))))))))))
+
+             (unless (< (incf ,',index) ,',end)
+               (go ,',tag))
+
+             ,@body)))))))
 
 (defun make-traverse-list (form tag body)
   "Generate a TRAVERSE expansion for a unbounded list traversal."
@@ -184,9 +186,11 @@
 
      `((name &body body)
        `(symbol-macrolet ((,name (car ,',list)))
+          (unless ,',list
+            (go ,',tag))
+
           (prog1 (progn ,@body)
-            (unless (setf ,',list (cdr ,',list))
-              (go ,',tag))))))))
+            (setf ,',list (cdr ,',list))))))))
 
 
 ;;; Vectors
@@ -225,11 +229,15 @@
 
        `((name &body body)
          `(symbol-macrolet ((,name (aref ,',vec ,',index)))
+            (unless (if ,',from-end
+                        (cl:>= ,',index ,',start)
+                        (cl:< ,',index ,',end))
+              (go ,',tag))
+
             (prog1 (progn ,@body)
-              (unless (if ,',from-end
-                          (cl:>= ,',index ,',start)
-                          (cl:< ,',index ,',end))
-                (go ,',tag)))))))))
+              (if ,',v-from-end
+                  (cl:decf ,',index)
+                  (cl:incf ,',index)))))))))
 
 
 ;;; Default
@@ -257,7 +265,8 @@
 
      `((name &body body)
        `(symbol-macrolet ((,name (at ,',it)))
+          (when (endp ,',it)
+            (go ,',tag))
+
           (prog1 (progn ,@body)
-            (advance ,',it)
-            (when (endp ,',it)
-              (go ,',tag))))))))
+            (advance ,',it)))))))
