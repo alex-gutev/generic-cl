@@ -43,7 +43,8 @@
                 :with-gensyms
                 :make-gensym-list
                 :mappend
-                :ensure-car)
+                :ensure-car
+                :if-let)
 
   (:shadow
    :endp)

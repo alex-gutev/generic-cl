@@ -221,6 +221,35 @@
         in an error being signalled."))
 
 
+;;;; Local WITH-ITER-VALUE and WITH-ITER-PLACE expansions
+
+(defun iter-value-macros (env)
+  "Retrieve the association list mapping iterator identifiers to the
+   names of the macros serving as the expansion of WITH-ITER-VALUE
+   when given those iterator identifiers. This information is
+   retrieved from the environmnet ENV by macroexpanding the
+   symbol-macro ITER-VALUE-MACROS."
+
+  (multiple-value-bind (macros expanded?)
+      (macroexpand 'iter-value-macros env)
+
+    (when expanded?
+      macros)))
+
+(defun iter-value-places (env)
+  "Retrieve the association list mapping iterator identifiers to the
+   names of the macros serving as the expansion of WITH-ITER-PLACE
+   when given those iterator identifiers. This information is
+   retrieved from the environmnet ENV by macroexpanding the
+   symbol-macro ITER-VALUE-PLACES."
+
+  (multiple-value-bind (macros expanded?)
+      (macroexpand 'iter-value-places env)
+
+    (when expanded?
+      macros)))
+
+
 ;;;; WITH-ITERATORS MACRO
 
 (defmacro with-iterators (seqs &body forms &environment env)
@@ -275,26 +304,14 @@
                     (make-bindings bindings)))
 
              (make-macros (get-values places body)
-               (with-gensyms (pattern iter forms)
-                 `(macrolet
-                      ((with-iter-value ((,pattern ,iter) &body ,forms)
-                         (case ,iter
-                           ,@(loop for (it mac) in get-values
-                                collect `(,it (list* ',mac ,pattern ,forms)))
-                           (otherwise
-                            (error "In WITH-ITER-VALUE: ~s not one of ~s passed to WITH-ITERATORS."
-                                   ,iter ',(mapcar #'car get-values)))))
+               `(symbol-macrolet
+                    ((iter-value-macros
+                      ,(append get-values (iter-value-macros env)))
 
-                       (with-iter-place ((,pattern ,iter) &body ,forms)
-                         (case ,iter
-                           ,@(loop
-                                for (it mac) in places
-                                collect `(,it (list* ',mac ,pattern ,forms)))
+                     (iter-value-places
+                      ,(append places (iter-value-places env))))
 
-                           (otherwise
-                            (error "In WITH-ITER-PLACE: Iterator ~s not one of ~s passed to WITH-ITERATORS."
-                                   ,iter ',(mapcar #'car get-values))))))
-                    ,@body)))
+                  ,@body))
 
              ;; Tagbody
 
@@ -344,14 +361,14 @@
                              ,@body))
 
          append bindings into all-bindings
-         collect (list var iter-value) into get-values
-         collect (list var iter-place) into places
+         collect (cons var iter-value) into get-values
+         collect (cons var iter-place) into places
 
          finally
            (return
              (make-form all-bindings get-values places form-body))))))
 
-(defmacro with-iter-value ((pattern iter) &body forms)
+(defmacro with-iter-value ((pattern iter) &body forms &environment env)
   "Bind the current element of a sequence, pointed to by a static iterator, to a variable.
 
    This macro may only be used within the body of a WITH-ITERATORS
@@ -381,12 +398,8 @@
      Symbol identifying the iterator, as established by the
      WITH-ITERATOR form.
 
-     This must be one an iterator symbol passed in the first argument
-     to the enclosing WITH-ITERATORS macro, otherwise an error is
-     signalled.
-
-     This may not be an iterator from a WITH-ITERATORS form other than
-     the immediate WITH-ITERATORS form in which this form is nested.
+     This must name an iterator introduced in a parent WITH-ITERATORS
+     form.
 
    FORMS:
 
@@ -397,11 +410,16 @@
      are not evaluated and a non-local jump to the end of the
      WITH-ITERATORS form is performed."
 
-  (declare (ignore pattern iter forms))
+  (let ((bind-macros (iter-value-macros env)))
+    (unless bind-macros
+      (error "Illegal use of WITH-ITER-VALUE outside WITH-ITERATORS."))
 
-  (error "Illegal usage of WITH-ITER-VALUE outside WITH-ITERATORS"))
+    (if-let ((macro (assoc iter bind-macros)))
+      (list* (cdr macro) pattern forms)
+      (error "In WITH-ITER-VALUE: ~s not one of ~{~s~^ or~} passed to WITH-ITERATORS."
+             iter (mapcar #'car bind-macros)))))
 
-(defmacro with-iter-place ((name iter) &body forms)
+(defmacro with-iter-place ((name iter) &body forms &environment env)
   "Introduce an identifier serving as a place to the current sequence element.
 
    This macro may only be used within the body of a WITH-ITERATORS
@@ -434,12 +452,8 @@
      Symbol identifying the iterator, as established by the
      WITH-ITERATOR form.
 
-     This must be one an iterator symbol passed in the first argument
-     to the enclosing WITH-ITERATORS macro, otherwise an error is
-     signalled.
-
-     This may not be an iterator from a WITH-ITERATORS form other than
-     the immediate WITH-ITERATORS form in which this form is nested.
+     This must name an iterator introduced in a parent WITH-ITERATORS
+     form.
 
    FORMS:
 
@@ -450,9 +464,14 @@
      are not evaluated and a non-local jump to the end of the
      WITH-ITERATORS form is performed."
 
-  (declare (ignore name iter forms))
+  (let ((place-macros (iter-value-places env)))
+    (unless place-macros
+      (error "Illegal use of WITH-ITER-PLACE outside WITH-ITERATORS."))
 
-  (error "Illegal use of WITH-ITER-PLACE outside WITH-ITERATORS."))
+    (if-let ((macro (assoc iter place-macros)))
+      (list* (cdr macro) name forms)
+      (error "In WITH-ITER-PLACE: ~s not one of ~{~s~^ or~} passed to WITH-ITERATORS."
+             iter (mapcar #'car place-macros)))))
 
 (defmacro do-iter-values ((&rest iters) &body forms)
   "Iterate over the remaining elements of a sequence pointed to by static iterators.
@@ -467,9 +486,8 @@
      List of bindings. Each element is of the form (PATTERN ITER),
      interpreted as if to WITH-ITER-VALUE, where PATTERN is a binding
      pattern, for the binding to the sequence element value, and ITER
-     is a static iterator identifier symbol, which must have been
-     created with the WITH-ITERATORS form in which this form is
-     contained..
+     is a static iterator identifier symbol, introduced in a parent
+     WITH-ITERATORS form.
 
    FORMS
 
