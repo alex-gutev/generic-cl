@@ -192,10 +192,18 @@
         using DOSEQ-FINISH, if there are no more elements in the
         sequence.
 
-     4. A symbol naming the macro which should be used as the
-        expansion of WITH-ITER-PLACE for this sequence's iterator.
+     4. A lexical macro definition defining the expansion of
+        WITH-ITER-PLACE for the sequence's iterator.
 
-        The macro should have the following lambda-list:
+        This should be a list of the form:
+
+           (LAMBDA-LIST . BODY)
+
+        where LAMBDA-LIST is the macro lambda-list and BODY is the
+        macro definition body. A name should not be provided as a name
+        for the macro is generated.
+
+        The lambda-list should have the following arguments:
 
           (NAME &BODY FORMS)
 
@@ -206,11 +214,8 @@
         corresponding to the FORMS argument of WITH-ITER-PLACE.
 
         If this return value is NIL it is assumed the sequence is
-        immutable, and any uses of WITH-ITER-PLACE on it
-
-        NOTE: This should generally be the name of a macro, introduce
-        by a MACROLET form which is included in the second return
-        value."))
+        immutable, and any uses of WITH-ITER-PLACE on it will result
+        in an error being signalled."))
 
 
 ;;;; WITH-ITERATORS MACRO
@@ -334,11 +339,14 @@
            (expand-doseq seq args form-body env)
 
          for iter-value = (gensym "ITER-VALUE")
-         for form-body = `((macrolet ((,iter-value ,@value)) ,@body))
+         for iter-place = (gensym "ITER-PLACE")
+         for form-body = `((macrolet ((,iter-value ,@value)
+                                      (,iter-place ,@place))
+                             ,@body))
 
          append bindings into all-bindings
          collect (list var iter-value) into get-values
-         collect (list var place) into places
+         collect (list var iter-place) into places
 
          finally
            (return
@@ -441,7 +449,7 @@
      are not evaluated and a non-local jump to the end of the
      WITH-ITERATORS form is performed."
 
-  (declare (ignore iter))
+  (declare (ignore name iter forms))
 
   (error "Illegal use of WITH-ITER-PLACE outside WITH-ITERATORS."))
 

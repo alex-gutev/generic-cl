@@ -69,7 +69,7 @@
   (destructuring-bind (&key from-end (start 0) end) args
     (declare (ignore from-end))
 
-    (with-gensyms (table next more? size index place)
+    (with-gensyms (table next more? size index)
       (flet ((make-iter-value (test inc)
                `((pattern &body body)
                  (with-destructure-entry (key value pattern)
@@ -83,7 +83,21 @@
                         (doseq-finish))
 
                       ,@',inc
-                      ,@body)))))
+                      ,@body))))
+
+             (make-iter-place (test inc)
+               `((name &body body)
+                 (with-gensyms (key)
+                   `(multiple-value-bind (,',more? ,key)
+                        (,',next)
+
+                      (unless ,',test
+                        (doseq-finish))
+
+                      ,@',inc
+
+                      (symbol-macrolet ((,name (gethash ,key ,',table)))
+                        ,@body))))))
 
         (with-constant-values (start end) env
           ((start end)
@@ -106,8 +120,7 @@
                   ,@body))
 
               (make-iter-value test inc)
-
-              place)))
+              (make-iter-place test inc))))
 
           (nil
            (values
@@ -121,13 +134,14 @@
             (make-iter-value `(and ,more? (cl:< ,index ,size))
                              `((cl:incf ,index)))
 
-            place)))))))
+            (make-iter-place `(and ,more? (cl:< ,index ,size))
+                             `((cl:incf ,index))))))))))
 
 
 ;;; Hash-Maps
 
 (defmethod make-doseq hash-map ((type t) form args body env)
-  (multiple-value-bind (bindings body iter-value)
+  (multiple-value-bind (bindings body iter-value iter-place)
       (make-doseq 'hash-table `(hash-map-table ,form) args body env)
 
     (values
@@ -136,4 +150,5 @@
      `((with-custom-hash-table
          ,@body))
 
-     iter-value)))
+     iter-value
+     iter-place)))

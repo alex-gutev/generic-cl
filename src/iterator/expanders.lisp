@@ -124,22 +124,16 @@
 (defun make-traverse-bounded-list (form start end body)
   "Generate a TRAVERSE expansion for a bounded list traversal, when END is non-NIL."
 
-  (multiple-value-bind (bindings body bind-value place)
+  (multiple-value-bind (bindings body bind-value bind-place)
       (make-traverse-list
        `(nthcdr ,start ,form)
        body)
 
-    (with-gensyms (index iter-value new-place)
+    (with-gensyms (index iter-value iter-place)
       (values
        `((,index ,start) ,@bindings)
 
-       `((macrolet ((,new-place (var &body body)
-                      `(,',place
-                        ,var
-                        (prog1 (progn,@body)
-                          (unless (< (incf ,',index) ,',end)
-                            (doseq-finish))))))
-           ,@body))
+       body
 
        `((pattern &body body)
          `(macrolet ((,',iter-value ,@',bind-value))
@@ -152,21 +146,22 @@
              (incf ,',index)
              ,@body)))
 
-       place))))
+       `((name &body body)
+         `(macrolet ((,',iter-place ,@',bind-place))
+            (,',iter-place
+             ,name
+             (prog1 (progn,@body)
+               (unless (< (incf ,',index) ,',end)
+                 (doseq-finish))))))))))
 
 (defun make-traverse-list (form body)
   "Generate a TRAVERSE expansion for a unbounded list traversal."
 
-  (with-gensyms (list place)
+  (with-gensyms (list)
     (values
      `((,list ,form))
 
-     `((macrolet ((,place (var &body body)
-                    `(symbol-macrolet ((,var (car ,',list)))
-                       (prog1 (progn ,@body)
-                         (unless (setf ,',list (cdr ,',list))
-                           (doseq-finish))))))
-         ,@body))
+     body
 
      `((pattern &body body)
        (with-destructure-pattern (var pattern)
@@ -181,14 +176,18 @@
 
               ,@body))))
 
-     place)))
+     `((name &body body)
+       `(symbol-macrolet ((,name (car ,',list)))
+          (prog1 (progn ,@body)
+            (unless (setf ,',list (cdr ,',list))
+              (doseq-finish))))))))
 
 
 ;;; Vectors
 
 (defmethod make-doseq vector ((type t) form args body env)
   (destructuring-bind (&key from-end (start 0) end) args
-    (with-gensyms (vec index end-index v-from-end v-start v-end place)
+    (with-gensyms (vec index end-index v-from-end v-start v-end)
       (values
        `((,v-from-end ,from-end :constant t)
          (,v-start ,start :constant t)
@@ -200,14 +199,7 @@
          (,index
           (if ,v-from-end (cl:1- ,end-index) ,v-start)))
 
-       `((macrolet ((,place (var &body body)
-                      `(symbol-macrolet ((,var (aref ,',vec ,',index)))
-                         (prog1 (progn ,@body)
-                           (unless (if ,',from-end
-                                       (cl:>= ,',index ,',start)
-                                       (cl:< ,',index ,',end))
-                             (doseq-finish))))))
-           ,@body))
+       body
 
        `((pattern &body body)
          (with-destructure-pattern (var pattern)
@@ -225,7 +217,13 @@
                     (cl:incf ,',index))
                 ,@body))))
 
-       place))))
+       `((name &body body)
+         `(symbol-macrolet ((,name (aref ,',vec ,',index)))
+            (prog1 (progn ,@body)
+              (unless (if ,',from-end
+                          (cl:>= ,',index ,',start)
+                          (cl:< ,',index ,',end))
+                (doseq-finish)))))))))
 
 
 ;;; Default
@@ -233,17 +231,11 @@
 (defmethod make-doseq t ((type t) form args body env)
   (declare (ignore env))
 
-  (with-gensyms (it place)
+  (with-gensyms (it)
     (values
      `((,it (iterator ,form ,@args)))
 
-     `((macrolet ((,place (var &body body)
-                    `(symbol-macrolet ((,var (at ,',it)))
-                       (prog1 (progn ,@body)
-                         (advance ,',it)
-                         (when (endp ,',it)
-                           (doseq-finish))))))
-         ,@body))
+     body
 
      `((pattern &body body)
        (with-destructure-pattern (var pattern)
@@ -257,4 +249,9 @@
               (advance ,',it)
               ,@body))))
 
-     place)))
+     `((name &body body)
+       `(symbol-macrolet ((,name (at ,',it)))
+          (prog1 (progn ,@body)
+            (advance ,',it)
+            (when (endp ,',it)
+              (doseq-finish))))))))
