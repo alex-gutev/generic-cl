@@ -1,6 +1,6 @@
 ;;;; generic-sequences.lisp
 ;;;;
-;;;; Copyright 2018-2019 Alexander Gutev
+;;;; Copyright 2018-2021 Alexander Gutev
 ;;;;
 ;;;; Permission is hereby granted, free of charge, to any person
 ;;;; obtaining a copy of this software and associated documentation
