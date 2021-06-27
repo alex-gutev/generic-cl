@@ -61,6 +61,7 @@
    :endp
 
    :doseq
+   :doseq!
    :do-sequences
    :do-sequences!
    :doiter

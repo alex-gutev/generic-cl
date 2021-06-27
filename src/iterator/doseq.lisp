@@ -760,6 +760,6 @@
       (symbolp name/seq)
 
     (destructuring-bind (element sequence &rest args) seq
-      `(do-sequences ,name
+      `(do-sequences! ,name
          ((,element ,sequence ,@args))
          ,@body))))
