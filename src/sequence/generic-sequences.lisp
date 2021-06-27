@@ -421,19 +421,14 @@
 		  :key key))
 
 (defmethod nsubstitute-if (new test sequence &key from-end (start 0) end count key)
-  (let ((key (or key #'identity)))
-    (loop
-       with it = (iterator sequence :from-end from-end :start start :end end)
-       with n = 0
+  (let ((key (or key #'identity))
+        (n 0))
 
-       until (endp it)
-       do
-	 (when (funcall test (funcall key (at it)))
-	   (setf (at it) new)
-	   (when (and count (cl:= (cl:incf n) count))
-	     (loop-finish)))
-
-	 (advance it))
+    (doseq! (item sequence :from-end from-end :start start :end end)
+      (when (funcall test (funcall key item))
+	(setf item new)
+	(when (and count (cl:= (cl:incf n) count))
+	  (return))))
 
     sequence))
 
