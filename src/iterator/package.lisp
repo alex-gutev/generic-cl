@@ -73,7 +73,8 @@
 
   (:intern :make-doseq
            :subtype
-           :with-destructure-pattern)
+           :with-destructure-pattern
+           :iter-macro)
 
   (:documentation
    "Generic iterator interface"))
@@ -84,11 +85,13 @@
   (:import-from :generic-cl.iterator
                 :make-doseq
                 :subtype
-                :with-destructure-pattern)
+                :with-destructure-pattern
+                :iter-macro)
 
   (:export :make-doseq
            :subtype
-           :with-destructure-pattern)
+           :with-destructure-pattern
+           :iter-macro)
 
   (:documentation
    "Optimization interface of iterator interface."))

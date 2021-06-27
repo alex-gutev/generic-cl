@@ -208,11 +208,20 @@
 
         The lambda-list should have the following arguments:
 
-          (NAME &BODY FORMS)
+          (NAME MOREP &BODY FORMS)
 
         where NAME is the name of the symbol-macro to be introduced,
         expanding to the 'place' of the current sequence element,
-        corresponding to the NAME argument of WITH-ITER-PLACE, and
+        corresponding to the NAME argument of WITH-ITER-PLACE.
+
+        MOREP corresponds to the MOREP argument of WITH-ITER-PLACE
+        which is the name of the variable which should be bound to
+        true if there are more elements in the sequence and bound to
+        NIL if there are no more elements. If MOREP is NIL, the
+        expansion should jump out of the WITH-ITERATORS form, skipping
+        the evaluation of FORMS, using a GO to the tag name given in
+        the TAG argument.
+
         FORMS are the body forms of the WITH-ITER-PLACE form,
         corresponding to the FORMS argument of WITH-ITER-PLACE.
 
@@ -419,7 +428,7 @@
       (error "In WITH-ITER-VALUE: ~s not one of ~{~s~^ or~} passed to WITH-ITERATORS."
              iter (mapcar #'car bind-macros)))))
 
-(defmacro with-iter-place ((name iter) &body forms &environment env)
+(defmacro with-iter-place ((name iter &optional morep) &body forms &environment env)
   "Introduce an identifier serving as a place to the current sequence element.
 
    This macro may only be used within the body of a WITH-ITERATORS
@@ -447,6 +456,19 @@
      NOTE: Unlike in WITH-ITER-VALUE this must be a symbol, and cannot
      be a destructuring-bind pattern.
 
+   MOREP (Optional)
+
+     The name of the variable which is bound to true if there are more
+     elements in the sequence, and to NIL when there are no more
+     elements in the sequence.
+
+     If NON-NIL it is not checked whether the end of the sequence has
+     been reached, and hence the body FORMS are not skipped if the end
+     of the sequence has been reached. It is up to the programmer to
+     check the value of this variable and perform whatever logic
+     should be performed when the end of the sequence has been
+     reached.
+
    ITER:
 
      Symbol identifying the iterator, as established by the
@@ -469,7 +491,7 @@
       (error "Illegal use of WITH-ITER-PLACE outside WITH-ITERATORS."))
 
     (if-let ((macro (assoc iter place-macros)))
-      (list* (cdr macro) name forms)
+      (list* (cdr macro) name morep forms)
       (error "In WITH-ITER-PLACE: ~s not one of ~{~s~^ or~} passed to WITH-ITERATORS."
              iter (mapcar #'car place-macros)))))
 

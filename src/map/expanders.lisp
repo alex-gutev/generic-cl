@@ -71,33 +71,41 @@
 
     (with-gensyms (table next more? size index)
       (flet ((make-iter-value (test inc)
-               `((pattern &body body)
+               (iter-macro (more? next test tag inc)
+                   (pattern &body body)
+
                  (with-destructure-entry (key value pattern)
                      (body body)
 
-                   `(multiple-value-bind (,',more? ,key ,value)
-                        (,',next)
+                   `(multiple-value-bind (,more? ,key ,value)
+                        (,next)
                       (declare (ignorable ,key ,value))
 
-                      (unless ,',test
-                        (go ,',tag))
+                      (unless ,test
+                        (go ,tag))
 
-                      ,@',inc
+                      ,@inc
                       ,@body))))
 
              (make-iter-place (test inc)
-               `((name &body body)
-                 (with-gensyms (key)
-                   `(multiple-value-bind (,',more? ,key)
-                        (,',next)
+               (iter-macro (more? next test tag inc table)
+                   (name more?-var &body body)
 
-                      (unless ,',test
-                        (go ,',tag))
+                 (let ((more? (or more?-var more?)))
+                   (with-gensyms (key)
+                     `(multiple-value-bind (,more? ,key)
+                          (,next)
 
-                      ,@',inc
+                        (symbol-macrolet ((,name (gethash ,key ,table)))
+                          ,(if more?-var
+                               body
 
-                      (symbol-macrolet ((,name (gethash ,key ,',table)))
-                        ,@body))))))
+                               `(progn
+                                  (unless ,test
+                                    (go ,tag))
+
+                                  ,@inc
+                                  ,@body)))))))))
 
         (with-constant-values (start end) env
           ((start end)

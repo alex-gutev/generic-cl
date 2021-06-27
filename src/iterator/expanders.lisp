@@ -69,6 +69,41 @@
     (symbol
      (funcall fn pattern body))))
 
+(defmacro iter-macro ((&rest vars) (&rest lambda-list) &body body)
+  "Generate a lexical macro definition for WITH-ITER-VALUE/PLACE for an iterator.
+
+   This macro is intended to be used within MAKE-DOSEQ to facilitate
+   the definition, by avoiding the need for nested backquotes, of the
+   lexical macros, serving as the expansion of WITH-ITER-VALUE and
+   WITH-ITER-PLACE for a given iterator type.
+
+   VARS is a list of variables to 'capture' from the lexical scope of
+   the ITER-MACRO form. Inside the generated macro definition, a
+   symbol-macro is introduced for each variable, by SYMBOL-MACROLET,
+   which expands to a QUOTE form which returns the value of the
+   variable as it is in the environment where the ITER-MACRO form
+   occurs.
+
+   LAMBDA-LIST is the macro lambda-list (not evaluated).
+
+   BODY is the list of body forms of the generated macro. These are
+   not evaluated at the time the ITER-MACRO form is evaluated but are
+   instead quoted and become the body forms of the generated macro
+   definition. The body forms may reference the variables in the
+   LAMBDA-LIST and the values of the 'captured' variables listed in
+   VARS.
+
+   Returns a lexical macro definition (excluding the name) suitable to
+   be returned from MAKE-DOSEQ as the macro definition for the
+   iterator's WITH-ITER-VALUE and WITH-ITER-PLACE."
+
+  ``(,',lambda-list
+     (symbol-macrolet
+         ,(list ,@(loop for var in vars
+                     collect ``(,',var ',,var)))
+
+       ,@',body)))
+
 
 ;;; Lists
 
@@ -141,26 +176,37 @@
 
        body
 
-       `((pattern &body body)
-         `(macrolet ((,',iter-value ,@',bind-value))
-            (,',iter-value
+       (iter-macro (index end tag iter-value bind-value)
+           (pattern &body body)
+
+         `(macrolet ((,iter-value ,@bind-value))
+            (,iter-value
              ,pattern
 
-             (unless (< ,',index ,',end)
-               (go ,',tag))
+             (unless (< ,index ,end)
+               (go ,tag))
 
-             (incf ,',index)
+             (incf ,index)
              ,@body)))
 
-       `((name &body body)
-         `(macrolet ((,',iter-place ,@',bind-place))
-            (,',iter-place
+       (iter-macro (index end tag iter-place bind-place)
+           (name more? &body body)
+
+         `(macrolet ((,iter-place ,@bind-place))
+            (,iter-place
              ,name
+             ,more?
 
-             (unless (< (incf ,',index) ,',end)
-               (go ,',tag))
+             ,@(if more?
+                   `((let ((,more? (and ,more? (< ,index ,end))))
+                       (incf ,index)
+                       ,@body))
 
-             ,@body)))))))
+                   `((unless (< ,index ,end)
+                       (go ,tag))
+
+                     (incf ,index)
+                     ,@body)))))))))
 
 (defun make-traverse-list (form tag body)
   "Generate a TRAVERSE expansion for a unbounded list traversal."
@@ -171,26 +217,38 @@
 
      body
 
-     `((pattern &body body)
+     (iter-macro (tag list)
+         (pattern &body body)
+
        (with-destructure-pattern (var pattern)
            (body body)
 
          `(progn
-            (unless ,',list
-              (go ,',tag))
+            (unless ,list
+              (go ,tag))
 
-            (let ((,var (car ,',list)))
-              (setf ,',list (cdr ,',list))
+            (let ((,var (car ,list)))
+              (setf ,list (cdr ,list))
 
               ,@body))))
 
-     `((name &body body)
-       `(symbol-macrolet ((,name (car ,',list)))
-          (unless ,',list
-            (go ,',tag))
+     (iter-macro (tag list)
+         (name more? &body body)
 
-          (prog1 (progn ,@body)
-            (setf ,',list (cdr ,',list))))))))
+       (let ((body
+              `(prog1 (progn ,@body)
+                 (setf ,list (cdr ,list)))))
+
+         `(symbol-macrolet ((,name (car ,list)))
+            ,(if more?
+                 `(let ((,more? ,list))
+                    ,body)
+
+                 `(progn
+                    (unless ,list
+                      (go ,tag))
+
+                    ,body))))))))
 
 
 ;;; Vectors
@@ -211,33 +269,45 @@
 
        body
 
-       `((pattern &body body)
+       (iter-macro (tag v-from-end v-start vec end-index index)
+           (pattern &body body)
+
          (with-destructure-pattern (var pattern)
              (body body)
 
            `(progn
-              (unless (if ,',v-from-end
-                          (cl:>= ,',index ,',v-start)
-                          (cl:< ,',index ,',end-index))
-                (go ,',tag))
+              (unless (if ,v-from-end
+                          (>= ,index ,v-start)
+                          (< ,index ,end-index))
+                (go ,tag))
 
-              (let ((,var (aref ,',vec ,',index)))
-                (if ,',v-from-end
-                    (cl:decf ,',index)
-                    (cl:incf ,',index))
+              (let ((,var (aref ,vec ,index)))
+                (if ,v-from-end
+                    (decf ,index)
+                    (incf ,index))
                 ,@body))))
 
-       `((name &body body)
-         `(symbol-macrolet ((,name (aref ,',vec ,',index)))
-            (unless (if ,',from-end
-                        (cl:>= ,',index ,',start)
-                        (cl:< ,',index ,',end))
-              (go ,',tag))
+       (iter-macro (tag v-from-end v-start vec end-index index)
+           (name more? &body body)
 
-            (prog1 (progn ,@body)
-              (if ,',v-from-end
-                  (cl:decf ,',index)
-                  (cl:incf ,',index)))))))))
+         (let ((test `(if ,v-from-end
+                          (>= ,index ,v-start)
+                          (< ,index ,end-index)))
+               (body `(prog1 (progn ,@body)
+                        (if ,v-from-end
+                            (decf ,index)
+                            (incf ,index)))))
+
+           `(symbol-macrolet ((,name (aref ,vec ,index)))
+              ,(if more?
+                   `(let ((,more? ,test))
+                      ,body)
+
+                   `(progn
+                      (unless ,test
+                        (go ,tag))
+
+                      ,body)))))))))
 
 
 ;;; Default
@@ -251,22 +321,33 @@
 
      body
 
-     `((pattern &body body)
+     (iter-macro (it tag)
+         (pattern &body body)
+
        (with-destructure-pattern (var pattern)
            (body body)
 
          `(progn
-            (when (endp ,',it)
-              (go ,',tag))
+            (when (endp ,it)
+              (go ,tag))
 
-            (let ((,var (at ,',it)))
-              (advance ,',it)
+            (let ((,var (at ,it)))
+              (advance ,it)
               ,@body))))
 
-     `((name &body body)
-       `(symbol-macrolet ((,name (at ,',it)))
-          (when (endp ,',it)
-            (go ,',tag))
+     (iter-macro (it tag)
+         (name more? &body body)
 
-          (prog1 (progn ,@body)
-            (advance ,',it)))))))
+       (let ((body `(prog1 (progn ,@body)
+                      (advance ,it))))
+
+         `(symbol-macrolet ((,name (at ,it)))
+            ,(if more?
+                 `(let ((,more? (not (endp ,it))))
+                    ,body)
+
+                 `(progn
+                    (when (endp ,it)
+                      (go ,tag))
+
+                    ,body))))))))
