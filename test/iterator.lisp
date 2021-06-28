@@ -678,7 +678,7 @@
     (doseq ((key . value) (the hash-map map))
       (setf (get key new-map) value))
 
-    (is (= map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))))
+    (is (= new-map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))))
 
 
 ;;;; Iterator Based Implementation
