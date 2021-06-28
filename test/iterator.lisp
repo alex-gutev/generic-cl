@@ -759,3 +759,93 @@
    (is (= '(b c d) (cl:nreverse res2)))
    (is (= (alist-hash-map '((k1 . 1) (k2 . 2) (k3 . 3)))
           res3))))
+
+
+;;; DOSEQ! Macro Tests
+
+;;;; Lists
+
+(test doseq!-list-unbounded
+  "Test DOSEQ! macro on list (unbounded)"
+
+  (let ((l (list 1 2 3 4))
+        (result)
+        (i 0))
+
+    (doseq! (elem (the list l))
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 3)
+         (setf elem 'y)))
+
+      (push elem result)
+
+      (incf i))
+
+    (is (= '(1 x 3 y) (cl:nreverse result)))
+    (is (= '(1 x 3 y) l))))
+
+(test doseq!-list-reverse
+  "Test DOSEQ! macro on list with :FROM-END t"
+
+  (let* ((list (list 1 2 3 4))
+         (result nil)
+         (i 0))
+
+    (doseq! (elem (the list list) :from-end t)
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 2)
+         (setf elem 'y)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(4 x y 1) (cl:nreverse result)))
+    (is (= '(1 y x 4) list))))
+
+(test doseq!-list-bounded
+  "Test DOSEQ! macro on list with :START 1 and :END 4"
+
+  (let* ((list (list 1 2 3 4 5))
+         (result nil)
+         (i 0))
+
+    (doseq! (elem (the list list) :start 1 :end 4)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= '(1 a 3 b 5)) list)))
+
+(test doseq!-list-reverse-bounded
+  "Test DOSEQ! macro on list with :START 1, :END 4, :FROM-END T"
+
+  (let* ((l (list 1 2 3 4 5))
+         (result)
+         (i 0))
+
+    (doseq! (elem (the list l) :start 1 :end 4 :from-end t)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= '(1 b 3 a 5) l))))
