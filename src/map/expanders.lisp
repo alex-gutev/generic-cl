@@ -62,8 +62,15 @@
                 ,@body))
             (funcall fn key value))))))
 
+(defmacro map-place (key table)
+  (once-only (key)
+    `(cons ,key (gethash ,key ,table))))
+
+(defsetf map-place (key table) (new-value)
+  `(setf (gethash ,key ,table) ,new-value))
+
 
-;;; Hash-Tables
+;;; Expander
 
 (defmethod make-doseq hash-table ((type t) form args tag body env)
   (destructuring-bind (&key from-end (start 0) end) args
@@ -96,7 +103,7 @@
                      `(multiple-value-bind (,more? ,key)
                           (,next)
 
-                        (symbol-macrolet ((,name (gethash ,key ,table)))
+                        (symbol-macrolet ((,name (map-place ,key ,table)))
                           ,(if more?-var
                                body
 
@@ -124,8 +131,9 @@
                     `((,index ,start)
                       (,size ,(or end `(hash-table-count ,table))))))
 
-              `((with-hash-table-iterator (,next ,table)
-                  ,@body))
+              `((with-custom-hash-table
+                  (with-hash-table-iterator (,next ,table)
+                    ,@body)))
 
               (make-iter-value test inc)
               (make-iter-place test inc))))
@@ -136,8 +144,9 @@
               (,index ,start)
               (,size (or ,end (hash-table-count ,table))))
 
-            `((with-hash-table-iterator (,next ,table)
-                ,@body))
+            `((with-custom-hash-table
+                (with-hash-table-iterator (,next ,table)
+                  ,@body)))
 
             (make-iter-value `(and ,more? (cl:< ,index ,size))
                              `((cl:incf ,index)))
@@ -145,18 +154,7 @@
             (make-iter-place `(and ,more? (cl:< ,index ,size))
                              `((cl:incf ,index))))))))))
 
-
 ;;; Hash-Maps
 
 (defmethod make-doseq hash-map ((type t) form args tag body env)
-  (multiple-value-bind (bindings body iter-value iter-place)
-      (make-doseq 'hash-table `(hash-map-table ,form) args tag body env)
-
-    (values
-     bindings
-
-     `((with-custom-hash-table
-         ,@body))
-
-     iter-value
-     iter-place)))
+  (make-doseq 'hash-table `(hash-map-table ,form) args tag body env))

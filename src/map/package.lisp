@@ -47,7 +47,8 @@
                 :make-list-iterator)
 
   (:import-from :alexandria
-                :with-gensyms)
+                :with-gensyms
+                :once-only)
 
   (:shadow :get)
 
