@@ -938,8 +938,6 @@
 
 ;;;; Hash Tables
 
-;;;; Hash Tables
-
 (test doseq!-hash-table
   "Test DOSEQ! macro on hash-table"
 
@@ -967,3 +965,89 @@
         "~%~2TGot old map:~%~%~s~%~%~2TExpected:~%~%~s"
         (hash-map-alist map)
         '((a . x1) (b . 2) (c . x2)))))
+
+;;;; Iterator Based Implementation
+
+(test doseq!-generic
+  "Test DOSEQ! macro on untyped sequence"
+
+  (let* ((seq (list 1 2 3 4 5 6))
+         (result nil)
+         (i 0))
+
+    (doseq! (elem seq)
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 3)
+         (setf elem 'y)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(1 x 3 y 5 6) (cl:nreverse result)))
+    (is (= '(1 x 3 y 5 6) seq))))
+
+(test doseq!-generic-reverse
+  "Test DOSEQ macro on untyped sequence with :FROM-END t"
+
+  (let* ((list (list 1 2 3 4))
+         (result nil)
+         (i 0))
+
+    (doseq! (elem list :from-end t)
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 2)
+         (setf elem 'y)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(4 x y 1) (cl:nreverse result)))
+    (is (= '(1 y x 4) list))))
+
+(test doseq!-generic-bounded
+  "Test DOSEQ! macro on untyped sequence with :START 1 and :END 4"
+
+  (let* ((list (list 1 2 3 4 5))
+         (result)
+         (i 0))
+
+    (doseq! (elem list :start 1 :end 4)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= '(1 a 3 b 5) list))))
+
+(test doseq!-generic-reverse-bounded
+  "Test DOSEQ! macro on untyped sequence with :START 1, :END 4, :FROM-END T"
+
+  (let* ((seq (list 1 2 3 4 5))
+         (result)
+         (i 0))
+
+    (doseq! (elem seq :start 1 :end 4 :from-end t)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= '(1 b 3 a 5) seq))))
