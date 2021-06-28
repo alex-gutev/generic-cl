@@ -109,146 +109,155 @@
 
 (defmethod make-doseq list ((type t) form args tag body env)
   (destructuring-bind (&key from-end (start 0) end) args
-    (with-constant-values (from-end start end) env
-      ((from-end start end)
-       (cond
-         (from-end
-          (make-traverse-list
-           `(cl:nreverse (cl:subseq ,form ,start ,end))
-           tag
-           body))
-
-         (end
-          (make-traverse-bounded-list form start end tag body))
-
-         ((> start 0)
-          (make-traverse-list `(nthcdr ,start ,form) tag body))
-
-         (t
-          (make-traverse-list form tag body))))
-
-      ((start end)
-       (cond
-         (end
-          (make-traverse-list
-           `(if ,from-end
-                (cl:nreverse (cl:subseq ,form ,start ,end))
-                (cl:subseq ,form ,start ,end))
-           tag
-           body))
-
-         ((> start 0)
-          (make-traverse-list
-           `(if ,from-end
-                (cl:reverse (nthcdr ,start ,form))
-                (nthcdr ,start ,form))
-           tag
-           body))
-
-         (t
-          (make-traverse-list
-           `(if ,from-end
-                (cl:reverse ,form)
-                ,form)
-           tag
-           body))))
-
-      (nil
-       (make-traverse-list
-        `(if ,from-end
-             (cl:nreverse (cl:subseq ,form ,start ,end))
-             (cl:subseq ,form ,start ,end))
-        tag
-        body)))))
-
-(defun make-traverse-bounded-list (form start end tag body)
-  "Generate a TRAVERSE expansion for a bounded list traversal, when END is non-NIL."
-
-  (multiple-value-bind (bindings body bind-value bind-place)
-      (make-traverse-list
-       `(nthcdr ,start ,form)
-       tag
-       body)
-
-    (with-gensyms (index iter-value iter-place)
+    (with-gensyms (list index v-start v-end v-from-end with-value with-place place)
       (values
-       `((,index ,start) ,@bindings)
+       `((,v-start ,start :constant t)
+         (,v-end ,end :constant t)
+         (,v-from-end ,from-end :constant t)
 
-       body
+         (,list
+          (if ,v-from-end
+              (sublist ,form ,v-start ,v-end ,v-from-end)
+              (nthcdr ,v-start ,form))))
 
-       (iter-macro (index end tag iter-value bind-value)
-           (pattern &body body)
+       (let ((value-macro
+              (iter-macro (tag list place)
+                  (pattern &body body)
 
-         `(macrolet ((,iter-value ,@bind-value))
-            (,iter-value
-             ,pattern
+                (with-destructure-pattern (var pattern)
+                    (body body)
 
-             (unless (< ,index ,end)
-               (go ,tag))
-
-             (incf ,index)
-             ,@body)))
-
-       (iter-macro (index end tag iter-place bind-place)
-           (name more? &body body)
-
-         `(macrolet ((,iter-place ,@bind-place))
-            (,iter-place
-             ,name
-             ,more?
-
-             ,@(if more?
-                   `((let ((,more? (and ,more? (< ,index ,end))))
-                       (incf ,index)
-                       ,@body))
-
-                   `((unless (< ,index ,end)
+                  `(progn
+                     (unless ,list
                        (go ,tag))
 
-                     (incf ,index)
-                     ,@body)))))))))
+                     (let ((,var (,place ,list)))
+                       (setf ,list (cdr ,list))
 
-(defun make-traverse-list (form tag body)
-  "Generate a TRAVERSE expansion for a unbounded list traversal."
+                       ,@body)))))
 
-  (with-gensyms (list)
-    (values
-     `((,list ,form))
+             (place-macro
+              (iter-macro (tag list place)
+                  (name more? &body body)
 
-     body
+                (let ((body
+                       `(prog1 (progn ,@body)
+                          (setf ,list (cdr ,list)))))
 
-     (iter-macro (tag list)
-         (pattern &body body)
+                  `(symbol-macrolet ((,name (,place ,list)))
+                     ,(if more?
+                          `(let ((,more? ,list))
+                             ,body)
 
-       (with-destructure-pattern (var pattern)
-           (body body)
+                          `(progn
+                             (unless ,list
+                               (go ,tag))
 
-         `(progn
-            (unless ,list
-              (go ,tag))
+                             ,body)))))))
 
-            (let ((,var (car ,list)))
-              (setf ,list (cdr ,list))
+         (with-gensyms (list-value list-place)
+           `((cond
+               (,v-from-end
+                (macrolet ((,with-value . ,value-macro)
+                           (,with-place . ,place-macro)
+                           (,place (thing)
+                             `(caar ,thing)))
 
-              ,@body))))
+                  ,@body))
 
-     (iter-macro (tag list)
-         (name more? &body body)
+               (,v-end
+                (let ((,index ,v-start))
+                  (macrolet ((,list-value . ,value-macro)
+                             (,list-place . ,place-macro)
+                             (,place (thing)
+                               `(car ,thing))
 
-       (let ((body
-              `(prog1 (progn ,@body)
-                 (setf ,list (cdr ,list)))))
+                             (,with-value .
+                               ,(iter-macro (tag index v-end list-value)
+                                    (pattern &body body)
 
-         `(symbol-macrolet ((,name (car ,list)))
-            ,(if more?
-                 `(let ((,more? ,list))
-                    ,body)
+                                  `(,list-value
+                                    ,pattern
 
-                 `(progn
-                    (unless ,list
-                      (go ,tag))
+                                    (unless (< ,index ,v-end)
+                                      (go ,tag))
 
-                    ,body))))))))
+                                    (incf ,index)
+                                    ,@body)))
+
+                             (,with-place .
+                               ,(iter-macro (tag index v-end list-place)
+                                    (name more? &body body)
+
+                                  `(,list-place
+                                    ,name
+                                    ,more?
+
+                                    ,@(if more?
+                                          `((let ((,more? (and ,more? (< ,index ,v-end))))
+                                              (incf ,index)
+                                              ,@body))
+
+                                          `((unless (< ,index ,v-end)
+                                              (go ,tag))
+
+                                            (incf ,index)
+                                            ,@body))))))
+                    ,@body)))
+
+               (t
+                (macrolet ((,with-value . ,value-macro)
+                           (,with-place . ,place-macro)
+                           (,place (thing)
+                             `(car ,thing)))
+
+                  ,@body))))))
+
+
+       (iter-macro (with-value)
+           (pattern &body body)
+         `(,with-value ,pattern ,@body))
+
+       (iter-macro (with-place)
+           (name more? &body body)
+
+         `(,with-place ,name ,more? ,@body))))))
+
+(defun sublist (list start end from-end)
+  "Return the list of CONS cells making up a subsequence of a list.
+
+   LIST is the list.
+
+   START is the index of the first element of the subsequence.
+
+   END is the index 1 past the last element of the subsequence. If NIL
+   the subsequence extends till the end of the list.
+
+   If FROM-END is true the cells are collected starting from the last
+   element of the subsequence, otherwise they are collected starting
+   from the first element of the subsequence.
+
+   The return value is a list of CONS cells of the original list,
+   corresponding to the cells containing the elements of the
+   subsequence. This allows modifying the original list by modifying
+   the cons cells."
+
+  (if from-end
+      (let (cells)
+        (loop
+           for cell on (nthcdr start list)
+           for i from start
+           while (or (null end) (< i end))
+           do
+             (push cell cells))
+
+        cells)
+
+      (loop
+         for cell on (nthcdr start list)
+         for i from start
+         while (or (null end) (< i end))
+         collect cell)))
 
 
 ;;; Vectors
