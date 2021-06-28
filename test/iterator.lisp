@@ -935,3 +935,35 @@
 
     (is (= '(a 3 b) (cl:nreverse result)))
     (is (= #(1 b 3 a 5) v))))
+
+;;;; Hash Tables
+
+;;;; Hash Tables
+
+(test doseq!-hash-table
+  "Test DOSEQ! macro on hash-table"
+
+  (let* ((map (alist-hash-map '((a . 1) (b . 2) (c . 3))))
+	 (new-map (make-hash-map)))
+
+    (doseq! (item (the hash-map map))
+      (destructuring-bind (key . value) item
+        (pprint key)
+
+        (if (= key 'a)
+            (setf item 'x1))
+
+        (if (= key 'c)
+            (setf item 'x2))
+
+        (setf (get key new-map) (cdr item))))
+
+    (is (= new-map (alist-hash-map '((a . x1) (b . 2) (c . x2))))
+        "~%~2TGot new map:~%~%~s~%~%~2TExpected:~%~%~s"
+        (hash-map-alist new-map)
+        '((a . x1) (b . 2) (c . x2)))
+
+    (is (= map (alist-hash-map '((a . x1) (b . 2) (c . x2))))
+        "~%~2TGot old map:~%~%~s~%~%~2TExpected:~%~%~s"
+        (hash-map-alist map)
+        '((a . x1) (b . 2) (c . x2)))))
