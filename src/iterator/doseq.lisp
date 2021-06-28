@@ -293,6 +293,10 @@
      the current element of the sequence and advance the iterator to
      the next position.
 
+     The WITH-ITER-PLACE macro can be used, within FORMS, both to
+     retrieve and set the value of the current element of the
+     sequence, and advance the iterator to the next position.
+
      NOTE: The value of the last form is not returned, due to it being
      evaluated in a TAGBODY, instead NIL is returned. RETURN-FROM, to
      an outer BLOCK, should be used to return a value from this form.
@@ -392,7 +396,7 @@
 
    If the iterator is already at the end of the sequence a non-local
    jump, to the end of the enclosing WITH-ITERATORS form, is
-   performed..
+   performed.
 
    After binding, the iterator is advanced to the next element of the
    sequence.
@@ -466,11 +470,10 @@
      elements in the sequence.
 
      If NON-NIL it is not checked whether the end of the sequence has
-     been reached, and hence the body FORMS are not skipped if the end
-     of the sequence has been reached. It is up to the programmer to
-     check the value of this variable and perform whatever logic
-     should be performed when the end of the sequence has been
-     reached.
+     been reached, and hence the body FORMS are not skipped. It is up
+     to the programmer to check the value of this variable and perform
+     whatever logic should be performed when the end of the sequence
+     has been reached.
 
    ITER:
 
