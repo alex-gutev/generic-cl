@@ -849,3 +849,89 @@
 
     (is (= '(a 3 b) (cl:nreverse result)))
     (is (= '(1 b 3 a 5) l))))
+
+
+;;;; Vectors
+
+(test doseq!-vector-unbounded
+  "Test DOSEQ! macro on vector (unbounded)"
+
+  (let ((v (vector 1 2 3 4))
+        (result)
+        (i 0))
+
+    (doseq! (elem (the vector v))
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 3)
+         (setf elem 'y)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(1 x 3 y) (cl:nreverse result)))
+    (is (= #(1 x 3 y) v))))
+
+(test doseq!-vector-reverse
+  "Test DOSEQ! macro on vector with :FROM-END t"
+
+  (let* ((vec (vector 1 2 3 4))
+         (result)
+         (i 0))
+
+    (doseq! (elem (the vector vec) :from-end t)
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 2)
+         (setf elem 'y)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(4 x y 1) (cl:nreverse result)))
+    (is (= #(1 y x 4) vec))))
+
+(test doseq!-vector-bounded
+  "Test DOSEQ! macro on vector with :START 1 and :END 4"
+
+  (let* ((v (vector 1 2 3 4 5))
+         (result)
+         (i 0))
+
+    (doseq! (elem (the vector v) :start 1 :end 4)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= #(1 a 3 b 5) v))))
+
+(test doseq!-vector-reverse-bounded
+  "Test DOSEQ! macro on vector with :START 1, :END 4, :FROM-END T"
+
+  (let* ((v (vector 1 2 3 4 5))
+         (result)
+         (i 0))
+    (doseq! (elem (the vector v) :start 1 :end 4 :from-end t)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= #(1 b 3 a 5) v))))
