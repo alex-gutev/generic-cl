@@ -28,83 +28,6 @@
 (in-package :generic-cl.iterator)
 
 
-;;; Utilities
-
-(defmacro with-destructure-pattern ((var pattern) (body-var body) &body forms)
-  "Automatically generate destructuring code if the binding pattern is
-   a destructuring-bind pattern.
-
-   The WITH-ITER-VALUE binding pattern, PATTERN, is checked whether it
-   is a symbol naming a variable or a list representing a
-   DESTRUCTURING-BIND pattern.
-
-   If PATTERN is a list, a variable name is generated, and bound to
-   the variable VAR. BODY-VAR is bound to forms which destructure the
-   value stored in the variable, wrapping the forms in BODY.
-
-   If PATTERN is a symbol, the variable given by VAR is bound directly
-   to that symbol and the variable given by BODY-VAR is bound directly
-   to BODY.
-
-   The body forms of the macro FORMS are evaluated in an implicit
-   PROGN, with the bindings to the variables given by VAR and BODY-VAR
-   visible. The return value of the last form is returned.
-
-   FORMS should generate code which binds the current sequence element
-   to the variable with name stored in VAR."
-
-  `(make-destructure-pattern
-    ,pattern ,body
-    (lambda (,var ,body-var)
-      ,@forms)))
-
-(defun make-destructure-pattern (pattern body fn)
-  (etypecase pattern
-    (list
-     (with-gensyms (var)
-       (->> `((destructuring-bind ,pattern ,var
-                ,@body))
-            (funcall fn var))))
-
-    (symbol
-     (funcall fn pattern body))))
-
-(defmacro iter-macro ((&rest vars) (&rest lambda-list) &body body)
-  "Generate a lexical macro definition for WITH-ITER-VALUE/PLACE for an iterator.
-
-   This macro is intended to be used within MAKE-DOSEQ to facilitate
-   the definition, by avoiding the need for nested backquotes, of the
-   lexical macros, serving as the expansion of WITH-ITER-VALUE and
-   WITH-ITER-PLACE for a given iterator type.
-
-   VARS is a list of variables to 'capture' from the lexical scope of
-   the ITER-MACRO form. Inside the generated macro definition, a
-   symbol-macro is introduced for each variable, by SYMBOL-MACROLET,
-   which expands to a QUOTE form which returns the value of the
-   variable as it is in the environment where the ITER-MACRO form
-   occurs.
-
-   LAMBDA-LIST is the macro lambda-list (not evaluated).
-
-   BODY is the list of body forms of the generated macro. These are
-   not evaluated at the time the ITER-MACRO form is evaluated but are
-   instead quoted and become the body forms of the generated macro
-   definition. The body forms may reference the variables in the
-   LAMBDA-LIST and the values of the 'captured' variables listed in
-   VARS.
-
-   Returns a lexical macro definition (excluding the name) suitable to
-   be returned from MAKE-DOSEQ as the macro definition for the
-   iterator's WITH-ITER-VALUE and WITH-ITER-PLACE."
-
-  ``(,',lambda-list
-     (symbol-macrolet
-         ,(list ,@(loop for var in vars
-                     collect ``(,',var ',,var)))
-
-       ,@',body)))
-
-
 ;;; Lists
 
 (defmethod make-doseq list ((type t) form args tag body env)
@@ -125,15 +48,16 @@
                   (pattern &body body)
 
                 (with-destructure-pattern (var pattern)
-                    (body body)
+                    (body decl body)
 
                   `(progn
                      (unless ,list
                        (go ,tag))
 
                      (let ((,var (,place ,list)))
-                       (setf ,list (cdr ,list))
+                       ,@decl
 
+                       (setf ,list (cdr ,list))
                        ,@body)))))
 
              (place-macro
@@ -176,14 +100,16 @@
                                ,(iter-macro (tag index v-end list-value)
                                     (pattern &body body)
 
-                                  `(,list-value
-                                    ,pattern
+                                  (split-declarations-forms (decl forms) body
+                                    `(,list-value
+                                      ,pattern
 
-                                    (unless (< ,index ,v-end)
-                                      (go ,tag))
+                                      ,@decl
+                                      (unless (< ,index ,v-end)
+                                        (go ,tag))
 
-                                    (incf ,index)
-                                    ,@body)))
+                                      (incf ,index)
+                                      ,@forms))))
 
                              (,with-place .
                                ,(iter-macro (tag index v-end list-place)
@@ -282,7 +208,7 @@
            (pattern &body body)
 
          (with-destructure-pattern (var pattern)
-             (body body)
+             (body decl body)
 
            `(progn
               (unless (if ,v-from-end
@@ -291,6 +217,8 @@
                 (go ,tag))
 
               (let ((,var (aref ,vec ,index)))
+                ,@decl
+
                 (if ,v-from-end
                     (decf ,index)
                     (incf ,index))
@@ -334,13 +262,14 @@
          (pattern &body body)
 
        (with-destructure-pattern (var pattern)
-           (body body)
+           (body decl body)
 
          `(progn
             (when (endp ,it)
               (go ,tag))
 
             (let ((,var (at ,it)))
+              ,@decl
               (advance ,it)
               ,@body))))
 

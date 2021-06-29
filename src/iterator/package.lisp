@@ -32,19 +32,23 @@
   (:use :anaphora
         :arrows
         :trivia
+        :tcr.parse-declarations-1.0
         :cl-form-types
 
         :generic-cl.internal)
 
   (:import-from :agutil
-                :let-if)
+                :let-if
+                :nlet)
 
   (:import-from :alexandria
                 :with-gensyms
                 :make-gensym-list
                 :mappend
                 :ensure-car
-                :if-let)
+                :ensure-list
+                :if-let
+                :parse-body)
 
   (:shadow
    :endp)
@@ -69,6 +73,7 @@
 
    :with-iterators
    :with-iter-value
+   :with-iter-values
    :with-iter-place
    :do-iter-values)
 
@@ -92,6 +97,7 @@
   (:export :make-doseq
            :subtype
            :with-destructure-pattern
+           :split-declarations-forms
            :iter-macro)
 
   (:documentation

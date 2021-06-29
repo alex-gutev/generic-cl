@@ -35,6 +35,7 @@
                #:anaphora
                #:arrows
                #:trivia
+               #:parse-declarations-1.0
                #:static-dispatch
                #:cl-form-types
 
