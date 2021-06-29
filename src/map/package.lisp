@@ -44,7 +44,8 @@
 
   (:import-from :generic-cl.iterator
                 :list-iterator
-                :make-list-iterator)
+                :make-list-iterator
+                :partition-declarations)
 
   (:import-from :alexandria
                 :with-gensyms

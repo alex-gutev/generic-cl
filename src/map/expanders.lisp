@@ -30,37 +30,41 @@
 
 ;;; Utilities
 
-(defmacro with-destructure-entry ((key value pattern) (body-var body) &body forms)
+(defmacro with-destructure-entry ((key value pattern) (body-var decl-var body) &body forms)
   "Like WITH-DESTRUCTURE-PATTERN, except that FORMS should generate
    code which binds the current entry key to KEY and the value to
    VALUE."
 
   `(make-destructure-pattern
     ,pattern ,body
-    (lambda (,key ,value ,body-var)
+    (lambda (,key ,value ,decl-var ,body-var)
       ,@forms)))
 
 (defun make-destructure-pattern (pattern body fn)
-  (ematch pattern
+  (match pattern
     ((cons (and (type symbol) key)
            (and (type symbol) value))
 
-     (funcall fn
+     (split-declarations-forms (decl forms) body
+       (multiple-value-bind (decls-vars decls-other)
+           (partition-declarations (list key value) decl)
+
+         `(locally ,decls-other
+            ,(funcall
+              fn
               (or key (gensym "KEY"))
               (or value (gensym "VALUE"))
-              body))
+              decls-vars forms)))))
 
-    ((type symbol)
-     (with-gensyms (key value)
-       (->> `((let ((,pattern (cons ,key ,value)))
-                ,@body))
-            (funcall fn key value))))
+    (_
+     (with-destructure-pattern (var pattern)
+         (forms decls body)
 
-    ((type list)
-     (with-gensyms (key value)
-       (->> `((destructuring-bind ,pattern (cons ,key ,value)
-                ,@body))
-            (funcall fn key value))))))
+       (with-gensyms (key value)
+         (->> `((let ((,var (cons ,key ,value)))
+                  ,@decls
+                  ,@forms))
+              (funcall fn key value)))))))
 
 (defmacro map-place (key table)
   (once-only (key)
@@ -82,17 +86,18 @@
                    (pattern &body body)
 
                  (with-destructure-entry (key value pattern)
-                     (body body)
+                     (forms decl body)
 
                    `(multiple-value-bind (,more? ,key ,value)
                         (,next)
                       (declare (ignorable ,key ,value))
+                      ,@decl
 
                       (unless ,test
                         (go ,tag))
 
                       ,@inc
-                      ,@body))))
+                      ,@forms))))
 
              (make-iter-place (test inc)
                (iter-macro (more? next test tag inc table)
