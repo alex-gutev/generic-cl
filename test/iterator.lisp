@@ -574,6 +574,7 @@
 
   (let (result)
     (doseq (elem '(1 2 3 4))
+      (declare (type integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(1 2 3 4) (cl:nreverse result)))))
@@ -583,6 +584,8 @@
 
   (let (result)
     (doseq ((x y) '((1 2) (3 4) (5 6) (7 8)))
+      (declare (type number x) (fixnum y))
+      (declare (optimize speed))
       (push (cl:+ x y) result))
 
     (is (= '(3 7 11 15) (cl:nreverse result)))))
@@ -594,6 +597,8 @@
          (result nil))
 
     (doseq (elem (the list list) :from-end t)
+      (declare (number elem))
+      (declare (optimize speed))
       (push elem result))
 
     (is (= '(4 3 2 1) (cl:nreverse result)))))
@@ -603,6 +608,7 @@
 
   (let* (result)
     (doseq (elem '(1 2 3 4 5) :start 1 :end 4)
+      (declare (integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(2 3 4) (cl:nreverse result)))))
@@ -612,6 +618,7 @@
 
   (let* (result)
     (doseq (elem '(1 2 3 4 5) :start 1 :end 4 :from-end t)
+      (declare (type integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(4 3 2) (cl:nreverse result)))))
@@ -624,6 +631,7 @@
 
   (let (result)
     (doseq (elem #(1 2 3 4))
+      (declare (type integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(1 2 3 4) (cl:nreverse result)))))
@@ -633,6 +641,8 @@
 
   (let (result)
     (doseq ((x y) #((1 2) (3 4) (5 6) (7 8)))
+      (declare (type number x) (fixnum y))
+      (declare (optimize speed))
       (push (cl:+ x y) result))
 
     (is (= '(3 7 11 15) (cl:nreverse result)))))
@@ -644,6 +654,8 @@
          (result nil))
 
     (doseq (elem (the vector vec) :from-end t)
+      (declare (number elem))
+      (declare (optimize speed))
       (push elem result))
 
     (is (= '(4 3 2 1) (cl:nreverse result)))))
@@ -653,6 +665,7 @@
 
   (let* (result)
     (doseq (elem #(1 2 3 4 5) :start 1 :end 4)
+      (declare (integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(2 3 4) (cl:nreverse result)))))
@@ -662,6 +675,7 @@
 
   (let* (result)
     (doseq (elem #(1 2 3 4 5) :start 1 :end 4 :from-end t)
+      (declare (type integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(4 3 2) (cl:nreverse result)))))
@@ -676,6 +690,7 @@
 	 (new-map (make-hash-map)))
 
     (doseq ((key . value) (the hash-map map))
+      (declare (type (or symbol null) key) (type (or number null) value))
       (setf (get key new-map) value))
 
     (is (= new-map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))))
@@ -690,6 +705,7 @@
          (result nil))
 
     (doseq (elem seq)
+      (declare (type integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(1 2 3 4 5 6) (cl:nreverse result)))))
@@ -699,7 +715,10 @@
 
   (let ((seq '((1 2) (3 4) (5 6) (7 8)))
         (result nil))
+
     (doseq ((x y) seq)
+      (declare (type number x) (fixnum y))
+      (declare (optimize speed))
       (push (cl:+ x y) result))
 
     (is (= '(3 7 11 15) (cl:nreverse result)))))
@@ -711,6 +730,8 @@
          (result nil))
 
     (doseq (elem list :from-end t)
+      (declare (number elem))
+      (declare (optimize speed))
       (push elem result))
 
     (is (= '(4 3 2 1) (cl:nreverse result)))))
@@ -722,6 +743,7 @@
          result)
 
     (doseq (elem list :start 1 :end 4)
+      (declare (integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(2 3 4) (cl:nreverse result)))))
@@ -733,6 +755,7 @@
          result)
 
     (doseq (elem seq :start 1 :end 4 :from-end t)
+      (declare (type integer elem) (optimize speed))
       (push elem result))
 
     (is (= '(4 3 2) (cl:nreverse result)))))
@@ -749,7 +772,10 @@
 
    (do-sequences ((x (list 1 2 3))
                   (y #(a b c d e) :start 1)
-                  ((zkey . zval) (alist-hash-map '((k1 . 1) (k2 . 2) (k3 . 3)))))
+                  ((zkey . zval) (the hash-map (alist-hash-map '((k1 . 1) (k2 . 2) (k3 . 3))))))
+
+     (declare (number x) (symbol y))
+     (declare (optimize speed) (type (or symbol null) zkey))
 
      (push x res1)
      (push y res2)
