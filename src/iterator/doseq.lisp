@@ -371,9 +371,10 @@
          for iter-place = (gensym "ITER-PLACE")
          for form-body = `((macrolet ((,iter-value ,@value)
                                       (,iter-place
-                                          `((&rest args)
-                                            (declare (ignore args))
-                                            (error "In WITH-ITER-PLACE: Iterator ~s points to immutable sequence." ',var))))
+                                          ,@(or place
+                                                `((&rest args)
+                                                  (declare (ignore args))
+                                                  (error "In WITH-ITER-PLACE: Iterator ~s points to immutable sequence." ',var)))))
                              ,@body))
 
          append bindings into all-bindings
