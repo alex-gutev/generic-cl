@@ -49,7 +49,7 @@
        (multiple-value-bind (decls-vars decls-other)
            (partition-declarations (list key value) decl)
 
-         `(locally ,decls-other
+         `(locally ,@decls-other
             ,(funcall
               fn
               (or key (gensym "KEY"))
