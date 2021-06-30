@@ -972,8 +972,6 @@
 
     (doseq! (item (the hash-map map))
       (destructuring-bind (key . value) item
-        (pprint key)
-
         (if (= key 'a)
             (setf item 'x1))
 
