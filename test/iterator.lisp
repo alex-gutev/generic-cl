@@ -853,7 +853,7 @@
       (incf i))
 
     (is (= '(a 3 b) (cl:nreverse result)))
-    (is (= '(1 a 3 b 5)) list)))
+    (is (= '(1 a 3 b 5) list))))
 
 (test doseq!-list-reverse-bounded
   "Test DOSEQ! macro on list with :START 1, :END 4, :FROM-END T"
@@ -972,6 +972,8 @@
 
     (doseq! (item (the hash-map map))
       (destructuring-bind (key . value) item
+        (declare (ignore value))
+
         (if (= key 'a)
             (setf item 'x1))
 
