@@ -245,15 +245,15 @@
     (when expanded?
       macros)))
 
-(defun iter-value-places (env)
+(defun iter-place-macros (env)
   "Retrieve the association list mapping iterator identifiers to the
    names of the macros serving as the expansion of WITH-ITER-PLACE
    when given those iterator identifiers. This information is
    retrieved from the environmnet ENV by macroexpanding the
-   symbol-macro ITER-VALUE-PLACES."
+   symbol-macro ITER-PLACE-MACROS."
 
   (multiple-value-bind (macros expanded?)
-      (macroexpand 'iter-value-places env)
+      (macroexpand 'iter-place-macros env)
 
     (when expanded?
       macros)))
@@ -321,8 +321,8 @@
                     ((iter-value-macros
                       ,(append get-values (iter-value-macros env)))
 
-                     (iter-value-places
-                      ,(append places (iter-value-places env))))
+                     (iter-place-macros
+                      ,(append places (iter-place-macros env))))
 
                   ,@body))
 
@@ -424,7 +424,7 @@
 
        (DECLARATION* FORM*)
 
-     The body consists of a list of forms evaluate in an implicit
+     The body consists of a list of forms evaluated in an implicit
      PROGN, with the value of the last form returned from the
      WITH-ITER-VALUE form. The binding(s) introduced by PATTERN are
      visible to forms.
@@ -462,7 +462,7 @@
      correct WITH-ITER-VALUE form, depending on which variable(s) they
      apply to.
 
-   BODY
+   BODY:
 
      The body of the WITH-ITER-VALUES form:
 
@@ -562,7 +562,7 @@
      are not evaluated and a non-local jump to the end of the
      WITH-ITERATORS form is performed."
 
-  (let ((place-macros (iter-value-places env)))
+  (let ((place-macros (iter-place-macros env)))
     (unless place-macros
       (error "Illegal use of WITH-ITER-PLACE outside WITH-ITERATORS."))
 
@@ -570,6 +570,74 @@
       (list* (cdr macro) name morep forms)
       (error "In WITH-ITER-PLACE: ~s not one of ~{~s~^ or~} passed to WITH-ITERATORS."
              iter (mapcar #'car place-macros)))))
+
+(defmacro with-iter-places ((&rest bindings) &body body &environment env)
+  "Like WITH-ITER-PLACE except for multiple sequences.
+
+   BINDINGS:
+
+     A list of element value bindings, corresponding to the first
+     argument of WITH-ITER-PLACE, each of the form (NAME ITER) or (NAME ITER MOREP).
+
+       ((name-1 iter-1) (name-2 iter-2) ... (name-n iter-n))
+
+     This form is functionally equivalent to a series of nested
+     WITH-ITER-PLACE forms:
+
+       (with-iter-place (name-1 iter-1)
+         (with-iter-place (name-2 iter-2)
+           (...
+             (with-iter-place (name-n iter-n)
+               ,@body))))
+
+     However unlike simply nesting WITH-ITER-PLACE forms, declarations
+     occurring in BODY are handled properly and associated with the
+     correct WITH-ITER-PLACE form, depending on which variable(s) they
+     apply to.
+
+   BODY:
+
+     The body of the WITH-ITER-PLACE form:
+
+        (DECLARATION* FORM*)
+
+     The body consists of a list of forms evaluate in an implicit
+     PROGN, with the value of the last form returned from the
+     WITH-ITER-PLACE form. The symbol-macros introduced in BINDINGS
+     are visible to the forms.
+
+     The forms may be preceded by one or more declaration expressions,
+     which may apply to the variables introduced in any of the binding
+     patterns, in BINDINGS.
+
+     NOTE: If there are no more elements in at least of the sequences,
+     and there is no corresponding MOREP variable for the sequence,
+     the forms are not evaluated and a non-local jump to the end of
+     the enclosing WITH-ITERATORS form is performed."
+
+  (let ((bind-macros (iter-place-macros env)))
+    (unless bind-macros
+      (error "Illegal use of WITH-ITER-PLACE outside WITH-ITERATORS."))
+
+    (flet ((make-iter-place (binding body)
+             (destructuring-bind (name iter &optional more?) binding
+               (check-type iter symbol)
+
+               (let ((macro (assoc iter bind-macros)))
+                 (unless macro
+                   (error "In WITH-ITER-PLACE: ~s not one of ~{~s~^, ~} passed to WITH-ITERATORS."
+                          iter (mapcar #'car bind-macros)))
+
+                 (macroexpand (list* (cdr macro) name more? body) env)))))
+
+      `(progn
+         ,@(reduce
+            (lambda (binding body)
+              (list (make-iter-place binding body)))
+
+            bindings
+            :from-end t
+            :initial-value body)))))
 
 (defmacro do-iter-values ((&rest iters) &body forms)
   "Iterate over the remaining elements of a sequence pointed to by static iterators.
@@ -614,16 +682,11 @@
    expanding to the 'place' of the current sequence element, is
    introduced, as if by WITH-ITER-PLACE."
 
-  (flet ((make-iter-place (iter forms)
-           (destructuring-bind (var iter) iter
-             `((with-iter-place (,var ,iter)
-                 ,@forms)))))
-
-    (with-gensyms (start)
-      `(tagbody
-          ,start
-          ,@(cl:reduce #'make-iter-place iters :initial-value forms :from-end t)
-          (go ,start)))))
+  (with-gensyms (start)
+    `(tagbody
+        ,start
+        (with-iter-places ,iters ,@forms)
+        (go ,start))))
 
 
 ;;;; DO-SEQUENCES Macro

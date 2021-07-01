@@ -105,19 +105,25 @@
 
                  (let ((more? (or more?-var more?)))
                    (with-gensyms (key)
-                     `(multiple-value-bind (,more? ,key)
-                          (,next)
+                     (with-variable-declarations ((decl-name name) (decl-more? more?))
+                         forms body
 
-                        (symbol-macrolet ((,name (map-place ,key ,table)))
-                          ,(if more?-var
-                               body
+                       `(multiple-value-bind (,more? ,key)
+                            (,next)
+                          ,@decl-more?
 
-                               `(progn
-                                  (unless ,test
-                                    (go ,tag))
+                          (symbol-macrolet ((,name (map-place ,key ,table)))
+                            ,@decl-name
 
-                                  ,@inc
-                                  ,@body)))))))))
+                            ,(if more?-var
+                                 forms
+
+                                 `(progn
+                                    (unless ,test
+                                      (go ,tag))
+
+                                    ,@inc
+                                    ,@forms))))))))))
 
         (with-constant-values (start end) env
           ((start end)

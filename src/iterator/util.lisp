@@ -122,6 +122,60 @@
        (parse-iter-macro-body ,body-form)
      ,@body))
 
+(defmacro with-variable-declarations ((&rest bindings) forms-var body-form &body body)
+  "Split a body into the declarations, applying to specific variables, and the forms.
+
+   BINDINGS:
+
+     List specifying for which variables to extract the declarations.
+
+     Each element is of the form (DECL-VAR VAR), where DECL-VAR is the
+     name of the variable which is to receive the list of declarations
+     applying to the variable given by VAR (evaluated).
+
+   FORMS-VAR:
+
+     Name of the variable to receive the list of forms
+
+   BODY-FORM:
+
+     The body to split (evaluated).
+
+   BODY:
+
+     The macro body forms evaluated in an implicit PROGN. The value
+     returned by the last form is included in the result returned.
+
+   The value returned by the macro is a LOCALLY form containing the
+   declarations not applying to any of the variables listed in
+   BINDINGS and the body of which is the form returned by the last
+   form in BODY."
+
+  (flet ((make-partition (spec body)
+           (destructuring-bind (decl-var var) spec
+             (destructuring-bind (decl-other . body) body
+               (with-gensyms (decl)
+                 (cons
+                  decl
+
+                  `((multiple-value-bind (,decl-var ,decl-other)
+                        (partition-declarations (list ,var) ,decl)
+                      ,@body))))))))
+
+    (with-gensyms (decl-other)
+      (destructuring-bind (decl . body)
+          (reduce
+           #'make-partition
+           bindings
+           :from-end t
+           :initial-value
+           (cons decl-other
+                 `(`(locally ,@,decl-other
+                      ,(progn ,@body)))))
+
+        `(split-declarations-forms (,decl ,forms-var) ,body-form
+           ,@body)))))
+
 (defun make-destructure-pattern (pattern body fn)
   (multiple-value-bind (forms decl)
       (parse-iter-macro-body body)
@@ -337,8 +391,7 @@
 
        ,@',body)))
 
-
-;;;; Parsing declarations
+;;; Parsing declarations
 
 ;; From Serapeum / macro-tools.lisp
 

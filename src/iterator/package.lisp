@@ -81,6 +81,7 @@
            :subtype
            :with-destructure-pattern
            :split-declarations-forms
+           :with-variable-declarations
            :iter-macro)
 
   (:documentation
@@ -94,12 +95,14 @@
                 :subtype
                 :with-destructure-pattern
                 :split-declarations-forms
+                :with-variable-declarations
                 :iter-macro)
 
   (:export :make-doseq
            :subtype
            :with-destructure-pattern
            :split-declarations-forms
+           :with-variable-declarations
            :iter-macro)
 
   (:documentation

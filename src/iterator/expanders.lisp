@@ -64,20 +64,25 @@
               (iter-macro (tag list place)
                   (name more? &body body)
 
-                (let ((body
-                       `(prog1 (progn ,@body)
-                          (setf ,list (cdr ,list)))))
+                (with-variable-declarations ((decl-name name) (decl-more? more?))
+                    forms body
 
-                  `(symbol-macrolet ((,name (,place ,list)))
-                     ,(if more?
-                          `(let ((,more? ,list))
-                             ,body)
+                  (let ((body
+                         `(prog1 (progn ,@forms)
+                            (setf ,list (cdr ,list)))))
 
-                          `(progn
-                             (unless ,list
-                               (go ,tag))
+                    `(symbol-macrolet ((,name (,place ,list)))
+                       ,@decl-name
+                       ,(if more?
+                            `(let ((,more? ,list))
+                               ,@decl-more?
+                               ,body)
 
-                             ,body)))))))
+                            `(progn
+                               (unless ,list
+                                 (go ,tag))
+
+                               ,body))))))))
 
          (with-gensyms (list-value list-place)
            `((cond
@@ -227,24 +232,29 @@
        (iter-macro (tag v-from-end v-start vec end-index index)
            (name more? &body body)
 
-         (let ((test `(if ,v-from-end
-                          (>= ,index ,v-start)
-                          (< ,index ,end-index)))
-               (body `(prog1 (progn ,@body)
-                        (if ,v-from-end
-                            (decf ,index)
-                            (incf ,index)))))
+         (with-variable-declarations ((decl-name name) (decl-more? more?))
+             forms body
 
-           `(symbol-macrolet ((,name (aref ,vec ,index)))
-              ,(if more?
-                   `(let ((,more? ,test))
-                      ,body)
+           (let ((test `(if ,v-from-end
+                            (>= ,index ,v-start)
+                            (< ,index ,end-index)))
+                 (body `(prog1 (progn ,@forms)
+                          (if ,v-from-end
+                              (decf ,index)
+                              (incf ,index)))))
 
-                   `(progn
-                      (unless ,test
-                        (go ,tag))
+             `(symbol-macrolet ((,name (aref ,vec ,index)))
+                ,@decl-name
+                ,(if more?
+                     `(let ((,more? ,test))
+                        ,@decl-more?
+                        ,body)
 
-                      ,body)))))))))
+                     `(progn
+                        (unless ,test
+                          (go ,tag))
+
+                        ,body))))))))))
 
 
 ;;; Default
@@ -279,13 +289,18 @@
        (let ((body `(prog1 (progn ,@body)
                       (advance ,it))))
 
-         `(symbol-macrolet ((,name (at ,it)))
-            ,(if more?
-                 `(let ((,more? (not (endp ,it))))
-                    ,body)
+         (with-variable-declarations ((decl-name name) (decl-more? more?))
+             forms body
 
-                 `(progn
-                    (when (endp ,it)
-                      (go ,tag))
+           `(symbol-macrolet ((,name (at ,it)))
+              ,@decl-name
+              ,(if more?
+                   `(let ((,more? (not (endp ,it))))
+                      ,@decl-more?
+                      ,forms)
 
-                    ,body))))))))
+                   `(progn
+                      (when (endp ,it)
+                        (go ,tag))
+
+                      ,forms)))))))))
