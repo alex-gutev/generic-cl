@@ -1,0 +1,175 @@
+=== Lazy Sequences ===
+
+System and package name: `GENERIC-CL.LAZY-SEQ`
+
+Lazy sequences are sequences in which the elements are only computed
+when they are actually referenced, rather than being computed
+immediately.
+
+Lazy sequences are implemented with the `LAZY-SEQ` structure which is
+similar to a `CONS` cell, however the `CDR`, the `TAIL` slot of the
+`LAZY-SEQ` structure, stores a function which computes and returns the
+remainder of the sequence, rather than storing the sequence directly.
+
+==== LAZY-SEQ Structure ====
+
+Structure: `LAZY-SEQ`
+
+Lazy sequence cell analogous to a `CONS`.
+
+.Slots
+`HEAD`:: The first element of the sequence. _Can be accessed with
+the `LAZY-SEQ-HEAD` accessor function._
+
+`TAIL`:: A function of zero arguments which returns a `LAZY-SEQ`
+containing the remaining elements in the sequence. If there are no
+more elements the function returns `NIL`. _Can be accessed with the
+`LAZY-SEQ-TAIL` accessor function_.
+
+.*Implemented Interfaces:*
+* <<equalp,`EQUALP`>> function.
+
+* <<copy,`COPY`>> function. Accepts the `:DEEP` keyword parameter
+      which indicates whether the elements should also be copied.
+
+* <<coerce,`COERCE`>> function.
+
+* <<mandatory_functions,Mandatory Functions>>, of the
+<<iterator,Iterator>> interface.
+
+* <<make_collector,`MAKE-COLLECTOR`>> function of the
+<<collector,Collector>> interface.
++
+--
+NOTE: The method specialized on ``LAZY-SEQ``'s returns a collector
+for a `LIST` since it does not make sense to be collecting items,
+which have already been evaluated, into a `LAZY-SEQ`.
+--
+
+* <<subseq,SUBSEQ>> function which returns the subsequence as a
+`LAZY-SEQ`.
+
+* Methods, specialized on `LAZY-SEQ`, are implemented for the
+following <<sequence,Sequence Operations>> and their
+destructive counterparts:
++
+--
+** `REMOVE`
+** `REMOVE-IF`
+** `REMOVE-IF-NOT`
+** `SUBSTITUTE`
+** `SUBSTITUTE-IF`
+** `SUBSTITUTE-IF-NOT`
+** `REMOVE-DUPLICATES`
+
+
+These methods return a `LAZY-SEQ` with the sequence operation
+'lazily' applied to the sequence.
+
+NOTE: The destructive versions are identical to the
+non-destructive versions.
+--
+
+
+==== MAKE-LAZY-SEQ ====
+
+Function: `MAKE-LAZY-SEQ HEAD TAIL`
+
+Creates a `LAZY-SEQ` with the `HEAD` slot initialized to `HEAD` and
+the `TAIL` slot initialized to `TAIL`.
+
+IMPORTANT: `TAIL` must be a function of zero arguments that returns
+either a `LAZY-SEQ` containing the remaining elements in the sequence
+or `NIL` indicating there are no more elements.
+
+NOTE: For efficiency the function in `TAIL` should only compute the
+remainder of the sequence the first time it is called. Remaining calls
+to the function should simply return the previously computed result.
+
+TIP: The <<lazy_seq_macro,`LAZY-SEQ`>> macro automatically wraps the
+form, which returns the remainder of the sequence, in a function.
+
+==== LAZY-SEQ Macro ====
+
+Macro: `LAZY-SEQ HEAD &OPTIONAL TAIL`
+
+Creates a `LAZY-SEQ` instance with the `HEAD` slot initialized to
+`HEAD` and the `TAIL` slot initialized to a function which evaluates
+the form `TAIL`.
+
+NOTE: The function only evaluates `TAIL` the first time it is
+call. Subsequent calls will simply return the previously computed
+result.
+
+
+==== COERCE Methods ====
+
+The following `COERCE` methods are provided which specialize on
+``LAZY-SEQ``'s.
+
+- `LAZY-SEQ (EQL 'LIST)`
++
+--
+Returns a list containing all the elements in the `LAZY-SEQ`.
+
+WARNING: If the `LAZY-SEQ` is an infinite sequence, this function
+will never terminate.
+--
+
+
+==== CONCATENATE Methods ====
+
+Method: `CONCATENATE LAZY-SEQ &REST SEQUENCES` +
+Method: `NCONCATENATE LAZY-SEQ &REST SEQUENCES` +
+Method: `CONCATENATE-TO (EQL 'LAZY-SEQ) &REST SEQUENCES`
+
+Concatenates sequences to a lazy sequence.
+
+The concatenation is done lazily, that is the elements of the
+sequences, in `SEQUENCES`, are only added to the lazy sequence when
+elements past the end of the `LAZY-SEQ`, passed in the first argument,
+are referenced.
+
+The `CONCATENATE-TO` method returns a lazy sequence containing the
+concatenation of `SEQUENCES`. Like `CONCATENATE` and `NCONCATENATE`
+the concatenation is done lazily.
+
+NOTE: `NCONCATENATE` is identical to `CONCATENATE`, that is the
+`LAZY-SEQ` is not destructively modified.
+
+
+==== MAP Methods ====
+
+Method: `MAP FUNCTION LAZY-SEQ &REST SEQUENCES` +
+Method: `NMAP FUNCTION LAZY-SEQ &REST SEQUENCES` +
+Method: `MAP-INTO LAZY-SEQ FUNCTION &REST SEQUENCES` +
+Method: `MAP-TO (EQL 'LAZY-SEQ) FUNCTION &REST SEQUENCES`
+
+Applies a function on each element of the `LAZY-SEQ` and of each
+sequence in `SEQUENCES`.
+
+The result is a `LAZY-SEQ` with the function applied lazily to each
+element, that is it is only applied when that element is referenced.
+
+The `MAP-TO` method returns the result, of lazily applying the
+function on each element of each sequence in `SEQUENCES`, in a
+`LAZY-SEQ`.
+
+NOTE: `NMAP` and `MAP-INTO` do not destructively modify the `LAZY-SEQ`
+but return a new sequence instead.
+
+
+==== Utilities ====
+
+===== RANGE =====
+
+Function: `RANGE START &OPTIONAL END STEP`
+
+Returns a `LAZY-SEQ` containing all numbers in the range `[START,
+END)`.
+
+If `END` is `NIL`, an infinite sequence, without an upper bound, is
+returned.
+
+`STEP`, defaults to `1`, is the delta by which each number is incremented
+to obtain the next successive number in the sequence.

@@ -1,0 +1,266 @@
+[[iterator]]
+=== Iterator ===
+
+System and package name `GENERIC-CL.ITERATOR`.
+
+The iterator interface is a generic interface for iterating over the
+elements of sequences and containers.
+
+Implemented for lists, vectors and multi-dimensional arrays.
+
+.Basic Usage
+[source,lisp]
+----
+(loop
+   with it = (iterator sequence) ; Create iterator for SEQUENCE
+   until (endp it) ; Loop until the iterator's end position is reach
+   do
+     (something (at it)) ; Do something with the current element
+     (advance it)) ; Advance iterator to next position
+----
+
+
+[[iterator-struct, ITERATOR]]
+==== Base Iterator Type ====
+
+Structure: `ITERATOR`
+
+This structure serves as the base iterator type and is used by certain
+methods of generic functions to specialize on iterators.
+
+All iterators should inherit from (include) `ITERATOR`, in order for
+methods which specialize on iterators to be invoked.
+
+IMPORTANT: A <<COPY>> method should be implemented for user-defined
+iterators.
+
+
+==== Iterator Creation ====
+
+<<iterator-func>> is the high-level function for creating iterators,
+whereas <<MAKE-ITERATOR>> AND <<MAKE-REVERSE-ITERATOR>> are the
+generic iterator creation functions to implement for user-defined
+sequence types.
+
+
+===== MAKE-ITERATOR =====
+
+Generic Function: `MAKE-ITERATOR SEQUENCE START END`
+
+Returns an iterator for the sub-sequence of `SEQUENCE`, identified by
+the range `[START, END)`.
+
+`START` is the index of the first element to iterate over. `0`
+indicates the first element of the sequence.
+
+`END` is the index of the element at which to terminate the iteration,
+i.e.  1 + the index of the last element to be iterated over. `NIL`
+indicates iterate till the end of the sequence.
+
+
+===== MAKE-REVERSE-ITERATOR =====
+
+Generic Function: `MAKE-REVERSE-ITERATOR SEQUENCE START END`
+
+Returns an iterator for the sub-sequence of `SEQUENCE`, identified by
+the range `[START, END)`, in which the elements are iterated over in
+reverse order.
+
+IMPORTANT: Even though the elements are iterated over in reverse order,
+`START` and `END` are still relative to the start of the sequence, as
+in `MAKE-ITERATOR`.
+
+`START` is the index of the last element to visit.
+
+`END` is the index of the element following the first element to be
+iterated over.
+
+
+[[iterator-func, ITERATOR]]
+===== ITERATOR =====
+
+Function: `ITERATOR SEQUENCE &KEY (START 0) END FROM-END`
+
+Returns an iterator for the sub-sequence of `SEQUENCE` identified by
+the range `[START, END)`.
+
+`START` (defaults to `0` - the start of the sequence) and `END`
+(defaults to `NIL` - the end of the sequence) are the start and end
+indices of the sub-sequence to iterate over (see <<MAKE-ITERATOR>> and
+<<MAKE-REVERSE-ITERATOR>> for more a detailed description).
+
+If `FROM-END` is true a reverse iterator is created (by
+<<MAKE-REVERSE-ITERATOR>>) otherwise a forward iterator is created (by
+<<MAKE-ITERATOR>>).
+
+
+==== Mandatory Functions ====
+
+These functions have to be implemented for all user-defined iterators.
+
+
+===== AT =====
+
+Generic Function: `AT ITERATOR`
+
+Return the value of the element at the current position of the
+iterator `ITERATOR`.
+
+WARNING: The effects of calling this method, after the iterator has
+reached the end of the subsequence are unspecified.
+
+
+===== ENDP =====
+
+Generic Function: `ENDP ITERATOR`
+
+Return true if the iterator is at the end of the subsequence, false
+otherwise.
+
+The end of the subsequence is defined as the position past the last
+element of the subsequence, that is the position of the iterator after
+advancing it (by <<ADVANCE>>) from the position of the last element.
+
+If the subsequence is empty `ENDP` should immediately return true.
+
+NOTE: The default `T` method calls `CL:ENDP` since this function
+shadows the `CL:ENDP` function.
+
+
+===== ADVANCE =====
+
+Generic Function: `ADVANCE ITERATOR`
+
+Advance the iterator to the next element in the subsequence. After
+this method is called, subsequent calls to <<AT>> should return the
+next element in the sequence or if the last element has already been
+iterated over, <<ENDP>> should return true.
+
+
+==== Optional Functions ====
+
+Implementing the following functions for user-defined iterators is
+optional either because a default method is provided, which is
+implemented using the mandatory functions, or the function is only
+used by a select few sequence operations.
+
+
+===== START =====
+
+Generic Function: `START ITERATOR`
+
+Return the element at the current position of the iterator, if the
+iterator is not at the end of the sequence, otherwise return `NIL`.
+
+The default method first checks whether the end of the iterator has
+been reached, using `ENDP`, and if not returns the current element
+using `AT`.
+
+The default method is equivalent to the following:
+
+[source,lisp]
+----
+(unless (endp iterator)
+  (at iterator))
+----
+
+[[setf-at, (SETF AT)]]
+===== (SETF AT) =====
+
+Generic Function: `(SETF AT) VALUE ITERATOR`
+
+Set the value of the element at the position, in the sequence,
+specified by the iterator.
+
+WARNING: The effects of calling this function when, the iterator is
+past the end of the subsequence are unspecified.
+
+IMPORTANT: Implementing this function is only mandatory if destructive
+sequence operations will be used.
+
+
+===== ADVANCE-N =====
+
+Generic Function: `ADVANCE-N ITERATOR N`
+
+Advance the iterator by `N` elements.
+
+IMPORTANT: The position of the iterator, after calling this function,
+should be equivalent to the positione obtained by calling <<ADVANCE>>
+`N` times.
+
+The default method simply calls <<ADVANCE>>, on `ITERATOR`, `N` times.
+
+
+==== Macros ====
+
+Macros for iteratoring over a generic sequence. Analogous to
+`CL:DOLIST`.
+
+
+===== DOITERS =====
+
+Macro: `DOITERS (&REST ITERS) &BODY BODY`
+
+Iterate over one or more sequences with the sequence iterators bound
+to variables.
+
+Each element of `ITERS` is a list of the form `(IT-VAR
+SEQUENCE . ARGS)`, where `IT-VAR` is the variable to which the
+iterator is bound, `SEQUENCE` is the sequence which will be iterated
+over and `ARGS` are the remaining arguments passed to the
+<<iterator-func>> function.
+
+The bindings to the ``IT-VAR``'s are visible to the forms in `BODY`,
+which are executed once for each element in the sequence. After each
+iteration the sequence iterators are <<ADVANCE>>'d. The loop
+terminates when the end of a sequence is reached.
+
+
+===== DOITER =====
+
+Macro: `DOITER (ITER &REST ARGS) &BODY BODY`
+
+The is the same as <<DOITERS>> except only a single sequence is
+iterated over.
+
+
+===== DOSEQ =====
+
+Macro: `DOSEQ (ELEMENT SEQUENCE &REST ARGS) &BODY BODY`
+
+Iterate over the elements of `SEQUENCE`. `ARGS` are the remaining
+arguments passed to the <<iterator-func>> function.
+
+The forms in `BODY` are executed once for each element, with the value
+of the element bound to `ELEMENT`. If `ELEMENT` is a list, the
+sequence element is destructured, as if by `DESTRUCTURING-BIND`
+according to the pattern specified by `ELEMENT`.
+
+==== Implemented Interfaces ====
+
+This interface adds methods, when the system implementing the
+interface is loaded, specialized on ``ITERATOR``'s to the following
+functions:
+
+[[iterator-length]]
+===== LENGTH =====
+
+Method: `LENGTH (ITERATOR ITERATOR)`
+
+Returns the number of elements between the iterator's current
+position (inclusive) and the end of the iterator's subsequence.
+
+This is implemented by advancing the iterator (by <<ADVANCE>>) till
+<<ENDP>> returns true, thus is a linear `O(n)` time operation.
+
+More efficient specialized methods are provided for iterators to
+sequences for which the size is known.
+
+[[iterator-subseq]]
+===== SUBSEQ =====
+
+Method: `SUBSEQ (ITERATOR ITERATOR) START &OPTIONAL END`
+
+Returns a subsequence iterator which wraps a copy of the original
+iterator.

@@ -1,0 +1,63 @@
+== System GENERIC-CL.UTIL ==
+
+The system `GENERIC-CL.UTIL` provides additional utilities implemented
+on top of `GENERIC-CL`. These utilities are contained in the package
+`GENERIC-CL.UTIL`.
+
+=== Lazy Sequence Utilities ===
+
+==== REPEAT ====
+
+Function: `REPEAT X &OPTIONAL N TYPE`
+
+Create a lazy sequence containing `N` elements with the value `X`. If
+`N` is `NIL` or is not provided, an infinite sequence is returned.
+
+If `TYPE` is non-`NIL` a sequence of type `TYPE` is returned. The
+sequence is created using the <<SEQUENCE-OF-TYPE>> function, and the
+elements are accumulated into the sequence using the <<collector>>
+interface.
+
+==== REPEATEDLY ====
+
+Function: `REPEATEDLY F &OPTIONAL N TYPE`
+
+Create a lazy sequence containing `N` elements, with each element
+being the result of an application of the function `F` on no
+arguments. If `N` is `NIL` or not provided, an infinite sequence is
+returned.
+
+If `TYPE` is non-`NIL` a sequence of type `TYPE` is returned. The
+sequence is created using the <<SEQUENCE-OF-TYPE>> function, and the
+elements are accumulated into the sequence using the <<collector>>
+interface.
+
+==== ITERATE ====
+
+Function: `ITERATE F X &KEY INITIAL`
+
+Return an infinite lazy sequence where each element is the result of
+applying the function `F` on the previous element.
+
+IF the keyword argument `INITIAL` is true, the first element of the
+sequence is `X`, otherwise the first element is the result of applying
+`F` on `X`.
+
+
+==== FITERATE ====
+
+Function: `FITERATE F X &KEY INIITIAL`
+
+Deprecated alias for `ITERATE`
+
+
+==== CYCLE ====
+
+Function: `CYCLE SEQUENCE`
+
+Return a lazy sequence containing an infinite repetition of the
+elements in `SEQUENCE`.
+
+The resulting sequence contains the elements of `SEQUENCE` in order,
+with the last element of `SEQUENCE` followed by the first, and
+remaining, elements.

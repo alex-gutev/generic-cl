@@ -1,0 +1,95 @@
+[[collector]]
+=== Collector ===
+
+System and package name `GENERIC-CL.COLLECTOR`.
+
+The collector interface is a generic interface for accumulating items
+into a sequence/container.
+
+Implemented for lists and vectors.
+
+NOTE: While this interface is specified for sequences, it may also be
+implemented for unordered containers.
+
+.Basic Usage
+[source,lisp]
+----
+;; Create collector for the sequence, in this case an empty list
+(let ((c (make-collector nil)))
+  (accumulate c 1) ; Collect 1 into the sequence
+  (accumulate c 2) ; Collect 2 into the sequence
+  (extend c '(3 4 5)) ; Collect 3 4 5 into the sequence
+  (collector-sequence c)) ; Get the resulting sequence => '(1 2 3 4 5)
+----
+
+
+==== MAKE-COLLECTOR ====
+
+Generic Function: `MAKE-COLLECTOR SEQUENCE &KEY FRONT`
+
+Return a collector for accumulating items to the end of the sequence
+`SEQUENCE`. If `:FRONT` is provided and is true, the items are
+accumulated to the front of the sequence rather than end.
+
+IMPORTANT: The collector may destructively modify `SEQUENCE` however
+it is not mandatory and may accumulate items into a copy of `SEQUENCE`
+instead.
+
+
+==== ACCUMULATE ====
+
+Generic Function: `ACCUMULATE COLLECTOR ITEM`
+
+Accumulate `ITEM` into the sequence associated with the collector
+`COLLECTOR`.
+
+
+==== COLLECTOR-SEQUENCE ====
+
+Generic Function: `COLLECTOR-SEQUENCE COLLECTOR`
+
+Return the underlying sequence associated with the collector
+`COLLECTOR`. The sequence should contain all items accumulated up to
+the call to this function.
+
+WARNING: The effects of accumulating items into the sequence, by
+<<ACCUMULATE>> or <<EXTEND>>, after this function is
+called, are unspecified.
+
+CAUTION: The sequence returned might not be the same object passed to
+<<MAKE-COLLECTOR>>.
+
+
+==== EXTEND ====
+
+Generic Function: `EXTEND COLLECTOR SEQUENCE`
+
+Accumulate all elements of the sequence `SEQUENCE` into the sequence
+associated with the collector `COLLECTOR`.
+
+If `SEQUENCE` is an iterator all elements up-to the end of the
+iterator (till <<ENDP>> returns true) should be accumulated.
+
+NOTE: Implementing this method is optional as default methods are
+provided for iterators and sequences, which simply accumulate each
+element one by one using <<ACCUMULATE>>.
+
+.Methods
+
+* `T ITERATOR`
++
+Accumulates all elements returned by the iterator `SEQUENCE`
+(till `(ENDP SEQUENCE)` returns true), into the sequence
+associated with the collector. The elements are accumulated one
+by one using <<ACCUMULATE>>.
++
+NOTE: The iterator is copied thus the position of the iterator passed
+as an argument is not modified.
+
+* `T T`
++
+Accumulates all elements of `SEQUENCE`, into the sequence
+associated with the collector. The elements are accumulated one
+by one using <<ACCUMULATE>>.
++
+NOTE: The sequence iteration is done using the <<iterator>> interface.

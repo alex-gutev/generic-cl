@@ -1,0 +1,66 @@
+== Optimization ==
+
+There is an overhead associated with generic functions. Code making
+use of the generic function interface will be slower than code which
+calls the `CL` functions directly, due to the cost of dynamic method
+dispatch. For most cases this will not result in a noticeable decrease
+in performance, however for those cases where it does there is an
+optimization.
+
+This library is built on top of
+https://github.com/alex-gutev/static-dispatch[STATIC-DISPATCH], which
+is a library that allows generic-function dispatch to be performed
+statically, at compile-time, rather than dynamically, at runtime. The
+library allows a call to a generic function to be replaced with the
+body of the appropriate method, which is selected based on the type
+declarations of its arguments.
+
+For a generic function call to be inlined, the generic function has to
+be declared inline (either locally or globally), with the `OPTIMIZE`
+`SPEED` level greater than the `SAFETY` level. Additionally, it must
+also be possible to determine the types of the arguments at
+compile-time. _See
+https://github.com/alex-gutev/static-dispatch[STATIC-DISPATCH] and
+https://github.com/alex-gutev/cl-form-types[CL-FORM-TYPES] for
+information on how the types of the arguments are determined and how
+to make the type information available_.
+
+.Example
+[source,lisp]
+----
+(let ((x 1))
+  (declare (inline equalp)
+           (optimize (speed 3) (safety 2))
+	   (type number x))
+
+  (equalp x (the number (+ 3 4))))
+----
+
+This will result in the call to the `EQUALP` function being replaced
+with the body of the `NUMBER NUMBER` method.
+
+The n-argument equality, comparison and arithmetic functions also have
+associated compiler-macros which replace the calls to the n-argument
+functions with multiple inline calls to the binary functions, e.g. `(=
+1 2 3)` is replaced with `(and (equalp 1 2) (equalp 1 3))`.
+
+Thus the following should also result in the `EQUALP` function calls
+being statically dispatched, though this has not yet been tested:
+
+[source,lisp]
+----
+(let ((x 1))
+  (declare (inline equalp)
+	   (type number x))
+
+  (= x (the number (+ 3 4))))
+----
+
+IMPORTANT: STATIC-DISPATCH requires the ability to extract `TYPE` and
+ `INLINE` declarations from implementation specific environment
+ objects. This is provided by the
+ https://alex-gutev.github.io/cl-environments/[CL-ENVIRONMENTS]
+ library, which works in the general case however some
+ https://alex-gutev.github.io/cl-environments/#ensuring_code_walking[workarounds]
+ are necessary in order for it to work on all implementations in all
+ cases.
