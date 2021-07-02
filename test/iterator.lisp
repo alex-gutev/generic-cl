@@ -1032,6 +1032,110 @@
     (is (= '(a 3 b) (cl:nreverse result)))
     (is (= #(1 b 3 a 5) v))))
 
+
+;;;; Multi-Dimensional Arrays
+
+(test doseq!-array-unbounded
+  "Test DOSEQ! macro on multi-dimensional array (unbounded)"
+
+  (let ((a (make-array '(2 2) :initial-contents '((1 2) (3 4))))
+        (result)
+        (i 0))
+    (doseq! (elem (the array a))
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 3)
+         (setf elem 'y)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(1 x 3 y) (cl:nreverse result)))
+    (is (= #2A((1 x) (3 y)) a))))
+
+(test doseq!-array-reverse
+  "Test DOSEQ! macro on multi-dimensional array with :FROM-END t"
+
+  (let ((array (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))
+        (result)
+        (i 0))
+
+    (doseq! (elem (the (array cl:* 2) array) :from-end t)
+      (cond
+        ((= i 1)
+         (setf elem 'x))
+
+        ((= i 2)
+         (setf elem 'y)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(6 x y 3 2 1) (cl:nreverse result)))
+    (is (= #2A((1 2 3) (y x 6)) array))))
+
+(test doseq!-array-bounded
+  "Test DOSEQ! macro on multi-dimensional array with :START 1 and :END 4"
+
+  (let* ((a (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))
+         (result)
+         (i 0))
+
+    (doseq! (elem (the array a) :start 1 :end 4)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= #2A((1 a 3) (b 5 6)) a))))
+
+(test doseq!-array-reverse-bounded
+  "Test DOSEQ! macro on multi-dimensional array with :START 1, :END 4, :FROM-END T"
+
+  (let* ((a (make-array '(2 3) :initial-contents '((1 2 3) (4 5 6))))
+         (result)
+         (i 0))
+
+    (doseq! (elem (the array a) :start 1 :end 4 :from-end t)
+      (cond
+        ((= i 0)
+         (setf elem 'a))
+
+        ((= i 2)
+         (setf elem 'b)))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(a 3 b) (cl:nreverse result)))
+    (is (= #2A((1 b 3) (a 5 6)) a))))
+
+(test doseq!-array-1d
+  "Test DOSEQ! on a 1-dimensional array declared of type ARRAY"
+
+  (let ((array (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t :fill-pointer 3))
+        (result)
+        (i 0))
+
+    (doseq! (elem (the array array))
+      (when (= i 1)
+        (setf elem 'x))
+
+      (push elem result)
+      (incf i))
+
+    (is (= '(1 x 3) (cl:nreverse result)))
+    (is (= #(1 x 3) array))))
+
+
 ;;;; Hash Tables
 
 (test doseq!-hash-table
