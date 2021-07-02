@@ -681,6 +681,76 @@
     (is (= '(4 3 2) (cl:nreverse result)))))
 
 
+;;;; Multi-Dimensional Arrays
+
+(test doseq-array-unbounded
+  "Test DOSEQ macro on multi-dimensional array (unbounded)"
+
+  (let (result)
+    (doseq (elem #2A((1 2) (3 4)))
+      (declare (type integer elem) (optimize speed))
+      (push elem result))
+
+    (is (= '(1 2 3 4) (cl:nreverse result)))))
+
+(test doseq-array-destructure
+  "Test DOSEQ with destructuring on multi-dimensional array"
+
+  (let (result)
+    (doseq ((x y) #2A(((a 1) (b 2)) ((c 3) (d 4))))
+      (declare (type symbol x) (type number y))
+      (declare (optimize speed))
+
+      (push y result)
+      (push x result))
+
+    (is (= '(1 a 2 b 3 c 4 d) (cl:nreverse result)))))
+
+(test doseq-array-reverse
+  "Test DOSEQ macro on multi-dimensional array with :FROM-END t"
+
+  (let ((result)
+        (array #2A((1 2 3) (4 5 6))))
+
+    (doseq (elem (the array array) :from-end t)
+      (declare (number elem))
+      (declare (optimize speed))
+      (push elem result))
+
+    (is (= '(6 5 4 3 2 1) (cl:nreverse result)))))
+
+(test doseq-array-bounded
+  "Test DOSEQ macro on multi-dimensional array with :START 1 and :END 4"
+
+  (let* (result)
+    (doseq (elem #2A((1 2 3) (4 5 6)) :start 1 :end 4)
+      (declare (integer elem) (optimize speed))
+      (push elem result))
+
+    (is (= '(2 3 4) (cl:nreverse result)))))
+
+(test doseq-array-reverse-bounded
+  "Test DOSEQ macro on multi-dimensional array with :START 1, :END 4, :FROM-END T"
+
+  (let* (result)
+    (doseq (elem #2A((1 2 3) (4 5 6)) :start 1 :end 4 :from-end t)
+      (declare (type integer elem) (optimize speed))
+      (push elem result))
+
+    (is (= '(4 3 2) (cl:nreverse result)))))
+
+(test doseq-array-1d
+  "Test DOSEQ on a 1-dimensional array declared of type ARRAY"
+
+  (let ((array (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t :fill-pointer 3))
+        (result))
+
+    (doseq (elem (the array array))
+      (declare (number elem))
+      (push elem result))
+
+    (is (= '(1 2 3) (cl:nreverse result)))))
+
 ;;;; Hash Tables
 
 (test doseq-hash-table
