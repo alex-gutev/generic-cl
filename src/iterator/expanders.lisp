@@ -257,6 +257,78 @@
                         ,body))))))))))
 
 
+;;; Arrays
+
+(defmethod make-doseq array (type form args tag body env)
+  (destructuring-bind (&key from-end (start 0) end) args
+    (with-gensyms (array index end-index v-from-end v-start v-end)
+      (values
+       `((,v-from-end ,from-end :constant t)
+         (,v-start ,start :constant t)
+         (,v-end ,end :constant t)
+
+         (,array ,form)
+         (,end-index
+          (if ,v-end
+              ,v-end
+              (if (= (array-rank ,array) 1)
+                  (cl:length ,array)
+                  (array-total-size ,array)))
+          :constant t)
+
+         (,index
+          (if ,v-from-end (cl:1- ,end-index) ,v-start)))
+
+       body
+
+       (iter-macro (tag v-from-end v-start array end-index index)
+           (pattern &body body)
+
+         (with-destructure-pattern (var pattern)
+             (forms decl body)
+
+           `(progn
+              (unless (if ,v-from-end
+                          (>= ,index ,v-start)
+                          (< ,index ,end-index))
+                (go ,tag))
+
+              (let ((,var (row-major-aref ,array ,index)))
+                ,@decl
+
+                (if ,v-from-end
+                    (decf ,index)
+                    (incf ,index))
+                ,@forms))))
+
+       (iter-macro (tag v-from-end v-start array end-index index)
+           (name more? &body body)
+
+         (with-variable-declarations ((decl-name name) (decl-more? more?))
+             forms body
+
+           (let ((test `(if ,v-from-end
+                            (>= ,index ,v-start)
+                            (< ,index ,end-index)))
+                 (body `(prog1 (progn ,@forms)
+                          (if ,v-from-end
+                              (decf ,index)
+                              (incf ,index)))))
+
+             `(symbol-macrolet ((,name (row-major-aref ,array ,index)))
+                ,@decl-name
+                ,(if more?
+                     `(let ((,more? ,test))
+                        ,@decl-more?
+                        ,body)
+
+                     `(progn
+                        (unless ,test
+                          (go ,tag))
+
+                        ,body))))))))))
+
+
 ;;; Default
 
 (defmethod make-doseq t ((type t) form args tag body env)
