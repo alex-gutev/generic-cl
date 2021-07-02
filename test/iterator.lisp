@@ -1178,6 +1178,7 @@
         (hash-map-alist map)
         '((a . x1) (b . 2) (c . x2)))))
 
+
 ;;;; Iterator Based Implementation
 
 (test doseq!-generic
@@ -1263,3 +1264,51 @@
 
     (is (= '(a 3 b) (cl:nreverse result)))
     (is (= '(1 b 3 a 5) seq))))
+
+
+;;;; DO-SEQUENCES!
+
+(test do-sequences!
+  "Test DO-SEQUENCES! on multiple sequences"
+
+  (let ((l (list 1 2 3))
+        (v (vector 10 11 12 13 14 15))
+        (map (alist-hash-map '((a . 1) (b . 2) (c . 3))))
+        (i 0)
+
+        (res1 nil)
+        (res2 nil)
+        (res3 nil))
+
+    (do-sequences! ((x (the list l))
+                    (y (the vector v) :start 1)
+                    (z (the hash-map map)))
+      (cond
+        ((= i 0)
+         (setf x 'v1))
+
+        ((= i 1)
+         (setf y 'v2)))
+
+      (when (= (car z) 'a)
+        (setf z 'v3))
+
+      (push x res1)
+      (push y res2)
+      (push z res3)
+
+      (incf i))
+
+    ;; Check Results
+
+    (is-every =
+      ('(v1 2 3) (cl:nreverse res1))
+      ('(11 v2 13) (cl:nreverse res2))
+      ((alist-hash-map '((a . v3) (b . 2) (c . 3))) (alist-hash-map res3)))
+
+    ;; Check Originals
+
+    (is-every =
+      ('(v1 2 3) l)
+      (#(10 11 v2 13 14 15) v)
+      ((alist-hash-map '((a . v3) (b . 2) (c . 3))) map))))
