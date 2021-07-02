@@ -64,7 +64,7 @@
          (->> `((let ((,var (cons ,key ,value)))
                   ,@decls
                   ,@forms))
-              (funcall fn key value)))))))
+              (funcall fn key value nil)))))))
 
 (defmacro map-place (key table)
   (once-only (key)
