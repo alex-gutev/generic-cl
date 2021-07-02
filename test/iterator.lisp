@@ -765,6 +765,18 @@
 
     (is (= new-map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))))
 
+(test doseq-hash-table-whole
+  "Test DOSEQ macro on hash-table with whole entry"
+
+  (let* ((map (alist-hash-map '((a . 1) (b . 2) (c . 3))))
+	 (new-map (make-hash-map)))
+
+    (doseq (entry (the hash-map map))
+      (declare (type list entry))
+      (setf (get (car entry) new-map) (cdr entry)))
+
+    (is (= new-map (alist-hash-map '((a . 1) (b . 2) (c . 3)))))))
+
 
 ;;;; Iterator Based Implementation
 
