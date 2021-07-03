@@ -1,0 +1,124 @@
+== Sets ==
+
+System and package name `GENERIC-CL.SET`.
+
+The set interface provides generic functions for performing set
+operations and implementations of those operations for a hash-set data
+structure.
+
+Generic function wrappers are provided over the following Common Lisp
+set operation functions:
+
+* `SUBSETP`
+* `ADJOIN`
+* `INTERSECTION`
+* `NINTERSECTION`
+* `SET-DIFFERENCE`
+* `NSET-DIFFERENCE`
+* `SET-EXCLUSIVE-OR`
+* `NSET-EXCLUSIVE-OR`
+* `UNION`
+* `NUNION`
+
+For each function, methods specializing on `LISTS`, which simply call
+the corresponding function in the `CL` package, and <<HASH-MAP>>'s are
+implemented. Each function accepts all keyword arguments accepted by
+the corresponding `CL` functions however they are ignored by the
+`HASH-MAP` methods.
+
+NOTE: <<HASH-MAP>>'s may be used as sets, in which case the set
+elements are stored in the keys. The values of the map's entries are
+ignored by the set operations, thus the map values of the sets
+returned, by the set operation functions, are unspecified.
+
+
+=== ADJOIN ===
+
+Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
+
+Return a new set containing the elements of `SET`, and of the same
+type, with `ITEM` added to it.
+
+IMPORTANT: This function is non-destructive. A new set is always returned even if
+`SET` is a <<HASH-MAP>> / <<HASH-SET>>.
+
+NOTE: Accepts all keyword arguments accepted by `CL:ADJOIN` however
+they are ignored by the <<HASH-MAP>> method.
+
+
+=== NADJOIN ===
+
+Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
+
+Same as <<adjoin,ADJOIN>> however is permitted to destructively modify `SET`.
+
+IMPORTANT: The set returned is `EQ` to `SET` in the case of `SET`
+being a <<HASH-MAP>> however this is not a requirement in the general
+case, and is not `EQ` if `SET` is a list. Thus this function should
+not be relied upon for its side effects.
+
+NOTE: Implemented for both lists and  <<HASH-MAP>>'s.
+
+
+=== MEMBERP ===
+
+Generic Function: `MEMBERP ITEM SET &KEY &ALLOW-OTHER-KEYS`
+
+Return true if `ITEM` is an element of the set `SET`.
+
+NOTE: Implemented for both lists and <<HASH-MAP>>'s. All keyword arguments
+accepted by `CL:MEMBER` are accepted, however are ignored by the
+`HASH-MAP` method.
+
+
+=== HASH-SET ===
+
+Structure: `HASH-SET`
+
+A `HASH-SET` is a <<HASH-MAP>> however it is used to indicate that
+only the keys are important. This allows the <<EQUALP>> and <<COPY>>
+methods, specialized on `HASH-SET`'s to be implemented more
+efficiently, than the methods specialized on ``HASH-MAP``'s, as the
+map values are not compared/copied.
+
+The implementation of the <<iterator,Iterator>> interface for `HASH-SETS` differs
+from the implementation for `HASH-MAPS` in that only the set elements,
+i.e. the keys of the underlying hash table, are returned rather than
+the key-value pairs.
+
+NOTE: The set operations are implemented both for ``HASH-MAP``'s and
+``HASH-SET``'s.
+
+
+=== HASH-TABLE-SET ===
+
+Function: `HASH-TABLE-SET TABLE`
+
+Return a `HASH-SET` structure wrapping the standard `HASH-TABLE` or
+`CUSTOM-HASH-TABLE`.
+
+
+=== HASH-SET ===
+
+Function: `HASH-SET &REST ELEMENTS`
+
+Return a <<HASH-SET>> with elements `ELEMENTS`.
+
+
+=== MAKE-HASH-SET ===
+
+Function: `MAKE-HASH-SET &KEY &ALLOW-OTHER-KEYS`
+
+Return a new empty <<HASH-SET>>.
+
+Accepts the same keyword arguments as <<MAKE-HASH-MAP>>. The default
+`TEST` function is <<equalp,GENERIC-CL:EQUALP>>.
+
+
+=== COERCE Methods ===
+
+The following `COERCE` Methods are provided:
+
+* `LIST (EQL 'HASH-SET)`
++
+Return a `HASH-SET` containing the elements in the list.

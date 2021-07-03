@@ -1,0 +1,439 @@
+== Arithmetic ==
+
+System and package name: `GENERIC-CL.ARITHMETIC`.
+
+The arithmetic interface provides generic functions for arithmetic
+operations.
+
+<<ADD>>, <<SUBTRACT>>, <<MULTIPLY>>, <<DIVIDE>> are the generic binary
+arithmetic functions, and <<NEGATE>> is the generic unary negation
+function, to implement for user-defined types.
+
+<<add-nary>>, <<subtract-nary>>, <<multiply-nary>>, <<divide-nary>>
+are the n-ary arithmetic functions similar to the functions with the
+same names in the `COMMON-LISP` package.
+
+
+=== ADD ===
+
+Generic Function: `ADD A B`
+
+Returns the sum of `A` and `B`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns `(CL:+ A B)`.
+
+
+=== SUBTRACT ===
+
+Generic Function: `SUBTRACT A B`
+
+Returns the difference of `A` and `B`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns `(CL:- A B)`.
+
+
+=== MULTIPLY ===
+
+Generic Function: `MULTIPLY A B`
+
+Returns the product of `A` and `B`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns `(CL:* A B)`.
+
+
+=== DIVIDE ===
+
+Generic Function: `DIVIDE A B`
+
+Returns the quotient of `A` and `B`. If `A` is the constant `1`, the
+result should be the reciprocal of `B`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns `(CL:/ A B)`.
+
+
+=== NEGATE ===
+
+Generic Function: `NEGATE A`
+
+Returns the negation of `A`.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:- A)`.
+
+
+[[add-nary, +]]
+=== + ===
+
+Function: `+ X &REST XS`
+
+Returns the sum of all the arguments, computed by reducing over the
+argument list with the <<ADD>> function.
+
+If no arguments are provided, `0` is returned. If a single argument is
+provided it is returned.
+
+
+[[subtract-nary, -]]
+=== - ===
+
+Function: `- X &REST XS`
+
+Returns the difference of all the arguments, computed by reducing over
+the argument list with the <<SUBTRACT>> function.
+
+If only a single argument is provided the negation of that argument is
+returned, by the <<NEGATE>> function.
+
+
+[[multiply-nary, *]]
+=== * ===
+
+Function: `* X &REST XS`
+
+Returns the product of all the arguments, computed by reducing over
+the argument list with the <<MULTIPLY>> function.
+
+If no arguments are provided, `1` is returned. If a single argument is
+provided it is returned.
+
+
+[[divide-nary, /]]
+=== / ===
+
+Function: `/ X &REST XS`
+
+Returns the quotient of all the arguments, computed by reducing over
+the argument list with the <<DIVIDE>> function.
+
+If only a single argument is provided, the reciprocal of the argument,
+`(DIVIDE 1 X)`, is returned.
+
+
+=== 1+ ===
+
+Generic Function: `1+ A`
+
+Returns `A + 1`.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:1+ A)`.
+
+* `T`
++
+Returns `(ADD A 1)`.
+
+
+=== 1- ===
+
+Generic Function: `1- A`
+
+Returns `A - 1`.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:1- A)`.
+
+* `T`
++
+Returns `(SUBTRACT A 1)`.
+
+
+=== INCF ===
+
+Macro: `INCF PLACE &OPTIONAL (DELTA 1)`
+
+Increments the value of `PLACE` by `DELTA`, which defaults to `1`,
+using the <<ADD>> function.
+
+Effectively:
+
+[source,lisp]
+----
+(setf place (add place delta))
+----
+
+
+=== DECF ===
+
+Macro: `DECF PLACE &OPTIONAL (DELTA 1)`
+
+Decrements the value of `PLACE` by `DELTA`, which defaults to `1`,
+using the <<SUBTRACT>> function.
+
+Effectively:
+
+[source,lisp]
+----
+(setf place (subtract place delta))
+----
+
+
+=== MINUSP ===
+
+Generic Function: `MINUSP A`
+
+Returns true if `A` is less than zero.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:MINUSP A)`.
+
+* `T`
++
+Returns true if `A` compares less than `0`, by <<LESSP>>.
++
+[source,lisp]
+----
+(lessp a 0)
+----
+
+
+=== PLUSP ===
+
+Generic Function: `PLUSP A`
+
+Returns true if `A` is greater than zero.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:PLUSP A)`.
+
+* `T`
++
+Returns true if `A` compares greater than `0`, by <<GREATERP>>.
++
+[source,lisp]
+----
+(greaterp a 0)
+----
+
+
+=== ZEROP ===
+
+Generic Function: `ZEROP A`
+
+Returns true if `A` is equal to zero.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:ZEROP A)`.
+
+* `T`
++
+Returns true if `A` is equal to `0`, by <<EQUALP>>.
++
+[source,lisp]
+----
+(equalp a 0)
+----
+
+
+=== SIGNUM ===
+
+Generic Function: `SIGNUM A`
+
+Returns `-1`, `0` or `1` depending on whether `A` is negative, is
+equal to zero or is positive.
+
+.Methods
+
+* `SIGNUM`
++
+Returns `(CL:SIGNUM A)`.
+
+* `T`
++
+Returns `-1` if `(MINUSP A)` is true, `0` if `(ZEROP A)` is true,
+`1` otherwise.
+
+
+=== ABS ===
+
+Generic Function: `ABS A`
+
+Returns the absolute value of `A`.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:ABS A)`.
+
+* `T`
++
+If `(MINUSP A)` is true, returns `(NEGATE A)` otherwise returns
+`A`.
++
+[source,lisp]
+----
+(if (minusp a)
+    (negate a)
+    a)
+----
+
+
+=== EVENP ===
+
+Generic Function: `EVENP A`
+
+Returns true if `A` is even.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:EVENP A)`
+
+* `T`
++
+Returns `(ZEROP (MOD A 2))`
+
+
+=== ODDP ===
+
+Generic Function: `ODDP A`
+
+Returns true if `A` is odd.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:ODDP A)`
+
+* `T`
++
+Returns `(NOT (EVENP A))`
+
+
+=== FLOOR ===
+
+Generic Function: `FLOOR N D`
+
+Performs the division `N/D` if `D` is provided, otherwise equivalent
+to `N/1`, and returns the result rounded towards negative infinity as
+the first value, and the remainder `N - result * D` as the second return
+value.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:FLOOR N D)` if `D` is provided otherwise returns
+`(CL:FLOOR N)`.
+
+
+=== CEILING ===
+
+Generic Function: `CEILING N D`
+
+Performs the division `N/D` if `D` is provided, otherwise equivalent
+to `N/1`, and returns the result rounded towards positive infinity as
+the first value, and the `N - result * D` as the second return value.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:CEILING N D)` if `D` is provided otherwise returns
+`(CL:CEILING N)`.
+
+
+=== TRUNCATE ===
+
+Generic Function: `TRUNCATE N D`
+
+Performs the division `N/D` if `D` is provided, otherwise equivalent
+to `N/1`, and returns the result rounded towards zero as the first
+value, and the remainder `N - result * D` as the second return value.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:TRUNCATE N D)` if `D` is provided otherwise returns
+`(CL:TRUNCATE N)`.
+
+
+=== ROUND ===
+
+Generic Function: `ROUND N D`
+
+Performs the division `N/D` if `D` is provided, otherwise equivalent
+to `N/1`, and returns the result rounded towards the nearest integer
+as the first value, and the remainder `N - result * D` as the second
+return value.
+
+If the result lies exactly halfway between two integers, it is rounded
+to the nearest even integer.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:ROUND N D)` if `D` is provided otherwise returns
+`(CL:ROUND N)`.
+
+
+=== MOD ===
+
+Generic Function: `MOD N D`
+
+Returns the remainder of the <<FLOOR>> operation on `N` and `D`.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:MOD N D)`.
+
+* `T`
++
+Returns the second return value of `(FLOOR N D)`.
+
+
+=== REM ===
+
+Generic Function: `REM N D`
+
+Returns the remainder of the <<TRUNCATE>> operation on `N` and `D`.
+
+.Methods
+
+* `NUMBER`
++
+Returns `(CL:REM N D)`.
+
+* `T`
++
+Returns the second return value of `(TRUNCATE N D)`.

@@ -31,11 +31,24 @@
 
   (:use :anaphora
         :arrows
-        :trivia)
+        :trivia
+        :tcr.parse-declarations-1.0
+        :cl-form-types
+
+        :generic-cl.internal)
 
   (:import-from :agutil
-                :defmacro!
-                :symb)
+                :let-if
+                :nlet)
+
+  (:import-from :alexandria
+                :with-gensyms
+                :make-gensym-list
+                :mappend
+                :ensure-car
+                :ensure-list
+                :if-let
+                :parse-body)
 
   (:shadow
    :endp)
@@ -52,8 +65,45 @@
    :endp
 
    :doseq
+   :doseq!
+   :do-sequences
+   :do-sequences!
    :doiter
-   :doiters)
+   :doiters
+
+   :with-iterators
+   :with-iter-value
+   :with-iter-values
+   :with-iter-place
+   :do-iter-values)
+
+  (:intern :make-doseq
+           :subtype
+           :with-destructure-pattern
+           :split-declarations-forms
+           :with-variable-declarations
+           :iter-macro)
 
   (:documentation
    "Generic iterator interface"))
+
+(defpackage :generic-cl.iterator.optimization
+  (:use)
+
+  (:import-from :generic-cl.iterator
+                :make-doseq
+                :subtype
+                :with-destructure-pattern
+                :split-declarations-forms
+                :with-variable-declarations
+                :iter-macro)
+
+  (:export :make-doseq
+           :subtype
+           :with-destructure-pattern
+           :split-declarations-forms
+           :with-variable-declarations
+           :iter-macro)
+
+  (:documentation
+   "Optimization interface of iterator interface."))

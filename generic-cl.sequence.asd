@@ -30,11 +30,14 @@
   :license "MIT"
   :version "0.9"
   :serial t
-  :depends-on (#:anaphora
+  :depends-on (#:alexandria
+               #:anaphora
                #:arrows
                #:cl-custom-hash-table
                #:static-dispatch
+               #:cl-form-types
 
+               #:generic-cl.internal
                #:generic-cl.comparison
                #:generic-cl.object
                #:generic-cl.container
@@ -49,4 +52,5 @@
     ((:file "package")
      (:file "sequences")
      (:file "cl-sequences")
-     (:file "generic-sequences")))))
+     (:file "generic-sequences")
+     (:file "optimization")))))

@@ -1,0 +1,339 @@
+== Comparison ==
+
+System and package name: `GENERIC-CL.COMPARISON`.
+
+The comparison interface provides functions for comparing objects in
+terms of _equality_, _greater than_, _less than_, _greater than or
+equal to_ and _less than or equal to_ relations.
+
+<<EQUALP>> is the generic binary equality predicate function to
+implement for user-defined types. <<equalp-nary>> and
+<<not-equalp-nary>> are the n-ary equality predicates similar to the
+functions with the same names in the `COMMON-LISP` package.
+
+<<LESSP>>, <<LESS-EQUAL-P>>, <<GREATERP>>, <<GREATER-EQUAL-P>> are the
+generic binary comparison functions to implement for user-defined
+types. It is sufficient to just implement `LESSP` as the remaining
+functions have default methods that are implemented in terms of
+`LESSP`.
+
+<<lessp-nary>>, <<less-equal-p-nary>>, <<greaterp-nary>>,
+<<greater-equal-p-nary>> are the n-ary comparison functions similar to
+the functions with the same names in the `COMMON-LISP` package.
+
+
+=== EQUALP ===
+
+Generic Function: `EQUALP A B`
+
+Returns true if object `A` is equal to object `B`.
+
+.Methods
+* `NUMBER NUMBER`
++
+Returns true if `A` and `B` represent the same numeric value, by
+`CL:=`.
+
+* `CHARACTER CHARACTER`
++
+Returns true if `A` and `B` represent the same character, by
+`CL:CHAR=`.
+
+* `CONS CONS`
++
+Returns true if the `CAR` of `A` is equal (by `EQUALP`) to the
+`CAR` of `B` and if the `CDR` of `A` is equal (by `EQUALP`) to
+the `CDR` of `B`.
+
+* `VECTOR VECTOR`
++
+Returns true if `A` and `B` are vectors of the same length and
+each element of `A` is equal (by `EQUALP`) to the corresponding
+element of `B`.
+
+* `ARRAY ARRAY`
++
+Multi-dimensional arrays.
++
+Returns true if `A` and `B` have the same dimensions and each
+element of `A` is equal (by `EQUALP`) to the corresponding
+element of `B`.
+
+* `STRING STRING`
++
+Returns true if both strings are equal, by `CL:STRING=`.
+
+* `PATHNAME PATHNAME`
++
+Returns true if both `PATHNAME` objects are functionally equivalent,
+by `UIOP:PATHNAME-EQUAL`.
+
+* `T T`
++
+Default method.
++
+Returns true if `A` and `B` are the same object, by `CL:EQ`.
+
+
+=== LIKEP ===
+
+Generic Function: `LIKEP A B`
+
+Returns true if `A` is similar to `B`, where similarity is defined as
+the same as equality however ignoring differences in certain aspects
+such as case in strings.
+
+.Methods
+* `CHARACTER CHARACTER`
++
+Returns true if `A` and `B` represent the same character ignoring
+differences in case. Compared using `CL:CHAR-EQUAL`.
+
+* `CONS CONS`
++
+Returns true if the `CAR` of `A` is similar (by `LIKEP`) to the
+`CAR` of `B` and if the `CDR` of `A` is similar (by `LIKEP`) to
+the `CDR` of `B`.
+
+* `VECTOR VECTOR`
++
+Returns true if `A` and `B` are vectors of the same length and
+each element of `A` is similar (by `LIKEP`) to the corresponding
+element of `B`.
+
+* `ARRAY ARRAY`
++
+Multi-dimensional arrays.
++
+Returns true if `A` and `B` have the same dimensions and each
+element of `A` is similar (by `LIKEP`) to the corresponding
+element of `B`.
+
+* `STRING STRING`
++
+Returns true if both strings are equal, ignoring differences in
+case. Compared using `CL:STRING-EQUAL`.
+
+* `T T`
++
+Default method.
++
+Returns true if `(EQUALP A B)` returns true.
+
+
+[[equalp-nary, =]]
+=== = ===
+
+Function: `= X &REST XS`
+
+Returns true if all objects in `XS` are equal (by `EQUALP`) to `X`.
+
+
+[[not-equalp-nary, /=]]
+=== /= ===
+
+Function: `= X &REST XS`
+
+Returns true if at least one object in `XS` is not equal (by `EQUALP`)
+to `X`.
+
+
+=== LESSP ===
+
+Generic Function: `LESSP A B`
+
+Returns true if object `A` is less than object `B`.
+
+TIP: It is sufficient to just implement this function, for
+user-defined types, as the rest of the comparison functions have
+default (`T T`) methods which are implemented in terms of `LESSP`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns true if the numeric value of `A` is less than the numeric
+value of `B`, by `CL:<`.
+
+* `CHARACTER CHARACTER`
++
+Returns true if the character code of `A` is less than the
+character code of `B`, by `CL:CHAR<`.
+
+* `STRING STRING`
++
+Returns true if the string `A` is lexicographically less than
+`B`, by `CL:STRING<`.
+
+
+=== LESS-EQUAL-P ===
+
+Generic Function: `LESS-EQUAL-P A B`
+
+Returns true if object `A` is less than or equal to object `B`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns true if the numeric value of `A` is less than or equal to
+the numeric value of `B`, by `+CL:<=+`.
+
+* `CHARACTER CHARACTER`
++
+Returns true if the character code of `A` is less than or equal
+to the character code of `B`, by `+CL:CHAR<=+`.
+
+* `STRING STRING`
++
+Returns true if the string `A` is lexicographically less than or
+equal to `B`, by `+CL:STRING<=+`.
+
+* `T T`
++
+Returns true if either `A` is less than `B` (by <<LESSP>>) or `A`
+is equal to `B` (by <<EQUALP>>).
++
+[source,lisp]
+----
+(or (lessp a b) (equalp a b))
+----
+
+
+=== GREATERP ===
+
+Generic Function: `GREATERP A B`
+
+Returns true if object `A` is greater than object `B`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns true if the numeric value of `A` is greater than the
+numeric value of `B`, by `CL:>`.
+
+* `CHARACTER CHARACTER`
++
+Returns true if the character code of `A` is greater than the
+character code of `B`, by `CL:CHAR>`.
+
+* `STRING STRING`
++
+Returns true if the string `A` is lexicographically greater than
+`B`, by `CL:STRING>`.
+
+* `T T`
++
+Returns true if `A` is not less than or equal to `B`, by <<LESS-EQUAL-P>>.
++
+[source,lisp]
+----
+(not (less-equal-p a b))
+----
+
+
+=== GREATER-EQUAL-P ===
+
+Generic Function: `GREATER-EQUAL-P A B`
+
+Returns true if object `A` is greater than or equal to object `B`.
+
+.Methods
+
+* `NUMBER NUMBER`
++
+Returns true if the numeric value of `A` is greater than or equal
+to the numeric value of `B`, by `CL:>=`.
+
+* `CHARACTER CHARACTER`
++
+Returns true if the character code of `A` is greater than or
+equal to the character code of `B`, by `CL:CHAR>=`.
+
+* `STRING STRING`
++
+Returns true if the string `A` is lexicographically greater than
+or equal to `B`, by `CL:STRING>=`.
+
+* `T T`
++
+Returns true if `A` is not less than `B`, by <<LESSP>>.
++
+[source,lisp]
+----
+(not (lessp a b))
+----
+
+
+=== COMPARE ===
+
+Generic Function: `COMPARE A B`
+
+Returns:
+
+`:LESS`:: if `A` is less than `B`.
+`:EQUAL`:: if `A` is equal to `B`.
+`:GREATER`:: if `A` is greater than `B`.
+
+The default `T T` method returns:
+
+`:LESS`:: if `(LESSP A B)` is true.
+`:EQUAL`:: if `(EQUALP A B)` is true.
+`:GREATER`:: otherwise.
+
+
+[[lessp-nary, <]]
+=== < ===
+
+Function: `< X &REST XS`
+
+Returns true if each argument is less than the following argument, by
+<<lessp,LESSP>>.
+
+
+[[less-equal-p-nary, \<=]]
+=== +<=+ ===
+
+Function: `+<= X &REST XS+`
+
+Returns true if each argument is less than or equal to the following
+argument, by <<LESS-EQUAL-P>>.
+
+
+[[greaterp-nary, >]]
+=== > ===
+
+Function: `> X &REST XS`
+
+Returns true if each argument is greater than the following argument,
+by <<GREATERP>>.
+
+
+[[greater-equal-p-nary, >=]]
+=== >= ===
+
+Function: `>= X &REST XS`
+
+Returns true if each argument is greater than or equal to the
+following argument, by <<GREATER-EQUAL-P>>.
+
+
+=== MIN ===
+
+Function: `MIN X &REST XS`
+
+Returns the minimum argument.
+
+The comparisons are performed by <<LESSP>>. Any one of the arguments which
+is less than or equal to the other arguments may be returned.
+
+
+=== MAX ===
+
+Function: `MAX X &REST XS`
+
+Returns the maximum argument.
+
+The comparisons are performed by <<GREATERP>>. Any one of the arguments
+which is greater than or equal to the other arguments may be returned.

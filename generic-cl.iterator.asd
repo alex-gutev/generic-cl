@@ -30,12 +30,16 @@
   :license "MIT"
   :version "0.9"
   :serial t
-  :depends-on (#:agutil
+  :depends-on (#:alexandria
+               #:agutil
                #:anaphora
                #:arrows
                #:trivia
+               #:parse-declarations-1.0
                #:static-dispatch
+               #:cl-form-types
 
+               #:generic-cl.internal
                #:generic-cl.object
                #:generic-cl.container)
 
@@ -44,4 +48,7 @@
     :serial t
     :components
     ((:file "package")
-     (:file "iterator")))))
+     (:file "iterator")
+     (:file "util")
+     (:file "doseq")
+     (:file "expanders")))))

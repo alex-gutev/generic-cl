@@ -1,0 +1,90 @@
+== Object ==
+
+System and package name: `GENERIC-CL.OBJECT`.
+
+The object interface provides miscellaneous functions for manipulating
+objects, such as copying and type conversions.
+
+
+=== COPY ===
+
+Generic Function: `COPY OBJECT &KEY &ALLOW-OTHER-KEYS`
+
+Return a copy of `OBJECT`.
+
+If `OBJECT` is mutable, by some other functions, then the returned
+object should be distinct (not `EQ`) from `OBJECT`, otherwise the
+return value may be identical (`EQ`) to `OBJECT`.
+
+IMPORTANT: This function may accept additional keyword arguments which
+specify certain options as to how the object should be copied. Methods
+specialized on containers accept a `:DEEP` keyword parameter, which if
+provided and is true a deep copy is returned otherwise a shallow copy
+is returned. If a user-defined type acts as a container or sequence
+then the `COPY` method for that type should also accept the `:DEEP`
+keyword argument.
+
+.Methods
+
+* `CONS`
++
+Returns a new list which contains all the elements in
+`OBJECT`. If `:DEEP` is provided and is true, the list returned
+contains a copy of the elements, copied using `(COPY ELEM :DEEP
+     T)`.
+
+* `VECTOR`
++
+Returns a new vector which contains all the elements in
+`OBJECT`. If `:DEEP` is provided and is true, the vector returned
+contains a copy of the elements, copied using `(COPY ELEM :DEEP
+     T)`.
+
+* `ARRAY`
++
+Multi-Dimensional Arrays.
++
+Returns a new array, of the same dimensions as `OBJECT`, which
+contains all the elements in `OBJECT`. If `:DEEP` is provided and
+is true, the array returned contains a copy of the elements,
+copied using `(COPY ELEM :DEEP T)`.
+
+* `STRUCTURE-OBJECT`
++
+Returns a shallow copy of the structure object, using
+`COPY-STRUCTURE`.
+
+* `T`
++
+Simply returns `OBJECT`.
++
+This method is provided to allow sequences containing arbitrary
+objects to be copied safely, without signaling a condition, and
+to avoid having to write simple pass-through methods for each
+user-defined type.
++
+WARNING: If an object can be mutated, and there is no specialized copy
+method for it, the constraints of the `COPY` function are violated.
+
+
+=== COERCE ===
+
+Generic Function: `COERCE OBJECT TYPE`
+
+Coerce `OBJECT` to the type `TYPE`.
+
+The default (`T T`) method simply calls `CL:COERCE`.
+
+
+=== DEFCONSTANT ===
+
+Macro: `DEFCONSTANT SYMBOL VALUE &OPTIONAL DOCUMENTATION`
+
+Ensure that `SYMBOL` is a constant with a value that is equal, by
+`GENERIC-CL:EQUALP` to `VALUE`.
+
+This means that if `SYMBOL` already names a constant, at the time of
+evaluating the `DEFCONSTANT` form, no condition will be signalled if
+its value is equal (by `GENERIC-CL:EQUALP`) to `VALUE`.
+
+NOTE: Implemented using `ALEXANDRIA:DEFINE-CONSTANT`

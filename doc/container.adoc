@@ -1,0 +1,357 @@
+[[container]]
+== Container ==
+
+System and package name: `GENERIC-CL.CONTAINER`.
+
+The container interface provides generic functions for retrieving
+elements from containers, such as lists, arrays and hash-tables, and
+for querying various properties of containers, such as the container's
+size.
+
+All the following functions are applicable to both ordered containers,
+_sequences_, and unordered containers, such as hash-maps, however some
+only make sense when applied on sequences.
+
+=== Creation ===
+
+The following functions are for creating an empty container suitable
+for accumulating items using the <<collector>> interface.
+
+
+==== CLEARED ====
+
+Generic Function: `CLEARED CONTAINER &KEY &ALLOW-OTHER-KEYS`
+
+Return a new empty container of the same type, and with the same
+properties, as `CONTAINER`, suitable for accumulating items into it
+using the collector interface.
+
+NOTE: Individual methods may accept keyword parameters which specify
+certain options of the container which is to be created.
+
+.Methods
+
+* `LIST`
++
+Returns `NIL`.
+
+* `VECTOR`
++
+Returns an adjustable vector of the same length as `CONTAINER`,
+with the fill-pointer set to `0`.
++
+If the `:KEEP-ELEMENT-TYPE` argument is provided and is true, the
+element type of the new vector is the same as the element type of
+`CONTAINER`.
+
+
+==== MAKE-SEQUENCE-OF-TYPE ====
+
+Generic Function: `MAKE-SEQUENCE-OF-TYPE TYPE ARGS`
+
+Return a new empty sequence / container of type `TYPE`.
+
+`ARGS` are the type arguments, if any.
+
+The default method creates a built-in sequence of the same type as
+that returned by:
+
+[source,lisp]
+----
+(make-sequence (cons type args) 0)
+----
+
+
+==== SEQUENCE-OF-TYPE ====
+
+Function: `SEQUENCE-OF-TYPE TYPE`
+
+Create a new sequence / container of type `TYPE`, using
+<<MAKE-SEQUENCE-OF-TYPE>>.
+
+If `TYPE` is a list the `CAR` of the list is passed as the first
+argument, to `MAKE-SEQUENCE-OF-TYPE`, and the `CDR` is passed as the
+second argument. Otherwise, if `TYPE` is not a list, it is passed as
+the first argument and `NIL` is passed as the second argument.
+
+
+=== Elements ===
+
+==== ELT ====
+
+Generic Function: `ELT SEQUENCE INDEX`
+
+Return the element at position `INDEX` in the sequence `SEQUENCE`.
+
+.Methods
+
+* `SEQUENCE T` and `VECTOR T`
++
+Returns `(CL:ELT SEQUENCE INDEX)`.
+
+* `ARRAY INTEGER`
++
+Multi-Dimensional Arrays.
++
+Returns `(ROW-MAJOR-AREF SEQUENCE INDEX)`.
+
+* `ARRAY LIST`
++
+Multi-Dimensional Arrays.
++
+If length of `INDEX` matches array's rank, returns `(apply #'aref sequence
+index)`.
++
+--
+If ``INDEX``'s length is less than the array's rank, then returns a
+displaced array whose dimensions are ``SEQUENCE``'s _unused_
+dimensions (ie `(nthcdr (array-dimensions sequence) (length index))`)
+and which shares storage with the _subarray_ of `SEQUENCE` specificied
+by `INDEX`.
+--
+
+[[setf-elt]]
+==== (SETF ELT) ====
+
+Generic Function: `(SETF ELT) VALUE SEQUENCE INDEX`
+
+Set the value of the element at position `INDEX` in the sequence
+`SEQUENCE`.
+
+.Methods
+
+* `T SEQUENCE T` and `T VECTOR T`
++
+Returns `(SETF (CL:ELT SEQUENCE INDEX) VALUE)`.
+
+* `T ARRAY INTEGER`
++
+Multi-Dimensional Arrays.
++
+Returns `(SETF (ROW-MAJOR-AREF SEQUENCE INDEX) VALUE)`
+
+* `ARRAY LIST`
++
+Multi-Dimensional Arrays.
++
+If length of `INDEX` matches array's rank, returns `(setf (apply #'aref sequence
+index) value)`.
++
+--
+If ``INDEX``'s length is less than the array's rank, then copies the
+contents of `VALUE` to the _subarray_ (see <<ELT>>) specified by
+`INDEX` and then returns `(elt sequence index)`. ``VALUE``'s
+dimensions must equal the _unused_ dimensions of `SEQUENCE` (ie
+`(nthcdr (array-dimensions sequence) (length index))`).
+--
+
+
+==== FIRST ====
+
+Generic Function: `FIRST SEQUENCE`
+
+Return the first element in the sequence `SEQUENCE`.
+
+Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the first element is obtained by
+`ROW-MAJOR-AREF`.
+
+The default method is implemented using <<elt,GENERIC-CL:ELT>>, i.e. is
+equivalent to:
+
+[source,lisp]
+----
+(elt sequence 0)
+----
+
+
+==== LAST ====
+
+Generic Function: `LAST SEQUENCE &OPTIONAL (N 0)`
+
+Return the ``N``'th element from the last element of the sequence
+`SEQUENCE`.
+
+`N` defaults to `0` which indicates the last element. `1` indicates
+the second to last element, `2` the third to last and so on.
+
+Implemented for lists, vectors and multi-dimensional arrays. For
+multi-dimensional arrays, the last element is obtained by:
+
+[source,lisp]
+----
+(row-major-aref sequence (- (array-total-size array) 1 n))
+----
+
+The default method is implemented using <<elt,GENERIC-CL:ELT>>, i.e. is
+equivalent to:
+
+[source,lisp]
+----
+(elt sequence (- (length sequence) 1 n))
+----
+
+CAUTION: The behaviour of this function differs from `CL:LAST` when
+called on lists, it returns the last element rather than the last
+`CONS` cell. The <<LASTCDR>> function performs the same function as
+`CL:LAST`.
+
+
+==== LASTCDR ====
+
+Function: `LASTCDR LIST &OPTIONAL (N 1)`
+
+Return the `CDR` of the ``N``'th `CONS` cell from the end of the list.
+
+NOTE: This function is equivalent to the `CL:LAST` function.
+
+
+
+==== ERASE ====
+
+Generic Function: `ERASE SEQUENCE INDEX`
+
+Remove the element at index `INDEX` from the sequence `SEQUENCE`.
+
+IMPORTANT: Destructively modifies `SEQUENCE`.
+
+.Methods
+* `VECTOR T`
++
+Shifts the elements following `INDEX` one element towards the
+front of the vector and shrinks the vector by one element.
++
+CAUTION: Signals a `TYPE-ERROR` if the vector is not adjustable.
+
+NOTE: This method is not implemented for lists as removing the first
+element of a list cannot be implemented (efficiently) as a side effect
+alone.
+
+
+=== Container Size ===
+
+==== LENGTH ====
+
+Generic Function: `LENGTH CONTAINER`
+
+Return the number of elements in the container `CONTAINER`.
+
+If `CONTAINER` is an iterator, return the number of remaining elements
+following the iterator's position.
+
+This function is implemented for all Common Lisp sequences, returning
+the length of the sequence (by `CL:LENGTH`), and multi-dimensional
+arrays, returning the total number of elements in the array by
+`ARRAY-TOTAL-SIZE`.
+
+
+==== EMPTYP ====
+
+Generic Function: `EMPTYP CONTAINER`
+
+Return true if the container `CONTAINER` is empty.
+
+Implemented for lists, vectors and multi-dimensional arrays (always
+returns `NIL`).
+
+
+==== CLEAR ====
+
+Generic Function: `CLEAR CONTAINER`
+
+Destructively remove all elements from the container `CONTAINER`.
+
+Implemented for vectors.
+
+
+==== ADJUST-SIZE ====
+
+Generic Function: `ADJUST-SIZE CONTAINER N &KEY ELEMENT`
+
+Return a new container with the same elements as `CONTAINER` however
+with its size changed to `N`.
+
+If `N` is less than the number of elements in `CONTAINER`, the
+returned container contains only the first `N` elements of
+`CONTAINER`.
+
+If `N` is greater than the number of elements in `CONTAINER`, the
+returned sequence contains all the elements of `CONTAINER` with an
+additional `(LENGTH CONTAINER) - N` elements initialized to the value
+of `ELEMENT`.
+
+Methods are provided for lists and vectors. The default `T` method,
+implements this operation using the <<iterator>> and <<collector>>
+interfaces.
+
+==== NADJUST-SIZE ====
+
+Generic Function: `NADJUST-SIZE CONTAINER N &KEY ELEMENT`
+
+Return a new sequence containing the same elements as `CONTAINER`
+however with its size changed to `N`.
+
+IMPORTANT: `CONTAINER` may be destructively modified.
+
+If `N` is less than the number of elements in `CONTAINER`, the
+returned container contains only the first `N` elements of
+`CONTAINER`.
+
+If `N` is greater than the number of elements in `CONTAINER`, the
+returned sequence contains all the elements of `CONTAINER` with an
+additional `(LENGTH CONTAINER) - N` elements initialized to the value
+of `ELEMENT`.
+
+Methods are provided for lists and vectors. The default `T` method,
+implements this operation using the <<iterator>> and <<collector>>
+interfaces.
+
+=== Subsequences ===
+
+
+==== SUBSEQ ====
+
+Generic Function: `SUBSEQ SEQUENCE START &OPTIONAL END`
+
+Return a new sequence that contains the elements of `SEQUENCE` at the
+positions in the range `[START, END)`.
+
+If `SEQUENCE` is an iterator, an iterator for the sub-sequence
+relative to the current position of the iterator is returned.
+
+`START` is the index of the first element of the subsequence, with `0`
+indicating the start of the sequence. if `SEQUENCE` is an iterator,
+`START` is the number of times the iterator should be <<ADVANCE>>'d to
+reach the first element of the subsequence.
+
+`END` is the index of the element following the last element of the
+subsequence. `NIL` (the default) indicates the end of the sequence. If
+`SEQUENCE` is an iterator, `END` is the number of times the iterator
+should be <<ADVANCE>>'d till the end position is reached.
+
+.Methods
+
+* `SEQUENCE T`
++
+Returns the subsequence using `CL:SUBSEQ`.
+
+
+==== (SETF SUBSEQ) ====
+
+Generic Function: `(SETF SUBSEQ) NEW-SEQUENCE SEQUENCE START &OPTIONAL END`
+
+Replace the elements of `SEQUENCE` at the positions in the range
+`[START, END)`, with the elements of `NEW-SEQUENCE`.
+
+The shorter length of `NEW-SEQUENCE` and the number of elements
+between `START` and `END` determines how many elements of `SEQUENCE`
+are actually modified.
+
+See <<subseq,SUBSEQ>> for more details of how the `START` and `END` arguments are
+interpreted.
+
+.Methods
+
+* `SEQEUNCE SEQUENCE T`
++
+Sets the elements of the subsequence using `(SETF CL:SUBSEQ)`.

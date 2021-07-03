@@ -1,0 +1,110 @@
+= GENERIC-CL =
+:AUTHOR: Alexander Gutev
+:EMAIL: <alex.gutev@gmail.com>
+:toc: left
+:toclevels: 4
+:icons: font
+:idprefix:
+:source-highlighter: pygments
+
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:warning-caption: :warning:
+endif::[]
+
+*Source Repository: https://github.com/alex-gutev/generic-cl*
+
+GENERIC-CL provides a generic function wrapper over various functions
+in the Common Lisp standard, such as equality predicates and sequence
+operations. The goal of this wrapper is to provide a standard
+interface to common operations, such as testing for the equality of
+two objects, which is extensible to user-defined classes and
+structures.
+
+
+== Usage ==
+
+This library is divided into multiple systems each encapsulating a
+specific generic interface. The simplest way to use this library is to
+load the system `GENERIC-CL`, which loads all the interface
+subsystems, and use the `GENERIC-CL` package which exports all symbols
+in the `COMMON-LISP` package along with all the generic interface
+functions. This package should be used instead of `COMMON-LISP`.
+
+TIP: The `GENERIC-CL-USER` exports all symbols in the `CL-USER` and
+`GENERIC-CL` packages. This package is intended to be used only at the
+REPL.
+
+=== Using Specific Interface ===
+
+If you don't want to load all the generic interfaces, but only require
+a specific interface, such as the generic comparability interface,
+then load only the system which contains that interface and import its
+package.
+
+The packages generally contain symbols which shadow those in the
+`COMMON-LISP` package, thus they cannot simply be used alongside
+`COMMON-LISP`. You'll either have to manually import the shadowing
+symbols, with `:SHADOWING-IMPORT-FROM` or use the `:MIX` option to
+https://common-lisp.net/project/asdf/uiop.html#UIOP_002fPACKAGE[UIOP:DEFINE-PACKAGE].
+
+NOTE: The `STATIC-DISPATCH-CL` package should be used instead of `CL`
+in order to be able to optimize generic function calls. _See
+https://github.com/alex-gutev/static-dispatch for more information._
+
+.Example: Using SHADOWING-IMPORT-FROM
+[source,lisp]
+--------------------------------------------------
+;; Using comparison interface GENERIC-CL.COMPARISON
+
+(defpackage my-pkg
+  (:use :static-dispatch-cl)
+  (:shadowing-import-from
+    :generic-cl.comparison
+    :equalp
+    :=
+    :/=))
+--------------------------------------------------
+
+.Example: Using UIOP:DEFINE-PACKAGE
+[source,lisp]
+--------------------------------------------------
+(uiop:define-package my-pkg
+    (:use) ;; Necessary otherwise CL package is used
+
+  ;; Packages listed earlier on shadow the packages listed after them
+
+  (:mix :generic-cl.comparison
+        :static-dispatch-cl)
+
+  ...)
+--------------------------------------------------
+
+include::comparison.adoc[]
+
+include::arithmetic.adoc[]
+
+include::object.adoc[]
+
+include::container.adoc[]
+
+include::iterator.adoc[]
+
+include::collector.adoc[]
+
+include::sequence.adoc[]
+
+include::lazy-seq.adoc[]
+
+include::map.adoc[]
+
+include::set.adoc[]
+
+include::math.adoc[]
+
+include::util.adoc[]
+
+include::optimization.adoc[]

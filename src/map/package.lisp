@@ -32,8 +32,11 @@
           :static-dispatch-cl)
 
   (:use :anaphora
+        :arrows
         :trivia
-        :cl-custom-hash-table)
+        :cl-custom-hash-table
+        :generic-cl.internal
+        :generic-cl.iterator.optimization)
 
   (:import-from :agutil
                 :defmacro!
@@ -41,7 +44,12 @@
 
   (:import-from :generic-cl.iterator
                 :list-iterator
-                :make-list-iterator)
+                :make-list-iterator
+                :partition-declarations)
+
+  (:import-from :alexandria
+                :with-gensyms
+                :once-only)
 
   (:shadow :get)
 

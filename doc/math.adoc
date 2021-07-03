@@ -1,0 +1,44 @@
+== Math ==
+
+System and package name `GENERIC-CL.MATH`.
+
+This interface provides generic function wrappers over a number of
+math functions. Methods specialized on `NUMBER` are provided, which
+simply call the corresponding functions in the `CL` package. The
+purpose of this interface is to allow the mathematical functions to be
+extended to vectors and matrices.
+
+This interface is not exported by the `GENERIC-CL` package, as it's
+not as frequently used as the previous interfaces. The
+`GENERIC-MATH-CL` package exports all symbols exports by the
+`GENERIC-CL` package and the shadowed math functions in
+`GENERIC-CL.MATH`.
+
+Generic function wrappers are provided for the following functions:
+
+* `SIN`
+* `COS`
+* `TAN`
+* `ASIN`
+* `ACOS`
+* `ATAN`
+* `SINH`
+* `COSH`
+* `TANH`
+* `ASINH`
+* `ACOSH`
+* `ATANH`
+* `EXP`
+* `EXPT`
+* `LOG`
+* `SQRT`
+* `ISQRT`
+* `REALPART`
+* `IMAGPART`
+* `CIS`
+* `CONJUGATE`
+* `PHASE`
+* `NUMERATOR`
+* `DENOMINATOR`
+* `RATIONAL`
+* `RATIONALIZE`
