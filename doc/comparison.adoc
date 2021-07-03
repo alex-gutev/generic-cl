@@ -1,4 +1,4 @@
-=== Comparison ===
+== Comparison ==
 
 System and package name: `GENERIC-CL.COMPARISON`.
 
@@ -22,7 +22,7 @@ functions have default methods that are implemented in terms of
 the functions with the same names in the `COMMON-LISP` package.
 
 
-==== EQUALP ====
+=== EQUALP ===
 
 Generic Function: `EQUALP A B`
 
@@ -75,7 +75,7 @@ Default method.
 Returns true if `A` and `B` are the same object, by `CL:EQ`.
 
 
-==== LIKEP ====
+=== LIKEP ===
 
 Generic Function: `LIKEP A B`
 
@@ -122,7 +122,7 @@ Returns true if `(EQUALP A B)` returns true.
 
 
 [[equalp-nary, =]]
-==== = ====
+=== = ===
 
 Function: `= X &REST XS`
 
@@ -130,7 +130,7 @@ Returns true if all objects in `XS` are equal (by `EQUALP`) to `X`.
 
 
 [[not-equalp-nary, /=]]
-==== /= ====
+=== /= ===
 
 Function: `= X &REST XS`
 
@@ -138,7 +138,7 @@ Returns true if at least one object in `XS` is not equal (by `EQUALP`)
 to `X`.
 
 
-==== LESSP ====
+=== LESSP ===
 
 Generic Function: `LESSP A B`
 
@@ -166,7 +166,7 @@ Returns true if the string `A` is lexicographically less than
 `B`, by `CL:STRING<`.
 
 
-==== LESS-EQUAL-P ====
+=== LESS-EQUAL-P ===
 
 Generic Function: `LESS-EQUAL-P A B`
 
@@ -200,7 +200,7 @@ is equal to `B` (by <<EQUALP>>).
 ----
 
 
-==== GREATERP ====
+=== GREATERP ===
 
 Generic Function: `GREATERP A B`
 
@@ -233,7 +233,7 @@ Returns true if `A` is not less than or equal to `B`, by <<LESS-EQUAL-P>>.
 ----
 
 
-==== GREATER-EQUAL-P ====
+=== GREATER-EQUAL-P ===
 
 Generic Function: `GREATER-EQUAL-P A B`
 
@@ -266,7 +266,7 @@ Returns true if `A` is not less than `B`, by <<LESSP>>.
 ----
 
 
-==== COMPARE ====
+=== COMPARE ===
 
 Generic Function: `COMPARE A B`
 
@@ -284,7 +284,7 @@ The default `T T` method returns:
 
 
 [[lessp-nary, <]]
-==== < ====
+=== < ===
 
 Function: `< X &REST XS`
 
@@ -293,7 +293,7 @@ Returns true if each argument is less than the following argument, by
 
 
 [[less-equal-p-nary, \<=]]
-==== +<=+ ====
+=== +<=+ ===
 
 Function: `+<= X &REST XS+`
 
@@ -302,7 +302,7 @@ argument, by <<LESS-EQUAL-P>>.
 
 
 [[greaterp-nary, >]]
-==== > ====
+=== > ===
 
 Function: `> X &REST XS`
 
@@ -311,7 +311,7 @@ by <<GREATERP>>.
 
 
 [[greater-equal-p-nary, >=]]
-==== >= ====
+=== >= ===
 
 Function: `>= X &REST XS`
 
@@ -319,7 +319,7 @@ Returns true if each argument is greater than or equal to the
 following argument, by <<GREATER-EQUAL-P>>.
 
 
-==== MIN ====
+=== MIN ===
 
 Function: `MIN X &REST XS`
 
@@ -329,7 +329,7 @@ The comparisons are performed by <<LESSP>>. Any one of the arguments which
 is less than or equal to the other arguments may be returned.
 
 
-==== MAX ====
+=== MAX ===
 
 Function: `MAX X &REST XS`
 

@@ -1,4 +1,4 @@
-=== Sets ===
+== Sets ==
 
 System and package name `GENERIC-CL.SET`.
 
@@ -32,7 +32,7 @@ ignored by the set operations, thus the map values of the sets
 returned, by the set operation functions, are unspecified.
 
 
-==== ADJOIN ====
+=== ADJOIN ===
 
 Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
 
@@ -46,32 +46,32 @@ NOTE: Accepts all keyword arguments accepted by `CL:ADJOIN` however
 they are ignored by the <<HASH-MAP>> method.
 
 
-==== NADJOIN ====
+=== NADJOIN ===
 
 Generic Function: `ADJOIN ITEM SET &KEY &ALLOW-OTHER-KEYS`
 
 Same as <<adjoin,ADJOIN>> however is permitted to destructively modify `SET`.
 
 IMPORTANT: The set returned is `EQ` to `SET` in the case of `SET`
-being a <<HASH-MAP>> however this is not a requirement and is not `EQ`
-if `SET` is a list. Thus this function should not be relied upon for
-its side effects.
+being a <<HASH-MAP>> however this is not a requirement in the general
+case, and is not `EQ` if `SET` is a list. Thus this function should
+not be relied upon for its side effects.
 
 NOTE: Implemented for both lists and  <<HASH-MAP>>'s.
 
 
-==== MEMBERP ====
+=== MEMBERP ===
 
 Generic Function: `MEMBERP ITEM SET &KEY &ALLOW-OTHER-KEYS`
 
-Returns true if `ITEM` is an element of the set `SET`.
+Return true if `ITEM` is an element of the set `SET`.
 
 NOTE: Implemented for both lists and <<HASH-MAP>>'s. All keyword arguments
 accepted by `CL:MEMBER` are accepted, however are ignored by the
 `HASH-MAP` method.
 
 
-==== HASH-SET ====
+=== HASH-SET ===
 
 Structure: `HASH-SET`
 
@@ -90,35 +90,35 @@ NOTE: The set operations are implemented both for ``HASH-MAP``'s and
 ``HASH-SET``'s.
 
 
-==== HASH-TABLE-SET ====
+=== HASH-TABLE-SET ===
 
 Function: `HASH-TABLE-SET TABLE`
 
-Returns a `HASH-SET` structure wrapping the standard `HASH-TABLE` or
+Return a `HASH-SET` structure wrapping the standard `HASH-TABLE` or
 `CUSTOM-HASH-TABLE`.
 
 
-==== HASH-SET ====
+=== HASH-SET ===
 
 Function: `HASH-SET &REST ELEMENTS`
 
-Returns a <<HASH-SET>> with elements `ELEMENTS`.
+Return a <<HASH-SET>> with elements `ELEMENTS`.
 
 
-==== MAKE-HASH-SET ====
+=== MAKE-HASH-SET ===
 
 Function: `MAKE-HASH-SET &KEY &ALLOW-OTHER-KEYS`
 
-Returns a new empty <<HASH-SET>>.
+Return a new empty <<HASH-SET>>.
 
 Accepts the same keyword arguments as <<MAKE-HASH-MAP>>. The default
 `TEST` function is <<equalp,GENERIC-CL:EQUALP>>.
 
 
-==== COERCE Methods ====
+=== COERCE Methods ===
 
 The following `COERCE` Methods are provided:
 
 * `LIST (EQL 'HASH-SET)`
 +
-Returns a `HASH-SET` containing the elements in the list.
+Return a `HASH-SET` containing the elements in the list.

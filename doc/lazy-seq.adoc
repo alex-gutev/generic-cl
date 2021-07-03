@@ -1,4 +1,4 @@
-=== Lazy Sequences ===
+== Lazy Sequences ==
 
 System and package name: `GENERIC-CL.LAZY-SEQ`
 
@@ -11,13 +11,13 @@ similar to a `CONS` cell, however the `CDR`, the `TAIL` slot of the
 `LAZY-SEQ` structure, stores a function which computes and returns the
 remainder of the sequence, rather than storing the sequence directly.
 
-==== LAZY-SEQ Structure ====
+=== LAZY-SEQ Structure ===
 
 Structure: `LAZY-SEQ`
 
 Lazy sequence cell analogous to a `CONS`.
 
-.Slots
+.*Slots*
 `HEAD`:: The first element of the sequence. _Can be accessed with
 the `LAZY-SEQ-HEAD` accessor function._
 
@@ -71,12 +71,12 @@ non-destructive versions.
 --
 
 
-==== MAKE-LAZY-SEQ ====
+=== MAKE-LAZY-SEQ ===
 
 Function: `MAKE-LAZY-SEQ HEAD TAIL`
 
-Creates a `LAZY-SEQ` with the `HEAD` slot initialized to `HEAD` and
-the `TAIL` slot initialized to `TAIL`.
+Create a `LAZY-SEQ` with the `HEAD` slot initialized to `HEAD` and the
+`TAIL` slot initialized to `TAIL`.
 
 IMPORTANT: `TAIL` must be a function of zero arguments that returns
 either a `LAZY-SEQ` containing the remaining elements in the sequence
@@ -89,11 +89,11 @@ to the function should simply return the previously computed result.
 TIP: The <<lazy_seq_macro,`LAZY-SEQ`>> macro automatically wraps the
 form, which returns the remainder of the sequence, in a function.
 
-==== LAZY-SEQ Macro ====
+=== LAZY-SEQ Macro ===
 
 Macro: `LAZY-SEQ HEAD &OPTIONAL TAIL`
 
-Creates a `LAZY-SEQ` instance with the `HEAD` slot initialized to
+Create a `LAZY-SEQ` instance with the `HEAD` slot initialized to
 `HEAD` and the `TAIL` slot initialized to a function which evaluates
 the form `TAIL`.
 
@@ -102,7 +102,7 @@ call. Subsequent calls will simply return the previously computed
 result.
 
 
-==== COERCE Methods ====
+=== COERCE Methods ===
 
 The following `COERCE` methods are provided which specialize on
 ``LAZY-SEQ``'s.
@@ -117,7 +117,7 @@ will never terminate.
 --
 
 
-==== CONCATENATE Methods ====
+=== CONCATENATE Methods ===
 
 Method: `CONCATENATE LAZY-SEQ &REST SEQUENCES` +
 Method: `NCONCATENATE LAZY-SEQ &REST SEQUENCES` +
@@ -138,7 +138,7 @@ NOTE: `NCONCATENATE` is identical to `CONCATENATE`, that is the
 `LAZY-SEQ` is not destructively modified.
 
 
-==== MAP Methods ====
+=== MAP Methods ===
 
 Method: `MAP FUNCTION LAZY-SEQ &REST SEQUENCES` +
 Method: `NMAP FUNCTION LAZY-SEQ &REST SEQUENCES` +
@@ -159,9 +159,9 @@ NOTE: `NMAP` and `MAP-INTO` do not destructively modify the `LAZY-SEQ`
 but return a new sequence instead.
 
 
-==== Utilities ====
+=== Utilities ===
 
-===== RANGE =====
+==== RANGE ====
 
 Function: `RANGE START &OPTIONAL END STEP`
 

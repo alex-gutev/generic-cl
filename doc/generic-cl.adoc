@@ -5,6 +5,7 @@
 :toclevels: 4
 :icons: font
 :idprefix:
+:source-highlighter: pygments
 
 ifdef::env-github[]
 :tip-caption: :bulb:
@@ -14,6 +15,7 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
+*Source Repository: https://github.com/alex-gutev/generic-cl*
 
 GENERIC-CL provides a generic function wrapper over various functions
 in the Common Lisp standard, such as equality predicates and sequence
@@ -54,6 +56,7 @@ in order to be able to optimize generic function calls. _See
 https://github.com/alex-gutev/static-dispatch for more information._
 
 .Example: Using SHADOWING-IMPORT-FROM
+[source,lisp]
 --------------------------------------------------
 ;; Using comparison interface GENERIC-CL.COMPARISON
 
@@ -67,6 +70,7 @@ https://github.com/alex-gutev/static-dispatch for more information._
 --------------------------------------------------
 
 .Example: Using UIOP:DEFINE-PACKAGE
+[source,lisp]
 --------------------------------------------------
 (uiop:define-package my-pkg
     (:use) ;; Necessary otherwise CL package is used
@@ -78,8 +82,6 @@ https://github.com/alex-gutev/static-dispatch for more information._
 
   ...)
 --------------------------------------------------
-
-== Generic Interfaces ==
 
 include::comparison.adoc[]
 

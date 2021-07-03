@@ -1,4 +1,4 @@
-=== Generic Hash-Tables ===
+== Generic Hash-Tables ==
 
 System and package name: `GENERIC-CL.MAP`
 
@@ -39,11 +39,11 @@ to a `HASH-MAP`.
 |====
 
 
-==== HASH-MAP ====
+=== HASH-MAP ===
 
 Structure: `HASH-MAP`
 
-.Slots
+.*Slots*
 * `TABLE`
 
 Function: `HASH-MAP TABLE`
@@ -56,7 +56,7 @@ The `HASH-MAP` function takes a single argument, a hash-table, and
 creates a `HASH-MAP` wrapping it.
 
 
-===== Implemented Interfaces =====
+==== Implemented Interfaces ====
 
 The <<CLEARED>>, <<MAKE-SEQUENCE-OF-TYPE>>, <<LENGTH>>, <<EMPTYP>>,
 <<CLEAR>>, <<ELT>>, <<setf-elt>> and <<ERASE>> methods of the
@@ -87,7 +87,7 @@ value in the first map equal (by `EQUALP`) to the corresponding value
 in the second
 map.
 
-WARNING: if the two maps have different test functions, the `EQUALP`
+WARNING: If the two maps have different test functions, the `EQUALP`
 method is not necessarily symmetric i.e. `(EQUALP A B)` does not imply
 `(EQUALP B A)`.
 
@@ -100,11 +100,11 @@ T` is provided the values (but not the keys as they should be
 immutable) are copied by `(COPY VALUE :DEEP T)`.
 
 
-==== MAKE-HASH-MAP ====
+=== MAKE-HASH-MAP ===
 
 Function: `MAKE-HASH-MAP &KEY TEST &ALLOW-OTHER-KEYS`
 
-Creates a `HASH-MAP` wrapping a hash table with test function `TEST`,
+Create a `HASH-MAP` wrapping a hash table with test function `TEST`,
 which defaults to `#'GENERIC-CL:EQUALP`.
 
 `TEST` may be one of the following:
@@ -122,16 +122,18 @@ The function accepts all additional arguments (including
 implementation specific arguments) accepted by `CL:MAKE-HASH-TABLE`.
 
 
-==== ENSURE-HASH-MAP ====
+=== ENSURE-HASH-MAP ===
 
 Function: `ENSURE-HASH-MAP THING`
 
 If `MAP` is a <<HASH-MAP>> returns it, otherwise if `MAP` is a
 `HASH-TABLE` or `CUSTOM-HASH-TABLE` returns a `HASH-MAP` which wraps
-it. Signals an error if `MAP` is not of the aforementioned types.
+it.
+
+CAUTION: Signals an error if `MAP` is not of the aforementioned types.
 
 
-==== HASH-MAP-TEST ====
+=== HASH-MAP-TEST ===
 
 Function: `HASH-MAP-TEST MAP`
 
@@ -142,7 +144,7 @@ CAUTION: On some implementations the return value is not
 `GENERIC-CL:EQUALP` as its hash and comparison functions.
 
 
-==== HASH ====
+=== HASH ===
 
 Generic Function: `HASH OBJECT`
 
@@ -150,9 +152,11 @@ Hash function for hash tables with the `GENERIC-CL:EQUALP` test
 specifier.
 
 Return a hash code for `OBJECT`, which should be a non-negative
-fixnum. If two objects are equal (under <<equalp, GENERIC-CL:EQUALP>>)
-then the hash codes, for the two objects, returned by `HASH`, should
-also be equal.
+fixnum.
+
+If two objects are equal (under <<equalp, GENERIC-CL:EQUALP>>) then
+the hash codes, for the two objects, returned by `HASH`, should also
+be equal.
 
 The default method calls `CL:SXHASH` which satisfies the constraint
 that `(CL:EQUAL X Y)` implies `(= (CL:SXHASH X) (CL:SXHASH
@@ -164,7 +168,7 @@ violate the constraint for lists (but does violate the constraints for
 non-string vectors) as keys, provided they only contain numbers,
 characters, symbols, strings and other lists as elements.
 
-==== LIKE-HASH ====
+=== LIKE-HASH ===
 
 Generic Function: `LIKE-HASH OBJECT`
 
@@ -172,23 +176,26 @@ Hash function for hash tables with the `LIKEP` test
 specifier.
 
 Return a hash code for `OBJECT`, which should be a non-negative
-fixnum. If two objects are equal (under <<LIKEP>>) then the hash
-codes, for the two objects, returned by `LIKE-HASH`, should also be
-equal.
+fixnum.
+
+If two objects are equal (under <<LIKEP>>) then the hash codes, for
+the two objects, returned by `LIKE-HASH`, should also be equal.
 
 Methods which satisfy these constraints are provided for strings,
 characters, lists, vectors and multi-dimensional arrays. The default
 method calls the `HASH` function.
 
 
-==== GET ====
+=== GET ===
 
 Generic Function: `GET KEY MAP &OPTIONAL DEFAULT`
 
 Return the value of the entry corresponding to the key `KEY` in the
-map `MAP`. If the `MAP` does not contain any entry with that key,
-`DEFAULT` is returned. The second return value is true if an entry
-with key `KEY` was found in the map, false otherwise.
+map `MAP`.
+
+If the `MAP` does not contain any entry with that key, `DEFAULT` is
+returned. The second return value is true if an entry with key `KEY`
+was found in the map, false otherwise.
 
 Methods are provided for ``HASH-MAP``'s, standard ``HASH-TABLE``'s,
 association lists (`ALISTS`) and property lists (`PLISTS`). For
@@ -196,18 +203,20 @@ association lists (`ALISTS`) and property lists (`PLISTS`). For
 the `EQ` key comparison function is used.
 
 
-==== (SETF GET) ====
+=== (SETF GET) ===
 
 Generic Function: `(SETF GET) VALUE KEY MAP &OPTIONAL DEFAULT`
 
 Set the value of the entry corresponding to the key `KEY` in the map
-`MAP`. `DEFAULT` is ignored.
+`MAP`.
+
+NOTE: `DEFAULT` is ignored.
 
 IMPORTANT: Only a method for `HASH-MAPS` and `HASH-TABLES` is
 provided.
 
 
-==== ENSURE-GET ====
+=== ENSURE-GET ===
 
 Macro: `ENSURE-GET KEY MAP &OPTIONAL DEFAULT`
 
@@ -219,7 +228,7 @@ The first return value is the value corresponding to the key `KEY`, or
 true if `KEY` was found in `MAP`, false otherwise.
 
 
-==== ELT Methods ====
+=== ELT Methods ===
 
 The following `ELT` methods are provided:
 
@@ -232,7 +241,7 @@ Returns `(GENERIC-CL:GET KEY MAP)`.
 Returns `(GETHASH KEY MAP)`
 
 
-==== (SETF ELT) Methods ====
+=== (SETF ELT) Methods ===
 
 The following `(SETF ELT)` methods are provided:
 
@@ -245,7 +254,7 @@ Calls `(SETF (GENERIC-CL:GET KEY MAP) VALUE)`
 Calls `(SETF (GETHASH KEY MAP) VALUE)`
 
 
-==== ERASE Method ====
+=== ERASE Method ===
 
 Method: `ERASE (MAP HASH-MAP) (KEY T)`
 
@@ -254,25 +263,25 @@ Remove the entry with key `KEY` from `MAP`.
 Returns true if the map contained an entry with key `KEY`.
 
 
-==== HASH-MAP-ALIST ====
+=== HASH-MAP-ALIST ===
 
 Function: `HASH-MAP-ALIST MAP`
 
-Returns an association list (`ALIST`) containing all the entries in
-the map `MAP`.
+Return an association list (`ALIST`) containing all the entries in the
+map `MAP`.
 
 
-==== ALIST-HASH-MAP ====
+=== ALIST-HASH-MAP ===
 
 Function: `ALIST-HASH-MAP ALIST &REST ARGS`
 
-Returns a <<HASH-MAP>> containing all entries in the association list
+Return a <<HASH-MAP>> containing all entries in the association list
 `ALIST`.
 
 `ARGS` are the additional arguments passed to <<MAKE-HASH-MAP>>.
 
 
-==== MAP-KEYS ====
+=== MAP-KEYS ===
 
 Generic Function: `MAP-KEYS MAP`
 
@@ -281,7 +290,7 @@ Return a sequence containing all the keys in the map `MAP`.
 NOTE: Specialized only on ``HASH-MAP``'s and ``CL:HASH-TABLE``'s.
 
 
-==== MAP-VALUES ====
+=== MAP-VALUES ===
 
 Generic Function: `MAP-VALUES MAP`
 
@@ -290,7 +299,7 @@ Return a sequence containing all the values in the map `MAP`.
 NOTE: Specialized only on ``HASH-MAP``'s and ``CL:HASH-TABLE``'s.
 
 
-==== COERCE Methods ====
+=== COERCE Methods ===
 
 The following `COERCE` methods are provided for `HASH-MAPS`:
 
@@ -304,7 +313,7 @@ the map. Equivalent to <<HASH-MAP-ALIST>>.
 Returns a property list (`PLIST`) containing all the entries in
 the map.
 
-==== MAKE-SEQUENCE-OF-TYPE Method ====
+=== MAKE-SEQUENCE-OF-TYPE Method ===
 
 Method: `MAKE-SEQUENCE-OF-TYPE (TYPE (EQL 'HASH-MAP)) (ARGS NULL)`
 

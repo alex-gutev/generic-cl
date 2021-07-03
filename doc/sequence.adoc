@@ -1,5 +1,5 @@
 [[sequence]]
-=== Sequence ===
+== Sequence ==
 
 System and package name `GENERIC-CL.SEQUENCE`
 
@@ -51,7 +51,7 @@ package.
 * `T`
 +
 Implements the sequence operation for generic sequences using the
-iterator interface.
+<<iterator>> interface.
 +
 The non-destructive functions only require that the
 <<mandatory_functions, Mandatory Iterator Functions>>, the
@@ -80,7 +80,7 @@ arguments.
 The following functions either have no `CL` counterparts or differ
 slightly in behavior from their `CL` counterparts:
 
-==== FIND-IT ====
+=== FIND-IT ===
 
 Generic Function: `FIND-IT ITEM SEQUENCE &KEY FROM-END START END TEST KEY`
 
@@ -90,7 +90,8 @@ at which it was found.
 NOTE: This is the same as `FIND` except it returns an iterator to the
 position at which an element is found rather than the element itself.
 
-.Parameters
+[float]
+==== Arguments ====
 
 `ITEM`:: The item to find in the sequence.
 `SEQUENCE`:: The sequence to search.
@@ -113,7 +114,7 @@ object that is passed to this function. This is to allow iterating
 over the remaining elements of the sequence and to allow for modifying
 the sequence.
 
-==== FIND-IT-IF ====
+=== FIND-IT-IF ===
 
 Generic Function: `FIND-IT-IF PREDICATE SEQUENCE &KEY FROM-END START END KEY`
 
@@ -123,7 +124,8 @@ an iterator to the position at which it was found.
 NOTE: This is the same as `FIND-IF` except it returns an iterator to the
 position at which an element is found rather than the element itself.
 
-.Parameters
+[float]
+==== Arguments ====
 
 `PREDICATE`:: A predicate function, of one argument, applied on each
 element of sequence. The element for which this function returns true,
@@ -147,7 +149,7 @@ object that is passed to this function. This is to allow iterating
 over the remaining elements of the sequence and to allow for modifying
 the sequence.
 
-==== FIND-IT-IF-NOT ====
+=== FIND-IT-IF-NOT ===
 
 Generic Function: `FIND-IT-IF PREDICATE SEQUENCE &KEY FROM-END START END KEY`
 
@@ -157,7 +159,8 @@ return an iterator to the position at which it was found.
 NOTE: This is the same as `FIND-IF-NOT` except it returns an iterator to the
 position at which an element is found rather than the element itself.
 
-.Parameters
+[float]
+==== Arguments ====
 
 `PREDICATE`:: A predicate function, of one argument, applied on each
 element of sequence. The element for which this function returns false (`NIL`),
@@ -182,18 +185,19 @@ over the remaining elements of the sequence and to allow for modifying
 the sequence.
 
 
-==== MERGE ====
+=== MERGE ===
 
 Generic Function: `MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY`
 
 Return a new sequence, of the same type as `SEQUENCE1`, containing the
-elements of `SEQUENCE1` and `SEQUENCE2`. The elements are ordered
-according to the function `PREDICATE`.
+elements of `SEQUENCE1` and `SEQUENCE2`.
+
+The elements are ordered according to the function `PREDICATE`.
 
 IMPORTANT: Unlike `CL:MERGE` this function is non-destructive.
 
 
-==== NMERGE ====
+=== NMERGE ===
 
 Generic Function: `MERGE SEQUENCE1 SEQUENCE2 PREDICATE &KEY`
 
@@ -201,13 +205,15 @@ Same as <<MERGE>> however is permitted to destructively modify either
 `SEQUENCE1` or `SEQUENCE2`.
 
 
-==== SORT ====
+=== SORT ===
 
 Generic Function: `SORT SEQUENCE &KEY TEST KEY`
 
 Return a new sequence of the same type as `SEQUENCE`, with the same
 elements sorted according to the order determined by the function
-`TEST`. `TEST` is <<lessp,GENERIC-CL:LESSP>> by default.
+`TEST`.
+
+`TEST` is <<lessp,GENERIC-CL:LESSP>> by default.
 
 IMPORTANT: Unlike `CL:SORT` this function is non-destructive.
 
@@ -216,12 +222,15 @@ TIP: For the default method to be efficient, efficient <<ADVANCE-N,>>
 iterator type of `SEQUENCE`.
 
 
-==== STABLE-SORT ====
+=== STABLE-SORT ===
 
 Generic Function: `STABLE-SORT SEQUENCE &KEY TEST KEY`
 
 Same as <<SORT>> however the sort operation is guaranteed to be
-stable. `TEST` is <<lessp,GENERIC-CL:LESSP>> by default.
+stable, that is the relative order of elements of which neither
+compares less than the other, is preserved.
+
+`TEST` is <<lessp,GENERIC-CL:LESSP>> by default.
 
 IMPORTANT: Unlike `CL:STABLE-SORT` this function is non-destructive.
 
@@ -230,7 +239,7 @@ TIP: For the default method to be efficient, efficient <<ADVANCE-N,>>
 iterator type of `SEQUENCE`.
 
 
-==== NSORT ====
+=== NSORT ===
 
 Generic Function: `NSORT SEQUENCE &KEY TEST KEY`
 
@@ -238,7 +247,7 @@ Same as <<SORT>> however is permitted to destructively modify
 `SEQUENCE`.
 
 
-==== STABLE-NSORT ====
+=== STABLE-NSORT ===
 
 Generic Function: `STABLE-NSORT SEQUENCE &KEY TEST KEY`
 
@@ -246,7 +255,7 @@ Same as <<STABLE-SORT>> however is permitted to destructively modify
 `SEQUENCE`.
 
 
-==== CONCATENATE ====
+=== CONCATENATE ===
 
 Generic Function: `CONCATENATE SEQUENCE &REST SEQUENCES`
 
@@ -258,7 +267,7 @@ IMPORTANT: Unlike `CL:CONCATENATE` does not take a result type
 argument.
 
 
-==== NCONCATENATE ====
+=== NCONCATENATE ===
 
 Generic Function: `NCONCATENATE RESULT &REST SEQUENCES`
 
@@ -273,7 +282,16 @@ sequence instead. Thus do not rely on this function for its side
 effects.
 
 
-==== MAP ====
+=== CONCATENATE-TO ===
+
+Generic Function: `CONCATENATE-TO TYPE &REST SEQUENCES`
+
+Concatenate each sequence in `SEQUENCES` into a new sequence of type
+`TYPE`.
+
+The new sequence is created by passing `TYPE` to <<SEQUENCE-OF-TYPE>>.
+
+=== MAP ===
 
 Generic Function: `MAP FUNCTION SEQUENCE &REST SEQUENCES`
 
@@ -288,7 +306,7 @@ the first sequence passed as an argument, rather than being determined
 by a type argument.
 
 
-==== NMAP ====
+=== NMAP ===
 
 Generic Function: `NMAP RESULT FUNCTION &REST SEQUENCES`
 
@@ -298,17 +316,12 @@ each sequence in SEQUENCES.
 
 Returns the resulting sequence.
 
-IMPORTANT: This function is similar in behavior to `CL:MAP-INTO` with
-the exception that if `RESULT` is a vector, then `FUNCTION` is only
-applied on the elements up-to the fill pointer i.e. the fill-pointer
-is not ignored.
-
 CAUTION: Whilst this function is permitted to modify `RESULT`, it is
-not required and may return the result in a new sequence instead. Thus
-do not rely on this function for its side effects.
+not required to do so and may return the result in a new sequence
+instead. Thus do not rely on this function for its side effects.
 
 
-==== MAP-INTO ====
+=== MAP-INTO ===
 
 Generic Function: `MAP-INTO RESULT FUNCTION &REST SEQUENCES`
 
@@ -322,14 +335,16 @@ not required and may return the result in a new sequence instead. Thus
 do not rely on this function for its side effects.
 
 
-==== MAP-TO ====
+=== MAP-TO ===
 
 Generic Function: `MAP-TO TYPE FUNCTION &REST SEQUENCES`
 
 Apply `FUNCTION` on each element of each sequence in `SEQUENCES` and
 store the result in a new sequence of type `TYPE` (created using
-<<SEQUENCE-OF-TYPE>>).  Returns the sequence in which the results of
-applying the function are stored.
+<<SEQUENCE-OF-TYPE>>).
+
+Returns the sequence in which the results of applying the function are
+stored.
 
 IMPORTANT: This function is equivalent in arguments, and almost
 equivalent in behavior, to `CL:MAP`. The only difference is that if
@@ -337,7 +352,7 @@ equivalent in behavior, to `CL:MAP`. The only difference is that if
 a fill-pointer. A `NIL` type argument is not interpreted as do not
 accumulate the results, use <<FOREACH>> for that.
 
-==== MAP-EXTEND ====
+=== MAP-EXTEND ===
 
 Generic Function: `MAP-EXTEND-TO FUNCTION SEQUENCE &REST SEQUENCES`
 
@@ -345,10 +360,12 @@ Apply `FUNCTION` on each respective element of `SEQUENCE`, and of each
 sequence in `SEQUENCES`, accumulating, using the <<EXTEND>> method of
 the <<collector>> Interface, the elements of the result, which is
 expected to be a sequence, in a sequence of the same type as
-`SEQUENCE`. The resulting sequence is returned.
+`SEQUENCE`.
+
+The resulting sequence is returned.
 
 
-==== MAP-EXTEND-TO ====
+=== MAP-EXTEND-TO ===
 
 Generic Function: `MAP-EXTEND-TO TYPE FUNCTION &REST SEQUENCES`
 
@@ -356,23 +373,26 @@ Apply `FUNCTION` on each respective element of each sequence in
 `SEQUENCES`, and accumulate, using the <<EXTEND>> method of the
 <<collector>> Interface, the elements of the result, which is expected
 to be a sequence, in a sequence of type `TYPE`, created using
-<<SEQUENCE-OF-TYPE>>. The resulting sequence is returned.
+<<SEQUENCE-OF-TYPE>>.
 
-==== MAP-EXTEND-INTO ====
+The resulting sequence is returned.
+
+=== MAP-EXTEND-INTO ===
 
 Generic Function: `MAP-EXTEND-INTO RESULT FUNCTION &REST SEQUENCES`
 
 Apply `FUNCTION` on each respective element of each sequence in
 `SEQUENCES`, and accumulate, using the <<EXTEND>> method of the
 <<collector>> Interface, the elements of the result, which is expected
-to be a sequence, in the sequence `RESULT`. The resulting sequence is
-returned.
+to be a sequence, in the sequence `RESULT`.
+
+The resulting sequence is returned.
 
 CAUTION: `RESULT` may be destructively modified, however that is not
 guaranteed thus this function should only be used for its return
 value, not its side effects.
 
-==== FOREACH ====
+=== FOREACH ===
 
 Function: `FOREACH &REST SEQUENCES`
 
@@ -380,13 +400,13 @@ Apply `FUNCTION` on each element of each sequence in `SEQUENCES`.
 
 Returns `NIL`.
 
-==== Implemented Methods ====
+=== Implemented Methods ===
 
 This interface's system also defines the following methods of the
 <<container>> interface, implemented using the <<iterator>> and
 <<collector>> interfaces.
 
-===== ELT =====
+==== ELT ====
 
 Method: `ELT (SEQUENCE T) (INDEX T)`
 
@@ -394,7 +414,7 @@ Creates an iterator for `SEQUENCE`, with start position `INDEX`,
 and returns the first element returned by the iterator.
 
 
-===== (SETF ELT) =====
+==== (SETF ELT) ====
 
 Method: `(SETF ELT) (VALUE T) (SEQUENCE T) (INDEX T)`
 
@@ -403,7 +423,7 @@ sets the value of the element at the starting position of the
 iterator.
 
 
-===== LENGTH =====
+==== LENGTH ====
 
 Method: `LENGTH (CONTAINER T)`
 
@@ -415,7 +435,7 @@ method, which is specialized on the containers's iterator type, is
 implemented.
 
 
-===== EMPTYP =====
+==== EMPTYP ====
 
 Method: `EMPTYP (CONTAINER T)`
 
@@ -423,7 +443,7 @@ Returns true if <<ENDP>> returns true for a newly created
 iterator for `CONTAINER`.
 
 
-===== ADJUST-SIZE =====
+==== ADJUST-SIZE ====
 
 Method: `ADJUST-SIZE (CONTAINER T) (N T) &KEY ELEMENT`
 
@@ -431,7 +451,7 @@ Requires the <<iterator>> and <<collector>> interfaces to be
 implemented for the container type.
 
 
-===== NADJUST-SIZE =====
+==== NADJUST-SIZE ====
 
 Method: `NADJUST-SIZE (CONTAINER T) (N T) &KEY ELEMENT`
 
@@ -439,7 +459,7 @@ Requires the <<iterator>> and <<collector>> interfaces to be
 implemented for the container type.
 
 
-===== SUBSEQ =====
+==== SUBSEQ ====
 
 Method: `SUBSEQ (SEQUENCE T) (START T) &OPTIONAL END`
 
@@ -447,7 +467,7 @@ Requires the <<CLEARED>> method, the <<iterator>> interface and
 <<collector>> interface to be implemented for the sequence type.
 
 
-===== (SETF SUBSEQ) =====
+==== (SETF SUBSEQ) ====
 
 Method: `(SETF SUBSEQ) (NEW-SEQUENCE T) (SEQUENCE T) (START T) &OPTIONAL END`
 

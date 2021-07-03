@@ -1,4 +1,4 @@
-=== Arithmetic ===
+== Arithmetic ==
 
 System and package name: `GENERIC-CL.ARITHMETIC`.
 
@@ -14,7 +14,7 @@ are the n-ary arithmetic functions similar to the functions with the
 same names in the `COMMON-LISP` package.
 
 
-==== ADD ====
+=== ADD ===
 
 Generic Function: `ADD A B`
 
@@ -27,7 +27,7 @@ Returns the sum of `A` and `B`.
 Returns `(CL:+ A B)`.
 
 
-==== SUBTRACT ====
+=== SUBTRACT ===
 
 Generic Function: `SUBTRACT A B`
 
@@ -40,7 +40,7 @@ Returns the difference of `A` and `B`.
 Returns `(CL:- A B)`.
 
 
-==== MULTIPLY ====
+=== MULTIPLY ===
 
 Generic Function: `MULTIPLY A B`
 
@@ -53,7 +53,7 @@ Returns the product of `A` and `B`.
 Returns `(CL:* A B)`.
 
 
-==== DIVIDE ====
+=== DIVIDE ===
 
 Generic Function: `DIVIDE A B`
 
@@ -67,7 +67,7 @@ result should be the reciprocal of `B`.
 Returns `(CL:/ A B)`.
 
 
-==== NEGATE ====
+=== NEGATE ===
 
 Generic Function: `NEGATE A`
 
@@ -81,7 +81,7 @@ Returns `(CL:- A)`.
 
 
 [[add-nary, +]]
-==== + ====
+=== + ===
 
 Function: `+ X &REST XS`
 
@@ -93,7 +93,7 @@ provided it is returned.
 
 
 [[subtract-nary, -]]
-==== - ====
+=== - ===
 
 Function: `- X &REST XS`
 
@@ -105,7 +105,7 @@ returned, by the <<NEGATE>> function.
 
 
 [[multiply-nary, *]]
-==== * ====
+=== * ===
 
 Function: `* X &REST XS`
 
@@ -117,7 +117,7 @@ provided it is returned.
 
 
 [[divide-nary, /]]
-==== / ====
+=== / ===
 
 Function: `/ X &REST XS`
 
@@ -128,7 +128,7 @@ If only a single argument is provided, the reciprocal of the argument,
 `(DIVIDE 1 X)`, is returned.
 
 
-==== 1+ ====
+=== 1+ ===
 
 Generic Function: `1+ A`
 
@@ -145,7 +145,7 @@ Returns `(CL:1+ A)`.
 Returns `(ADD A 1)`.
 
 
-==== 1- ====
+=== 1- ===
 
 Generic Function: `1- A`
 
@@ -162,7 +162,7 @@ Returns `(CL:1- A)`.
 Returns `(SUBTRACT A 1)`.
 
 
-==== INCF ====
+=== INCF ===
 
 Macro: `INCF PLACE &OPTIONAL (DELTA 1)`
 
@@ -177,7 +177,7 @@ Effectively:
 ----
 
 
-==== DECF ====
+=== DECF ===
 
 Macro: `DECF PLACE &OPTIONAL (DELTA 1)`
 
@@ -192,7 +192,7 @@ Effectively:
 ----
 
 
-==== MINUSP ====
+=== MINUSP ===
 
 Generic Function: `MINUSP A`
 
@@ -214,7 +214,7 @@ Returns true if `A` compares less than `0`, by <<LESSP>>.
 ----
 
 
-==== PLUSP ====
+=== PLUSP ===
 
 Generic Function: `PLUSP A`
 
@@ -236,7 +236,7 @@ Returns true if `A` compares greater than `0`, by <<GREATERP>>.
 ----
 
 
-==== ZEROP ====
+=== ZEROP ===
 
 Generic Function: `ZEROP A`
 
@@ -258,7 +258,7 @@ Returns true if `A` is equal to `0`, by <<EQUALP>>.
 ----
 
 
-==== SIGNUM ====
+=== SIGNUM ===
 
 Generic Function: `SIGNUM A`
 
@@ -277,7 +277,7 @@ Returns `-1` if `(MINUSP A)` is true, `0` if `(ZEROP A)` is true,
 `1` otherwise.
 
 
-==== ABS ====
+=== ABS ===
 
 Generic Function: `ABS A`
 
@@ -302,7 +302,7 @@ If `(MINUSP A)` is true, returns `(NEGATE A)` otherwise returns
 ----
 
 
-==== EVENP ====
+=== EVENP ===
 
 Generic Function: `EVENP A`
 
@@ -319,7 +319,7 @@ Returns `(CL:EVENP A)`
 Returns `(ZEROP (MOD A 2))`
 
 
-==== ODDP ====
+=== ODDP ===
 
 Generic Function: `ODDP A`
 
@@ -336,7 +336,7 @@ Returns `(CL:ODDP A)`
 Returns `(NOT (EVENP A))`
 
 
-==== FLOOR ====
+=== FLOOR ===
 
 Generic Function: `FLOOR N D`
 
@@ -353,7 +353,7 @@ Returns `(CL:FLOOR N D)` if `D` is provided otherwise returns
 `(CL:FLOOR N)`.
 
 
-==== CEILING ====
+=== CEILING ===
 
 Generic Function: `CEILING N D`
 
@@ -369,7 +369,7 @@ Returns `(CL:CEILING N D)` if `D` is provided otherwise returns
 `(CL:CEILING N)`.
 
 
-==== TRUNCATE ====
+=== TRUNCATE ===
 
 Generic Function: `TRUNCATE N D`
 
@@ -385,7 +385,7 @@ Returns `(CL:TRUNCATE N D)` if `D` is provided otherwise returns
 `(CL:TRUNCATE N)`.
 
 
-==== ROUND ====
+=== ROUND ===
 
 Generic Function: `ROUND N D`
 
@@ -405,7 +405,7 @@ Returns `(CL:ROUND N D)` if `D` is provided otherwise returns
 `(CL:ROUND N)`.
 
 
-==== MOD ====
+=== MOD ===
 
 Generic Function: `MOD N D`
 
@@ -422,7 +422,7 @@ Returns `(CL:MOD N D)`.
 Returns the second return value of `(FLOOR N D)`.
 
 
-==== REM ====
+=== REM ===
 
 Generic Function: `REM N D`
 
