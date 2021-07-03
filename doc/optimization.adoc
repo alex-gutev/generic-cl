@@ -12,14 +12,16 @@ https://github.com/alex-gutev/static-dispatch[STATIC-DISPATCH], which
 is a library that allows generic-function dispatch to be performed
 statically, at compile-time, rather than dynamically, at runtime. The
 library allows a call to a generic function to be replaced with the
-body of the appropriate method, which is selected based on the type
+body of the appropriate method, or a call to an ordinary function
+implementing the method, which is selected based on the type
 declarations of its arguments.
 
-For a generic function call to be inlined, the generic function has to
-be declared inline (either locally or globally), with the `OPTIMIZE`
-`SPEED` level greater than the `SAFETY` level. Additionally, it must
-also be possible to determine the types of the arguments at
-compile-time. _See
+For a generic function call to be inlined an `OPTIMIZE` declaration
+with a `SPEED` level of `3` and with `SAFETY` and `DEBUG` levels less
+than `3` has to be in place, in the environment of the
+call. Additionally, it must also be possible to determine the types of
+the arguments at compile-time. This means in general that the types of
+variables and the return types of functions have to be declared. _See
 https://github.com/alex-gutev/static-dispatch[STATIC-DISPATCH] and
 https://github.com/alex-gutev/cl-form-types[CL-FORM-TYPES] for
 information on how the types of the arguments are determined and how
@@ -29,9 +31,8 @@ to make the type information available_.
 [source,lisp]
 ----
 (let ((x 1))
-  (declare (inline equalp)
-           (optimize (speed 3) (safety 2))
-	   (type number x))
+  (declare (optimize (speed 3) (safety 2))
+           (type number x))
 
   (equalp x (the number (+ 3 4))))
 ----
@@ -45,12 +46,12 @@ functions with multiple inline calls to the binary functions, e.g. `(=
 1 2 3)` is replaced with `(and (equalp 1 2) (equalp 1 3))`.
 
 Thus the following should also result in the `EQUALP` function calls
-being statically dispatched, though this has not yet been tested:
+being statically dispatched:
 
 [source,lisp]
 ----
 (let ((x 1))
-  (declare (inline equalp)
+  (declare (optimize (speed 3) (safety 2))
 	   (type number x))
 
   (= x (the number (+ 3 4))))
