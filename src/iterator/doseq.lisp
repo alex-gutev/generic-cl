@@ -270,11 +270,11 @@
 
    SEQS:
 
-     A list of the form (ITER SEQUENCE . ARGS) where ITER is a symbol
-     identifying the iterator for the sequence, SEQUENCE is the form
-     which evaluates to a sequence, and ARGS are the remaining
-     iteration arguments, interpreted as they are to the ITERATOR
-     function.
+     A list where each element is of the form (ITER SEQUENCE . ARGS)
+     where ITER is a symbol identifying the iterator for the sequence,
+     SEQUENCE is the form which evaluates to a sequence, and ARGS are
+     the remaining iteration arguments, interpreted as they are to the
+     ITERATOR function.
 
      Each iterator identifier (ITER) can be passed to
      WITH-ITER-VALUE, within the body forms of WITH-ITERATORS, to
@@ -413,7 +413,7 @@
    ITER:
 
      Symbol identifying the iterator, as established by the
-     WITH-ITERATOR form.
+     WITH-ITERATORS form.
 
      This must name an iterator introduced in a parent WITH-ITERATORS
      form.
@@ -429,8 +429,8 @@
      WITH-ITER-VALUE form. The binding(s) introduced by PATTERN are
      visible to forms.
 
-     The forms may be preceded by one or more declaration expressions,
-     which may apply to the variables introduced in PATTERN.
+     The forms may be preceded by declaration expressions, which may
+     apply to the variables introduced in PATTERN.
 
      NOTE: If there are no more elements in the sequence, the forms
      are not evaluated and a non-local jump to the end of the
@@ -518,7 +518,7 @@
 
    If the iterator is already at the end of the sequence a non-local
    jump, to the end of the enclosing WITH-ITERATORS form, is
-   performed..
+   performed.
 
    Simultaneously the iterator is also advanced to the next element of
    the sequence. However, the iterator is only guaranteed to be
@@ -577,7 +577,8 @@
    BINDINGS:
 
      A list of element value bindings, corresponding to the first
-     argument of WITH-ITER-PLACE, each of the form (NAME ITER) or (NAME ITER MOREP).
+     argument of WITH-ITER-PLACE, each of the form (NAME ITER)
+     or (NAME ITER MOREP).
 
        ((name-1 iter-1) (name-2 iter-2) ... (name-n iter-n))
 

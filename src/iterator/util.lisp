@@ -135,7 +135,7 @@
 
    FORMS-VAR:
 
-     Name of the variable to receive the list of forms
+     Name of the variable to receive the list of forms.
 
    BODY-FORM:
 
