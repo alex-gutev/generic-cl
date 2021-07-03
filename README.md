@@ -66,6 +66,6 @@ optimized, using
 which this library is built, to be as efficient (and sometimes even
 more efficient) as ordinary function calls, when the types of the
 arguments are known at compile-time. Check out the
-[https://alex-gutev.github.io/generic-cl/#optimization](Optimization)
+[Optimization](https://alex-gutev.github.io/generic-cl/#optimization)
 section for more information.
 
