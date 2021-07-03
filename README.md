@@ -55,13 +55,12 @@ format in the `doc/` folder.
 
 ## Isn't this slow?
 
-Yes generic functions do carry an additional overhead over ordinary
-functions, however the author of this library believes this isn't an
-issue for most applications.
+Generic functions do carry an additional overhead over ordinary
+functions, however this isn't a significant issue for most
+applications. 
 
-Furthermore for those applications where the speed of
-generic-functions is an issue, generic function calls can be
-optimized, using
+For those applications where the speed of generic-functions is an
+issue, generic function calls can be optimized, using
 [static-dispatch](https://github.com/alex-gutev/static-dispatch) on
 which this library is built, to be as efficient (and sometimes even
 more efficient) as ordinary function calls, when the types of the
