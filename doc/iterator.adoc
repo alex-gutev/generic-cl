@@ -194,13 +194,472 @@ should be equivalent to the position obtained by calling <<ADVANCE>>
 The default method simply calls <<ADVANCE>>, on `ITERATOR`, `N` times.
 
 
-==== Macros ====
+=== Macros ===
 
 Macros for iteratoring over a generic sequence. Analogous to
 `CL:DOLIST`.
 
+==== DOSEQ ====
 
-===== DOITERS =====
+Macro: `DOSEQ (ELEMENT SEQUENCE &REST ARGS) &BODY BODY`
+
+Iterate over the elements of a sequence, evaluating a list of forms at
+each iteration.
+
+IMPORTANT: The iterator interface must be implemented for the
+sequence, the elements of which, are being iterated over.
+
+NOTE: An optimized expansion, which does not use the iterator
+interface, may be emitted if the type of sequence can be determined at
+compile-time and there is a <<MAKE-DOSEQ>> method for that type.
+
+.Arguments
+
+`ELEMENT`:: Name of the variable which receives the value of the
+current sequence element at each iteration. May also be a list in
+which case it is interpreted as a destructuring pattern, as if to
+`DESTRUCTURING-BIND`, according to which the element is destructured.
+
+`ARGS`:: Remaining arguments passed to the <<iterator-func>>
+function. The following keyword arguments are recognized `:START`,
+`:END` and `:FROM-END`.
+
+`BODY`:: List of forms to evaluate at each iteration.
++
+The forms are evaluated in an implicit `PROGN`, with the variables
+introduced by `ELEMENT` visible to these forms. The loop may be
+terminated early using `RETURN-FROM` to a `NIL` block, with the value
+returned from the `DOSEQ` form.
++
+The forms may be preceded by one or more declarations.
+
+Returns `NIL` unless a `RETURN-FROM` to block `NIL` is executed in
+`BODY`.
+
+==== DO-SEQUENCES ====
+
+Macro: `DO-SEQUENCES (&REST SEQUENCES) &BODY BODY`
+
+Same as <<DOSEQ>> however for iterating over multiple sequences
+simultaneously.
+
+.Arguments
+`SEQUENCES`:: The sequences over which to iterate and the names of the
+variables which receive the values of their elements.
++
+Each element is of the form `(ELEMENT SEQUENCE &REST ARGS)`, which
+corresponds to the `ELEMENT`, `SEQUENCE` and `ARGS` arguments of
+<<DOSEQ>>.
+
+`BODY`:: List of forms to evaluate at each iteration, same as the body
+argument to <<DOSEQ>>
++
+The forms may be preceded by one or more declarations.
+
+==== DOSEQ! ====
+
+Macro: `DOSEQ! (NAME SEQUENCE &REST ARGS) &BODY BODY`
+
+Same as `DOSEQ` however allows for the sequence elements to be
+mutated.
+
+IMPORTANT: The <<setf-at>> function must be implemented for the
+sequence type.
+
+.Arguments
+
+`NAME`:: Name of the symbol-macro which expands to the _place_ of the
+current sequence elements.
++
+The symbol-macro can be used to either reference the element's value
+or set the element's value, using `SETF`.
+
+`ARGS`:: Remaining arguments passed to the <<iterator-func>>
+function. The following keyword arguments are recognized `:START`,
+`:END` and `:FROM-END`.
+
+`BODY`:: List of forms to evaluate at each iteration.
++
+The forms are evaluated in an implicit `PROGN`, with the symbol-macro
+introduced by `NAME` visible to these forms. The loop may be
+terminated early using `RETURN-FROM` to a `NIL` block, with the value
+returned from the `DOSEQ` form.
++
+The forms may be preceded by one or more declarations.
+
+Returns `NIL` unless a `RETURN-FROM` to block `NIL` is executed in
+`BODY`.
+
+==== DO-SEQUENCES! ====
+
+Macro: `DO-SEQUENCES! (&REST SEQUENCES) &BODY BODY`
+
+Same as <<DOSEQ!>> however for iterating over multiple sequences
+simultaneously.
+
+.Arguments
+`SEQUENCES`:: The sequences over which to iterate and the names of the
+variables which receive the values of their elements.
++
+Each element is of the form `(NAME SEQUENCE &REST ARGS)`, which
+corresponds to the `NAME`, `SEQUENCE` and `ARGS` arguments of
+<<DOSEQ>>.
+
+`BODY`:: List of forms to evaluate at each iteration, same as the body
+argument to <<DOSEQ>>
++
+The forms may be preceded by one or more declarations.
+
+[[low-level-iter-macros]]
+=== Low-Level Macros ===
+
+These macros provide access to the iterator's themselves, used to
+implement the high-level iteration macros, allowing for greater
+control over the iteration process.
+
+==== WITH-ITERATORS ====
+
+Macro: `WITH-ITERATORS (&REST SEQUENCES) &BODY FORMS`
+
+Setup the iterator state for iterating over one or more sequences.
+
+<<WITH-ITER-VALUE>> and <<WITH-ITER-PLACE>>, can be used within this
+macro to retrieve/set the element pointed to by the iterators and
+advance their positions.
+
+IMPORTANT: This macro attempts to determine the type of each sequence
+and calls `MAKE-DOSEQ` to generate optimal iterator code for the given
+sequence types, rather than creating dynamic iterator objects. Falls
+back to the iterator interface, if the types of the sequences cannot
+be determined.
+
+.Arguments
+`SEQUENCES`:: List of sequences to create iterators for.
++
+Each element is of the form `(ITER SEQUENCE . ARGS)`, where `ITER` is
+a symbol with which the iterator is identified, `SEQUENCE` is the form
+producing the sequence to iterate over, and `ARGS` are the remaining
+iteration arguments, interpreted as the keyword arguments to the
+<<iterator-func>> arguments.
++
+Each `ITER` is a symbol that identifies the iterator, in
+`WITH-ITER-VALUE` and `WITH-ITER-PLACE`.
++
+NOTE: Iterator identifiers are in a namespace of their own that is
+they do not name lexical variables/symbol-macros nor functions/macros.
+
+`FORMS`:: A list of forms evaluated in an implicit `TAGBODY`, thus
+symbols are interpreted as tag names.
++
+The `WITH-ITER-VALUE` macro can be used, within `FORMS`, to retrieve the
+current element of the sequence and advance the iterator to the next
+position.
++
+The `WITH-ITER-PLACE` macro can be used, within `FORMS`, both to
+retrieve and set the value of the current element of the sequence, and
+advance the iterator to the next position.
++
+NOTE: The value of the last form is not returned, due to it being
+evaluated in a `TAGBODY`, instead `NIL` is returned. `RETURN-FROM`, to an
+outer `BLOCK`, should be used to return a value from this form.
+
+IMPORTANT: Whilst the intended use of `WITH-ITERATORS` is to implement
+iteration macros, such as `DOSEQ`, the `FORMS` are only evaluated once. It
+is up to the user to implement the actual loop, using the provided
+`TAGBODY` facility.
+
+==== WITH-ITER-VALUE ====
+
+Macro: `WITH-ITER-VALUE (PATTERN ITER) &BODY BODY`
+
+Bind the current element of a sequence, pointed to by an iterator, to
+a variable, and advance the iterator's position to the next element.
+
+IMPORTANT: This macro may only be used within the body of a
+<<WITH-ITERATORS>> macro.
+
+The value of the element at the current position of the iterator,
+identified by `ITER`, is bound to the variable(s) specified by
+`PATTERN`, with the bindings visible to the forms in `BODY`.
+
+If the iterator is already at the end of the sequence, a non-local
+jump to the end of the `WITH-ITERATORS` form, in which the iterator
+was introduced, is performed.
+
+After binding the values, the position of the iterator is advanced to
+the next element in the sequence.
+
+.Arguments
+
+`PATTERN`:: A binding pattern specifying the variable(s) to which the
+value of the element, at the current position of the iterator, is
+bound.
++
+This may either be a symbol, naming a variable, or a list which is
+interpreted as a `DESTRUCTURING-BIND` pattern.
+
+`ITER`:: Symbol identifying the iterator, that was given as the `ITER`
+argument to a parent `WITH-ITERATORS` form.
+
+`BODY`:: The body of the `WITH-ITER-VALUE` form, which consists of a
+list of forms optionally preceded by a number of declaration
+expressions.
++
+--------------------------------------------------
+BODY ::= DECLARATION* FORM*
+--------------------------------------------------
++
+The forms are evaluated in an implicit `PROGN`, with the value of the
+last form returned from the `WITH-ITER-VALUE` form. The binding(s)
+introduced by `PATTERN` are visible to the forms.
++
+NOTE: If there are no more elements in the sequence, the forms are not
+evaluated.
+
+==== WITH-ITER-VALUES ====
+
+Macro `WITH-ITER-VALUES (&REST BINDINGS) &BODY BODY`
+
+Like <<WITH-ITER-VALUE>> except the values of multiple sequence
+elements are bound simultaneously.
+
+If one of the iterators has reached the end of its sequence, a
+non-local jump is performed to the end of the <<WITH-ITERATORS>> form
+corresponding to the first iterator which has reached the end of its
+sequence.
+
+.Arguments
+
+`BINDINGS`:: A list of sequence element bindings as if to
+`WITH-ITER-VALUE`, each of the form `(PATTERN ITER)`.
++
+--------------------------------------------------
+((pattern-1 iter-1) (pattern-2 iter-2) ... (pattern-n iter-n))
+--------------------------------------------------
++
+This is functionally equivalent to a series of nested
+`WITH-ITER-VALUE` forms.
++
+--------------------------------------------------
+(with-iter-value (pattern-1 iter-1)
+  (with-iter-value (pattern-2 iter-2)
+    (...
+      (with-iter-value (pattern-n iter-n)
+        ,@body))))
+--------------------------------------------------
++
+However unlike simply nesting `WITH-ITER-VALUE` forms, declarations
+occurring in `BODY` are handled properly and associated with the
+correct `WITH-ITER-VALUE` form, depending on which variable(s) they
+apply to.
+
+`BODY`:: The body of the `WITH-ITER-VALUES` form, which consists of a
+list of forms optionally preceded by a number of declaration
+expressions.
++
+--------------------------------------------------
+BODY ::= DECLARATION* FORM*
+--------------------------------------------------
++
+The forms are evaluated in an implicit `PROGN`, with the value of the
+last form returned from the `WITH-ITER-VALUES` form. The binding(s)
+introduced by `PATTERN` are visible to the forms.
++
+NOTE: If there are no more elements in at least one of the sequences,
+the forms are not evaluated.
+
+==== WITH-ITER-PLACE ====
+
+Macro: `WITH-ITER-PLACE (NAME ITER &OPTIONAL MOREP) &BODY BODY`
+
+Bind a symbol to the _place_, suitable for use with `SETF`, of the
+current sequence element.
+
+IMPORTANT: This macro may only be used within the body of a
+<<WITH-ITERATORS>> macro.
+
+A symbol-macro, with identifier given by `NAME`, is introduced, which
+expands to the _place_, suitable for use with `SETF`, of the element
+at the iterator's current position. This symbol-macro is visible to
+the forms in `BODY`.
+
+If the iterator is already at the end of the sequence, a non-local
+jump to the end of the `WITH-ITERATORS` form, in which it was
+introduced, is performed, unless a `MOREP` variable name is given.
+
+The iterator is also advanced to the next element of the sequence
+after all forms in `BODY` are evaluated. However, the iterator is only
+guaranteed to be advanced on a normal exit from the `WITH-ITER-PLACE`
+form. If a non-local jump is performed, via `GO`, `RETURN-FROM` or
+`THROW`, the iterator might not be advanced.
+
+.Arguments
+
+`NAME`:: Identifier of the symbol-macro to introduce.
++
+NOTE: Unlike in <<WITH-ITER-VALUE>> this must be a symbol and cannot
+be a destructuring pattern.
+
+`MOREP`:: Name of the variable, which is bound to true if there are
+more elements in the sequence following the iterator's position, and
+to `NIL` if the end of the sequence has been reached.
++
+If given and it is non-`NIL`, no checks are performed for whether the
+iterator has reached the end of its sequence, and hence the forms in
+`BODY` are not skipped. It is up to the programmer to check the value
+of this variable and performed whatever logic should be performed upon
+reaching the end of the sequence.
+
+`ITER`:: Symbol identifying the iterator, that was given as the `ITER`
+argument to a parent `WITH-ITERATORS` form.
+
+`BODY`:: The body of the `WITH-ITER-PLACE` form, which consists of a
+list of forms optionally preceded by a number of declaration
+expressions.
++
+--------------------------------------------------
+BODY ::= DECLARATION* FORM*
+--------------------------------------------------
++
+The forms are evaluated in an implicit `PROGN`, with the value of the
+last form returned from the `WITH-ITER-PLACE` form.
++
+NOTE: If there are no more elements in the sequence, and a `MOREP`
+variable has not been given, the forms are not evaluated, and a
+non-local jump is performed to the end of the `WITH-ITERATORS`, in
+which the iterator was introduced..
+
+
+==== WITH-ITER-PLACES ====
+
+Macro `WITH-ITER-PLACES (&REST BINDINGS) &BODY BODY`
+
+Like <<WITH-ITER-PLACE>> except multiple places, for multiple
+sequences, are bound simultaneously.
+
+If one of the iterators has reached the end of its sequence, and a
+corresponding `MOREP` variable has not been given, a non-local jump is
+performed to the end of the <<WITH-ITERATORS>> form corresponding to
+the first iterator which has reached the end of its sequence.
+
+.Arguments
+
+`BINDINGS`:: A list of sequence element place bindings as if to
+`WITH-ITER-PLACE`, each of the form `(NAME ITER)` or `(NAME ITER
+MOREP)`.
++
+--------------------------------------------------
+((name-1 iter-1) (name-2 iter-2) ... (name-n iter-n))
+--------------------------------------------------
++
+This is functionally equivalent to a series of nested
+`WITH-ITER-PLACE` forms.
++
+--------------------------------------------------
+(with-iter-place (name-1 iter-1)
+  (with-iter-place (name-2 iter-2)
+    (...
+      (with-iter-place (name-n iter-n)
+        ,@body))))
+--------------------------------------------------
++
+However unlike simply nesting `WITH-ITER-PLACE` forms, declarations
+occurring in `BODY` are handled properly and associated with the
+correct `WITH-ITER-PLACE` form, depending on which variable(s) they
+apply to.
+
+`BODY`:: The body of the `WITH-ITER-PLACES` form, which consists of a
+list of forms optionally preceded by a number of declaration
+expressions.
++
+--------------------------------------------------
+BODY ::= DECLARATION* FORM*
+--------------------------------------------------
++
+The forms are evaluated in an implicit `PROGN`, with the value of the
+last form returned from the `WITH-ITER-PLACES` form. The
+symbol-macro(s) introduced in `BINDINGS` are visible to the forms.
+
+
+==== DO-ITER-VALUES ====
+
+Macro `DO-ITER-VALUES (&REST ITERS) &BODY BODY`
+
+Iterate over the remaining elements following the positions of one or
+more iterators.
+
+The list of forms in `BODY` are evaluated at each iteration, until one
+of the iterators reaches the end of its sequence.
+
+IMPORTANT: May only be used inside a <<WITH-ITERATORS>> form.
+
+`ITERS`:: List of element value bindings.
++
+Each element is of the form `(PATTERN ITER)`, as if to
+<<WITH-ITER-VALUE>>, where `PATTERN` is the binding pattern,
+specifying the variable(s) which will receive the value of the current
+element and `ITER` is the identifier of the iterator, as given in the
+`ITER` argument of the <<WITH-ITERATORS>> form.
++
+`BODY`:: The body of the `DO-ITER-VALUES` form, which consists of a
+list of forms optionally preceded by a number of declaration
+expressions.
++
+--------------------------------------------------
+BODY ::= DECLARATION* FORM*
+--------------------------------------------------
++
+The forms are evaluated once for each element, after which each
+iterator is advanced to the next element in its sequence.
+
+This form returns `NIL`.
+
+CAUTION: When the end of a sequence is reached, a non-local jump to
+the `WITH-ITERATORS` form, corresponding to the sequence's iterator,
+is performed. Thus any forms following the `DO-ITER-VALUES` form are
+skipped.
+
+==== DO-ITER-PLACES ====
+
+Macro `DO-ITER-PLACES (&REST ITERS) &BODY BODY`
+
+Like <<DO-ITER-VALUES>> except the bindings to the _places_, with
+<<WITH-ITER-PLACE>>, are introduced, rather than bindings to the
+values of the sequence elements.
+
+The list of forms in `BODY` are evaluated at each iteration, until one
+of the iterators reaches the end of its sequence.
+
+IMPORTANT: May only be used inside a <<WITH-ITERATORS>> form.
+
+`ITERS`:: List of element place bindings.
++
+Each element is of the form `(NAME ITER)`, as if to
+<<WITH-ITER-PLACE>>, where `NAME` is the name of the symbol-macro
+expanding to the element place, and `ITER` is the identifier of the
+iterator, as given in the `ITER` argument of the <<WITH-ITERATORS>>
+form.
++
+`BODY`:: The body of the `DO-ITER-PLACES` form, which consists of a
+list of forms optionally preceded by a number of declaration
+expressions.
++
+--------------------------------------------------
+BODY ::= DECLARATION* FORM*
+--------------------------------------------------
++
+The forms are evaluated once for each element, after which each
+iterator is advanced to the next element in its sequence.
+
+This form returns `NIL`.
+
+CAUTION: When the end of a sequence is reached, a non-local jump to
+the `WITH-ITERATORS` form, corresponding to the sequence's iterator,
+is performed. Thus any forms following the `DO-ITER-PLACES` form are
+skipped.
+
+
+==== DOITERS ====
 
 Macro: `DOITERS (&REST ITERS) &BODY BODY`
 
@@ -218,26 +677,12 @@ which are executed once for each element in the sequence. After each
 iteration the sequence iterators are <<ADVANCE>>'d. The loop
 terminates when the end of a sequence is reached.
 
-
-===== DOITER =====
+==== DOITER ====
 
 Macro: `DOITER (ITER &REST ARGS) &BODY BODY`
 
 The is the same as <<DOITERS>> except only a single sequence is
 iterated over.
-
-
-===== DOSEQ =====
-
-Macro: `DOSEQ (ELEMENT SEQUENCE &REST ARGS) &BODY BODY`
-
-Iterate over the elements of `SEQUENCE`. `ARGS` are the remaining
-arguments passed to the <<iterator-func>> function.
-
-The forms in `BODY` are executed once for each element, with the value
-of the element bound to `ELEMENT`. If `ELEMENT` is a list, the
-sequence element is destructured, as if by `DESTRUCTURING-BIND`
-according to the pattern specified by `ELEMENT`.
 
 === Implemented Interfaces ===
 
@@ -266,3 +711,334 @@ Method: `SUBSEQ (ITERATOR ITERATOR) START &OPTIONAL END`
 
 Returns a subsequence iterator which wraps a copy of the original
 iterator.
+
+=== Optimization ===
+
+The iteration macros, <<DOSEQ>>, <<DOSEQ!>>, and the corresponding
+macros for multiple sequences, can be optimized to generate
+specialized iteration code for a given sequence type so that the
+creation of _iterator objects_ and the dynamic dispatch involving the
+iterator methods, can be avoided.
+
+These are implemented in terms of the <<low-level-iter-macros>>,
+specifically the <<WITH-ITERATORS>> family of macros. `WITH-ITERATORS`
+attempts to determine the type of each sequence and calls
+<<MAKE-DOSEQ>> to generate specialized iteration code.
+
+IMPORTANT: The symbols documented in this section are contained in the
+`GENERIC-CL.ITERATOR.OPTIMIZATION` package, which is not exported by
+`GENERIC-CL`. Thus it has to be manually imported. It doesn't contain
+nay shadowing symbols so it can simply be _used_.
+
+==== MAKE-DOSEQ ====
+
+Generic Function: `MAKE-DOSEQ TYPE SEQUENCE ARGS TAG BODY ENVIRONMENT`
+
+Generate the <<WITH-ITERATORS>> expansion for a sequence of a given
+type.
+
+[float]
+===== Combination =====
+
+//.Combination
+
+This method has the `SUBTYPE` method combination, thus each method
+should have a single qualifier which is interpreted as a type
+specifier symbol.
+
+When the generic function is called with a given sequence type, passed
+to the `TYPE` argument, the method with the most derived type, given
+in the qualifier, which is a subtype of `TYPE` is called.
+
+Most derived means that if there are two methods with qualifiers which
+are a both subtypes of the type given in `TYPE`, the method with the
+qualifier that is a subtype of the other method's qualifier, is
+called.
+
+NOTE: `CALL-NEXT-METHOD` and auxiliary methods are not supported by
+this combination.
+
+[float]
+===== Arguments =====
+
+`TYPE`:: The full sequence type as determined by the `WITH-ITERATORS`
+macro.
+
+`SEQUENCE`:: The form which produces the sequence.
+
+`ARGS`:: Remaining iterator arguments following the sequence.
++
+These should be interpreted as they are in the <<iterator-func>>
+function, that is the keyword arguments `:START`, `:END` and
+`:FROM-END` should be supported.
+
+`TAG`:: Name of the tag, in an enclosing `TAGBODY` form, to jump to,
+with `GO`, when the end of the sequence is reached.
+
+`BODY`:: List of forms comprising the body of the `WITH-ITERATORS`
+form. These may be preceded by a number of declaration expressions.
+
+`ENV`:: The environment in which the `WITH-ITERATORS` form is found.
+
+[float]
+===== Return Values =====
+
+Methods of this function should return the following values:
+
+1. A list of bindings, as if by `LET*`, which are established before
+the first iteration and are visible to the body forms of the
+`WITH-ITERATORS` form.
++
+Each binding, in this list, may optional provide the following keyword
+arguments, after the init-form:
++
+--
+`:CONSTANT`:: Flag for whether the variable should be treated as a
+constant
++
+If true and the init-form is a constant form, by `CONSTANTP`, the
+symbol is bound by `SYMBOL-MACROLET`, rather than `LET*`.
++
+NOTE: A constant binding may only reference other bindings, preceding
+it, for which this flag is also true.
+--
+
+2. The new body of the `WITH-ITERATORS` form. This body is passed to
+the `MAKE-DOSEQ` methods of the other sequences.
+
+3. A lexical macro definition defining the expansion of the
+<<WITH-ITER-VALUE>> for the sequence's iterator.
++
+This should be a list of the form:
++
+--------------------------------------------------
+(LAMBDA-LIST . BODY)
+--------------------------------------------------
++
+where `LAMBDA-LIST` is the macro lambda-list and `BODY` is the macro
+definition body. A name should not be provided since one is
+automatically generated.
++
+The lambda-list should have the following arguments:
++
+--------------------------------------------------
+(PATTERN &BODY BODY)
+--------------------------------------------------
++
+where `PATTERN` is the binding pattern, corresponding to the `PATTERN`
+argument of <<WITH-ITER-VALUE>>, specifying the variable(s) which
+receive the value of the current sequence element.
++
+This may either be a symbol, naming a variable, or a list which should
+be interpreted as a `DESTRUCTURING-BIND` pattern.
++
+TIP: Use <<WITH-DESTRUCTURE-PATTERN>> to automatically support
+destructuring patterns. This also handles declarations correctly.
++
+`BODY` is the list of body forms of the `WITH-ITER-VALUE` form,
+corresponding to the `BODY` argument. These may be preceded by
+declarations some of which, might apply to variables in outer
+`WITH-ITER-VALUE` forms.
++
+The macro should expand to a form which:
++
+--
+1. Checks whether the end of the sequence has been reached. If so
+jumps, using `GO`, to the tag name given in the `TAG` argument to
+`MAKE-DOSEQ`.
+2. Binds the current sequence element to the variable(s) specified in
+`PATTERN`
+3. Advances the position of the iterator to the next element
+in the sequence
+4. Evaluates the body forms.
+--
++
+Declarations not applying to the variable(s) in `PATTERN`, should be
+placed in a `LOCALLY` form wrapping the macro expansion, in order for
+them to be processed by other `WITH-ITER-VALUE` forms. Additionally
+the macro should also recognize a body consisting of a single
+`LOCALLY` form, and process the declarations in that form as though
+they occurred directly in the body. <<WITH-DESTRUCTURE-PATTERN>>
+handles this automatically.
+
+4. A lexical macro definition defining the expansion of
+<<WITH-ITER-PLACE>> for the sequence's iterator.
++
+This should be a list of the form:
++
+--------------------------------------------------
+(LAMBDA-LIST . BODY)
+--------------------------------------------------
++
+where `LAMBDA-LIST` is the macro lambda-list and `BODY` is the macro
+definition body. A name should not be provided since one is
+automatically generated.
++
+The lambda-list should have the following arguments:
++
+--------------------------------------------------
+(NAME MOREP &BODY BODY)
+--------------------------------------------------
++
+where `NAME` is the name of the symbol-macro to be introduced,
+expanding to the _place_ of the current position of the iterator,
+corresponding to the `NAME` argument of <<WITH-ITER-PLACE>>.
++
+`MOREP` corresponds to the `MOREP` argument of <<WITH-ITER-PLACE>>,
+which is the name of the variable receiving a flag for whether there
+are more elements in the sequence (true), or whether the end of the
+sequence has been reached (`NIL`).
++
+`BODY` is the list of body forms of the `WITH-ITER-PLACE` form,
+corresponding to the `BODY` argument. These may be preceded by
+declarations some of which, might apply to symbol-macros introduced by
+outer `WITH-ITER-PLACE` forms.
++
+The macro should expand to a form which:
++
+--
+1. If `MOREP` is `NIL`, checks whether the end of the sequence has
+been reached. If so jumps, using `GO`, to the tag name given in the
+`TAG` argument to `MAKE-DOSEQ`. If `MOREP` is non-`NIL` binds the
+variable given in `MOREP` to true if there are more elements in the
+sequence, or to `NIL` if the end of the sequence has been reached.
+
+2. Creates a lexical symbol-macro, with identifier `NAME` that expands
+to the place of the current position of the iterator.
+
+3. Evaluates the body forms.
+
+4. Advances the position of the iterator.
+--
++
+Declarations not applying to the symbol-macro, should be placed in a
+`LOCALLY` form wrapping the macro expansion, in order for them to be
+processed by other `WITH-ITER-PLACE` forms. Additionally the macro
+should also recognize a body consisting of a single `LOCALLY` form,
+and process the declarations in that form as though they occurred
+directly in the body. <<WITH-VARIABLE-DECLARATIONS>> handles this
+automatically.
+
+TIP: The macro <<ITER-MACRO>>, facilitates the creation of these
+lexical macro definitions, removing the need for multiple nested
+layers of backquotes. Use this macro when defining your own
+`MAKE-DOSEQ` methods.
+
+
+==== ITER-MACRO ====
+
+Macro: `ITER-MACRO (&REST VARS) (&REST LAMBDA-LIST) &BODY BODY`
+
+Utility macro for generating lexical macro definitions for
+<<WITH-ITER-VALUE>> and <<WITH-ITER-PLACE>>.
+
+This macro is intended to be used within <<MAKE-DOSEQ>> to facilitate
+the definition, by avoiding the need for nested backquotes, of the
+lexical macros, serving as the expansion of `WITH-ITER-VALUE` and
+`WITH-ITER-PLACE` for a given iterator type.
+
+[float]
+===== Arguments =====
+
+`VARS`:: List of variables to _capture_ from the lexical scope of the
+`ITER-MACRO` form.
++
+Lexical variables are generated for each variable that is listed,
+accessible to the definition body, which are set to the values of the
+equivalent variables evaluated in the scope of the `ITER-MACRO` form.
++
+`LAMBDA-LIST`:: Macro lambda-list (not evaluated).
+
+`BODY`:: The body of the macro definition, consisting of a list of
+forms optionally preceded by declaration expressions.
++
+These are not evaluated but are literally inserted in the body of the
+macro definition. The forms have access to the variables listed in
+`VARS`, at the time the macro is expanded.
+
+
+==== WITH-DESTRUCTURE-PATTERN ====
+
+Macro `WITH-DESTRUCTURE-PATTERN (VAR PATTERN) (FORMS-VAR DECL-VAR BODY-FORM) &BODY BODY`
+
+Automatically generate destructuring code if the binding pattern is a
+destructuring-bind pattern.
+
+This macro allows a <<WITH-ITER-VALUE>> macro to be written whilst
+focusing only on the case where the binding pattern is a variable
+receiving the entire element value. The macro automatically generates
+destructuring code if the binding pattern is a list.
+
+This macro also handles declarations automatically.
+
+[float]
+===== Arguments =====
+
+`VAR`:: Name of the variable receiving the name of the variable to
+which the element value is bound.
+
+`PATTERN`:: Form producing the binding pattern (evaluated).
+
+`FORMS-VAR`:: Name of the variable receiving the list of body forms of
+the `WITH-ITER-MACRO`.
+
+`DECL-VAR`:: Name of the variable receiving the list of declarations
+applying to the variable in `VAR`.
+
+`BODY-FORM`:: Form producing the `WITH-ITER-VALUE` body (evaluated).
+
+`BODY`:: List of forms evaluated in an implicit `PROGN`. The return
+value of the last form is returned as the macroexpansion of the
+`WITH-ITER-VALUE`, wrapped in the destructuring code if necessary.
++
+May be preceded by declaration expressions.
++
+The expansion returned should bind the variable in `VAR` to the value
+of the next element in the sequence and evaluate the forms in
+`FORMS-VAR` in the context of that binding.
+
+[float]
+===== Declarations =====
+
+This macro takes care of handling declarations in the result returned
+by `BODY-FORM`. The declarations applying to the variables in the
+destructuring pattern, are inserted in the resulting
+`destructuring-bind` form, `DECL-VAR` is bound to the declarations
+applying to the variable given in `VAR`, and the remaining
+declarations are inserted in a `LOCALLY` form, wrapping the entire
+expansion.
+
+
+==== WITH-VARIABLE-DECLARATIONS ====
+
+Macro: `WITH-VARIABLE-DECLARATIONS (&REST BINDINGS) FORMS-VAR BODY-FORM &BODY BODY`
+
+Split a body into the declarations, applying to specific variables,
+and its forms.
+
+TIP: Intended to be used in the lexical macro definition for
+<<WITH-ITER-PLACE>> for a sequence type.
+
+[float]
+===== Arguments =====
+
+`BINDINGS`:: List of variables for which to extract the declarations.
++
+Each element is of the form `(DECL-VAR VAR)`, where `DECL-VAR` is the
+name of the variable which is to receive the list of declarations
+applying to the variable given by `VAR` (evaluated).
+
+`FORMS-VAR`:: Name of the variable receiving the list of forms in the
+body.
+
+`BODY-FORM`:: Form producing the body.
+
+`BODY`:: List of forms evaluated in an implicit `PROGN`, with the result
+returned by the last form included in the resulting expansion.
+
+[float]
+===== Expansion =====
+
+The value returned by the macro is a `LOCALLY` form containing the
+declarations not applying to any of the variables listed in `BINDINGS`
+and the body of which is the form returned by the last form in `BODY`.
