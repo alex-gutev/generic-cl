@@ -1,3 +1,4 @@
+[gf-optimization]
 == Optimization ==
 
 There is an overhead associated with generic functions. Code making
