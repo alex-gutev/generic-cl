@@ -68,10 +68,10 @@
 
 (defmacro map-place (key table)
   (once-only (key)
-    `(cons ,key (gethash ,key ,table))))
+    `(with-custom-hash-table (cons ,key (gethash ,key ,table)))))
 
 (defsetf map-place (key table) (new-value)
-  `(setf (gethash ,key ,table) ,new-value))
+  `(with-custom-hash-table (setf (gethash ,key ,table) ,new-value)))
 
 
 ;;; Expander

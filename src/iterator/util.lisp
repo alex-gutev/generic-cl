@@ -25,6 +25,7 @@
 
 (in-package :generic-cl.iterator)
 
+#-ecl
 (define-method-combination subtype ()
   ((methods * :required t))
   (:arguments type)
@@ -59,6 +60,46 @@
                  :from-end t
                  :initial-value
                  `(method-combination-error "No method for type ~a" ,type)))))
+
+#+ecl
+(defvar *dispatch-type*)
+
+#+ecl
+(define-method-combination subtype ()
+  ((testers (%test-type) :required t)
+   (methods * :required t))
+
+  "Dispatch based on a type keyword given as a qualifier.
+
+   With this method combination each method includes a single
+   qualifier, which is interpreted as a type specifier symbol.
+
+   The method of which the value given in the first argument,
+   interpreted as a type specifier, is a subtype of the method's
+   qualified type specifier, given in the first qualifier, is called.
+
+   The methods are ordered such that the methods qualified with the
+   most derived type, i.e. a type which is a subtype of the others,
+   are called first."
+
+  (labels ((type-qualifier (method)
+             (first (method-qualifiers method)))
+
+           (type< (t1 t2)
+             (subtypep t1 t2))
+
+           (make-if (method else)
+             `(if (let ((*dispatch-type* ',(type-qualifier method)))
+                    (call-method ,(first testers) ,(rest testers)))
+                  (call-method ,method)
+                  ,else)))
+
+    (-<> (copy-list methods)
+         (stable-sort #'type< :key #'type-qualifier)
+         (reduce #'make-if <>
+                 :from-end t
+                 :initial-value
+                 `(method-combination-error "No method for type.")))))
 
 ;;; Destructuring
 

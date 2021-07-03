@@ -31,6 +31,8 @@
 ;;; Lists
 
 (defmethod make-doseq list ((type t) form args tag body env)
+  (declare (ignore env))
+
   (destructuring-bind (&key from-end (start 0) end) args
     (with-gensyms (list index v-start v-end v-from-end with-value with-place place)
       (values
@@ -194,6 +196,8 @@
 ;;; Vectors
 
 (defmethod make-doseq vector ((type t) form args tag body env)
+  (declare (ignore env))
+
   (destructuring-bind (&key from-end (start 0) end) args
     (with-gensyms (vec index end-index v-from-end v-start v-end)
       (values
@@ -259,7 +263,9 @@
 
 ;;; Arrays
 
-(defmethod make-doseq array (type form args tag body env)
+(defmethod make-doseq array ((type t) form args tag body env)
+  (declare (ignore env))
+
   (destructuring-bind (&key from-end (start 0) end) args
     (with-gensyms (array index end-index v-from-end v-start v-end)
       (values

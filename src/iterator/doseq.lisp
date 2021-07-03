@@ -73,7 +73,7 @@
 	     `(advance ,(car it))))
 
       `(let ,(mapcar #'make-it-binding iters)
-         (loop named ,name
+         (loop ,@(when name `(named ,name))
             until (or ,@(mapcar #'make-end-test iters))
 	    do
 	      (progn ,@body)
@@ -228,6 +228,12 @@
         If this return value is NIL it is assumed the sequence is
         immutable, and any uses of WITH-ITER-PLACE on it will result
         in an error being signalled."))
+
+#+ecl
+(defmethod make-doseq %test-type (type seq args tag body env)
+  (declare (ignore seq args tag body env))
+
+  (subtypep type *dispatch-type*))
 
 
 ;;;; Local WITH-ITER-VALUE and WITH-ITER-PLACE expansions
