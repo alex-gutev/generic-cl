@@ -52,7 +52,7 @@ being statically dispatched:
 ----
 (let ((x 1))
   (declare (optimize (speed 3) (safety 2))
-	   (type number x))
+           (type number x))
 
   (= x (the number (+ 3 4))))
 ----
