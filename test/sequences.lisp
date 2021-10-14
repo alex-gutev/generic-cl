@@ -293,7 +293,15 @@
 (test elt
   "Test generic ELT function"
 
-  (loop for i below 4
+  (loop
+     with vals = '(10 20 30 40)
+     with test-hash-table = (loop with h = (make-hash-table)
+                               for i from 0
+                               for e in vals do (setf (gethash i h) e)
+                               finally (return h))
+
+     for i below 4
+
      do
        (is-every =
 	 ((cl:elt '(1 2 3 4) i) (elt '(1 2 3 4) i))
@@ -303,13 +311,7 @@
 	 ((cl:elt '(10 20 30 40) i)
           (elt (alist-hash-map '((0 . 10) (1 . 20) (2 . 30) (3 . 40))) i)))
 
-     with vals = '(10 20 30 40)
-     with test-hash-table = (loop with h = (make-hash-table)
-                               for i from 0
-                               for e in vals do (setf (gethash i h) e)
-                               finally (return h))
-
-     do (is (= (cl:elt '(10 20 30 40) i) (elt test-hash-table i)))))
+       (is (= (cl:elt '(10 20 30 40) i) (elt test-hash-table i)))))
 
 (test setf-elt
   "Test generic (SETF ELT) function"
