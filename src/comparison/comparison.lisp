@@ -76,9 +76,9 @@
   (not (lessp a b)))
 
 
-;; Numbers
+;; Real Numbers
 
-(defmethod compare ((a number) (b number))
+(defmethod compare ((a real) (b real))
   (let ((diff (cl:- a b)))
     (cond
       ((cl:zerop diff)
@@ -90,16 +90,16 @@
       ((cl:minusp diff)
        :less))))
 
-(defmethod lessp ((a number) (b number))
+(defmethod lessp ((a real) (b real))
   (cl:< a b))
 
-(defmethod greaterp ((a number) (b number))
+(defmethod greaterp ((a real) (b real))
   (cl:> a b))
 
-(defmethod less-equal-p ((a number) (b number))
+(defmethod less-equal-p ((a real) (b real))
   (cl:<= a b))
 
-(defmethod greater-equal-p ((a number) (b number))
+(defmethod greater-equal-p ((a real) (b real))
   (cl:>= a b))
 
 

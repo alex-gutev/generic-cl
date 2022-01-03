@@ -200,7 +200,7 @@ Returns true if `A` is less than zero.
 
 .Methods
 
-* `NUMBER`
+* `REAL`
 +
 Returns `(CL:MINUSP A)`.
 
@@ -222,7 +222,7 @@ Returns true if `A` is greater than zero.
 
 .Methods
 
-* `NUMBER`
+* `REPL`
 +
 Returns `(CL:PLUSP A)`.
 
@@ -310,7 +310,7 @@ Returns true if `A` is even.
 
 .Methods
 
-* `NUMBER`
+* `INTEGER`
 +
 Returns `(CL:EVENP A)`
 
@@ -327,7 +327,7 @@ Returns true if `A` is odd.
 
 .Methods
 
-* `NUMBER`
+* `INTEGER`
 +
 Returns `(CL:ODDP A)`
 
@@ -347,7 +347,7 @@ value.
 
 .Methods
 
-* `NUMBER`
+* `REAL`
 +
 Returns `(CL:FLOOR N D)` if `D` is provided otherwise returns
 `(CL:FLOOR N)`.
@@ -363,7 +363,7 @@ the first value, and the `N - result * D` as the second return value.
 
 .Methods
 
-* `NUMBER`
+* `REAL`
 +
 Returns `(CL:CEILING N D)` if `D` is provided otherwise returns
 `(CL:CEILING N)`.
@@ -379,7 +379,7 @@ value, and the remainder `N - result * D` as the second return value.
 
 .Methods
 
-* `NUMBER`
+* `REAL`
 +
 Returns `(CL:TRUNCATE N D)` if `D` is provided otherwise returns
 `(CL:TRUNCATE N)`.
@@ -399,7 +399,7 @@ to the nearest even integer.
 
 .Methods
 
-* `NUMBER`
+* `REAL`
 +
 Returns `(CL:ROUND N D)` if `D` is provided otherwise returns
 `(CL:ROUND N)`.
@@ -413,7 +413,7 @@ Returns the remainder of the <<FLOOR>> operation on `N` and `D`.
 
 .Methods
 
-* `NUMBER`
+* `REAL`
 +
 Returns `(CL:MOD N D)`.
 
@@ -430,7 +430,7 @@ Returns the remainder of the <<TRUNCATE>> operation on `N` and `D`.
 
 .Methods
 
-* `NUMBER`
+* `REAL`
 +
 Returns `(CL:REM N D)`.
 
