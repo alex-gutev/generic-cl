@@ -134,10 +134,10 @@
   (cl:1- a))
 
 
-(defmethod minusp ((a number))
+(defmethod minusp ((a real))
   (cl:minusp a))
 
-(defmethod plusp ((a number))
+(defmethod plusp ((a real))
   (cl:plusp a))
 
 (defmethod zerop ((a number))
@@ -150,38 +150,38 @@
   (cl:abs a))
 
 
-(defmethod evenp ((a number))
+(defmethod evenp ((a integer))
   (cl:evenp a))
 
-(defmethod oddp ((a number))
+(defmethod oddp ((a integer))
   (cl:oddp a))
 
 
-(defmethod floor ((n number) &optional (d nil d-sp))
+(defmethod floor ((n real) &optional (d nil d-sp))
   (if d-sp
       (cl:floor n d)
       (cl:floor n)))
 
-(defmethod ceiling ((n number) &optional (d nil d-sp))
+(defmethod ceiling ((n real) &optional (d nil d-sp))
   (if d-sp
       (cl:ceiling n d)
       (cl:ceiling n)))
 
-(defmethod truncate ((n number) &optional (d nil d-sp))
+(defmethod truncate ((n real) &optional (d nil d-sp))
   (if d-sp
       (cl:truncate n d)
       (cl:truncate n)))
 
-(defmethod round ((n number) &optional (d nil d-sp))
+(defmethod round ((n real) &optional (d nil d-sp))
   (if d-sp
       (cl:round n d)
       (cl:round n)))
 
 
-(defmethod mod ((n number) (d number))
+(defmethod mod ((n real) (d real))
   (cl:mod n d))
 
-(defmethod rem ((n number) (d number))
+(defmethod rem ((n real) (d real))
   (cl:rem n d))
 
 

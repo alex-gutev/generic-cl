@@ -29,7 +29,7 @@ Generic Function: `EQUALP A B`
 Returns true if object `A` is equal to object `B`.
 
 .Methods
-* `NUMBER NUMBER`
+* `REAL REAL`
 +
 Returns true if `A` and `B` represent the same numeric value, by
 `CL:=`.
@@ -150,7 +150,7 @@ default (`T T`) methods which are implemented in terms of `LESSP`.
 
 .Methods
 
-* `NUMBER NUMBER`
+* `REAL REAL`
 +
 Returns true if the numeric value of `A` is less than the numeric
 value of `B`, by `CL:<`.
@@ -174,7 +174,7 @@ Returns true if object `A` is less than or equal to object `B`.
 
 .Methods
 
-* `NUMBER NUMBER`
+* `REAL REAL`
 +
 Returns true if the numeric value of `A` is less than or equal to
 the numeric value of `B`, by `+CL:<=+`.
@@ -208,7 +208,7 @@ Returns true if object `A` is greater than object `B`.
 
 .Methods
 
-* `NUMBER NUMBER`
+* `REAL REAL`
 +
 Returns true if the numeric value of `A` is greater than the
 numeric value of `B`, by `CL:>`.
@@ -241,7 +241,7 @@ Returns true if object `A` is greater than or equal to object `B`.
 
 .Methods
 
-* `NUMBER NUMBER`
+* `REAL REAL`
 +
 Returns true if the numeric value of `A` is greater than or equal
 to the numeric value of `B`, by `CL:>=`.
