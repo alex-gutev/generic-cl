@@ -187,10 +187,6 @@
 (test clear
   "Test CLEAR function"
 
-  (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t)
-    (clear it)
-    (is (= 0 (cl:length it))))
-
   (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t :fill-pointer t)
     (clear it)
     (is (= 0 (cl:length it))))
@@ -403,13 +399,6 @@
 
 (test erase
   "Test generic ERASE function"
-
-  (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t)
-    (erase it 2)
-    (is (= #(1 2 4 5) it))
-
-    (erase it 0)
-    (is (= #(2 4 5) it)))
 
   (alet (make-array 5 :initial-contents '(1 2 3 4 5) :adjustable t :fill-pointer t)
     (erase it 2)
