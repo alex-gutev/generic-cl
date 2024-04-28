@@ -29,7 +29,7 @@ Generic Function: `EQUALP A B`
 Returns true if object `A` is equal to object `B`.
 
 .Methods
-* `REAL REAL`
+* `NUMBER NUMBER`
 +
 Returns true if `A` and `B` represent the same numeric value, by
 `CL:=`.
