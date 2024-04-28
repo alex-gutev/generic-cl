@@ -221,11 +221,11 @@ IMPORTANT: Destructively modifies `SEQUENCE`.
 Shifts the elements following `INDEX` one element towards the
 front of the vector and shrinks the vector by one element.
 +
-CAUTION: Signals a `TYPE-ERROR` if the vector is not adjustable.
+CAUTION: Signals a `TYPE-ERROR` if the vector is not adjustable and
+does not have a fill pointer.
 
 NOTE: This method is not implemented for lists as removing the first
-element of a list cannot be implemented (efficiently) as a side effect
-alone.
+element of a list cannot be implemented as a side effect alone.
 
 
 === Container Size ===
