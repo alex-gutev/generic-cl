@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.9">
+<meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="Alexander Gutev">
 <title>GENERIC-CL</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
@@ -241,7 +241,7 @@ table.linenotable td.linenos{border-right:1px solid currentColor;opacity:.35;pad
 pre.pygments .lineno{border-right:1px solid currentColor;opacity:.35;display:inline-block;margin-right:.75em}
 pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock{margin:0 1em 1.25em 1.5em;display:table}
-.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
 .quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
 .quoteblock blockquote{margin:0;padding:0;border:0}
 .quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
@@ -258,7 +258,8 @@ pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
 .quoteblock.abstract{margin:0 1em 1.25em;display:block}
 .quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
-.quoteblock.excerpt,.quoteblock .quoteblock{margin:0 0 1.25em;padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
 .quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
 .quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
 table.tableblock{max-width:100%;border-collapse:separate}
@@ -795,27 +796,27 @@ in order to be able to optimize generic function calls. <em>See
 <div class="content">
 <pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-c1">;; Using comparison interface GENERIC-CL.COMPARISON</span>
 
-<span class="tok-p">(</span><span class="tok-nb">defpackage</span> <span class="tok-nv">my-pkg</span>
-  <span class="tok-p">(</span><span class="tok-ss">:use</span> <span class="tok-ss">:static-dispatch-cl</span><span class="tok-p">)</span>
-  <span class="tok-p">(</span><span class="tok-ss">:shadowing-import-from</span>
-    <span class="tok-ss">:generic-cl.comparison</span>
-    <span class="tok-ss">:equalp</span>
-    <span class="tok-ss">:=</span>
-    <span class="tok-ss">:/=</span><span class="tok-p">))</span></code></pre>
+<span class="tok-p">(</span><span class="tok-nb">defpackage</span><span class="tok-w"> </span><span class="tok-nv">my-pkg</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-ss">:use</span><span class="tok-w"> </span><span class="tok-ss">:static-dispatch-cl</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-ss">:shadowing-import-from</span>
+<span class="tok-w">    </span><span class="tok-ss">:generic-cl.comparison</span>
+<span class="tok-w">    </span><span class="tok-ss">:equalp</span>
+<span class="tok-w">    </span><span class="tok-ss">:=</span>
+<span class="tok-w">    </span><span class="tok-ss">:/=</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Example: Using UIOP:DEFINE-PACKAGE</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nv">uiop:define-package</span> <span class="tok-nv">my-pkg</span>
-    <span class="tok-p">(</span><span class="tok-ss">:use</span><span class="tok-p">)</span> <span class="tok-c1">;; Necessary otherwise CL package is used</span>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nv">uiop:define-package</span><span class="tok-w"> </span><span class="tok-nv">my-pkg</span>
+<span class="tok-w">    </span><span class="tok-p">(</span><span class="tok-ss">:use</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">;; Necessary otherwise CL package is used</span>
 
-  <span class="tok-c1">;; Packages listed earlier on shadow the packages listed after them</span>
+<span class="tok-w">  </span><span class="tok-c1">;; Packages listed earlier on shadow the packages listed after them</span>
 
-  <span class="tok-p">(</span><span class="tok-ss">:mix</span> <span class="tok-ss">:generic-cl.comparison</span>
-        <span class="tok-ss">:static-dispatch-cl</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-ss">:mix</span><span class="tok-w"> </span><span class="tok-ss">:generic-cl.comparison</span>
+<span class="tok-w">        </span><span class="tok-ss">:static-dispatch-cl</span><span class="tok-p">)</span>
 
-  <span class="tok-o">...</span><span class="tok-p">)</span></code></pre>
+<span class="tok-w">  </span><span class="tok-o">...</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </div>
@@ -1038,7 +1039,7 @@ default (<code>T T</code>) methods which are implemented in terms of <code>LESSP
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER NUMBER</code></p>
+<p><code>REAL REAL</code></p>
 <div class="paragraph">
 <p>Returns true if the numeric value of <code>A</code> is less than the numeric
 value of <code>B</code>, by <code>CL:&lt;</code>.</p>
@@ -1073,7 +1074,7 @@ character code of <code>B</code>, by <code>CL:CHAR&lt;</code>.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER NUMBER</code></p>
+<p><code>REAL REAL</code></p>
 <div class="paragraph">
 <p>Returns true if the numeric value of <code>A</code> is less than or equal to
 the numeric value of <code>B</code>, by <code>CL:&lt;=</code>.</p>
@@ -1101,7 +1102,7 @@ is equal to <code>B</code> (by <a href="#equalp">EQUALP</a>).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">or</span> <span class="tok-p">(</span><span class="tok-nv">lessp</span> <span class="tok-nv">a</span> <span class="tok-nv">b</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nb">equalp</span> <span class="tok-nv">a</span> <span class="tok-nv">b</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">or</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">lessp</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-w"> </span><span class="tok-nv">b</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">equalp</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-w"> </span><span class="tok-nv">b</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 </li>
@@ -1120,7 +1121,7 @@ is equal to <code>B</code> (by <a href="#equalp">EQUALP</a>).</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER NUMBER</code></p>
+<p><code>REAL REAL</code></p>
 <div class="paragraph">
 <p>Returns true if the numeric value of <code>A</code> is greater than the
 numeric value of <code>B</code>, by <code>CL:&gt;</code>.</p>
@@ -1147,7 +1148,7 @@ character code of <code>B</code>, by <code>CL:CHAR&gt;</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">not</span> <span class="tok-p">(</span><span class="tok-nv">less-equal-p</span> <span class="tok-nv">a</span> <span class="tok-nv">b</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">not</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">less-equal-p</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-w"> </span><span class="tok-nv">b</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 </li>
@@ -1166,7 +1167,7 @@ character code of <code>B</code>, by <code>CL:CHAR&gt;</code>.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER NUMBER</code></p>
+<p><code>REAL REAL</code></p>
 <div class="paragraph">
 <p>Returns true if the numeric value of <code>A</code> is greater than or equal
 to the numeric value of <code>B</code>, by <code>CL:&gt;=</code>.</p>
@@ -1193,7 +1194,7 @@ or equal to <code>B</code>, by <code>CL:STRING&gt;=</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">not</span> <span class="tok-p">(</span><span class="tok-nv">lessp</span> <span class="tok-nv">a</span> <span class="tok-nv">b</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">not</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">lessp</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-w"> </span><span class="tok-nv">b</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 </li>
@@ -1555,7 +1556,7 @@ using the <a href="#add">ADD</a> function.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">setf</span> <span class="tok-nv">place</span> <span class="tok-p">(</span><span class="tok-nv">add</span> <span class="tok-nv">place</span> <span class="tok-nv">delta</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">setf</span><span class="tok-w"> </span><span class="tok-nv">place</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">add</span><span class="tok-w"> </span><span class="tok-nv">place</span><span class="tok-w"> </span><span class="tok-nv">delta</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 </div>
@@ -1573,7 +1574,7 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">setf</span> <span class="tok-nv">place</span> <span class="tok-p">(</span><span class="tok-nv">subtract</span> <span class="tok-nv">place</span> <span class="tok-nv">delta</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">setf</span><span class="tok-w"> </span><span class="tok-nv">place</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">subtract</span><span class="tok-w"> </span><span class="tok-nv">place</span><span class="tok-w"> </span><span class="tok-nv">delta</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 </div>
@@ -1589,7 +1590,7 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REAL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:MINUSP A)</code>.</p>
 </div>
@@ -1601,7 +1602,7 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nv">lessp</span> <span class="tok-nv">a</span> <span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nv">lessp</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </li>
@@ -1620,7 +1621,7 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REPL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:PLUSP A)</code>.</p>
 </div>
@@ -1632,7 +1633,7 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nv">greaterp</span> <span class="tok-nv">a</span> <span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nv">greaterp</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </li>
@@ -1663,7 +1664,7 @@ using the <a href="#subtract">SUBTRACT</a> function.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">equalp</span> <span class="tok-nv">a</span> <span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">equalp</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </li>
@@ -1723,9 +1724,9 @@ equal to zero or is positive.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-k">if</span> <span class="tok-p">(</span><span class="tok-nb">minusp</span> <span class="tok-nv">a</span><span class="tok-p">)</span>
-    <span class="tok-p">(</span><span class="tok-nv">negate</span> <span class="tok-nv">a</span><span class="tok-p">)</span>
-    <span class="tok-nv">a</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-k">if</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">minusp</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-p">(</span><span class="tok-nv">negate</span><span class="tok-w"> </span><span class="tok-nv">a</span><span class="tok-p">)</span>
+<span class="tok-w">    </span><span class="tok-nv">a</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </li>
@@ -1744,7 +1745,7 @@ equal to zero or is positive.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>INTEGER</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:EVENP A)</code></p>
 </div>
@@ -1770,7 +1771,7 @@ equal to zero or is positive.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>INTEGER</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:ODDP A)</code></p>
 </div>
@@ -1799,7 +1800,7 @@ value.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REAL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:FLOOR N D)</code> if <code>D</code> is provided otherwise returns
 <code>(CL:FLOOR N)</code>.</p>
@@ -1822,7 +1823,7 @@ the first value, and the <code>N - result * D</code> as the second return value.
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REAL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:CEILING N D)</code> if <code>D</code> is provided otherwise returns
 <code>(CL:CEILING N)</code>.</p>
@@ -1845,7 +1846,7 @@ value, and the remainder <code>N - result * D</code> as the second return value.
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REAL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:TRUNCATE N D)</code> if <code>D</code> is provided otherwise returns
 <code>(CL:TRUNCATE N)</code>.</p>
@@ -1873,7 +1874,7 @@ to the nearest even integer.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REAL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:ROUND N D)</code> if <code>D</code> is provided otherwise returns
 <code>(CL:ROUND N)</code>.</p>
@@ -1894,7 +1895,7 @@ to the nearest even integer.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REAL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:MOD N D)</code>.</p>
 </div>
@@ -1920,7 +1921,7 @@ to the nearest even integer.</p>
 <div class="title">Methods</div>
 <ul>
 <li>
-<p><code>NUMBER</code></p>
+<p><code>REAL</code></p>
 <div class="paragraph">
 <p>Returns <code>(CL:REM N D)</code>.</p>
 </div>
@@ -2173,7 +2174,7 @@ that returned by:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">make-sequence</span> <span class="tok-p">(</span><span class="tok-nb">cons</span> <span class="tok-k">type</span> <span class="tok-nv">args</span><span class="tok-p">)</span> <span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">make-sequence</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">cons</span><span class="tok-w"> </span><span class="tok-k">type</span><span class="tok-w"> </span><span class="tok-nv">args</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </div>
@@ -2316,7 +2317,7 @@ equivalent to:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">elt</span> <span class="tok-nc">sequence</span> <span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">elt</span><span class="tok-w"> </span><span class="tok-nc">sequence</span><span class="tok-w"> </span><span class="tok-mi">0</span><span class="tok-p">)</span></code></pre>
 </div>
 </div>
 </div>
@@ -2339,7 +2340,7 @@ multi-dimensional arrays, the last element is obtained by:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">row-major-aref</span> <span class="tok-nc">sequence</span> <span class="tok-p">(</span><span class="tok-nb">-</span> <span class="tok-p">(</span><span class="tok-nb">array-total-size</span> <span class="tok-nc">array</span><span class="tok-p">)</span> <span class="tok-mi">1</span> <span class="tok-nv">n</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">row-major-aref</span><span class="tok-w"> </span><span class="tok-nc">sequence</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">-</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">array-total-size</span><span class="tok-w"> </span><span class="tok-nc">array</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-nv">n</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2348,7 +2349,7 @@ equivalent to:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">elt</span> <span class="tok-nc">sequence</span> <span class="tok-p">(</span><span class="tok-nb">-</span> <span class="tok-p">(</span><span class="tok-nb">length</span> <span class="tok-nc">sequence</span><span class="tok-p">)</span> <span class="tok-mi">1</span> <span class="tok-nv">n</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">elt</span><span class="tok-w"> </span><span class="tok-nc">sequence</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">-</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">length</span><span class="tok-w"> </span><span class="tok-nc">sequence</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-w"> </span><span class="tok-nv">n</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock caution">
@@ -2424,7 +2425,8 @@ front of the vector and shrinks the vector by one element.</p>
 <i class="fa icon-caution" title="Caution"></i>
 </td>
 <td class="content">
-Signals a <code>TYPE-ERROR</code> if the vector is not adjustable.
+Signals a <code>TYPE-ERROR</code> if the vector is not adjustable and
+does not have a fill pointer.
 </td>
 </tr>
 </table>
@@ -2440,8 +2442,7 @@ Signals a <code>TYPE-ERROR</code> if the vector is not adjustable.
 </td>
 <td class="content">
 This method is not implemented for lists as removing the first
-element of a list cannot be implemented (efficiently) as a side effect
-alone.
+element of a list cannot be implemented as a side effect alone.
 </td>
 </tr>
 </table>
@@ -2648,11 +2649,11 @@ elements of sequences and containers.</p>
 <div class="title">Basic Usage</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">loop</span>
-   <span class="tok-nv">with</span> <span class="tok-nv">it</span> <span class="tok-nb">=</span> <span class="tok-p">(</span><span class="tok-nv">iterator</span> <span class="tok-nc">sequence</span><span class="tok-p">)</span> <span class="tok-c1">; Create iterator for SEQUENCE</span>
-   <span class="tok-nv">until</span> <span class="tok-p">(</span><span class="tok-nb">endp</span> <span class="tok-nv">it</span><span class="tok-p">)</span>               <span class="tok-c1">; Loop until the iterator&#39;s end position is reached</span>
-   <span class="tok-nb">do</span>
-     <span class="tok-p">(</span><span class="tok-nv">something</span> <span class="tok-p">(</span><span class="tok-nv">at</span> <span class="tok-nv">it</span><span class="tok-p">))</span> <span class="tok-c1">; Do something with the current element</span>
-     <span class="tok-p">(</span><span class="tok-nv">advance</span> <span class="tok-nv">it</span><span class="tok-p">))</span>       <span class="tok-c1">; Advance iterator to next element</span></code></pre>
+<span class="tok-w">   </span><span class="tok-nv">with</span><span class="tok-w"> </span><span class="tok-nv">it</span><span class="tok-w"> </span><span class="tok-nb">=</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">iterator</span><span class="tok-w"> </span><span class="tok-nc">sequence</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-c1">; Create iterator for SEQUENCE</span>
+<span class="tok-w">   </span><span class="tok-nv">until</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">endp</span><span class="tok-w"> </span><span class="tok-nv">it</span><span class="tok-p">)</span><span class="tok-w">               </span><span class="tok-c1">; Loop until the iterator&#39;s end position is reached</span>
+<span class="tok-w">   </span><span class="tok-nb">do</span>
+<span class="tok-w">     </span><span class="tok-p">(</span><span class="tok-nv">something</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">at</span><span class="tok-w"> </span><span class="tok-nv">it</span><span class="tok-p">))</span><span class="tok-w"> </span><span class="tok-c1">; Do something with the current element</span>
+<span class="tok-w">     </span><span class="tok-p">(</span><span class="tok-nv">advance</span><span class="tok-w"> </span><span class="tok-nv">it</span><span class="tok-p">))</span><span class="tok-w">       </span><span class="tok-c1">; Advance iterator to next element</span></code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -2865,8 +2866,8 @@ using <code>AT</code>.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">unless</span> <span class="tok-p">(</span><span class="tok-nb">endp</span> <span class="tok-nv">iterator</span><span class="tok-p">)</span>
-  <span class="tok-p">(</span><span class="tok-nv">at</span> <span class="tok-nv">iterator</span><span class="tok-p">))</span></code></pre>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-nb">unless</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">endp</span><span class="tok-w"> </span><span class="tok-nv">iterator</span><span class="tok-p">)</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-nv">at</span><span class="tok-w"> </span><span class="tok-nv">iterator</span><span class="tok-p">))</span></code></pre>
 </div>
 </div>
 </div>
@@ -4361,11 +4362,11 @@ implemented for unordered containers.
 <div class="title">Basic Usage</div>
 <div class="content">
 <pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-c1">;; Create collector for the sequence, in this case an empty list</span>
-<span class="tok-p">(</span><span class="tok-k">let</span> <span class="tok-p">((</span><span class="tok-nv">c</span> <span class="tok-p">(</span><span class="tok-nv">make-collector</span> <span class="tok-no">nil</span><span class="tok-p">)))</span>
-  <span class="tok-p">(</span><span class="tok-nv">accumulate</span> <span class="tok-nv">c</span> <span class="tok-mi">1</span><span class="tok-p">)</span>        <span class="tok-c1">; Collect 1 into the sequence</span>
-  <span class="tok-p">(</span><span class="tok-nv">accumulate</span> <span class="tok-nv">c</span> <span class="tok-mi">2</span><span class="tok-p">)</span>        <span class="tok-c1">; Collect 2 into the sequence</span>
-  <span class="tok-p">(</span><span class="tok-nv">extend</span> <span class="tok-nv">c</span> <span class="tok-o">&#39;</span><span class="tok-p">(</span><span class="tok-mi">3</span> <span class="tok-mi">4</span> <span class="tok-mi">5</span><span class="tok-p">))</span>     <span class="tok-c1">; Collect 3, 4, 5 into the sequence</span>
-  <span class="tok-p">(</span><span class="tok-nv">collector-sequence</span> <span class="tok-nv">c</span><span class="tok-p">))</span> <span class="tok-c1">; Get the resulting sequence =&gt; &#39;(1 2 3 4 5)</span></code></pre>
+<span class="tok-p">(</span><span class="tok-k">let</span><span class="tok-w"> </span><span class="tok-p">((</span><span class="tok-nv">c</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">make-collector</span><span class="tok-w"> </span><span class="tok-no">nil</span><span class="tok-p">)))</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-nv">accumulate</span><span class="tok-w"> </span><span class="tok-nv">c</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">)</span><span class="tok-w">        </span><span class="tok-c1">; Collect 1 into the sequence</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-nv">accumulate</span><span class="tok-w"> </span><span class="tok-nv">c</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">)</span><span class="tok-w">        </span><span class="tok-c1">; Collect 2 into the sequence</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-nv">extend</span><span class="tok-w"> </span><span class="tok-nv">c</span><span class="tok-w"> </span><span class="tok-o">&#39;</span><span class="tok-p">(</span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-w"> </span><span class="tok-mi">5</span><span class="tok-p">))</span><span class="tok-w">     </span><span class="tok-c1">; Collect 3, 4, 5 into the sequence</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-nv">collector-sequence</span><span class="tok-w"> </span><span class="tok-nv">c</span><span class="tok-p">))</span><span class="tok-w"> </span><span class="tok-c1">; Get the resulting sequence =&gt; &#39;(1 2 3 4 5)</span></code></pre>
 </div>
 </div>
 <div class="sect2">
@@ -6777,11 +6778,11 @@ to make the type information available</em>.</p>
 <div class="listingblock">
 <div class="title">Example</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-k">let</span> <span class="tok-p">((</span><span class="tok-nv">x</span> <span class="tok-mi">1</span><span class="tok-p">))</span>
-  <span class="tok-p">(</span><span class="tok-k">declare</span> <span class="tok-p">(</span><span class="tok-k">optimize</span> <span class="tok-p">(</span><span class="tok-nv">speed</span> <span class="tok-mi">3</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nv">safety</span> <span class="tok-mi">2</span><span class="tok-p">))</span>
-           <span class="tok-p">(</span><span class="tok-k">type</span> <span class="tok-nc">number</span> <span class="tok-nv">x</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-k">let</span><span class="tok-w"> </span><span class="tok-p">((</span><span class="tok-nv">x</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">))</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-k">declare</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">optimize</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">speed</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">safety</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">))</span>
+<span class="tok-w">           </span><span class="tok-p">(</span><span class="tok-k">type</span><span class="tok-w"> </span><span class="tok-nc">number</span><span class="tok-w"> </span><span class="tok-nv">x</span><span class="tok-p">))</span>
 
-  <span class="tok-p">(</span><span class="tok-nb">equalp</span> <span class="tok-nv">x</span> <span class="tok-p">(</span><span class="tok-k">the</span> <span class="tok-nc">number</span> <span class="tok-p">(</span><span class="tok-nb">+</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">))))</span></code></pre>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-nb">equalp</span><span class="tok-w"> </span><span class="tok-nv">x</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">the</span><span class="tok-w"> </span><span class="tok-nc">number</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">+</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-p">))))</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -6800,11 +6801,11 @@ being statically dispatched:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-k">let</span> <span class="tok-p">((</span><span class="tok-nv">x</span> <span class="tok-mi">1</span><span class="tok-p">))</span>
-  <span class="tok-p">(</span><span class="tok-k">declare</span> <span class="tok-p">(</span><span class="tok-k">optimize</span> <span class="tok-p">(</span><span class="tok-nv">speed</span> <span class="tok-mi">3</span><span class="tok-p">)</span> <span class="tok-p">(</span><span class="tok-nv">safety</span> <span class="tok-mi">2</span><span class="tok-p">))</span>
-           <span class="tok-p">(</span><span class="tok-k">type</span> <span class="tok-nc">number</span> <span class="tok-nv">x</span><span class="tok-p">))</span>
+<pre class="pygments highlight"><code data-lang="lisp"><span></span><span class="tok-p">(</span><span class="tok-k">let</span><span class="tok-w"> </span><span class="tok-p">((</span><span class="tok-nv">x</span><span class="tok-w"> </span><span class="tok-mi">1</span><span class="tok-p">))</span>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-k">declare</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">optimize</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">speed</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-p">)</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nv">safety</span><span class="tok-w"> </span><span class="tok-mi">2</span><span class="tok-p">))</span>
+<span class="tok-w">           </span><span class="tok-p">(</span><span class="tok-k">type</span><span class="tok-w"> </span><span class="tok-nc">number</span><span class="tok-w"> </span><span class="tok-nv">x</span><span class="tok-p">))</span>
 
-  <span class="tok-p">(</span><span class="tok-nb">=</span> <span class="tok-nv">x</span> <span class="tok-p">(</span><span class="tok-k">the</span> <span class="tok-nc">number</span> <span class="tok-p">(</span><span class="tok-nb">+</span> <span class="tok-mi">3</span> <span class="tok-mi">4</span><span class="tok-p">))))</span></code></pre>
+<span class="tok-w">  </span><span class="tok-p">(</span><span class="tok-nb">=</span><span class="tok-w"> </span><span class="tok-nv">x</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-k">the</span><span class="tok-w"> </span><span class="tok-nc">number</span><span class="tok-w"> </span><span class="tok-p">(</span><span class="tok-nb">+</span><span class="tok-w"> </span><span class="tok-mi">3</span><span class="tok-w"> </span><span class="tok-mi">4</span><span class="tok-p">))))</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -6831,7 +6832,7 @@ STATIC-DISPATCH requires the ability to extract <code>TYPE</code> and
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-07-03 15:50:16 +0200
+Last updated 2024-04-28 18:10:32 +0200
 </div>
 </div>
 <style>
@@ -6842,22 +6843,22 @@ td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5
 span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
 pre.pygments .hll { background-color: #ffffcc }
 pre.pygments { background: #f8f8f8; }
-pre.pygments .tok-c { color: #408080; font-style: italic } /* Comment */
+pre.pygments .tok-c { color: #3D7B7B; font-style: italic } /* Comment */
 pre.pygments .tok-err { border: 1px solid #FF0000 } /* Error */
 pre.pygments .tok-k { color: #008000; font-weight: bold } /* Keyword */
 pre.pygments .tok-o { color: #666666 } /* Operator */
-pre.pygments .tok-ch { color: #408080; font-style: italic } /* Comment.Hashbang */
-pre.pygments .tok-cm { color: #408080; font-style: italic } /* Comment.Multiline */
-pre.pygments .tok-cp { color: #BC7A00 } /* Comment.Preproc */
-pre.pygments .tok-cpf { color: #408080; font-style: italic } /* Comment.PreprocFile */
-pre.pygments .tok-c1 { color: #408080; font-style: italic } /* Comment.Single */
-pre.pygments .tok-cs { color: #408080; font-style: italic } /* Comment.Special */
+pre.pygments .tok-ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+pre.pygments .tok-cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+pre.pygments .tok-cp { color: #9C6500 } /* Comment.Preproc */
+pre.pygments .tok-cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+pre.pygments .tok-c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+pre.pygments .tok-cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
 pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
 pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
-pre.pygments .tok-gr { color: #FF0000 } /* Generic.Error */
+pre.pygments .tok-gr { color: #E40000 } /* Generic.Error */
 pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
-pre.pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
-pre.pygments .tok-go { color: #888888 } /* Generic.Output */
+pre.pygments .tok-gi { color: #008400 } /* Generic.Inserted */
+pre.pygments .tok-go { color: #717171 } /* Generic.Output */
 pre.pygments .tok-gp { color: #000080; font-weight: bold } /* Generic.Prompt */
 pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
 pre.pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
@@ -6870,15 +6871,15 @@ pre.pygments .tok-kr { color: #008000; font-weight: bold } /* Keyword.Reserved *
 pre.pygments .tok-kt { color: #B00040 } /* Keyword.Type */
 pre.pygments .tok-m { color: #666666 } /* Literal.Number */
 pre.pygments .tok-s { color: #BA2121 } /* Literal.String */
-pre.pygments .tok-na { color: #7D9029 } /* Name.Attribute */
+pre.pygments .tok-na { color: #687822 } /* Name.Attribute */
 pre.pygments .tok-nb { color: #008000 } /* Name.Builtin */
 pre.pygments .tok-nc { color: #0000FF; font-weight: bold } /* Name.Class */
 pre.pygments .tok-no { color: #880000 } /* Name.Constant */
 pre.pygments .tok-nd { color: #AA22FF } /* Name.Decorator */
-pre.pygments .tok-ni { color: #999999; font-weight: bold } /* Name.Entity */
-pre.pygments .tok-ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+pre.pygments .tok-ni { color: #717171; font-weight: bold } /* Name.Entity */
+pre.pygments .tok-ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
 pre.pygments .tok-nf { color: #0000FF } /* Name.Function */
-pre.pygments .tok-nl { color: #A0A000 } /* Name.Label */
+pre.pygments .tok-nl { color: #767600 } /* Name.Label */
 pre.pygments .tok-nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
 pre.pygments .tok-nt { color: #008000; font-weight: bold } /* Name.Tag */
 pre.pygments .tok-nv { color: #19177C } /* Name.Variable */
@@ -6895,11 +6896,11 @@ pre.pygments .tok-sc { color: #BA2121 } /* Literal.String.Char */
 pre.pygments .tok-dl { color: #BA2121 } /* Literal.String.Delimiter */
 pre.pygments .tok-sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
 pre.pygments .tok-s2 { color: #BA2121 } /* Literal.String.Double */
-pre.pygments .tok-se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+pre.pygments .tok-se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
 pre.pygments .tok-sh { color: #BA2121 } /* Literal.String.Heredoc */
-pre.pygments .tok-si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+pre.pygments .tok-si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
 pre.pygments .tok-sx { color: #008000 } /* Literal.String.Other */
-pre.pygments .tok-sr { color: #BB6688 } /* Literal.String.Regex */
+pre.pygments .tok-sr { color: #A45A77 } /* Literal.String.Regex */
 pre.pygments .tok-s1 { color: #BA2121 } /* Literal.String.Single */
 pre.pygments .tok-ss { color: #19177C } /* Literal.String.Symbol */
 pre.pygments .tok-bp { color: #008000 } /* Name.Builtin.Pseudo */
