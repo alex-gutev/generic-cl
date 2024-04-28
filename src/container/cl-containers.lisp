@@ -138,8 +138,14 @@
 ;;;; ERASE
 
 (defmethod erase ((vec vector) index)
-  (unless (adjustable-array-p vec)
-    (error 'type-error :datum vec :expected-type '(and vector (satisfies adjustable-array-p))))
+  (unless (and (adjustable-array-p vec)
+	       (array-has-fill-pointer-p vec))
+
+    (error 'type-error
+	   :datum vec
+	   :expected-type '(and vector
+			    (satisfies adjustable-array-p)
+			    (satisfies array-has-fill-pointer-p))))
 
   (let ((len (cl:length vec)))
     (loop
@@ -147,9 +153,7 @@
        do
 	 (setf (aref vec (cl:1- i)) (aref vec i)))
 
-    (if (array-has-fill-pointer-p vec)
-	(adjust-array vec (cl:1- len) :initial-element 0 :fill-pointer t)
-	(adjust-array vec (cl:1- len) :initial-element 0))))
+    (adjust-array vec (cl:1- len) :initial-element 0 :fill-pointer t)))
 
 
 ;;; Length
@@ -184,12 +188,16 @@
 
 
 (defmethod clear ((vec vector))
-  (unless (adjustable-array-p vec)
-    (error 'type-error :datum vec :expected-type '(and vector (satisfies adjustable-array-p))))
+  (unless (and (adjustable-array-p vec)
+	       (array-has-fill-pointer-p vec))
 
-  (if (array-has-fill-pointer-p vec)
-      (adjust-array vec 0 :initial-element 0 :fill-pointer t)
-      (adjust-array vec 0 :initial-element 0)))
+    (error 'type-error
+	   :datum vec
+	   :expected-type '(and vector
+			    (satisfies adjustable-array-p)
+			    (satisfies array-has-fill-pointer-p))))
+
+  (adjust-array vec 0 :initial-element 0 :fill-pointer t))
 
 
 ;;; Adjust Size
