@@ -28,7 +28,7 @@
   :description "Generic object copying and type conversion interface"
   :author "Alexander Gutev"
   :license "MIT"
-  :version "0.9"
+  :version "1.0"
   :serial t
   :depends-on (#:alexandria
                #:arrows

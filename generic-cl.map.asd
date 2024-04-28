@@ -28,7 +28,7 @@
   :description "Generic map and hash-table interface"
   :author "Alexander Gutev"
   :license "MIT"
-  :version "0.9"
+  :version "1.0"
   :serial t
   :depends-on (#:agutil
                #:anaphora
